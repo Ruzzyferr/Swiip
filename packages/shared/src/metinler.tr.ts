@@ -244,6 +244,17 @@ export const tr = {
     dakikaKisa: (dakika: number) => `${dakika} DK`,
     // Kilitli kısayolun altında; baskı değil, dokunmadan önce bilgi.
     temelPlandan: 'Temel plandan',
+    /**
+     * Plan adları sözlükte, sunucuda değil.
+     *
+     * Hak tablosundaki `ad` alanı Türkçe bir görünen ad ve API cevabında gidiyordu:
+     * İngilizce kullanıcı ayarlarda "Ücretsiz" okuyordu.
+     */
+    planAdlari: {
+      ucretsiz: 'Ücretsiz',
+      temel: 'Temel',
+      pro: 'Pro',
+    },
     saatBasligi: 'SAAT',
     toplamBasligi: 'TOPLAM',
     malzemelerBasligi: 'MALZEMELER',
@@ -1347,11 +1358,6 @@ export const tr = {
     planErisim: (ad: string, fiyat: string) => `${ad} planı, ${fiyat}`,
     // Plan adı sunucudan Türkçe geliyordu; İngilizce başlık "Basic" derken kart
     // "Temel" gösteriyordu. Ad da bir metindir, sözlükte durur.
-    planAdlari: {
-      ucretsiz: 'Ücretsiz',
-      temel: 'Temel',
-      pro: 'Pro',
-    },
     yenilemeTarihi: (tarih: string) => `${tarih} tarihinde yenilenir`,
     ozellikler: {
       tumGunler: 'Haftanın tüm günleri',

@@ -2,7 +2,11 @@
 
 `uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-19.
 
-**Özet:** 1.298 test yeşil · motor kapsamı %97,4 satır / %89,9 dal · tip kontrolü, lint ve biçim temiz.
+**Özet:** 1.623 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+
+**Uygulama gerçek bir Android cihazında (emülatör, API 36) baştan sona kullanıldı.**
+Bugüne kadar hiçbir ekran cihazda açılmamıştı; açılır açılmaz on beş hata çıktı ve
+hepsi kapatıldı. Ayrıntı aşağıda "Cihazda çalıştırma" bölümünde.
 
 ```
 npm run verify            # biçim + lint + tip + çeviri denetimi + test
@@ -19,17 +23,23 @@ npm run test:coverage     # motor kapsam eşikleri
 | F0.1 Expo projesi | ✅ | `apps/mobile` — expo-router, TypeScript, dosya tabanlı yönlendirme |
 | F0.2 VPS: Postgres, API, Caddy, Compose | ✅ kod | `infra/docker-compose.yml`, `infra/Caddyfile`, `infra/api.Dockerfile` |
 | F0.3 Göç aracı ve ilk şema | ✅ | Drizzle · `packages/api/gocler/` 3 göç · `src/db/goc.ts` |
-| F0.4 Yedekleme + geri yükleme testi | ⚠️ **kod hazır, çalıştırılmadı** | `scripts/yedek-al.sh`, `scripts/yedek-geri-yukleme-testi.sh` — bkz. aşağıdaki not |
+| F0.4 Yedekleme + geri yükleme testi | ✅ **çalıştırıldı ve geçti** | 2026-08-20 · 27 tablo, 438 besin, 28 yabancı anahtar doğrulandı |
 | F0.5 Kimlik: kayıt, giriş, JWT, yenileme, **parola sıfırlama, e-posta doğrulama** | ✅ | `rotalar/kimlik.ts` · 35 test + `kimlik/kod.ts` 10 test · scrypt, dönen yenileme tokeni |
 | F0.6 Hata izleme ve log | ✅ | pino + alan maskeleme (`uygulama.ts` redact) |
 | F0.7 Tasarım tokenleri | ✅ | `packages/shared/src/tokens.ts` → `apps/mobile/src/tasarim/tema.ts` |
 | F0.8 CI | ✅ | `.github/workflows/ci.yml` — biçim, lint, tip, test, kapsam, veri tazeliği |
 
-> **F0.4 hakkında dürüst not.** Bu ortamda Docker arka planı çalışmıyor, bu yüzden geri yükleme
-> testi **gerçekten çalıştırılmadı**. Betik yazıldı ve Docker açık olan bir makinede
-> `scripts/yedek-geri-yukleme-testi.sh` komutuyla çalışır: izole bir Postgres kabı açar, yedeği
-> geri yükler, tablo ve yabancı anahtar sayısını doğrular. **Kullanıcı verisi kabul etmeden
-> önce bir kez çalıştırılmalı.** Bu, planın açıkça "gerçekten denendi" dediği tek madde.
+> **F0.4 artık gerçekten denendi.** `scripts/yedek-geri-yukleme-testi.sh` 2026-08-20'de
+> çalıştırıldı: canlı veritabanından yedek alındı (102 KB), izole bir Postgres kabına geri
+> yüklendi, 27 tablo · 438 besin · 28 yabancı anahtar doğrulandı.
+>
+> **İlk çalıştırma iki gerçek hata çıkardı** — betik yazılmış ama hiç koşturulmamıştı:
+> `pg_dump` kullanıcı almıyordu (kapta `root` rolü yok) ve `.env` kabukta `source`
+> edilemiyordu (`POSTA_GONDEREN="Made2Fit <...>"` içindeki `<` yönlendirme sayılıyor).
+> Yazılmış ama çalıştırılmamış bir yedek betiği, olmayan bir yedektir.
+>
+> Bir sonraki test bir ay sonra. Ayrıca göçler ve tohumlama ilk kez **gerçek Postgres 17**
+> üzerinde koşturuldu; bugüne kadar yalnızca PGlite'ta çalışmışlardı.
 
 > **Parola sıfırlama ve e-posta doğrulama hakkında.** Kod altı hanelik, 15 dakika geçerli,
 > tek kullanımlık; ham hâli hiç saklanmaz (`tokenOzeti`), karşılaştırma `timingSafeEqual` ile
@@ -432,9 +442,9 @@ hatırlatmalar iptal edilir — bir sonraki kullanıcıya öncekinin bildirimler
 |---|---|---|
 | F10.1 İkinci dil — **altyapı** | ✅ | `shared/i18n.ts` · 18 test · `metinler.tr.ts` + `metinler.en.ts`, `/v1/kimlik/dil`, `useDil()` / `useMetinler()`, ayarlarda dil seçici |
 | F10.1 İkinci dil — **ekran metinleri** | ✅ | 39 ekranın tamamı sözlükten okuyor; `scripts/ceviri-denetimi.mjs` CI'da doğruluyor |
-| F10.2 İkinci pazarın besin katmanı | ⏸ | Hedef pazar kararı bekliyor — `foods.locale` alanı hazır |
-| F10.3 Bölgesel fiyatlandırma | ⏸ | `servisler/haklar.ts` tek doğruluk kaynağı; mağaza fiyatı RevenueCat'ten gelecek |
-| F10.4 O mutfağın tarif katmanı | ⏸ | Hedef pazar kararı bekliyor — `recipes.locale` alanı hazır |
+| F10.2 İkinci pazarın besin katmanı | ✅ mekanizma · ⏸ içerik | `veriYereli` · sorgular ayrışıyor · 10 test |
+| F10.3 Bölgesel fiyatlandırma | ✅ | Mağaza fiyatı kullanılıyor; yedek `fiyatMetni` ile para birimi görünür |
+| F10.4 O mutfağın tarif katmanı | ✅ mekanizma · ⏸ içerik | Aynı mekanizma; tarif sorgusu da yerele bağlı |
 
 **Dil katmanı nasıl çalışıyor.** İki sözlük var ve İngilizce sözlük `Metinler` tipiyle
 Türkçe sözlüğe bağlı: eksik bir anahtar **derleme hatası**, fazladan bir anahtar da test
@@ -676,14 +686,56 @@ Tarih geçerse betik kırmızıya döner; süresiz muafiyet yok.
 Betiğin hem eksik muafiyeti hem süresi geçmiş muafiyeti yakaladığı, listeden madde çıkarılıp
 tarih geriye alınarak sınandı.
 
+## F10.2 / F10.4 — mekanizma tamam, içerik kararı açık
+
+`foods.locale` ve `recipes.locale` sütunları ilk günden şemadaydı; `(locale, name_tr)`
+indeksi bile vardı. Ama **hiçbir sorgu bu sütunu okumuyordu.**
+
+Bugün tek veri kümesi var (Türkçe), o yüzden görünür bir hata yoktu. İkinci pazarın verisi
+eklendiği gün Türk kullanıcı aramada yabancı besin adları görecek, destesine başka bir
+mutfağın tarifleri karışacak, yemek tanıma "rice" fotoğrafını "pirinç" kaydına
+eşleyebilecekti — ve bu, veri eklenene kadar hiçbir testin yakalayamayacağı bir hata.
+
+`veriYereli` artık tek karar noktası: birebir eşleşme, sonra dil eşleşmesi
+("en-GB" → "en-US"), sonra varsayılan. Bağlanan sorgular: besin araması, tarif
+kütüphanesi, yemek tanıma eşleme havuzu, koç besin aracı. Test ikinci yerelde birer kayıt
+yazıp ayrışmanın gerçekten olduğunu gösteriyor — **mekanizma, veriden önce kanıtlanıyor.**
+
+Veri kümesi olmayan dil Türkçeye düşüyor ve bu bilinçli: İngilizce kullanıcıya boş bir
+besin veritabanı vermek uygulamayı onun için çalışmaz hâle getirirdi. `kendiVerisiMi`
+arayüzün "yedeğe düştün" diyebilmesi için var.
+
+> **İçerik kararı açık.** İkinci pazarın besin ve tarif içeriği hedef pazar belirlenmeden
+> yazılmamalı. Yarım bir küme, projenin kendi ölçütünü — *her kısıt profili için haftayı
+> tekrarsız doldurabilmek* — karşılamaz ve pazar değişirse çöpe gider.
+> `VERI_YERELLERI` listesine yeni yerel eklendiği an sorgular kendiliğinden ayrışır.
+
+## Marka sitesi
+
+`apps/site` — statik, derleme adımı yok, Caddy ile API ile **aynı origin**den sunuluyor
+(ayrı alan adı yalnızca CORS ve çerez sorunu üretirdi).
+
+Yön "ölçü aleti": logodaki 2'nin taksimatlı tabanı sayfanın kenarına dikilen bir cetvele
+dönüşüyor ve kaydırma konumunu kumpas ağzıyla gösteriyor. Kahraman bölüm slogan atmıyor,
+**çalışıyor**: gerçek karar izleri dönüyor (cevap → ateşlenen kural → programda değişen
+şey). Ürünün iddiası "gerekçesini gösteririz" ise, sayfa da iddia etmek yerine göstermeli.
+
+Tam genişlik: ortalanmış sabit sütun yok. Geniş ekranda tipografi ve **sütun sayısı**
+büyüyor, boşluk değil — 2560'ta dört karar izi aynı anda duruyor. 390 / 834 / 1440 / 2560
+piksellerde yatay taşma yok, konsol hatası yok, koyu tema destekli.
+
+Yayın haberi formu gerçekten çalışıyor: `/v1/ilgi` ucu (8 test), açık rıza zorunlu, aynı
+adres iki kez eklenmiyor ve "zaten kayıtlı" demiyor — kimin listede olduğunu sızdırmamak
+için.
+
 ## Çalıştırılamayan doğrulamalar
 
 Dürüstlük gereği: bu ortamda yapılamayan iki şey var.
 
-1. **Yedekten geri yükleme testi** — Docker arka planı kapalı. Betik hazır, komut yukarıda.
-2. **Mobil uygulamanın cihazda çalıştırılması** — simülatör/cihaz yok. 33 ekran tip
-   kontrolünden geçiyor (`npm -w @made2fit/mobile run typecheck`) ve CI'da da kontrol
-   ediliyor, ama hiçbiri gerçek bir cihazda açılmadı.
+1. ~~Yedekten geri yükleme testi~~ — **2026-08-20'de çalıştırıldı ve geçti.**
+2. ~~Mobil uygulamanın cihazda çalıştırılması~~ — **Android emülatöründe baştan sona
+   kullanıldı;** bulunanlar `docs/cihazda-calistirma.md` içinde. Kamera, bildirim ve
+   satın alma hâlâ denenmedi (aşağıda).
 3. **Besin toplu içe aktarma** — betik çalışıyor (kuru çalışmada 246 makul kayıt) ama
    veritabanına yazma `DATABASE_URL` istiyor; bu ortamda Postgres yok. Ayrıca yukarıdaki
    ODbL notu: çalıştırmak hukuki bir karar.
@@ -706,3 +758,10 @@ Dürüstlük gereği: bu ortamda yapılamayan iki şey var.
 - RevenueCat hesabı ve ürün tanımları
 - AI gateway hesabı (yoksa motor deterministik yedeklerle çalışır)
 - KVKK aydınlatma ve rıza metinlerinin hukuki kontrolü
+
+---
+
+## Cihazda çalıştırma
+
+Uygulama 2026-08-20'de ilk kez gerçek bir Android cihazında baştan sona kullanıldı ve on
+beş hata çıktı. Ayrıntılı döküm: **[docs/cihazda-calistirma.md](cihazda-calistirma.md)**.

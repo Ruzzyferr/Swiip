@@ -265,3 +265,39 @@ describe('hata kodları sözlükle eşleşiyor', () => {
     expect(eksik).toEqual([]);
   });
 });
+
+/**
+ * Plan adı cevapta gitmiyor (F10.1).
+ *
+ * `HAK_TABLOSU.ad` Türkçe bir görünen ad ("Ücretsiz") ve API cevabında doğrudan
+ * gidiyordu; ayarlar ekranı onu basıyordu. İngilizce kullanıcı "Ücretsiz" okuyordu.
+ *
+ * Dil süpürmesi kaçırdı çünkü alan adı `ad` ve süpürme `ad` alanlarını veri sayıp muaf
+ * tutuyor — hareket adı ve besin adı gerçekten Türkçe veri. Muafiyet doğruydu; sorun,
+ * arayüz metninin veri alanı adıyla gönderilmesiydi.
+ *
+ * Çözüm çevirmek değil göndermemek: kod zaten cevapta, ismi istemci sözlükten kuruyor.
+ */
+describe('plan adı sunucudan gönderilmiyor', () => {
+  it('durum cevabında görünen ad yok', async () => {
+    const cevap = await uretimApp.inject({
+      method: 'GET',
+      url: '/v1/abonelik/durum',
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    expect(cevap.json().plan).toBeTruthy();
+    expect(cevap.json().haklar.ad).toBeUndefined();
+  });
+
+  it('plan listesinde görünen ad yok', async () => {
+    const cevap = await uretimApp.inject({ method: 'GET', url: '/v1/abonelik/planlar' });
+    const planlar: Array<Record<string, unknown>> = cevap.json().planlar;
+
+    expect(planlar.length).toBeGreaterThan(0);
+    for (const plan of planlar) {
+      expect(plan.kod, 'plan kodu olmadan istemci ismi kuramaz').toBeTruthy();
+      expect(plan.ad, `${String(plan.kod)} için görünen ad gönderiliyor`).toBeUndefined();
+    }
+  });
+});

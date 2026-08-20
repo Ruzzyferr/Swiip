@@ -254,6 +254,11 @@ export const en: Metinler = {
     planlaraBak: 'See plans',
     dakikaKisa: (dakika: number) => `${dakika} MIN`,
     temelPlandan: 'From Basic',
+    planAdlari: {
+      ucretsiz: 'Free',
+      temel: 'Basic',
+      pro: 'Pro',
+    },
     saatBasligi: 'TIME',
     toplamBasligi: 'TOTAL',
     malzemelerBasligi: 'INGREDIENTS',
@@ -1350,11 +1355,6 @@ export const en: Metinler = {
     ayKisa: 'mo',
     yilKisa: 'yr',
     planErisim: (ad: string, fiyat: string) => `${ad} plan, ${fiyat}`,
-    planAdlari: {
-      ucretsiz: 'Free',
-      temel: 'Basic',
-      pro: 'Pro',
-    },
     yenilemeTarihi: (tarih: string) => `Renews on ${tarih}`,
     ozellikler: {
       tumGunler: 'Every day of the week',

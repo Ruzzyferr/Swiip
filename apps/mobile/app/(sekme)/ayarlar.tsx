@@ -26,7 +26,7 @@ import { tarihMetni } from '@made2fit/shared';
 
 interface AbonelikDurumu {
   plan: string;
-  haklar: { ad: string; aylik_fiyat_try: number };
+  haklar: { aylik_fiyat_try: number };
   kota: {
     yenilenme: string;
     yemek_tanima: { kullanilan: number; toplam: number; kalan: number };
@@ -44,6 +44,9 @@ export default function Ayarlar() {
   const metinler = useMetinler();
   const a = metinler.ayarlar;
   const aktifDil = useDil();
+  /** Plan adı sözlükten; sunucu görünen ad göndermiyor. */
+  const planAdi = (kod: string) =>
+    metinler.genel.planAdlari[kod as keyof typeof metinler.genel.planAdlari] ?? kod;
 
   const [abonelik, setAbonelik] = useState<AbonelikDurumu | null>(null);
   const [dilYukleniyor, setDilYukleniyor] = useState(false);
@@ -146,7 +149,7 @@ export default function Ayarlar() {
         {abonelik && abonelik.plan !== 'ucretsiz' ? (
           <Kart>
             <Satir dagit="space-between">
-              <Yazi tur="baslik3">{a.planEki(abonelik.haklar.ad)}</Yazi>
+              <Yazi tur="baslik3">{a.planEki(planAdi(abonelik.plan))}</Yazi>
               <Etiket metin={a.aktifEtiketi} tur="aksan" />
             </Satir>
             <Dugme baslik={a.iptalOnayBaslik} tur="tehlike" onPress={iptalEt} />
@@ -163,7 +166,7 @@ export default function Ayarlar() {
               <Yazi tur="kucuk" renk="metinYumusak">
                 {a.planEtiketi}
               </Yazi>
-              <Yazi tur="kucuk">{abonelik.haklar.ad}</Yazi>
+              <Yazi tur="kucuk">{planAdi(abonelik.plan)}</Yazi>
             </Satir>
 
             {abonelik.kota.yemek_tanima.toplam > 0 ? (

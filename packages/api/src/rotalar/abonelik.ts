@@ -83,6 +83,19 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
     );
   }
 
+  /**
+   * Plan adı cevapta GÖNDERİLMİYOR.
+   *
+   * `HAK_TABLOSU.ad` Türkçe bir görünen ad ("Ücretsiz", "Temel") ve doğrudan
+   * gönderiliyordu: İngilizce kullanıcı ayarlarda "Ücretsiz" okuyordu. Dil süpürmesi
+   * bunu kaçırdı çünkü alan adı `ad` ve süpürme `ad` alanlarını veri sayıp muaf tutuyor
+   * (hareket adı, besin adı gerçekten Türkçe veri).
+   *
+   * Çözüm alanı çevirmek değil, göndermemek: kod zaten cevapta, ismi istemci sözlükten
+   * kuruyor. `ad` tabloda kalıyor — kayıt ve yönetim tarafında işe yarıyor.
+   */
+  const adsiz = ({ ad: _ad, ...kalan }: (typeof HAK_TABLOSU)['ucretsiz']) => kalan;
+
   app.get('/durum', { preHandler: app.kimlikDogrula }, async (istek) => {
     const plan = await planGetir(istek.kullaniciId);
     const kota = await kotaGetir(istek.kullaniciId);
@@ -97,7 +110,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
 
     return {
       plan,
-      haklar,
+      haklar: adsiz(haklar),
       kota: {
         donem: kota.period,
         yenilenme: donemBitisi(),
@@ -213,7 +226,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
   }
 
   app.get('/planlar', async () => ({
-    planlar: Object.entries(HAK_TABLOSU).map(([kod, haklar]) => ({ kod, ...haklar })),
+    planlar: Object.entries(HAK_TABLOSU).map(([kod, haklar]) => ({ kod, ...adsiz(haklar) })),
     /** Paywall kuralı: önceden seçili plan yok. */
     onceden_secili: null,
     iptal_bilgisi:

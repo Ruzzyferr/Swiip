@@ -314,6 +314,17 @@ Mağazaya çıkıp gerçek kullanıcı verisi toplamaya başla.
 - `F10.3` Bölgesel fiyatlandırma
 - `F10.4` O mutfağın tarif katmanı
 
+### Durum
+
+`F10.1` ve `F10.3` tamam. `F10.2` ve `F10.4` **mekanizma olarak** tamam: `veriYereli`
+sorguları yerele göre ayırıyor ve ikinci yerelin verisi eklendiği an karışma olmayacağı
+testle kanıtlandı.
+
+**Kalan iş içerik ve bir karar:** ikinci pazar neresi? Besin ve tarif kümesi bu karar
+verilmeden yazılmamalı — yarım bir küme, projenin kendi ölçütünü (*her kısıt profili için
+haftayı tekrarsız doldurabilmek*) karşılamaz ve pazar değişirse çöpe gider.
+`VERI_YERELLERI` listesine yeni yerel eklendiği an sorgular kendiliğinden ayrışır.
+
 ---
 
 ## Kesişen işler

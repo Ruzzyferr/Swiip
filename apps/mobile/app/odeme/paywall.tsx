@@ -33,7 +33,6 @@ import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/ode
 
 interface Plan {
   kod: string;
-  ad: string;
   aylik_fiyat_try: number;
   yillik_fiyat_try: number;
   koc_mesaji_aylik: number;
@@ -50,6 +49,7 @@ type Donem = 'aylik' | 'yillik';
 export default function Paywall() {
   const tema = useTema();
   const m = useMetinler().paywall;
+  const genel = useMetinler().genel;
   const dil = useDil();
 
   const [planlar, setPlanlar] = useState<Plan[]>([]);
@@ -82,8 +82,9 @@ export default function Paywall() {
     magazaFiyatlari[magaza.urunKimligi(kod as PlanKodu, d as MagazaDonemi) ?? ''] ??
     fiyatMetni(listeFiyati, dil);
 
-  const planAdi = (kod: string, sunucuAdi: string): string =>
-    m.planAdlari[kod as keyof typeof m.planAdlari] ?? sunucuAdi;
+  /** Plan adı sözlükten; sunucu artık görünen ad göndermiyor. */
+  const planAdi = (kod: string): string =>
+    genel.planAdlari[kod as keyof typeof genel.planAdlari] ?? kod;
 
   const seciliPlan = planlar.find((p) => p.kod === secili);
   const tutar = seciliPlan
@@ -201,7 +202,7 @@ export default function Paywall() {
             donem,
             donem === 'aylik' ? plan.aylik_fiyat_try : plan.yillik_fiyat_try,
           );
-          const ad = planAdi(plan.kod, plan.ad);
+          const ad = planAdi(plan.kod);
 
           return (
             <Pressable
@@ -274,7 +275,7 @@ export default function Paywall() {
         {satinAlmaHatasi ? <Uyari tur="uyari" govde={satinAlmaHatasi} /> : null}
 
         <Dugme
-          baslik={seciliPlan ? m.planiBaslat(seciliPlan.ad) : m.planSec}
+          baslik={seciliPlan ? m.planiBaslat(planAdi(seciliPlan.kod)) : m.planSec}
           onPress={() => void satinAl()}
           pasif={!secili}
           yukleniyor={yukleniyor}
