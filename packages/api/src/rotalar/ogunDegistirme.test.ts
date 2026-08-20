@@ -163,6 +163,55 @@ describe('öğün hedefi doğru öğünden gelir', () => {
   });
 });
 
+describe('öğün adları okuma anında çözülür', () => {
+  it('dil değişince plandaki öğün adları da değişir', async () => {
+    const trPlan = await app.inject({
+      method: 'GET',
+      url: `/v1/ogun/plan/${HAFTA}`,
+      headers: yetkili(),
+    });
+    const trAdlar = (
+      trPlan.json().plan.days_jsonb as Array<{ ogunler: Array<{ ad: string }> }>
+    )[0]!.ogunler.map((o) => o.ad);
+    expect(trAdlar.join(' ')).toMatch(/Kahvaltı|Öğle|Akşam/);
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/dil',
+      headers: yetkili(),
+      payload: { dil: 'en' },
+    });
+
+    const enPlan = await app.inject({
+      method: 'GET',
+      url: `/v1/ogun/plan/${HAFTA}`,
+      headers: yetkili(),
+    });
+    const enAdlar = (
+      enPlan.json().plan.days_jsonb as Array<{ ogunler: Array<{ ad: string }> }>
+    )[0]!.ogunler.map((o) => o.ad);
+
+    /**
+     * Plan üretildiği anda kullanıcının dilindeki ad `days_jsonb`'ye YAZILIYORDU.
+     * Dil değiştiğinde kayıt olduğu gibi kaldığı için İngilizce arayüzde "KAHVALTI"
+     * görünüyordu. Cümleyi saklamak yerine parçalarını saklamak gerekiyor: `kod`
+     * kayıtta durur, ad okuma anında çözülür.
+     */
+    expect(
+      enAdlar.join(' '),
+      `İngilizce planda Türkçe öğün adı: ${enAdlar.join(', ')}`,
+    ).not.toMatch(/Kahvaltı|Öğle|Akşam/);
+
+    // Geri al: sonraki testler Türkçe bekliyor.
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/dil',
+      headers: yetkili(),
+      payload: { dil: 'tr' },
+    });
+  });
+});
+
 describe('seçilen tarif plana yazılır', () => {
   it('öğün değiştirilince plandaki tarif gerçekten değişir', async () => {
     const once = await planiOku();

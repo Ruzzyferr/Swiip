@@ -542,7 +542,31 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
       .where(eq(shopping_lists.plan_id, plan.id))
       .limit(1);
 
-    return { plan, alisveris: liste ?? null };
+    /**
+     * Öğün adı OKUMA ANINDA çözülüyor, kayıttan okunmuyor.
+     *
+     * Plan üretilirken kullanıcının o anki dilindeki ad `days_jsonb`'ye yazılıyordu.
+     * Kullanıcı dilini değiştirdiğinde kayıt olduğu gibi kaldığı için İngilizce
+     * arayüzde "KAHVALTI" görünüyordu — cihazda böyle görüldü.
+     *
+     * Projenin kendi ilkesi: cümleyi saklamak yerine parçalarını saklamak. `kod`
+     * kayıtta duruyor, ad her okumada sözlükten kuruluyor. Kodu olmayan eski
+     * planlarda kayıttaki ada düşülüyor: uydurmak yerine izi göstermek.
+     */
+    const ogunAdlari = metinleriAl(dilCozumle(await kullaniciDili(istek.kullaniciId))).ogun
+      .ogunAdlari as Record<string, string>;
+
+    const gunler = (plan.days_jsonb as Array<{ ogunler: Array<{ ad: string; kod?: string }> }>).map(
+      (gun) => ({
+        ...gun,
+        ogunler: gun.ogunler.map((ogun) => ({
+          ...ogun,
+          ad: (ogun.kod ? ogunAdlari[ogun.kod] : undefined) ?? ogun.ad,
+        })),
+      }),
+    );
+
+    return { plan: { ...plan, days_jsonb: gunler }, alisveris: liste ?? null };
   });
 }
 
