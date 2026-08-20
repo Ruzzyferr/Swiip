@@ -774,6 +774,30 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
 
     const profil = await profiliGetir(istek.kullaniciId);
 
+    /**
+     * Seans kullanıcının kendi seansı mı?
+     *
+     * Burada sahiplik kontrolü YOKTU: `session_items` yalnızca `session_id` ile
+     * seçiliyor, güncelleme de `session_items.id` ile yazılıyordu. Kimliği doğrulanmış
+     * herhangi bir kullanıcı, başkasının seans kimliğiyle onun programını
+     * değiştirebiliyordu.
+     *
+     * Sağlık tarafı asıl mesele: muadil zinciri `istek.kullaniciId`'nin profilinden
+     * hesaplanıyor. Yani saldırganın ekipmanı ve kontrendikasyonları, kurbanın
+     * programına yazılacak hareketi belirliyordu — bel fıtığı olan kullanıcının
+     * programına yerden çekiş girebilirdi. Kısıt çözücüsünün tamamı atlanmış olurdu.
+     *
+     * Aynı dosyadaki `/geri-bildirim` ve `/seans/:id/atla` bu kontrolü yapıyordu;
+     * unutulan tek uç buydu.
+     */
+    const [seansSahibi] = await db
+      .select({ id: sessions.id })
+      .from(sessions)
+      .where(and(eq(sessions.id, govde.seans_id), eq(sessions.user_id, istek.kullaniciId)))
+      .limit(1);
+
+    if (!seansSahibi) throw Bulunamadi('Seans bulunamadı.', 'seans_yok');
+
     const [kalem] = await db
       .select()
       .from(session_items)
