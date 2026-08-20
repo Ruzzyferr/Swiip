@@ -18,6 +18,7 @@ import {
 } from '../veri/api';
 import { router } from 'expo-router';
 import { tumunuTemizle } from '../veri/onbellek';
+import { disaAktarmaArtiklariniSil } from '../veri/disaAktar';
 import { magaza } from '../odeme/magaza';
 import { bildirimleriKapat } from '../bildirim/zamanlayici';
 
@@ -121,6 +122,9 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
     await tokenlariSil();
     // Cihazda kişisel veri bırakılmaz.
     await tumunuTemizle();
+    // Dışa aktarma dosyası önbellekte duruyor ve içinde sağlık verisi var; depo
+    // temizliği onu kapsamıyor çünkü ayrı bir klasörde.
+    await disaAktarmaArtiklariniSil();
     // Bir sonraki kullanıcıya öncekinin antrenman hatırlatmaları gitmesin.
     await bildirimleriKapat();
     setKullanici(null);

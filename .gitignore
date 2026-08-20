@@ -14,3 +14,6 @@ backups/
 # Expo prebuild ciktisi — app.json ve config eklentilerinden uretilir.
 apps/mobile/android/
 apps/mobile/ios/
+
+# Play yukleme anahtari yapilandirmasi; parola tasir.
+apps/mobile/imza.properties

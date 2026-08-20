@@ -1060,7 +1060,8 @@ export const tr = {
     verimiDisaAktar: 'Verimi dışa aktar',
     verinHazirBaslik: 'Verin hazır',
     verinHazirGovde:
-      'Tüm kayıtların JSON olarak hazırlandı. Paylaşım seçeneği bir sonraki sürümde eklenecek.',
+      'Tüm kayıtların JSON dosyası olarak cihazına yazıldı ama paylaşım sayfası bu cihazda açılamıyor.',
+    disaAktarilamadi: 'Verin hazırlanamadı. Biraz sonra tekrar deneyebilirsin.',
     saglikUyarisiBasligi: 'Sağlık uyarısı',
     hesapBasligi: 'Hesap',
     dogrulandi: 'Doğrulandı',

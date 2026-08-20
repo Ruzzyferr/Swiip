@@ -14,6 +14,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
+import { veriyiPaylas } from '../../src/veri/disaAktar';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
 import { tarihMetni } from '@made2fit/shared';
 
@@ -50,6 +51,7 @@ export default function Ayarlar() {
 
   const [abonelik, setAbonelik] = useState<AbonelikDurumu | null>(null);
   const [dilYukleniyor, setDilYukleniyor] = useState(false);
+  const [disaAktariliyor, setDisaAktariliyor] = useState(false);
   const [islemHatasi, setIslemHatasi] = useState<string | null>(null);
   const [dogrulamaAdimi, setDogrulamaAdimi] = useState<'kapali' | 'kod'>('kapali');
   const [dogrulamaKodu, setDogrulamaKodu] = useState('');
@@ -74,6 +76,24 @@ export default function Ayarlar() {
         },
       },
     ]);
+  };
+
+  /**
+   * Dışa aktarma paylaşım sayfasıyla bitiyor. "Hazırlandı" deyip bırakmak taşınabilirlik
+   * değil: kullanıcı dosyayı eline almadıysa verisini almamış demektir.
+   */
+  const veriyiDisaAktar = async () => {
+    setDisaAktariliyor(true);
+    setIslemHatasi(null);
+    try {
+      const veri = await istek('/v1/hesap/disa-aktar');
+      const sonuc = await veriyiPaylas(veri, new Date().toISOString(), a.verimiDisaAktar);
+      if (sonuc === 'paylasim_yok') Alert.alert(a.verinHazirBaslik, a.verinHazirGovde);
+    } catch {
+      setIslemHatasi(a.disaAktarilamadi);
+    } finally {
+      setDisaAktariliyor(false);
+    }
   };
 
   const hesabiSil = () => {
@@ -265,11 +285,8 @@ export default function Ayarlar() {
           <Dugme
             baslik={a.verimiDisaAktar}
             tur="ikincil"
-            onPress={() => {
-              void istek('/v1/hesap/disa-aktar').then(() =>
-                Alert.alert(a.verinHazirBaslik, a.verinHazirGovde),
-              );
-            }}
+            yukleniyor={disaAktariliyor}
+            onPress={() => void veriyiDisaAktar()}
           />
         </Kart>
 

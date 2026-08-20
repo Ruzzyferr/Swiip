@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Gizlilik — Made2Fit</title>
+    <meta
+      name="description"
+      content="Made2Fit hangi veriyi neden işliyor, ne kadar saklıyor ve nasıl siliyor. Vücut fotoğrafı hiçbir zaman saklanmaz."
+    />
+    <meta name="theme-color" content="#F6F7F5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E100F" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="varliklar/isaret.svg" type="image/svg+xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stil.css" />
+    <link rel="stylesheet" href="belge.css" />
+  </head>
+
+  <body>
+    <a class="atla" href="#icerik">İçeriğe atla</a>
+
+    <!-- Marka işareti bir kez tanımlanıyor; kullanan yerler <use> ile çağırıyor.
+         Harici dosyaya <use href="dosya.svg#id"> tarayıcılarda güvenilir değil. -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <symbol id="isaret" viewBox="0 0 100 100">
+        <mask id="m2f" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+          <rect x="0" y="0" width="100" height="100" fill="white" />
+          <g stroke="black" stroke-linecap="butt">
+            <line x1="32.73" y1="31.69" x2="26.13" y2="30.05" stroke-width="1.8" />
+            <line x1="34.00" y1="28.20" x2="30.32" y2="26.40" stroke-width="1.4" />
+            <line x1="35.97" y1="25.04" x2="30.61" y2="20.85" stroke-width="1.8" />
+            <line x1="38.56" y1="22.36" x2="35.92" y2="19.22" stroke-width="1.4" />
+            <line x1="41.64" y1="20.28" x2="38.45" y2="14.28" stroke-width="1.8" />
+            <line x1="45.09" y1="18.89" x2="43.96" y2="14.95" stroke-width="1.4" />
+            <line x1="48.76" y1="18.24" x2="48.28" y2="11.46" stroke-width="1.8" />
+            <line x1="52.48" y1="18.37" x2="53.05" y2="14.31" stroke-width="1.4" />
+            <line x1="56.09" y1="19.27" x2="58.41" y2="12.88" stroke-width="1.8" />
+            <line x1="59.43" y1="20.90" x2="61.61" y2="17.43" stroke-width="1.4" />
+            <line x1="62.36" y1="23.20" x2="67.09" y2="18.30" stroke-width="1.8" />
+            <line x1="64.76" y1="26.05" x2="68.16" y2="23.75" stroke-width="1.4" />
+            <line x1="66.50" y1="29.33" x2="72.81" y2="26.78" stroke-width="1.8" />
+            <line x1="67.53" y1="32.91" x2="71.57" y2="32.20" stroke-width="1.4" />
+            <line x1="67.79" y1="36.62" x2="74.59" y2="36.86" stroke-width="1.8" />
+            <line x1="67.27" y1="40.31" x2="71.25" y2="41.30" stroke-width="1.4" />
+            <line x1="66.00" y1="43.80" x2="72.11" y2="46.78" stroke-width="1.8" />
+            <line x1="30.60" y1="91.50" x2="30.60" y2="83.70" stroke-width="1.9" />
+            <line x1="36.80" y1="91.50" x2="36.80" y2="86.90" stroke-width="1.5" />
+            <line x1="43.00" y1="91.50" x2="43.00" y2="83.70" stroke-width="1.9" />
+            <line x1="49.20" y1="91.50" x2="49.20" y2="86.90" stroke-width="1.5" />
+            <line x1="55.40" y1="91.50" x2="55.40" y2="83.70" stroke-width="1.9" />
+            <line x1="61.60" y1="91.50" x2="61.60" y2="86.90" stroke-width="1.5" />
+            <line x1="67.80" y1="91.50" x2="67.80" y2="83.70" stroke-width="1.9" />
+          </g>
+        </mask>
+        <g mask="url(#m2f)">
+          <path
+            d="M26.06 37.67 A24.0 24.0 0 1 1 64.11 55.42"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="13.0"
+          />
+          <path
+            d="M68.91 50.78 L31.10 82.00"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="13.0"
+            stroke-linecap="butt"
+          />
+          <rect x="22.0" y="78.50" width="52.0" height="13.0" fill="currentColor" />
+        </g>
+      </symbol>
+    </svg>
+
+    <header class="belge-bas">
+      <a class="belge-marka" href="index.html">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
+        <span>Made2Fit</span>
+      </a>
+    </header>
+
+    <main class="belge" id="icerik">
+      <p class="etiket">Gizlilik</p>
+      <h1>Hangi veriyi neden işliyoruz</h1>
+      <p class="belge-lede">
+        Bu metin hukukçu dilinde değil, anlaşılsın diye yazıldı. Kısaltmadık: aşağıdaki her madde
+        uygulamanın gerçekten yaptığı şey.
+      </p>
+      <p class="belge-tarih sayi">Son güncelleme: 20 Ağustos 2026</p>
+
+      <h2>Veri sorumlusu</h2>
+      <p>
+        Made2Fit. İletişim: <a href="mailto:info@swiip.app">info@swiip.app</a>. Gizlilikle ilgili
+        her soru ve talep bu adrese yazılabilir.
+      </p>
+
+      <h2>İşlediğimiz veriler</h2>
+
+      <h3>Hesap</h3>
+      <p>
+        E-posta adresin ve parolanın karması (parolanın kendisi değil). Hesabını açmak, girişini
+        doğrulamak ve parolanı sıfırlayabilmek için.
+      </p>
+
+      <h3>Değerlendirme cevapları</h3>
+      <p>
+        134 sorunun cevapları. Programını ve beslenme hedefini bunlardan hesaplıyoruz. Cevaplarının
+        bir kısmı — sakatlık, hastalık, ilaç, gebelik, yeme bozukluğu geçmişi —
+        <strong>KVKK'ya göre özel nitelikli kişisel veri.</strong> Bunları yalnızca sana güvenli bir
+        program yazmak için işliyoruz ve bunun için kayıt sırasında ayrı bir açık rıza alıyoruz.
+        Rızanı vermezsen uygulama açılır ama program üretilmez.
+      </p>
+
+      <h3>Ölçüler ve kilo</h3>
+      <p>
+        Boy, kilo ve girdiysen çevre ölçüleri. Kalori ve makro hesabı ile ilerleme takibi için.
+        Çevre ölçüleri için de ayrı rıza alıyoruz; vermezsen yağ oranı tahmini daha geniş bir aralık
+        olur, uygulama yine çalışır.
+      </p>
+
+      <h3>Vücut fotoğrafı</h3>
+      <p class="vurgu-kutu">
+        <strong>Fotoğrafın sunucumuzda saklanmaz.</strong> Şifreli kanaldan analiz servisine gider,
+        ölçümler çıkarılır ve fotoğraf aynı istek içinde bellekten bırakılır. Sunucumuzun diskine
+        hiç yazılmaz; veritabanında fotoğraf alanı yoktur. Saklanan tek şey sayısal çıktılar: yağ
+        oranı aralığı, kas dağılımı skorları, duruş bayrakları. Fotoğrafın telefonunda kalır ve
+        telefonundan çıkmaz — telefon değiştirirsen gider.
+      </p>
+
+      <h3>Beslenme kayıtları</h3>
+      <p>
+        Eklediğin yemekler, miktarlar ve hesaplanan makrolar. Günlük özet ve TDEE düzeltmesi için.
+      </p>
+
+      <h3>Koç sohbeti</h3>
+      <p>
+        Koça yazdıkların ve aldığın cevaplar. Sohbetin bağlamını sürdürebilmek için saklanıyor. Bu
+        mesajlar sağlık verisi içerebileceği için özel nitelikli veri gibi korunuyor ve sunucu
+        loglarında maskeleniyor.
+      </p>
+
+      <h3>Analitik</h3>
+      <p>
+        Değerlendirmenin hangi sorusunda kaç kişinin bıraktığı gibi <strong>toplu</strong> sayılar.
+        Kişisel veri döndürmeyen, kimliğe bağlanmayan ölçümler. Reklam ağı, izleme pikseli veya
+        üçüncü taraf analitik SDK'sı <strong>yok</strong>.
+      </p>
+
+      <h2>Yapay zekâya ne gidiyor</h2>
+      <p>
+        Yapay zekâ dört yerde çalışıyor: değerlendirme yorumlama, vücut fotoğrafı analizi, yemek
+        tanıma ve koç sohbeti. Hiçbirinde karar vermiyor — hacim, kalori, makro ve ilerleme
+        hesapları deterministik formüllerle yapılıyor.
+      </p>
+      <p>
+        Program üretimi için hizmet sağlayıcıya gönderilen veride sakatlık, hastalık ve ilaç
+        bilgilerin <strong>yer almaz</strong>; yalnızca karar izinin özeti gider. Yemek tanımada
+        yalnızca fotoğraf ve "bu ne yemeği" sorusu gider; besin değeri her zaman kendi
+        veritabanımızdan gelir.
+      </p>
+
+      <h2>Ne kadar saklıyoruz</h2>
+      <ul>
+        <li>Hesabın açık olduğu sürece: hesap, cevaplar, program, ölçüler, beslenme kayıtları.</li>
+        <li>Vücut fotoğrafı: saklanmıyor. Analiz süresince bellekte, sonra yok.</li>
+        <li>
+          Hesabını silersen: her şey silinir. Yedeklerde en fazla 30 gün kalır, sonra oradan da
+          düşer.
+        </li>
+      </ul>
+
+      <h2>Hesabını silmek</h2>
+      <p>
+        Uygulama içinden: <strong>Ayarlar → Hesabımı sil</strong>. Onay yazısını yazdığında hesabın
+        ve bağlı tüm kayıtların aynı anda silinir; geri alınamaz. Ayrıntı ve uygulamaya
+        erişemiyorsan izlenecek yol: <a href="hesap-silme.html">hesap silme sayfası</a>.
+      </p>
+
+      <h2>Haklarını nasıl kullanırsın</h2>
+      <p>
+        KVKK madde 11 kapsamında verine erişme, düzeltme, silme ve işlemeye itiraz etme hakların
+        var. Uygulama içinden <strong>Ayarlar → Verimi dışa aktar</strong> ile sakladığımız her şeyi
+        makine okunur biçimde alabilirsin. Diğer talepler için
+        <a href="mailto:info@swiip.app">info@swiip.app</a> — en geç 30 gün içinde dönüş yapılır.
+      </p>
+      <p>
+        Verdiğin rızaları geri alabilirsin. Sağlık verisi rızasını geri alırsan program üretimi
+        durur; çevre ölçüsü rızasını geri alırsan analiz daha geniş aralıkla çalışır.
+      </p>
+
+      <h2>Kimlerle paylaşıyoruz</h2>
+      <p>
+        Veriyi satmıyoruz ve reklam amacıyla paylaşmıyoruz. Yalnızca hizmeti çalıştırmak için
+        gereken sağlayıcılar var: uygulamayı barındıran sunucu, e-posta gönderimi, yapay zekâ hizmet
+        sağlayıcısı ve mağaza (Google Play) ödeme altyapısı. Her biri yalnızca kendi işini yapmak
+        için gereken veriyi görür.
+      </p>
+
+      <h2>Yurt dışına aktarım</h2>
+      <p>
+        Yapay zekâ hizmet sağlayıcısı yurt dışında olabilir. Bu aktarım için kayıt sırasında ayrı
+        bir açık rıza alıyoruz ve aktarılan veri, yukarıda yazdığı gibi, sağlık ayrıntılarını
+        içermiyor.
+      </p>
+
+      <h2>Çocuklar</h2>
+      <p>
+        Uygulamayı 18 yaş ve üzeri kullanabilir. Değerlendirmede 18 yaşından küçük olduğunu
+        belirtirsen program üretilmez.
+      </p>
+
+      <h2>Bu metin değişirse</h2>
+      <p>
+        Değişiklikleri bu sayfada yayımlarız ve önemli bir değişiklikte uygulama içinden haber
+        veririz. Sessizce değiştirmeyiz.
+      </p>
+
+      <p class="belge-feragat">
+        Made2Fit tıbbi cihaz değildir ve teşhis koymaz. Verdiği sayılar tahmindir; sağlık durumunla
+        ilgili bir sorun varsa hekimine danış.
+      </p>
+    </main>
+
+    <footer class="alt">
+      <div class="alt-ic">
+        <a class="alt-marka" href="index.html" aria-label="Made2Fit">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
+          <span>Made2Fit</span>
+        </a>
+        <p class="alt-slogan">Ölçüne göre.</p>
+      </div>
+    </footer>
+  </body>
+</html>

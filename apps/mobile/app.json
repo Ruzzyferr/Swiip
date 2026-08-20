@@ -2,7 +2,7 @@
   "expo": {
     "name": "Made2Fit",
     "slug": "made2fit",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "made2fit",
     "userInterfaceStyle": "automatic",
@@ -26,7 +26,11 @@
         "foregroundImage": "./assets/uyarlanabilir-ikon.png",
         "backgroundColor": "#131614"
       },
-      "permissions": ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"]
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "versionCode": 1
     },
     "plugins": [
       "expo-router",

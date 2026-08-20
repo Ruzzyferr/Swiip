@@ -1052,7 +1052,8 @@ export const en: Metinler = {
     verimiDisaAktar: 'Export my data',
     verinHazirBaslik: 'Your data is ready',
     verinHazirGovde:
-      'All your records were prepared as JSON. A sharing option arrives in the next release.',
+      'All your records were written to your device as a JSON file, but the share sheet cannot open here.',
+    disaAktarilamadi: 'Could not prepare your data. You can try again shortly.',
     saglikUyarisiBasligi: 'Health notice',
     hesapBasligi: 'Account',
     dogrulandi: 'Verified',
