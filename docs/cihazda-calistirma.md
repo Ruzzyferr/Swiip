@@ -190,6 +190,14 @@ adı, hareket adı) veri gelince kesinleşiyor; klasör düzeni yalnızca varsay
 
 Emülatörde çalıştırmak her şeyi kapatmıyor:
 
+> **2026-08-20, ikinci tur.** Uygulama yeniden derlendi ve emülatörde baştan sona
+> kullanıldı; ekranlar hem açık hem koyu temada, hem Türkçe hem İngilizce gezildi.
+> **Sekiz kusur daha çıktı ve beşi yalnızca cihazda görülebilirdi:** koyu temada her ana
+> düğmenin okunmaması (2.86:1, AA eşiği 4.5), İngilizce arayüzde aynı hareketin iki ayrı
+> adla görünmesi, haftalık planda "KAHVALTI" yazması, deste mesajının motorda Türkçe
+> sabitlenmiş olması ve ilerleme ekranının ham katalog kimliği basması.
+> Ayrıntı: `docs/inceleme-2026-08-20.md` bölüm 11-18.
+
 - **Kamera** — emülatörde izin verilmedi; barkod ve vücut fotoğrafı akışları elle giriş
   yoluyla sınandı, gerçek çekim yapılmadı.
 - **Bildirimler** — zamanlayıcı kuruldu ama gerçek bir bildirim düşmedi.

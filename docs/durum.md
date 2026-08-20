@@ -2,8 +2,9 @@
 
 `uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-20.
 
-**Özet:** 1.672 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
-**Son derin inceleme:** `docs/inceleme-2026-08-20.md` — on bulgu, hepsi düzeltildi.
+**Özet:** 1.690 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**Son derin inceleme:** `docs/inceleme-2026-08-20.md` — on sekiz bulgu, hepsi düzeltildi.
+İki tur: statik inceleme + emülatörde 32 ekran, 14 persona, 17 rakip iddiası.
 **İmzalı yayın paketi hazır:** `app-release.aab` · sürüm 1.0.0 · versionCode 1.
 
 **Uygulama gerçek bir Android cihazında (emülatör, API 36) baştan sona kullanıldı.**
@@ -620,6 +621,7 @@ düşürüldü, sonra düzeltildi.
 | Kota yarışı | Kota "oku → AI'ı çağır → artır" sırasıyla işliyordu; aradaki boşlukta paralel istekler sınırı aşabiliyordu. Sınıra yakınken elli paralel istek yeter | Hak model çağrılmadan **önce** tek SQL cümlesinde koşullu rezerve ediliyor (`servisler/kotaRezerve.ts`, 10 test). Çağrı patlarsa iade ediliyor — kullanıcı bizim hatamızı ödemez |
 | Hata sözleşmesi | İki uç `hata` alanı gönderiyordu, istemci `kod` okuyor — o uçlarda kullanıcı "bilinmeyen hata" görüyordu | Alan `kod` olarak birleştirildi; bir test kaynak kodu tarayıp sözleşmeyi zorluyor |
 | Sessiz yazma hataları | Kullanıcının başlattığı yazmalar `catch(() => null)` ile yutuluyordu: kilo girilir ekran kapanır, ertesi gün kayıt yoktur. ED ayar anahtarı, fotoğraf rızası, yemek ekleme, tanıma onayı, değerlendirme tamamlama — hepsi sessizce kaybolabiliyordu | Her yazma kendi cümlesiyle hata gösteriyor (`shared/islem.ts`, 6 test, iki dilde). "Uygulama çökmez" kuralı hatayı gizlemek değil, çökmeden söylemek demek |
+| **Bozuk istek 500 dönüyordu (2026-08-20)** | Hata işleyicisi yalnızca `UygulamaHatasi`, `ZodError` ve 429'u tanıyordu; Fastify'ın kendi 4xx hataları (boş gövde, bozuk JSON, desteklenmeyen içerik tipi) `500 sunucu_hatasi` oluyordu. Kullanıcıya kendi hatası için "sunucu hatası" deniyor, her bozuk istemci isteği `beklenmeyen hata` olarak loglanıp gerçek çökmeleri gürültüye gömüyordu | 400-499 arası `statusCode` olduğu gibi geçiriliyor, duruma göre kod veriliyor, beklenen istemci hatası `warn` olarak loglanıyor (`cerceveHatalari.test.ts`) |
 | **Yetki açığı (2026-08-20)** | `POST /program/hareket-degistir` `session_items`'ı yalnızca `session_id` ile seçiyordu; sahiplik kontrolü yoktu. Kimliği doğrulanmış herkes başkasının programını değiştirebiliyordu — üstelik muadil zinciri **isteği yapanın** kısıtlarından hesaplandığı için kurbanın kontrendikasyonları (bel fıtığı gibi) tamamen atlanıyordu | Seans sahibine ait değilse 404. `kiraciAyrimi.test.ts` (8 test) kimlik taşıyan her uç için "B, A'nın kaydına dokunabiliyor mu" sorusunu ayrı ayrı soruyor |
 | Hesap silme kapsamı | Silmenin gerçekten her tabloyu süpürdüğü hiç sınanmamıştı | 21 doğrudan + 1 dolaylı tablo için "kalan satır yok" testi (`hesapSilme.test.ts`); yeni tablo zincire bağlanmazsa CI kırılıyor |
 | Log sızıntısı | Parola sıfırlama kodu, yemek fotoğrafı ve **koç mesajı** log maskesinde yoktu — koç mesajı KVKK'ya göre özel nitelikli veri | Maskeye eklendi; bir test maskeyi istek şemalarına karşı doğruluyor, yeni hassas alan maskesiz kalırsa CI kırılıyor |
