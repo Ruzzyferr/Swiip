@@ -288,11 +288,24 @@ export interface DesteGirdisi {
   envanter?: readonly string[];
 }
 
+export interface DesteMesajKodu {
+  kod: 'dolap_bos' | 'tarif_yok' | 'porsiyon_modu' | 'az_secenek' | 'secenek_var';
+  degerler?: Record<string, string | number>;
+}
+
 export interface Deste {
   kartlar: OlcekliTarif[];
   /** 'menu' | 'porsiyon' — B5 "ailem" ise menü dayatılmaz. */
   mod: 'menu' | 'porsiyon';
+  /**
+   * Motorun Türkçe izi — yedek.
+   *
+   * Kullanıcıya gösterilen cümle `mesaj_kodu`'ndan sözlükle kurulur. Motor cümle
+   * üretmez: aynı desen gerekçe, program uyarısı ve ilerleme kuralında da böyle.
+   * Burada uygulanmamıştı ve İngilizce arayüzde Türkçe boş-deste mesajı görünüyordu.
+   */
   mesaj: string;
+  mesaj_kodu: DesteMesajKodu;
   eksik_malzeme_onerisi: Array<{ malzeme: string; acilan_tarif: number }>;
   /** Deste bir veritabanı sorgusudur; AI çağrısı yapılmaz. */
   ai_cagrisi: false;
@@ -338,6 +351,19 @@ export function desteHazirla(girdi: DesteGirdisi): Deste {
               .map((o) => o.malzeme)
               .join(', ')} eklersen ${oneriler[0]!.acilan_tarif} seçenek açılıyor.`
           : 'Bu öğün için uygun tarif bulunamadı. Kısıtlarını gözden geçirebiliriz.',
+      mesaj_kodu:
+        oneriler.length > 0
+          ? {
+              kod: 'dolap_bos',
+              degerler: {
+                malzemeler: oneriler
+                  .slice(0, 3)
+                  .map((o) => o.malzeme)
+                  .join(', '),
+                adet: oneriler[0]!.acilan_tarif,
+              },
+            }
+          : { kod: 'tarif_yok' },
       eksik_malzeme_onerisi: oneriler,
       ai_cagrisi: false,
     };
@@ -352,6 +378,12 @@ export function desteHazirla(girdi: DesteGirdisi): Deste {
         : kartlar.length < DESTE_TABANI
           ? `${kartlar.length} seçenek var. Hepsi günlük toplamını bozmuyor.`
           : `${kartlar.length} seçenek. Hangisini seçersen seç, günlük toplamın aynı kalıyor.`,
+    mesaj_kodu:
+      mod === 'porsiyon'
+        ? { kod: 'porsiyon_modu' }
+        : kartlar.length < DESTE_TABANI
+          ? { kod: 'az_secenek', degerler: { adet: kartlar.length } }
+          : { kod: 'secenek_var', degerler: { adet: kartlar.length } },
     eksik_malzeme_onerisi: [],
     ai_cagrisi: false,
   };

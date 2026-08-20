@@ -252,11 +252,22 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
       ...(envanter ? { envanter } : {}),
     });
 
+    /**
+     * Deste mesajı kullanıcının dilinde kuruluyor.
+     *
+     * Motor Türkçe izi (`mesaj`) ve kod üretiyor; cümle sözlükte kuruluyor. Kod
+     * çözülemezse motorun izine düşülüyor — uydurmak yerine izi göstermek.
+     */
+    const desteMetinleri = metinleriAl(dilCozumle(await kullaniciDili(istek.kullaniciId))).ogun
+      .deste.mesaj as Record<string, (d: Record<string, string | number>) => string>;
+    const uretici = desteMetinleri[deste.mesaj_kodu.kod];
+
     return {
       ogun: secili.kod,
       ogunler,
       hedef,
       ...deste,
+      mesaj: uretici ? uretici(deste.mesaj_kodu.degerler ?? {}) : deste.mesaj,
       kartlar: deste.kartlar.map((t) => ({
         id: t.id,
         ad: t.ad,

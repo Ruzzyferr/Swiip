@@ -1210,6 +1210,18 @@ export const en: Metinler = {
 
     deste: {
       sayfaBasligi: 'Swap a meal',
+      mesaj: {
+        dolap_bos: (d: Record<string, string | number>) =>
+          `Nothing in your fridge works for this meal. Add ${d.malzemeler} and ${d.adet} ` +
+          `options open up.`,
+        tarif_yok: () => 'No recipe fits this meal. We can go over your limits together.',
+        porsiyon_modu: () =>
+          'What is cooking today? Pick the home meal and we will suggest a portion and a side — we do not impose a menu.',
+        az_secenek: (d: Record<string, string | number>) =>
+          `${d.adet} options. All of them keep your daily totals intact.`,
+        secenek_var: (d: Record<string, string | number>) =>
+          `${d.adet} options. Whichever you pick, your daily totals stay the same.`,
+      },
       hata: 'Could not load the options.',
       yukleniyor: 'Preparing options',
       bosBaslik: 'Could not load the options',

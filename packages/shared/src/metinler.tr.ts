@@ -1218,6 +1218,25 @@ export const tr = {
 
     deste: {
       sayfaBasligi: 'Öğün değiştir',
+      /**
+       * Deste mesajı motorda değil burada kuruluyor.
+       *
+       * Çekirdek dört Türkçe cümleyi sabitliyordu ve İngilizce arayüzde
+       * "Dolabındakilerle bu öğün için seçenek çıkmıyor..." görünüyordu — cihazda
+       * böyle görüldü. Motor artık kod ve parametre üretiyor.
+       */
+      mesaj: {
+        dolap_bos: (d: Record<string, string | number>) =>
+          `Dolabındakilerle bu öğün için seçenek çıkmıyor. ${d.malzemeler} eklersen ` +
+          `${d.adet} seçenek açılıyor.`,
+        tarif_yok: () => 'Bu öğün için uygun tarif bulunamadı. Kısıtlarını gözden geçirebiliriz.',
+        porsiyon_modu: () =>
+          'Bugün ne pişti? Ev yemeğini seç, sana porsiyon ve tamamlayıcı önerelim — menü dayatmıyoruz.',
+        az_secenek: (d: Record<string, string | number>) =>
+          `${d.adet} seçenek var. Hepsi günlük toplamını bozmuyor.`,
+        secenek_var: (d: Record<string, string | number>) =>
+          `${d.adet} seçenek. Hangisini seçersen seç, günlük toplamın aynı kalıyor.`,
+      },
       hata: 'Deste açılamadı.',
       yukleniyor: 'Seçenekler hazırlanıyor',
       bosBaslik: 'Deste açılamadı',

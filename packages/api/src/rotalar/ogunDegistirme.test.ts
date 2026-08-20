@@ -210,6 +210,48 @@ describe('öğün adları okuma anında çözülür', () => {
       payload: { dil: 'tr' },
     });
   });
+
+  it('İngilizce kullanıcıya deste mesajı Türkçe gitmiyor', async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/dil',
+      headers: yetkili(),
+      payload: { dil: 'en' },
+    });
+
+    /**
+     * Boş deste hâli de dahil her mesaj sınanıyor.
+     *
+     * Cihazda İngilizce arayüzde şu görülmüştü:
+     * "Dolabındakilerle bu öğün için seçenek çıkmıyor. zeytinyağı, soğan ... eklersen
+     * 68 seçenek açılıyor." Motor cümleyi sabitliyordu.
+     *
+     * MALZEME ADLARI Türkçe kalır ve bu bilinçli — besin veritabanı Türkçe, ayarlardaki
+     * dil notu bunu zaten söylüyor. Sınanan şey CÜMLE.
+     */
+    const kaliplar = /seçenek çıkmıyor|eklersen|bulunamadı|Hangisini seçersen|Bugün ne pişti/;
+
+    for (const ogun of ['kahvalti', 'ogle', 'aksam']) {
+      for (const dolaptan of ['false', 'true']) {
+        const cevap = await app.inject({
+          method: 'GET',
+          url: `/v1/ogun/deste?ogun=${ogun}&dolaptan=${dolaptan}`,
+          headers: yetkili(),
+        });
+        expect(cevap.statusCode).toBe(200);
+        const mesaj = String(cevap.json().mesaj ?? '');
+        expect(mesaj, `${ogun}/${dolaptan} mesajı Türkçe: "${mesaj}"`).not.toMatch(kaliplar);
+        expect(mesaj.length).toBeGreaterThan(0);
+      }
+    }
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/dil',
+      headers: yetkili(),
+      payload: { dil: 'tr' },
+    });
+  });
 });
 
 describe('seçilen tarif plana yazılır', () => {
