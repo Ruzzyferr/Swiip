@@ -720,6 +720,7 @@ export const en: Metinler = {
     degerlendirmeyeDon: 'Back to the assessment',
     cevrimdisiNotu:
       'No connection. This is the last program saved on your device — you can read it, and feedback is sent once you are back online.',
+    cevrimdisiTarih: (tarih: string) => `Last updated: ${tarih}`,
     haftaEki: 'WEEK',
     hazir: 'Your program is ready',
     nedenBuProgram: 'WHY THIS PROGRAM',

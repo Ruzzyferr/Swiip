@@ -730,6 +730,9 @@ export const tr = {
     degerlendirmeyeDon: 'Değerlendirmeye dön',
     cevrimdisiNotu:
       'Bağlantı yok. Bu, cihazında kayıtlı son programın — okuyabilirsin, geri bildirim bağlanınca gönderilir.',
+    // Onbellekten okunan programin YASI soylenir; "son program" tek basina
+    // iki haftalik bir programi bugunku sanmaya yol aciyordu.
+    cevrimdisiTarih: (tarih: string) => `Son güncelleme: ${tarih}`,
     haftaEki: 'HAFTA',
     hazir: 'Programın hazır',
     nedenBuProgram: 'NEDEN BU PROGRAM',

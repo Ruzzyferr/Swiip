@@ -127,10 +127,6 @@ export function isinmaMi(hareket: Hareket): boolean {
   return hareket.isinma === true;
 }
 
-export function sureBazliMi(hareket: Hareket): boolean {
-  return hareket.sure_bazli === true;
-}
-
 export function yukReferansi(hareket: Hareket): YukReferansi {
   return hareket.yuk_referansi;
 }

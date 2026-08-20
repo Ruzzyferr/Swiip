@@ -1,5 +1,3 @@
-import { varsayilanDil, type Dil } from './diller';
-
 /**
  * Hangi dilin besin ve tarif verisi kullanılacak? (F10.2, F10.4)
  *
@@ -60,9 +58,4 @@ export function veriYereli(kullaniciLocale: string | null | undefined): VeriYere
 export function kendiVerisiMi(kullaniciLocale: string | null | undefined): boolean {
   const dil = (kullaniciLocale ?? '').toLowerCase().split('-')[0];
   return veriYereli(kullaniciLocale).toLowerCase().split('-')[0] === dil;
-}
-
-/** Arayüz dilinden veri yereli — sözlük dili elde varken kısayol. */
-export function dildenVeriYereli(dil: Dil = varsayilanDil): VeriYereli {
-  return veriYereli(dil);
 }

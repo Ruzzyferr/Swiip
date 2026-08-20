@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { DILLER, islemHatasiMetni, type Dil } from '@made2fit/shared';
+import { DILLER, islemHatasiMetni, kendiVerisiMi, type Dil } from '@made2fit/shared';
 import {
   Ayirac,
   Dugme,
@@ -316,9 +316,18 @@ export default function Ayarlar() {
               </Pressable>
             ))}
           </Satir>
-          <Yazi tur="kucuk" renk="metinSilik">
-            {a.dilNotu}
-          </Yazi>
+          {/*
+            Not yalnizca YEDEGE DUSEN kullaniciya gosterilir.
+            Kosulsuz gosteriliyordu: Turk kullanici "hareket talimatlari ve tarifler
+            simdilik yalnizca Turkce" cumlesini okuyordu -- kendisi icin bir kisit
+            olmayan, sadece kafa karistiran bir uyari. `kendiVerisiMi` tam bunun icin
+            yazilmisti ve hicbir yerden cagrilmiyordu.
+          */}
+          {kendiVerisiMi(aktifDil) ? null : (
+            <Yazi tur="kucuk" renk="metinSilik">
+              {a.dilNotu}
+            </Yazi>
+          )}
         </Kart>
 
         <Kart>

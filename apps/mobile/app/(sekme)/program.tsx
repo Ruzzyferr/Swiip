@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { hareketBul, kgMetni } from '@made2fit/core';
-import { haftaBittiMi, type Metinler } from '@made2fit/shared';
+import { haftaBittiMi, tarihMetni, type Metinler } from '@made2fit/shared';
 import {
   Ayirac,
   BosDurum,
@@ -17,8 +17,8 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
-import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { ANAHTARLAR, oku, okuYas, yaz } from '../../src/veri/onbellek';
+import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 
 /**
  * 1. GÜN AÇILIŞI — ürünün tamamının kazanıldığı veya kaybedildiği ekran.
@@ -71,6 +71,7 @@ interface ProgramCevabi {
 export default function ProgramEkrani() {
   const tema = useTema();
   const m = useMetinler().program;
+  const dil = useDil();
   const sayilarGizli = useSayilarGizli();
 
   const [program, setProgram] = useState<ProgramCevabi | null>(null);
@@ -80,6 +81,7 @@ export default function ProgramEkrani() {
   const [gerekceler, setGerekceler] = useState<Record<string, string>>({});
   const [haftaHatasi, setHaftaHatasi] = useState<string | null>(null);
   const [haftaNotu, setHaftaNotu] = useState<string | null>(null);
+  const [onbellekTarihi, setOnbellekTarihi] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
     try {
@@ -107,12 +109,23 @@ export default function ProgramEkrani() {
       const onbellek = await oku<ProgramCevabi>(ANAHTARLAR.program);
       if (onbellek) {
         setProgram(onbellek);
+        /**
+         * Onbellegin YASI da soylenir.
+         *
+         * "Bu, cihazinda kayitli son programin" cumlesi tek basina iki hafta once
+         * kaydedilmis bir programi bugunku sanmaya yol aciyordu. `okuYas` tam bunun
+         * icin yazilmisti ve hicbir yerden cagrilmiyordu.
+         */
+        const zaman = await okuYas(ANAHTARLAR.program);
+        setOnbellekTarihi(zaman === null ? null : tarihMetni(new Date(zaman), dil));
         setDurum('cevrimdisi');
         return;
       }
       setDurum(hata instanceof ApiHatasi && hata.durum === 404 ? 'yok' : 'cevrimdisi');
     }
-  }, []);
+    // Dil, cevrimdisi notundaki tarihi bicimliyor: bagimlilikta olmazsa dil
+    // degistiginde bayat kapanis kalir.
+  }, [dil]);
 
   useEffect(() => {
     void yukle();
@@ -207,7 +220,16 @@ export default function ProgramEkrani() {
       }
     >
       <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
-        {durum === 'cevrimdisi' ? <Uyari tur="uyari" govde={m.cevrimdisiNotu} /> : null}
+        {durum === 'cevrimdisi' ? (
+          <Uyari
+            tur="uyari"
+            govde={
+              onbellekTarihi === null
+                ? m.cevrimdisiNotu
+                : `${m.cevrimdisiNotu} ${m.cevrimdisiTarih(onbellekTarihi)}`
+            }
+          />
+        ) : null}
 
         <View style={{ gap: tema.bosluk.xs }}>
           <Yazi tur="etiket" renk="aksan">
