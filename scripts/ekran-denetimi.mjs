@@ -33,6 +33,19 @@ const OYUNLASTIRMA =
 const SABIT_RENK = /(?:color|backgroundColor|borderColor)\s*:\s*'#[0-9a-fA-F]{3,8}'/;
 
 /**
+ * Ham kimlik ekranda basılamaz.
+ *
+ * İlerleme ekranı `{h.exercise_id}` yazıyordu ve kullanıcı "cekic-curl",
+ * "kablo-gogus-fly" gibi katalog slug'ları görüyordu — üstelik ekranın kendi metni
+ * "gerçek kanıt burada" diyor. Kimlik bir anahtardır, kullanıcıya gösterilmez;
+ * yedek olarak kullanılması ayrı (`hareketAdi(..., yedek)`).
+ */
+// Yalnızca JSX METİN DÜĞÜMÜ aranıyor. `${h.exercise_id}` bir şablon dizesi ara değeri
+// (URL olabilir), `key={h.exercise_id}` ise React anahtarı — ikisi de kullanıcıya
+// gösterilmez. İkisini de kusur saymak, aracı gürültüye boğar.
+const HAM_KIMLIK = /(?<![$=])\{\s*[A-Za-z_$][\w$]*\.(exercise_id|hareket_id|food_id|tarif_id)\s*\}/;
+
+/**
  * Yükleniyor durumu gerekmeyen ekranlar — gerekçeli muafiyet.
  *
  * `guvenlik-denetimi.mjs` ile aynı desen: süresiz ve gerekçesiz muafiyet yok.
@@ -109,7 +122,11 @@ for (const yol of dosyalar) {
   const oyun = kod.match(OYUNLASTIRMA);
   if (oyun) sorunlar.push(`OYUNLAŞTIRMA: "${oyun[0]}"`);
 
-  // --- 5: sabit renk ---
+  // --- 5: ham kimlik ---
+  const kimlik = kod.match(HAM_KIMLIK);
+  if (kimlik) sorunlar.push(`ekranda ham kimlik basılıyor: ${kimlik[0]}`);
+
+  // --- 6: sabit renk ---
   const renk = kod.match(SABIT_RENK);
   if (renk) sorunlar.push(`sabit renk kodu: ${renk[0]} — koyu temada kırılır`);
 

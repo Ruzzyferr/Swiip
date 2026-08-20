@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { kgMetni } from '@made2fit/core';
+import { hareketBul, kgMetni } from '@made2fit/core';
 import {
   Ayirac,
   BosDurum,
@@ -15,7 +15,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { islemHatasiMetni } from '@made2fit/shared';
+import { hareketAdi, islemHatasiMetni } from '@made2fit/shared';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 import { kisaTarihMetni } from '@made2fit/shared';
 
@@ -194,7 +194,7 @@ export default function Ilerleme() {
                   {i > 0 ? <Ayirac /> : null}
                   <Satir dagit="space-between">
                     <Yazi tur="kucuk" stil={{ flex: 1 }}>
-                      {h.exercise_id}
+                      {hareketAdi(hareketBul(h.exercise_id), dil, h.exercise_id)}
                     </Yazi>
                     <Sayi tur="kucuk" renk="aksan">
                       {kgMetni(h.current_weight)} kg × {h.current_reps}
