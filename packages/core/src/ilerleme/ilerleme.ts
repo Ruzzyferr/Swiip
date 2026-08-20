@@ -175,10 +175,8 @@ export function ilerlemeUygula(girdi: IlerlemeGirdisi): IlerlemeSonucu {
     if (!hareket.vucut_agirligi) {
       mevcut_kg = yukYuvarla(mevcut_kg * DELOAD_YUK, artis, taban);
     }
-    set_degisimi = Math.min(
-      set_degisimi,
-      -Math.max(1, Math.round(girdi.set * (1 - DELOAD_SET_ORANI))),
-    );
+    // Kural tek yerde: aynı oran iki ayrı ifadeyle yazılırsa ayrışması an meselesi.
+    set_degisimi = Math.min(set_degisimi, deloadSetSayisi(girdi.set) - girdi.set);
     mesajlar.push(
       'Bu hafta bilinçli olarak hafif: yükü ve set sayısını düşürdüm. Toparlanma, kazanımın ' +
         'gerçekleştiği yerdir; sürekli üstüne binmek ilerlemeyi durdurur.',
@@ -260,7 +258,12 @@ export function seansAtla(gunIndeksi: number, sebep: string, hafta: number): Atl
   };
 }
 
-/** Deload haftasında set sayısı bu orana çekilir. */
+/**
+ * Deload haftasında set sayısı bu orana çekilir.
+ *
+ * Taban bir set: hareketi programdan tamamen düşürmek deload değil, iptal olur.
+ * Tek setlik bir hareket deload haftasında da bir set kalır.
+ */
 export function deloadSetSayisi(set: number): number {
   return Math.max(1, Math.round(kirp(set * DELOAD_SET_ORANI, 1, set)));
 }

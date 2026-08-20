@@ -218,6 +218,15 @@ export const tr = {
       'arama her planda sınırsız.',
     geri_bildirim_plan_yetersiz: () =>
       'Seans sonrası geri bildirim ve programın buna göre güncellenmesi Temel plandan itibaren açık.',
+    sonraki_hafta_plan_yetersiz: () =>
+      'Programın hafta hafta ilerlemesi Temel plandan itibaren açık. Ücretsiz planda 1. gün ' +
+      'programı ve hareket açıklamaları açık kalır.',
+    hafta_yarim: () =>
+      'Bu haftanın seanslarından hiçbirini işaretlemedin. Önce seanslarını yap, sonra yeni ' +
+      'haftayı hesaplayayım.',
+    hafta_tavani: () =>
+      'Bir programda en fazla 52 hafta ilerlenebilir. Değerlendirmeni güncelleyerek yeni bir ' +
+      'program çıkarabilirsin.',
     // Sunucu ISO tarih gönderiyor ("2026-09-01"); kullanıcıya öyle gösterilmez.
     koc_kotasi_doldu: (d: Record<string, string | number>) =>
       `Bu ayki koç mesajı hakkın doldu (${d.hak}). ${gunMetni(d.yenilenme, 'tr')} tarihinde sıfırlanır.`,
@@ -729,6 +738,15 @@ export const tr = {
       'Haftanın tamamı hesaplandı. 1. günü ücretsiz görüyorsun; kalan günler ve seans sonrası uyarlama Temel plandan itibaren açılıyor.',
     planlaraBak: 'Planlara bak',
     tamamEtiketi: 'TAMAM',
+    haftaBittiBaslik: 'Bu haftayı bitirdin',
+    haftaBittiGovde:
+      'Geri bildirimlerin işlendi. Sıradaki hafta bunların üstüne kuruluyor: yükler, tekrarlar ve ' +
+      'hacim senin verdiğin cevaplardan yeniden hesaplanıyor.',
+    sonrakiHaftayiHesapla: 'Sonraki haftayı hesapla',
+    haftaHesaplanamadi: 'Sonraki hafta hesaplanamadı. Tekrar deneyebilirsin.',
+    haftaYarimUyarisi:
+      'Bir sonraki haftaya geçtin ama işaretlenmemiş seansların vardı. Onlar tamamlanmış ' +
+      'sayılmadı; ilerleme yalnızca geri bildirim verdiğin hareketlerden hesaplandı.',
     hareketEtiketi: (adet: number) => `${adet} HAREKET`,
     bugunuAc: 'Bu günü aç →',
     gunTipleri: {

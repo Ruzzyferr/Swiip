@@ -230,6 +230,14 @@ export const en: Metinler = {
       'search are unlimited on every plan.',
     geri_bildirim_plan_yetersiz: () =>
       'Post-session feedback, and the program updating from it, are available from the Basic plan.',
+    sonraki_hafta_plan_yetersiz: () =>
+      'Week-by-week progression is available from the Basic plan. Day 1 of your program and the ' +
+      'exercise instructions stay open on the free plan.',
+    hafta_yarim: () =>
+      'You have not marked any session from this week. Do your sessions first and I will work out ' +
+      'the new week.',
+    hafta_tavani: () =>
+      'A program can run for at most 52 weeks. Update your assessment to get a new program.',
     koc_kotasi_doldu: (d: Record<string, string | number>) =>
       `You have used this month's coach messages (${d.hak}). It resets on ${gunMetni(d.yenilenme, 'en')}.`,
     tanima_kotasi_doldu: (d: Record<string, string | number>) =>
@@ -720,6 +728,15 @@ export const en: Metinler = {
       'The whole week is computed. Day 1 is free; the remaining days and the post-session adaptation open from the Basic plan onwards.',
     planlaraBak: 'See the plans',
     tamamEtiketi: 'DONE',
+    haftaBittiBaslik: 'You finished this week',
+    haftaBittiGovde:
+      'Your feedback has been worked through. The next week is built on top of it: loads, reps and ' +
+      'volume are recalculated from the answers you gave.',
+    sonrakiHaftayiHesapla: 'Work out next week',
+    haftaHesaplanamadi: 'Next week could not be worked out. You can try again.',
+    haftaYarimUyarisi:
+      'You moved to the next week with sessions still unmarked. They were not counted as done; ' +
+      'progression came only from the exercises you gave feedback on.',
     hareketEtiketi: (adet: number) => `${adet} EXERCISES`,
     bugunuAc: 'Open this day →',
     gunTipleri: {

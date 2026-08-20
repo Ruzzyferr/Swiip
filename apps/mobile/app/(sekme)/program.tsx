@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { hareketBul, kgMetni } from '@made2fit/core';
-import type { Metinler } from '@made2fit/shared';
+import { haftaBittiMi, type Metinler } from '@made2fit/shared';
 import {
   Ayirac,
   BosDurum,
@@ -78,6 +78,8 @@ export default function ProgramEkrani() {
   const [yenileniyor, setYenileniyor] = useState(false);
   const [uretimHatasi, setUretimHatasi] = useState<string | null>(null);
   const [gerekceler, setGerekceler] = useState<Record<string, string>>({});
+  const [haftaHatasi, setHaftaHatasi] = useState<string | null>(null);
+  const [haftaNotu, setHaftaNotu] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
     try {
@@ -168,6 +170,27 @@ export default function ProgramEkrani() {
   }
 
   const bugun = program.gunler[0];
+
+  // Karar `shared`'da: ekranda hesap yapmıyoruz, kural orada sınanıyor.
+  const haftaBitti = haftaBittiMi({
+    seanslar: program.gunler.map((g) => g.seans),
+    kilitliGunSayisi: program.kilitli_gun_sayisi,
+  });
+
+  const sonrakiHafta = async () => {
+    setHaftaHatasi(null);
+    setHaftaNotu(null);
+    try {
+      const cevap = await istek<{ bekleyen_seans_vardi: boolean }>('/v1/program/sonraki-hafta', {
+        yontem: 'POST',
+        govde: {},
+      });
+      if (cevap.bekleyen_seans_vardi) setHaftaNotu(m.haftaYarimUyarisi);
+      await yukle();
+    } catch (hata) {
+      setHaftaHatasi(hata instanceof ApiHatasi ? hata.mesaj : m.haftaHesaplanamadi);
+    }
+  };
 
   return (
     <ScrollView
@@ -302,6 +325,19 @@ export default function ProgramEkrani() {
             </Kart>
           ))
         )}
+
+        {haftaBitti ? (
+          <Kart vurgulu>
+            <Yazi tur="baslik3">{m.haftaBittiBaslik}</Yazi>
+            <Yazi tur="kucuk" renk="metinYumusak">
+              {m.haftaBittiGovde}
+            </Yazi>
+            {haftaHatasi ? <Uyari tur="tehlike" govde={haftaHatasi} /> : null}
+            <Dugme baslik={m.sonrakiHaftayiHesapla} onPress={() => void sonrakiHafta()} />
+          </Kart>
+        ) : null}
+
+        {haftaNotu ? <Uyari tur="uyari" govde={haftaNotu} /> : null}
 
         <Yazi tur="etiket" renk="metinSilik" hizala="center">
           {m.duzenlemeUcretsiz}

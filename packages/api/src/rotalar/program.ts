@@ -1,4 +1,4 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray, ne } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -11,6 +11,7 @@ import {
   seanslariYerlestir,
   seansTarihleri,
 } from '@made2fit/core';
+import type { IlerlemeSonucu } from '@made2fit/core';
 import type { Karar, Profil } from '@made2fit/shared';
 import {
   dilCozumle,
@@ -80,13 +81,40 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
     return abonelik?.plan ?? 'ucretsiz';
   }
 
-  app.post('/uret', { preHandler: app.kimlikDogrula }, async (istek) => {
-    const profil = await profiliGetir(istek.kullaniciId);
-    const { hafta } = z
-      .object({ hafta: z.number().int().min(1).max(52).default(1) })
-      .parse(istek.body ?? {});
+  /**
+   * Bir haftalık program üretir ve kaydeder.
+   *
+   * `/uret` ve `/sonraki-hafta` aynı gövdeyi paylaşır: iki ayrı üretim yolu,
+   * ayrışan iki program demekti.
+   */
+  async function programKur(kullaniciId: string, hafta: number) {
+    const profil = await profiliGetir(kullaniciId);
 
-    const sonuc = programUret(profil, { hafta });
+    /**
+     * Kazanılan ilerleme yeni haftaya TAŞINIR.
+     *
+     * Bu okuma yeni satırlar yazılmadan ÖNCE yapılıyor: aşağıdaki tohumlama
+     * `onConflictDoNothing` ile çalışıyor, yani sonradan okusaydık yeni hareketlerin
+     * taze tahminini "önceki durum" sanardık.
+     */
+    const oncekiDurumlar = await db
+      .select()
+      .from(progression_state)
+      .where(eq(progression_state.user_id, kullaniciId));
+    const oncekiDurum = new Map(oncekiDurumlar.map((d) => [d.exercise_id, d]));
+
+    /**
+     * Yeni hareketin başlangıç yükü de ölçülen güce göre hesaplanır.
+     *
+     * Altı hafta gerçek veri topladıktan sonra e1RM artık tahmin değil ölçüm;
+     * değerlendirmedeki ilk beyana geri dönmek o veriyi çöpe atmak olurdu.
+     */
+    const bilinenYukler = { ...profil.bilinen_yukler };
+    for (const d of oncekiDurumlar) {
+      if (d.e1rm > 0) bilinenYukler[d.exercise_id] = d.e1rm;
+    }
+
+    const sonuc = programUret({ ...profil, bilinen_yukler: bilinenYukler }, { hafta });
 
     if (sonuc.durum === 'engellendi') {
       throw Yasak(
@@ -111,12 +139,12 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
     await db
       .update(programs)
       .set({ aktif: false })
-      .where(and(eq(programs.user_id, istek.kullaniciId), eq(programs.aktif, true)));
+      .where(and(eq(programs.user_id, kullaniciId), eq(programs.aktif, true)));
 
     const [kayit] = await db
       .insert(programs)
       .values({
-        user_id: istek.kullaniciId,
+        user_id: kullaniciId,
         hafta,
         split_tipi: program.split.tip,
         split_jsonb: program.split,
@@ -138,7 +166,7 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
       const [seansKaydi] = await db
         .insert(sessions)
         .values({
-          user_id: istek.kullaniciId,
+          user_id: kullaniciId,
           program_id: kayit!.id,
           gun_indeksi: seans.gun_indeksi,
           gun_tipi: seans.gun_tipi,
@@ -149,14 +177,32 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
         .returning({ id: sessions.id });
 
       for (const hareket of seans.hareketler) {
+        /**
+         * Daha önce çalışılmış hareket, kaldığı yerden devam eder.
+         *
+         * Motorun hedef yükü bir TAHMİN ve güven çarpanlarını taşıyor (yeni başlayan
+         * için 0,78'e kadar iniyor). Bu çarpan ilk haftada doğru; altı hafta veri
+         * topladıktan sonra yeniden uygulanırsa kullanıcı geri gönderilir.
+         */
+        const onceki = oncekiDurum.get(hareket.hareket_id);
+        const katalogKaydi = hareketBul(hareket.hareket_id);
+        const vucutAgirligi = katalogKaydi?.vucut_agirligi === true;
+
+        const hedefKg =
+          onceki && !vucutAgirligi && onceki.current_weight > 0
+            ? onceki.current_weight
+            : hareket.hedef_kg;
+        const tekrarUst = onceki && vucutAgirligi ? onceki.current_reps : hareket.tekrar_ust;
+        const tekrarAlt = Math.min(hareket.tekrar_alt, tekrarUst);
+
         await db.insert(session_items).values({
           session_id: seansKaydi!.id,
           exercise_id: hareket.hareket_id,
           order_index: hareket.sira,
           target_sets: hareket.set,
-          target_weight: hareket.hedef_kg,
-          target_reps_low: hareket.tekrar_alt,
-          target_reps_high: hareket.tekrar_ust,
+          target_weight: hedefKg,
+          target_reps_low: tekrarAlt,
+          target_reps_high: tekrarUst,
           rest_seconds: hareket.dinlenme_sn,
           progression_rule_text: hareket.ilerleme_kurali,
           rationale_id: hareket.gerekce_id,
@@ -167,11 +213,11 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
         await db
           .insert(progression_state)
           .values({
-            user_id: istek.kullaniciId,
+            user_id: kullaniciId,
             exercise_id: hareket.hareket_id,
-            current_weight: hareket.hedef_kg ?? 0,
-            current_reps: hareket.tekrar_ust,
-            e1rm: profil.bilinen_yukler[hareket.hareket_id] ?? 0,
+            current_weight: hedefKg ?? 0,
+            current_reps: tekrarUst,
+            e1rm: bilinenYukler[hareket.hareket_id] ?? 0,
           })
           .onConflictDoNothing();
       }
@@ -185,7 +231,7 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
 
     if (anlatim.girdi_token > 0) {
       await db.insert(ai_usage).values({
-        user_id: istek.kullaniciId,
+        user_id: kullaniciId,
         is_tipi: 'gerekce_anlatimi',
         model: 'gecit',
         girdi_token: anlatim.girdi_token,
@@ -196,7 +242,7 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
 
     for (const karar of program.kararlar) {
       await db.insert(decisions).values({
-        user_id: istek.kullaniciId,
+        user_id: kullaniciId,
         program_id: kayit!.id,
         entity_type: karar.entity_tipi,
         entity_id: karar.entity_id,
@@ -217,7 +263,84 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
      *
      * Tek üretim yeri = çevrilmeyi unutabileceğimiz tek yer.
      */
-    return { program_id: kayit!.id, uretildi: true };
+    return { program_id: kayit!.id, hafta, uretildi: true };
+  }
+
+  app.post('/uret', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const { hafta } = z
+      .object({ hafta: z.number().int().min(1).max(52).default(1) })
+      .parse(istek.body ?? {});
+
+    return programKur(istek.kullaniciId, hafta);
+  });
+
+  /**
+   * Bir sonraki haftayı üretir.
+   *
+   * Bu uç eksikti ve eksikliği ürünün ana vaadini boşa düşürüyordu: `CLAUDE.md`
+   * "her seans önceki geri bildirimden hesaplanır" diyor, ama uygulamada 1. haftadan
+   * sonrası hiç yoktu. Kullanıcı dört seansını bitiriyor, hepsi "TAMAM" oluyor ve
+   * program orada donuyordu. İki hafta sonra dönen kullanıcı aynı haftayı görüyordu.
+   *
+   * Yan etkisi sessiz ama önemliydi: `programs.hafta` hep 1 kaldığı için takvim
+   * tabanlı deload koşulu (`hafta - son_deload >= 4..6`) HİÇ sağlanamıyordu. Deload'un
+   * tek çalışan yolu üst üste zorlanma sinyaliydi.
+   */
+  app.post('/sonraki-hafta', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const plan = await planGetir(istek.kullaniciId);
+    if (plan === 'ucretsiz') {
+      throw PlanYetersiz(
+        'Programın hafta hafta ilerlemesi Temel plandan itibaren açık. ' +
+          'Ücretsiz planda 1. gün programı ve hareket açıklamaları açık kalır.',
+        'sonraki_hafta_plan_yetersiz',
+      );
+    }
+
+    const [program] = await db
+      .select({ id: programs.id, hafta: programs.hafta })
+      .from(programs)
+      .where(and(eq(programs.user_id, istek.kullaniciId), eq(programs.aktif, true)))
+      .orderBy(desc(programs.created_at))
+      .limit(1);
+
+    if (!program) throw Bulunamadi('Henüz bir programın yok.', 'program_yok');
+
+    /**
+     * Hafta, yapılan iş kadar ilerler.
+     *
+     * Ucu serbest bıraksaydık peş peşe basmak haftayı 52'ye taşır ve deload takvimini
+     * anlamsızlaştırırdı: kullanıcı hiç antrenman yapmadan "deload haftası" alırdı.
+     */
+    const [bekleyen] = await db
+      .select({ id: sessions.id })
+      .from(sessions)
+      .where(and(eq(sessions.program_id, program.id), eq(sessions.status, 'planlandi')))
+      .limit(1);
+
+    const [biten] = await db
+      .select({ id: sessions.id })
+      .from(sessions)
+      .where(and(eq(sessions.program_id, program.id), ne(sessions.status, 'planlandi')))
+      .limit(1);
+
+    if (!biten) {
+      throw HataliIstek(
+        'Bu haftanın seanslarından hiçbirini işaretlemedin. Önce seanslarını yap, ' +
+          'sonra yeni haftayı hesaplayayım.',
+        'hafta_yarim',
+      );
+    }
+
+    if (program.hafta >= 52) {
+      throw HataliIstek(
+        'Bir programda en fazla 52 hafta ilerlenebilir. Değerlendirmeni güncelleyerek ' +
+          'yeni bir program çıkarabilirsin.',
+        'hafta_tavani',
+      );
+    }
+
+    const yeni = await programKur(istek.kullaniciId, program.hafta + 1);
+    return { ...yeni, bekleyen_seans_vardi: bekleyen !== undefined };
   });
 
   app.get('/aktif', { preHandler: app.kimlikDogrula }, async (istek) => {
@@ -507,6 +630,9 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
           ),
         );
 
+      // Motor kararı PLANA yazılır. Yoksa cümle ile program ayrışır.
+      await planaYansit(istek.kullaniciId, seans.program_id!, kalem.hareket_id, sonuc);
+
       await db.insert(decisions).values({
         user_id: istek.kullaniciId,
         session_id: seans.id,
@@ -529,6 +655,80 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
 
     return { motor_kararlari: kararlar };
   });
+
+  /**
+   * Motor kararını programın HENÜZ YAPILMAMIŞ seanslarına yazar.
+   *
+   * Bu bağlantı eksikti ve eksikliği sessizdi: motor "Bench 52,5 kg'a çıkıyor" cümlesini
+   * döndürüyor, kullanıcı cümleyi görüyor, sonra programı açtığında hâlâ 50 kg yazıyordu.
+   * `progression_state` güncelleniyordu ama onu okuyan tek yer bir sonraki geri bildirim
+   * hesabıydı — plana hiç dokunulmuyordu.
+   *
+   * `set_degisimi` ise motorda hesaplanıp hiçbir yerde okunmuyordu. Yani "hacmi bir set
+   * düşürdüm" ve deload'un "set sayısını düşürdüm" cümleleri gerçekleşmeyen bir şeyi
+   * anlatıyordu. Sağlık bağlamında bu kozmetik değil: deload haftası hafiflemiyorsa
+   * deload olmaz.
+   *
+   * Yalnızca `planlandi` seanslar güncellenir; tamamlanmış seans bir kayıttır,
+   * geriye dönük değiştirilmesi kullanıcının yaptığı işi değiştirmek olurdu.
+   */
+  async function planaYansit(
+    kullaniciId: string,
+    programId: string,
+    hareketId: string,
+    sonuc: IlerlemeSonucu,
+  ): Promise<void> {
+    const bekleyen = await db
+      .select({ id: sessions.id })
+      .from(sessions)
+      .where(
+        and(
+          eq(sessions.program_id, programId),
+          eq(sessions.user_id, kullaniciId),
+          eq(sessions.status, 'planlandi'),
+        ),
+      );
+
+    if (bekleyen.length === 0) return;
+
+    const hareket = hareketBul(hareketId);
+
+    const kalemler = await db
+      .select()
+      .from(session_items)
+      .where(
+        and(
+          inArray(
+            session_items.session_id,
+            bekleyen.map((s) => s.id),
+          ),
+          eq(session_items.exercise_id, hareketId),
+        ),
+      );
+
+    for (const kalem of kalemler) {
+      const guncel: {
+        target_sets: number;
+        target_weight?: number;
+        target_reps_low?: number;
+        target_reps_high?: number;
+      } = {
+        // Taban bir set: hareketi sıfıra indirmek deload değil, iptal olur.
+        target_sets: Math.max(1, kalem.target_sets + sonuc.set_degisimi),
+      };
+
+      if (hareket?.vucut_agirligi) {
+        // Yük eklenemeyen harekette ilerleme tekrar hedefinde görünür.
+        const ust = sonuc.durum.mevcut_tekrar;
+        guncel.target_reps_high = ust;
+        guncel.target_reps_low = Math.min(kalem.target_reps_low, ust);
+      } else {
+        guncel.target_weight = sonuc.durum.mevcut_kg;
+      }
+
+      await db.update(session_items).set(guncel).where(eq(session_items.id, kalem.id));
+    }
+  }
 
   app.post('/seans/:seansId/atla', { preHandler: app.kimlikDogrula }, async (istek) => {
     const { seansId } = z.object({ seansId: z.string().uuid() }).parse(istek.params);

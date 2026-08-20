@@ -15,3 +15,4 @@ export * from './aghatasi';
 export * from './veriYereli';
 export * from './tekUcus';
 export * from './disaAktarma';
+export * from './haftaDurumu';
