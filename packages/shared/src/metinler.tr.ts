@@ -242,6 +242,8 @@ export const tr = {
     ekle: 'Ekle',
     planlaraBak: 'Planlara bak',
     dakikaKisa: (dakika: number) => `${dakika} DK`,
+    // Kilitli kısayolun altında; baskı değil, dokunmadan önce bilgi.
+    temelPlandan: 'Temel plandan',
     saatBasligi: 'SAAT',
     toplamBasligi: 'TOPLAM',
     malzemelerBasligi: 'MALZEMELER',

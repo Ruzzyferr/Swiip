@@ -14,6 +14,7 @@ import {
   type EslesmisKalem,
   type TanimaKalemi,
 } from '@made2fit/core';
+import { veriYereli } from '@made2fit/shared';
 import { Bulunamadi, HataliIstek, KotaDoldu, PlanYetersiz } from '../hatalar';
 import {
   ai_usage,
@@ -23,6 +24,7 @@ import {
   subscriptions,
   tanima_eslemeleri,
   tanima_onbellegi,
+  users,
 } from '../db/sema';
 import { gorselParmakIzi } from '../servisler/gorselAnaliz';
 import { planHaklari, type Plan } from '../servisler/haklar';
@@ -90,7 +92,18 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     return (kayit?.plan as Plan) ?? 'ucretsiz';
   }
 
-  async function besinKataloguGetir(): Promise<BesinKaydi[]> {
+  /** Kullanıcının kayıtlı dili; besin veri kümesi buradan seçiliyor. */
+  async function kullaniciDili(kullaniciId: string): Promise<string | null> {
+    const [kayit] = await db
+      .select({ locale: users.locale })
+      .from(users)
+      .where(eq(users.id, kullaniciId))
+      .limit(1);
+
+    return kayit?.locale ?? null;
+  }
+
+  async function besinKataloguGetir(yerel: string): Promise<BesinKaydi[]> {
     const kayitlar = await db
       .select({
         id: foods.id,
@@ -99,6 +112,9 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
         porsiyonlar: foods.portions_jsonb,
       })
       .from(foods)
+      // Eşleme havuzu kullanıcının veri yereliyle sınırlı: iki dilin besinleri aynı
+      // havuzda olsaydı "rice" fotoğrafı Türkçe "pirinç" kaydına eşleşebilirdi.
+      .where(eq(foods.locale, yerel))
       .limit(5000);
 
     return kayitlar as unknown as BesinKaydi[];
@@ -129,7 +145,7 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
       )
       .limit(1);
 
-    const katalog = await besinKataloguGetir();
+    const katalog = await besinKataloguGetir(veriYereli(await kullaniciDili(istek.kullaniciId)));
 
     if (onbellek) {
       await db
@@ -282,7 +298,7 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     const govde = duzeltmeSemasi.parse(istek.body);
     const gun = govde.gun ?? new Date().toISOString().slice(0, 10);
 
-    const katalog = await besinKataloguGetir();
+    const katalog = await besinKataloguGetir(veriYereli(await kullaniciDili(istek.kullaniciId)));
     const kayitlar = [];
 
     for (const kalem of govde.kalemler) {

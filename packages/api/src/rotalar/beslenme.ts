@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
-import { aramaAnahtari, KATLANAN, KATLANMIS } from '@made2fit/shared';
+import { aramaAnahtari, KATLANAN, KATLANMIS, veriYereli } from '@made2fit/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { beslenmeHedefiHesapla, porsiyonRehberi, tdeeDuzelt } from '@made2fit/core';
@@ -70,6 +70,23 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
     return (kullanici?.ed ?? false) && !(kullanici?.edAcik ?? false);
   }
 
+  /**
+   * Kullanıcının göreceği besin veri kümesi.
+   *
+   * `veriYereli` tek karar noktası: veri kümesi olmayan dil Türkçeye düşüyor ve bu
+   * bilinçli — İngilizce kullanıcıya boş bir besin veritabanı vermek, uygulamayı onun
+   * için çalışmaz hâle getirirdi. Ayarlardaki dil notu bunu söylüyor.
+   */
+  async function besinYereli(kullaniciId: string): Promise<string> {
+    const [kayit] = await db
+      .select({ locale: users.locale })
+      .from(users)
+      .where(eq(users.id, kullaniciId))
+      .limit(1);
+
+    return veriYereli(kayit?.locale);
+  }
+
   /** Kullanıcının planı; kaydı yoksa ücretsiz. */
   async function planGetir(kullaniciId: string): Promise<Plan> {
     const [kayit] = await db
@@ -127,11 +144,29 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
      * bitirmemiş kullanıcıya "yükselt" demek yanlış yönlendirme olurdu; ED kapısı ise bir
      * sağlık kapısı ve hiçbir ödeme kararının arkasında kalamaz.
      */
-    if (!planHaklari(await planGetir(istek.kullaniciId)).kalori_makro_hedefi) {
+    const haklar = planHaklari(await planGetir(istek.kullaniciId));
+
+    /**
+     * Beslenme ekranındaki kısayolların hangileri kilitli.
+     *
+     * Ekran altı kısayol gösteriyor ve üçü ücretli. Hepsi aynı görünüyordu: ücretsiz
+     * kullanıcı "Haftalık plan"a basıyor ve duvara çarpıyordu. Kilidi önceden söylemek
+     * baskı değil, dürüstlük — dokunmadan önce ne olacağını bilmek.
+     *
+     * Hak tablosundan okunuyor, `hedef_kilidi`nden türetilmiyor: ikisi farklı haklar ve
+     * bir gün ayrışabilirler.
+     */
+    const kilitler = {
+      ogun_plani: !haklar.ogun_plani,
+      kaydirmali_ogun: !haklar.kaydirmali_ogun,
+    };
+
+    if (!haklar.kalori_makro_hedefi) {
       return {
         ed_modu: profil.ed_modu,
         sayilar_gizli: false,
         hedef_kilidi: true,
+        kilitler,
         kod: 'plan_yetersiz',
         mesaj:
           'Günlük kalori ve makro hedefi Temel plandan itibaren açık. Yemek kaydın ' +
@@ -139,7 +174,7 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       };
     }
 
-    return { ed_modu: profil.ed_modu, sayilar_gizli: false, hedef: nihai };
+    return { ed_modu: profil.ed_modu, sayilar_gizli: false, hedef: nihai, kilitler };
   });
 
   app.get('/besin/ara', { preHandler: app.kimlikDogrula }, async (istek) => {
@@ -159,8 +194,15 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       .from(foods)
       // Şapkasız yazan kullanıcıyı da bulur: iki taraf da aynı şekilde katlanıyor.
       // Sıra önemli — önce harf eşlemesi, sonra küçültme (bkz. shared/arama.ts).
+      //
+      // Yerel filtresi: `foods.locale` sütunu ve `(locale, name_tr)` indeksi başından
+      // beri vardı ama hiçbir sorgu okumuyordu. İkinci pazarın verisi eklendiği an
+      // iki dilin besinleri aynı sonuç listesinde karışırdı.
       .where(
-        sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + aramaAnahtari(q) + '%'}`,
+        and(
+          eq(foods.locale, await besinYereli(istek.kullaniciId)),
+          sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + aramaAnahtari(q) + '%'}`,
+        ),
       )
       .orderBy(desc(foods.verified))
       .limit(limit);

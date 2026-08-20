@@ -245,6 +245,14 @@ interface DugmeProps {
   yukleniyor?: boolean;
   tamGenislik?: boolean;
   erisimIpucu?: string;
+  /**
+   * Ücretli katmanda olduğunu önceden söyler.
+   *
+   * Düğme çalışmaya devam ediyor — basınca ne olduğunu anlatan ekrana gidiyor. Amaç
+   * baskı değil, dokunmadan önce ne olacağını bilmek: kilitli olduğu görünmeyen bir
+   * düğme kullanıcıyı duvara çarptırıyordu.
+   */
+  kilitli?: boolean;
 }
 
 export function Dugme({
@@ -255,8 +263,10 @@ export function Dugme({
   yukleniyor = false,
   tamGenislik = true,
   erisimIpucu,
+  kilitli = false,
 }: DugmeProps) {
   const tema = useTema();
+  const kilitMetni = useMetinler().genel.temelPlandan;
 
   const zeminler: Record<string, string> = {
     birincil: tema.renk.aksan,
@@ -296,7 +306,21 @@ export function Dugme({
       {yukleniyor ? (
         <ActivityIndicator color={metinler[tur]} />
       ) : (
-        <Text style={{ color: metinler[tur], fontSize: 16, fontWeight: '600' }}>{baslik}</Text>
+        <>
+          <Text style={{ color: metinler[tur], fontSize: 16, fontWeight: '600' }}>{baslik}</Text>
+          {kilitli ? (
+            <Text
+              style={{
+                color: tema.renk.metinSilik,
+                fontSize: 11,
+                letterSpacing: 0.3,
+                marginTop: 2,
+              }}
+            >
+              {kilitMetni}
+            </Text>
+          ) : null}
+        </>
       )}
     </Pressable>
   );

@@ -33,6 +33,8 @@ interface HedefCevabi {
   hedef?: BeslenmeHedefi;
   /** Günlük hedef ücretli katman; ücretsiz planda kilitli gelir. */
   hedef_kilidi?: boolean;
+  /** Hangi kısayolların ücretli katmanda olduğu; ekran bunu önceden söyler. */
+  kilitler?: { ogun_plani: boolean; kaydirmali_ogun: boolean };
   mesaj?: string;
   porsiyon_rehberi?: PorsiyonRehberi;
 }
@@ -251,6 +253,7 @@ export default function Beslenme() {
             <Dugme
               baslik={m.haftalikPlan}
               tur="ikincil"
+              kilitli={hedef?.kilitler?.ogun_plani}
               onPress={() => router.push('/ogun/plan')}
             />
           </View>
@@ -264,6 +267,7 @@ export default function Beslenme() {
             <Dugme
               baslik={m.ogunDegistir}
               tur="ikincil"
+              kilitli={hedef?.kilitler?.kaydirmali_ogun}
               onPress={() => router.push('/ogun/deste')}
             />
           </View>
@@ -271,6 +275,7 @@ export default function Beslenme() {
             <Dugme
               baslik={m.alisverisListesi}
               tur="ikincil"
+              kilitli={hedef?.kilitler?.ogun_plani}
               onPress={() => router.push('/ogun/alisveris')}
             />
           </View>

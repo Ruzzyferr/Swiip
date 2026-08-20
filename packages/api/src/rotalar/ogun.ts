@@ -13,7 +13,7 @@ import {
   type Tarif,
 } from '@made2fit/core';
 import type { Profil } from '@made2fit/shared';
-import { dilCozumle, metinleriAl } from '@made2fit/shared';
+import { dilCozumle, metinleriAl, veriYereli } from '@made2fit/shared';
 import { Bulunamadi, HataliIstek, PlanYetersiz } from '../hatalar';
 import {
   assessments,
@@ -81,8 +81,16 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
     return kayit?.locale ?? null;
   }
 
-  async function tarifleriGetir(): Promise<Tarif[]> {
-    const kayitlar = await db.select().from(recipes).limit(2000);
+  /**
+   * Tarif kütüphanesi — kullanıcının veri yereline göre.
+   *
+   * `recipes.locale` sütunu başından beri vardı ama hiçbir sorgu okumuyordu. İkinci
+   * pazarın tarifleri eklendiği an Türk kullanıcının destesine yabancı mutfak
+   * karışırdı. `veriYereli` tek karar noktası.
+   */
+  async function tarifleriGetir(kullaniciId: string): Promise<Tarif[]> {
+    const yerel = veriYereli(await kullaniciDili(kullaniciId));
+    const kayitlar = await db.select().from(recipes).where(eq(recipes.locale, yerel)).limit(2000);
 
     return kayitlar.map((k) => ({
       id: k.id,
@@ -150,7 +158,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
   app.get('/tarifler', { preHandler: app.kimlikDogrula }, async (istek) => {
     await ozellikKontrol(istek.kullaniciId);
     const { kisitlar } = await kisitlariGetir(istek.kullaniciId);
-    const tumu = await tarifleriGetir();
+    const tumu = await tarifleriGetir(istek.kullaniciId);
     const uygun = tarifleriFiltrele(tumu, kisitlar);
 
     return {
@@ -193,7 +201,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
       ogunler.find((o) => o.ad.toLocaleLowerCase('tr-TR').startsWith(ogun.slice(0, 3)))?.hedef ??
       ogunler[1]!.hedef;
 
-    const tarifler = await tarifleriGetir();
+    const tarifler = await tarifleriGetir(istek.kullaniciId);
     const envanter = dolaptan ? await envanterGetir(istek.kullaniciId) : undefined;
 
     const deste = desteHazirla({
@@ -301,7 +309,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
     const ogunler = ogunHedefleriniBol(beslenme, 3, kisitlar.ramazan);
     const ogunAdlari = metinleriAl(dilCozumle(await kullaniciDili(istek.kullaniciId))).ogun
       .ogunAdlari as Record<string, string>;
-    const tarifler = await tarifleriGetir();
+    const tarifler = await tarifleriGetir(istek.kullaniciId);
 
     /**
      * Deste öğün başına bir kez hazırlanır.

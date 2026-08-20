@@ -253,6 +253,7 @@ export const en: Metinler = {
     ekle: 'Add',
     planlaraBak: 'See plans',
     dakikaKisa: (dakika: number) => `${dakika} MIN`,
+    temelPlandan: 'From Basic',
     saatBasligi: 'TIME',
     toplamBasligi: 'TOTAL',
     malzemelerBasligi: 'INGREDIENTS',

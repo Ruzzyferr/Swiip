@@ -12,3 +12,4 @@ export * from './tarih';
 export * from './harf';
 export * from './tarihGirisi';
 export * from './aghatasi';
+export * from './veriYereli';

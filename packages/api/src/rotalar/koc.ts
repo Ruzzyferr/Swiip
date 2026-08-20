@@ -1,5 +1,5 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { aramaAnahtari, dilCozumle, KATLANAN, KATLANMIS } from '@made2fit/shared';
+import { aramaAnahtari, dilCozumle, KATLANAN, KATLANMIS, veriYereli } from '@made2fit/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -127,8 +127,24 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
     const profil = profilKaydi.profil as Profil;
     const ozet = profilOzeti(profil);
 
+    /**
+     * Kullanıcının dili burada okunuyor: hem sistem mesajı hem besin veri kümesi buna
+     * bağlı. Araç katmanından sonra okunursa besin araması yerelini bilemez.
+     */
+    const [dilKaydi] = await db
+      .select({ locale: users.locale })
+      .from(users)
+      .where(eq(users.id, istek.kullaniciId))
+      .limit(1);
+    const dil = dilCozumle(dilKaydi?.locale);
+
     // --- 3. Araç katmanı: mesaja göre ilgili veriyi önden çek ---
-    const aracVerisi = await aracVerisiTopla(istek.kullaniciId, mesaj, edModu);
+    const aracVerisi = await aracVerisiTopla(
+      istek.kullaniciId,
+      mesaj,
+      edModu,
+      veriYereli(dilKaydi?.locale),
+    );
 
     const gecmis = await gecmisOku(istek.kullaniciId);
     const baglam = baglamKur({ ozet, gecmis, aracVerisi });
@@ -175,13 +191,6 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
     });
 
     const secim = butce.ucuzaDus ? ucuzaDusur(modelSec('koc_sohbeti')) : modelSec('koc_sohbeti');
-
-    const [dilKaydi] = await db
-      .select({ locale: users.locale })
-      .from(users)
-      .where(eq(users.id, istek.kullaniciId))
-      .limit(1);
-    const dil = dilCozumle(dilKaydi?.locale);
 
     let cevap;
     try {
@@ -305,6 +314,8 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
     kullaniciId: string,
     mesaj: string,
     edModu: boolean,
+    /** Besin araması bu veri kümesiyle sınırlı; koç başka bir dile bakmaz. */
+    besinYereli: string,
   ): Promise<Record<string, unknown>> {
     const kucuk = mesaj.toLocaleLowerCase('tr-TR');
 
@@ -398,8 +409,12 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
           .select({ ad: foods.name_tr, per_100g: foods.per_100g_jsonb })
           .from(foods)
           // Şapkasız yazan kullanıcıyı da bulur; katlama shared/arama.ts ile ortak.
+          // Yerel filtresi: koç kullanıcının veri kümesinden başka bir yere bakmamalı.
           .where(
-            sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + sorgu + '%'}`,
+            and(
+              eq(foods.locale, besinYereli),
+              sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + sorgu + '%'}`,
+            ),
           )
           .limit(3);
         if (sonuclar.length > 0) veri.besin_ara = sonuclar;
