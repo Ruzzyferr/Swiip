@@ -4,6 +4,15 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { OturumSaglayici } from '../src/durum/Oturum';
 import { useYiginSecenekleri } from '../src/gezinme/yiginSecenekleri';
 import { useTema } from '../src/tasarim/tema';
+/**
+ * Yalnızca yan etkisi için: modül yüklenince bildirim sunum işleyicisi kuruluyor.
+ *
+ * İşleyici `zamanlayici.ts` içinde modül düzeyinde. O modül daha önce yalnızca bildirim
+ * AYARLARI ekranından yükleniyordu; o ekrana hiç girmeyen kullanıcıda işleyici hiç
+ * kurulmuyor ve uygulama açıkken gelen hatırlatma sessizce kayboluyordu. Kök düzen her
+ * açılışta yükleniyor.
+ */
+import '../src/bildirim/zamanlayici';
 
 export default function KokDuzen() {
   return (

@@ -45,6 +45,26 @@ export default function Rapor() {
   useEffect(() => {
     void (async () => {
       try {
+        /**
+         * ÖNCE OKU, gerekirse üret.
+         *
+         * Bu ekran raporu görmek için `POST /vucut/analiz` çağırıyordu ve o uç her
+         * çağrıda yeni analiz üretiyor. Çekim ekranı da aynı ucu çağırdığı için tek
+         * dokunuşta iki istek gidiyordu: ilki başarılı (hak harcanır), ikincisi 403.
+         * Kullanıcı kendi analizini hiç göremiyordu — ücretsiz katmanda ömür boyu tek
+         * hak olduğu için kalıcı olarak.
+         *
+         * Okuma ve yazma ayrıldı: rapor varsa okunur, yoksa (ölçülerle devam eden
+         * kullanıcı) bir kez üretilir.
+         */
+        try {
+          setAnaliz(await istek<AnalizCevabi>('/v1/vucut/analiz/son'));
+          return;
+        } catch (okumaHatasi) {
+          // 404 dışında bir şeyse üretmeyi denemek yanlış olur; sebebi kullanıcıya söylenir.
+          if (!(okumaHatasi instanceof ApiHatasi) || okumaHatasi.durum !== 404) throw okumaHatasi;
+        }
+
         setAnaliz(await istek<AnalizCevabi>('/v1/vucut/analiz', { yontem: 'POST', govde: {} }));
       } catch (h) {
         /**

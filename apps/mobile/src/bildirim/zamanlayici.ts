@@ -1,9 +1,11 @@
+import { Platform } from 'react-native';
 import * as Bildirimler from 'expo-notifications';
 import {
   bildirimKimligi,
   bildirimPlaniHesapla,
   type BildirimMetinleri,
   type BildirimTercihleri,
+  type BildirimTuru,
   type PlanliBildirim,
 } from '@made2fit/core';
 
@@ -19,6 +21,69 @@ import {
  */
 
 export type ZamanlayiciDurumu = { durum: 'kuruldu'; adet: number } | { durum: 'izin_yok' };
+
+/**
+ * Uygulama AÇIKKEN gelen hatırlatma da gösterilir.
+ *
+ * Emülatörde ölçüldü: uygulama ön plandayken 18:00 alarmı tetiklendi (alarm listeden
+ * düştü) ama bildirim gölgeye HİÇ girmedi; aynı hatırlatma uygulama arka plandayken
+ * sorunsuz göründü. Sebep, `expo-notifications` sözleşmesi: ön planda gelen bildirim
+ * işleyiciye sorulur ve işleyici yoksa varsayılan "gösterme"dir.
+ *
+ * Yani davranış seçilmemişti, kütüphane varsayılanına bırakılmıştı. Seans hatırlatması
+ * ve "seansı nasıl geçirdin" dürtüsü ürünün döngüsünü taşıyan iki bildirim; uygulamanın
+ * o an açık olması onları kaybetmek için bir sebep değil.
+ *
+ * Ses ve rozet kapalı: hatırlatma gönderiyoruz, dürtmüyoruz.
+ */
+Bildirimler.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+/**
+ * Her hatırlatma türü kendi kanalında.
+ *
+ * Emülatörde görüldü: bildirim `expo_notifications_fallback_notification_channel`
+ * kanalıyla düşüyordu — yani uygulama hiç kanal tanımlamamış. Android 8'den beri kanal
+ * kullanıcıya görünür: sistem ayarlarında beş hatırlatma türü tek bir "diğer" başlığı
+ * altında toplanıyor ve kullanıcı yalnızca su hatırlatmasını susturamıyordu.
+ *
+ * Uygulama içi anahtarlar zaten var; ama kullanıcının sistem tarafında da aynı ayrımı
+ * görebilmesi gerekiyor — bildirim ayarına uygulamadan değil telefon ayarlarından
+ * bakan kullanıcı azınlık değil.
+ */
+const KANAL_ADLARI: Record<BildirimTuru, string> = {
+  seans: 'Seans hatırlatması',
+  geri_bildirim: 'Geri bildirim hatırlatması',
+  haftalik_ozet: 'Haftalık özet',
+  olcum: 'Ölçüm hatırlatması',
+  su: 'Su hatırlatması',
+};
+
+function kanalKimligi(tur: BildirimTuru): string {
+  return `made2fit-${tur}`;
+}
+
+async function kanallariKur(): Promise<void> {
+  // Android dışında kanal kavramı yok; çağrı zararsız ama gereksiz.
+  if (Platform.OS !== 'android') return;
+
+  for (const [tur, ad] of Object.entries(KANAL_ADLARI)) {
+    await Bildirimler.setNotificationChannelAsync(kanalKimligi(tur as BildirimTuru), {
+      name: ad,
+      // VARSAYILAN, YÜKSEK değil: hatırlatma kesintiye uğratmaz.
+      importance: Bildirimler.AndroidImportance.DEFAULT,
+      sound: null,
+      enableVibrate: false,
+      showBadge: false,
+    });
+  }
+}
 
 /**
  * expo-notifications haftanın günlerini 1 = Pazar … 7 = Cumartesi sayar;
@@ -60,13 +125,19 @@ export async function bildirimleriKur(
   if (!izin.granted) izin = await Bildirimler.requestPermissionsAsync();
   if (!izin.granted) return { durum: 'izin_yok' };
 
+  await kanallariKur();
+
   // Tam yeniden kurulum: kısmi güncelleme, iptal edilmiş bir tercihi hayatta bırakabilir.
   await Bildirimler.cancelAllScheduledNotificationsAsync();
 
   for (const bildirim of plan) {
     await Bildirimler.scheduleNotificationAsync({
       identifier: bildirimKimligi(bildirim),
-      content: { title: bildirim.baslik, body: bildirim.govde },
+      content: {
+        title: bildirim.baslik,
+        body: bildirim.govde,
+        ...(Platform.OS === 'android' ? { channelId: kanalKimligi(bildirim.tur) } : {}),
+      },
       trigger: {
         type: Bildirimler.SchedulableTriggerInputTypes.WEEKLY,
         weekday: haftaGunuSdk(bildirim.haftaGunu),

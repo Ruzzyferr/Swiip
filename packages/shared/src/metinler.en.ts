@@ -225,6 +225,8 @@ export const en: Metinler = {
       'Coach chat is available from the Basic plan. Your program and its rationales are full on every plan.',
     tanima_plan_yetersiz: () =>
       'Photo food recognition is on the Pro plan. Manual entry and search are unlimited on every plan.',
+    analiz_yok: () =>
+      'You do not have a body analysis yet. You can create one with your measurements or a photo.',
     govde_cok_buyuk: () => 'What you sent is too large. Try again with a smaller file.',
     desteklenmeyen_icerik: () => 'I cannot read that content type.',
     ogun_kodu_gecersiz: () => 'There is no such meal. Pick one of the meals in the list.',

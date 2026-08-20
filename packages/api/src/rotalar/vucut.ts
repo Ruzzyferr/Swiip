@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gte } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { vucutRaporuUret, type GorselAnalizCiktisi } from '@made2fit/core';
+import { vucutRaporuUret, type GorselAnalizCiktisi, type VucutRaporu } from '@made2fit/core';
 import { dilCozumle, metinleriAl, raporMetinleri } from '@made2fit/shared';
 import { Bulunamadi, HataliIstek, Yasak } from '../hatalar';
 import { body_analyses, subscriptions, users } from '../db/sema';
@@ -221,6 +221,63 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
       gizlilik_notu: fotografGeldi
         ? metinler.gizlilikNotu.fotografli
         : metinler.gizlilikNotu.olculerle,
+    };
+  });
+
+  /**
+   * Son raporu OKUR — yeni analiz üretmez, hak harcamaz.
+   *
+   * Emülatörde bulundu: rapor ekranı raporu görmek için `POST /analiz` çağırıyordu ve
+   * o uç her çağrıda yeni analiz üretiyor. Ücretsiz katmanda sonuç yıkıcıydı: kullanıcı
+   * üç fotoğrafını çekiyor, analiz oluşuyor (ömür boyu tek hakkı harcanıyor), sonra
+   * rapor ekranı aynı ucu tekrar çağırıp 403 alıyor ve kullanıcı KENDİ ANALİZİNİ hiç
+   * göremiyordu. Ücretsiz katmanın teslim ettiği tek çıktı buydu.
+   *
+   * Yazma ile okuma ayrıldı. Üretim hâlâ `POST /analiz`; görüntüleme buradan.
+   */
+  app.get('/analiz/son', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const [kayit] = await db
+      .select()
+      .from(body_analyses)
+      .where(eq(body_analyses.user_id, istek.kullaniciId))
+      .orderBy(desc(body_analyses.taken_at))
+      .limit(1);
+
+    if (!kayit) {
+      throw Bulunamadi(
+        'Henüz bir vücut analizin yok. Ölçülerini girerek veya fotoğraf çekerek oluşturabilirsin.',
+        'analiz_yok',
+      );
+    }
+
+    const [kullanici] = await db
+      .select({ edModu: users.ed_mode, locale: users.locale })
+      .from(users)
+      .where(eq(users.id, istek.kullaniciId))
+      .limit(1);
+
+    // Rapor kullanıcının O ANKİ dilinde anlatılıyor: kayıtta duran Türkçe iz değişmiyor.
+    const metinler = metinleriAl(dilCozumle(kullanici?.locale ?? null)).rapor.motor;
+    const ham = kayit.rapor_jsonb as VucutRaporu;
+    const cevrilmis = raporMetinleri(ham, metinler);
+
+    return {
+      analiz_id: kayit.id,
+      taken_at: kayit.taken_at,
+      rapor: { ...ham, ozet: cevrilmis.ozet, durus: cevrilmis.durus },
+      sayilar_gizli: kullanici?.edModu ?? false,
+      /**
+       * Not, KAYITLI analizin nasıl üretildiğini anlatıyor.
+       *
+       * Fotoğraflı analizde duruş bayrağı çıkar; ölçülerle üretilende çıkmaz. Bu ayrım
+       * kayıtta duruyor, dolayısıyla doğru cümle okuma anında da seçilebiliyor:
+       * olmayan bir şeyin silindiğine dair güvence vermek, kazanmak istediğimiz güveni
+       * harcar.
+       */
+      gizlilik_notu:
+        ((kayit.posture_flags as unknown[]) ?? []).length > 0
+          ? metinler.gizlilikNotu.fotografli
+          : metinler.gizlilikNotu.olculerle,
     };
   });
 
