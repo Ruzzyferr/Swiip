@@ -2,7 +2,7 @@
 
 `uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-20.
 
-**Özet:** 1.644 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**Özet:** 1.649 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
 **İmzalı yayın paketi hazır:** `app-release.aab` · sürüm 1.0.0 · versionCode 1.
 
 **Uygulama gerçek bir Android cihazında (emülatör, API 36) baştan sona kullanıldı.**
@@ -796,10 +796,30 @@ istiyor; o adım kimlik bilgisi gerektirdiği için zaten sende.
 
 Giriş yapıldıktan sonra kalan işin tamamı `konsol-rehberi.md`'de adım adım yazılı.
 
-### Site, tam genişlik doğrulaması
+### Site doğrulaması
 
-Üç sayfa (`index`, `gizlilik`, `hesap-silme`) 320'den 3440 piksele kadar on dört genişlikte
-tarandı: hiçbirinde yatay taşma ve konsol hatası yok. Gövde metni her yerde 16 piksel ve
-üstü; 11–12 piksellik tek metinler taksimat rayının ölçü etiketleri ve bölüm numaraları —
-ölçü aleti metaforunun parçası, okunacak metin değil.
+**Genişlik.** Üç sayfa (`index`, `gizlilik`, `hesap-silme`) 320'den 3440 piksele kadar on
+dört genişlikte tarandı: hiçbirinde yatay taşma ve konsol hatası yok.
+
+**Kontrast.** İlk tarama yalnızca taşmaya bakıyordu ve koyu temayı hiç açmamıştı; ekrana
+bakılınca beş kusur çıktı:
+
+| Kusur | Ölçüm | Sebep |
+|---|---|---|
+| Motor bandının tamamı okunmuyor | 1.08:1 | Koyu blokta arka plan `--yuzey`e dönüyor, metin `--zemin` kalıyor. `--zemin` koyu temada koyu bir renk: siyah üstüne siyah |
+| Karar ağacının kök yongası | 1.73:1 (açık) · 2.56:1 (koyu) | Kod rengi `--aksan-koyu`; koyu yonganın üstünde kayboluyor. `--aksan-parlak` zaten tam bunun için tanımlıydı, kullanılmıyordu |
+| Silik metin tonu | 4.28–4.30:1 | `--murekkep-silik` iki temada da AA eşiğinin hemen altında. Ayak notundaki tıbbi feragat de bu tondaydı |
+| Kumpas ağzı yanlış yeri gösteriyor | 56 px sapma | Ham kaydırma yüzdesi çiziyordu; cetvel çentikleri eşit aralıklı ama bölümler eşit boyda değil |
+| Aktif bölüm iki kez hesaplanıyor | — | Ağız ve etiket işareti ayrı hesaplıyordu, birbirinden kayıyorlardı |
+
+Şimdi: `node scripts/site-kontrast.mjs` üç sayfayı iki temada geziyor, her metin ögesini
+altında **gerçekten boyanan** renge karşı ölçüyor — hepsi eşiği geçiyor (en düşük 8.7:1).
+Kumpas ağzı altı bölümün hepsinde etiketin tam üstünde (0 px sapma).
+
+`siteTema.test.ts` kusurun sınıfını statik olarak koruyor: koyu blokta bir seçicinin arka
+planı değişiyorsa metin rengi de değişmeli. Eski CSS'e karşı çalıştırıldığında
+`.bolum-motor`'u adıyla söylüyor.
+
+`--murekkep-silik` `packages/shared/src/tokens.ts` ile ortak, yani düzeltme mobil
+uygulamadaki silik metni de kapsıyor.
 

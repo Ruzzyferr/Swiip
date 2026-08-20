@@ -38,6 +38,19 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
+    /* Kontrast denetimi Node'da çalışıyor ama gövdesinin bir kısmı `page.evaluate()`
+       içinde, yani tarayıcıda değerlendiriliyor. Tarayıcı küreselleri o yüzden gerekli. */
+    files: ['scripts/site-kontrast.mjs'],
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        getComputedStyle: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+  },
+  {
     // Marka sitesi: derleme adımı olmayan düz tarayıcı JS'i.
     files: ['apps/site/**/*.js'],
     languageOptions: {

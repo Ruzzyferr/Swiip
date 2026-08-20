@@ -7,7 +7,7 @@
 export const renkler = {
   murekkep: '#131614',
   murekkepYumusak: '#3A403C',
-  murekkepSilik: '#6B736E',
+  murekkepSilik: '#5B625E',
   aksan: '#14615A',
   aksanKoyu: '#0E4741',
   aksanAcik: '#E4EFED',
@@ -27,7 +27,7 @@ export const renkler = {
     yuzeyIkincil: '#222623',
     murekkep: '#F1F3F0',
     murekkepYumusak: '#B9BFBA',
-    murekkepSilik: '#828984',
+    murekkepSilik: '#969D98',
     cizgi: '#2E332F',
     aksan: '#4FA79C',
     aksanAcik: '#16302D',

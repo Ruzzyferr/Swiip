@@ -60,29 +60,52 @@
   }
 
   /**
-   * Kumpas ağzı sayfanın ne kadarının okunduğunu gösteriyor.
+   * Okunan bölümün sırası.
    *
-   * Bir "ilerleme çubuğu" değil: ölçülen şey konum, gösterilen şey de bir ölçü aleti
-   * ağzı. Aynı bilgi, ürünün diliyle.
+   * Hem kumpas ağzı hem raydaki etiket işareti bunu kullanıyor. Önce ikisi ayrı ayrı
+   * hesaplıyordu ve birbirinden kayıyordu: etiket "Motor" derken ağız başka yeri
+   * gösteriyordu.
+   */
+  function okunanBolum() {
+    const cizgi = window.innerHeight / 2;
+    let indis = 0;
+    for (let i = 0; i < bolumler.length; i += 1) {
+      if (bolumler[i].getBoundingClientRect().top <= cizgi) indis = i;
+    }
+    return indis;
+  }
+
+  /**
+   * Kumpas ağzı okunan bölümün taksimatına kilitleniyor.
+   *
+   * Eskiden ham kaydırma yüzdesini çiziyordu. Cetvelin çentikleri eşit aralıklı ama
+   * bölümler eşit boyda değil; ağız hiçbir zaman okunan bölümün etiketine denk
+   * gelmiyordu. Bir ölçü aletinde bu, ibrenin yanlış yeri göstermesi demek.
+   *
+   * Ara değer de denendi — bölüm boyunca etiketten etikete süzülmek. O da yanlıştı:
+   * bölümün ortasındayken ağız iki etiketin arasında kalıyor ve neyi gösterdiği
+   * belirsizleşiyor. Kumpas ağzı bir çentiğe oturur, arada durmaz. Geçişi CSS'teki
+   * 240 ms yumuşatıyor.
    */
   function kumpasiGuncelle() {
-    if (!kumpas || !olcek) return;
-    const toplam = document.documentElement.scrollHeight - window.innerHeight;
-    const oran = toplam > 0 ? Math.min(1, Math.max(0, window.scrollY / toplam)) : 0;
-    kumpas.style.transform = dikeyMi()
-      ? `translateY(${oran * olcek.clientHeight}px)`
-      : `translateX(${oran * olcek.clientWidth}px)`;
+    if (!kumpas || !liste) return;
+    const baglar = [...liste.querySelectorAll('a')];
+    if (baglar.length === 0) return;
+
+    const dikey = dikeyMi();
+    const bag = baglar[Math.min(okunanBolum(), baglar.length - 1)];
+    const rayKutu = liste.parentElement.getBoundingClientRect();
+    const kutu = bag.getBoundingClientRect();
+    const yer = dikey
+      ? kutu.top + kutu.height / 2 - rayKutu.top - kumpas.offsetHeight / 2
+      : kutu.left + kutu.width / 2 - rayKutu.left - kumpas.offsetWidth / 2;
+
+    kumpas.style.transform = dikey ? `translateY(${yer}px)` : `translateX(${yer}px)`;
   }
 
   function aktifBolumuIsaretle() {
     if (!liste) return;
-    const orta = window.innerHeight / 2;
-    let aktif = bolumler[0];
-
-    for (const bolum of bolumler) {
-      const kutu = bolum.getBoundingClientRect();
-      if (kutu.top <= orta) aktif = bolum;
-    }
+    const aktif = bolumler[okunanBolum()];
 
     liste.querySelectorAll('a').forEach((bag) => {
       const eslesti = bag.getAttribute('href') === `#${aktif.id}`;
