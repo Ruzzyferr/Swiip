@@ -8,8 +8,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "backgroundColor": "#F6F7F5",
-      "resizeMode": "contain"
+      "image": "./assets/acilis.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F6F7F5"
     },
     "ios": {
       "supportsTablet": false,
@@ -22,7 +23,8 @@
     "android": {
       "package": "io.made2fit.app",
       "adaptiveIcon": {
-        "backgroundColor": "#F6F7F5"
+        "foregroundImage": "./assets/uyarlanabilir-ikon.png",
+        "backgroundColor": "#131614"
       },
       "permissions": ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"]
     },
@@ -58,6 +60,7 @@
     "web": {
       "bundler": "metro",
       "output": "single"
-    }
+    },
+    "icon": "./assets/ikon.png"
   }
 }
