@@ -108,22 +108,35 @@ export default function Degerlendirme() {
 
   const blok = SORU_BANKASI.blocks.find((b) => b.id === ilerleme.blok_id);
 
+  /**
+   * Kayıt sonucu üç ayrı durum: gönderildi, bağlantı yok, sunucu reddetti.
+   *
+   * Üçü de `null` dönüyordu ve çağıran taraf ayırt edemiyordu. Sonucu: sunucu cevabı
+   * reddettiğinde akış hiç durmadan devam ediyor, kullanıcı değerlendirmeyi bitiriyor
+   * ve sunucudaki kayıt eksik kalıyordu.
+   */
+  type KayitSonucu =
+    | { durum: 'gonderildi'; cevap: CevapSonucu }
+    | { durum: 'bos' }
+    | { durum: 'cevrimdisi' }
+    | { durum: 'reddedildi' };
+
   const kaydet = useCallback(
-    async (hepsi: Cevaplar, blokId?: string) => {
+    async (hepsi: Cevaplar, blokId?: string): Promise<KayitSonucu> => {
       await yaz(ANAHTARLAR.degerlendirmeTaslagi, hepsi);
 
       const fark = yeniCevaplar(hepsi, gonderilmis.current);
       // Blok sonu geri bildirimi fark boş olsa da istenir; o yüzden blokId varsa yine gider.
-      if (Object.keys(fark).length === 0 && !blokId) return null;
+      if (Object.keys(fark).length === 0 && !blokId) return { durum: 'bos' };
 
       try {
-        const sonuc = await istek<CevapSonucu>('/v1/degerlendirme/cevap', {
+        const cevap = await istek<CevapSonucu>('/v1/degerlendirme/cevap', {
           yontem: 'POST',
           govde: { cevaplar: fark, blok_id: blokId },
         });
         gonderilmis.current = { ...gonderilmis.current, ...fark };
         setCevrimdisi(false);
-        return sonuc;
+        return { durum: 'gonderildi', cevap };
       } catch (h) {
         /**
          * Bağlantı yoksa akış durmaz; cevaplar cihazda bekler ve bunu söylemek doğru.
@@ -134,12 +147,12 @@ export default function Degerlendirme() {
          */
         if (baglantiSorunuMu(h)) {
           setCevrimdisi(true);
-          return null;
+          return { durum: 'cevrimdisi' };
         }
 
         setCevrimdisi(false);
         setHata(h instanceof Error ? h.message : m.gecersizCevap);
-        return null;
+        return { durum: 'reddedildi' };
       }
     },
     [m.gecersizCevap],
@@ -162,8 +175,20 @@ export default function Degerlendirme() {
     const sonrasi = sonrakiSoru(cevaplar);
     const blokBitti = !sonrasi || sonrasi.blok_id !== oncekiBlok;
 
-    const sonuc = await kaydet(cevaplar, blokBitti ? oncekiBlok : undefined);
+    const kayit = await kaydet(cevaplar, blokBitti ? oncekiBlok : undefined);
     setKaydediliyor(false);
+
+    /**
+     * Sunucu reddettiyse ilerlemiyoruz.
+     *
+     * Eskiden hata gösteriliyor ama akış devam ediyordu: kullanıcı değerlendirmeyi
+     * bitirip programa geçiyor, sunucudaki kayıt ise eksik kalıyordu. Bir sonraki
+     * ekranda "önce değerlendirmeyi tamamla" diyen bir hata alıyordu ve nedenini
+     * anlayamıyordu.
+     */
+    if (kayit.durum === 'reddedildi') return;
+
+    const sonuc = kayit.durum === 'gonderildi' ? kayit.cevap : null;
 
     // Güvenlik kapıları her kayıtta yeniden değerlendirilir; atlanamaz.
     const kapi = sonuc?.kapi_durumu.kapilar[0];

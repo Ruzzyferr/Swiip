@@ -1,12 +1,13 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, count, desc, eq, gte } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { vucutRaporuUret, type GorselAnalizCiktisi } from '@made2fit/core';
 import { dilCozumle, metinleriAl, raporMetinleri } from '@made2fit/shared';
 import { Bulunamadi, HataliIstek, Yasak } from '../hatalar';
-import { body_analyses, users } from '../db/sema';
+import { body_analyses, subscriptions, users } from '../db/sema';
 import { fotografiAnalizEt } from '../servisler/gorselAnaliz';
 import { fotografBoyutuUygunMu } from '@made2fit/core';
+import { vucutAnaliziHakki, type Plan } from '../servisler/haklar';
 
 /**
  * Vücut analizi (F4).
@@ -52,6 +53,36 @@ const analizSemasi = z.object({
 export async function vucutRotalari(app: FastifyInstance): Promise<void> {
   const { db } = app;
 
+  /** Kullanıcının planı ve aboneliğin ne zaman güncellendiği. Kaydı yoksa ücretsiz. */
+  async function abonelikGetir(
+    kullaniciId: string,
+  ): Promise<{ plan: Plan; baslangic: Date | null }> {
+    const [kayit] = await db
+      .select({ plan: subscriptions.plan, guncellendi: subscriptions.updated_at })
+      .from(subscriptions)
+      .where(eq(subscriptions.user_id, kullaniciId))
+      .limit(1);
+
+    return {
+      plan: (kayit?.plan as Plan) ?? 'ucretsiz',
+      baslangic: kayit?.guncellendi ?? null,
+    };
+  }
+
+  /**
+   * Aylık hakkın sayılmaya başladığı an.
+   *
+   * Ayın başı — ama abonelik bu ay içinde başladıysa abonelik anı. Ücretsiz katmandaki
+   * tek seferlik analizini kullanıp ay ortasında ödemeye geçen kullanıcıya "bu ayı
+   * kullandın" demek, ödediği ilk ayı elinden almak olurdu.
+   */
+  function hakDonemininBasi(abonelikBaslangici: Date | null): Date {
+    const simdi = new Date();
+    const ayBasi = new Date(Date.UTC(simdi.getUTCFullYear(), simdi.getUTCMonth(), 1));
+    if (abonelikBaslangici && abonelikBaslangici > ayBasi) return abonelikBaslangici;
+    return ayBasi;
+  }
+
   app.post('/analiz', { preHandler: app.kimlikDogrula }, async (istek) => {
     const govde = analizSemasi.parse(istek.body);
 
@@ -71,6 +102,44 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     if (!kullanici) throw Bulunamadi('Kullanıcı bulunamadı.', 'kullanici_yok');
     if (!kullanici.boy) {
       throw HataliIstek('Analiz için boy bilgin gerekiyor; değerlendirmeyi tamamla.', 'boy_yok');
+    }
+
+    /**
+     * Analiz hakkı — ücretsizde ömür boyu bir kez, ödemelide ayda bir.
+     *
+     * `vucutAnaliziHakki` yazılmıştı ama **hiçbir yerden çağrılmıyordu**: ücretsiz bir
+     * kullanıcı rapor ekranını her açtığında yeni bir analiz üretiliyordu. Fotoğraflı
+     * her analiz bir görsel AI çağrısı; sınırsız çalışan bu uç doğrudan birim
+     * ekonomisine açılan bir kapıydı.
+     *
+     * Kontrol AI çağrısından ve kayıttan ÖNCE: reddedilen istek ne para harcar ne satır
+     * yazar.
+     */
+    const abonelik = await abonelikGetir(istek.kullaniciId);
+    const plan = abonelik.plan;
+    const [toplam] = await db
+      .select({ adet: count() })
+      .from(body_analyses)
+      .where(eq(body_analyses.user_id, istek.kullaniciId));
+    const [buAy] = await db
+      .select({ adet: count() })
+      .from(body_analyses)
+      .where(
+        and(
+          eq(body_analyses.user_id, istek.kullaniciId),
+          gte(body_analyses.taken_at, hakDonemininBasi(abonelik.baslangic)),
+        ),
+      );
+
+    if (!vucutAnaliziHakki(plan, toplam?.adet ?? 0, buAy?.adet ?? 0)) {
+      // Mesaj önce hesaplanıyor: `throw` içindeki koşullu ifade, hata kodu tarayıcısının
+      // ikinci argümanı bulmasını zorlaştırıyor.
+      const mesaj =
+        plan === 'ucretsiz'
+          ? 'Ücretsiz planda vücut analizi bir kez yapılıyor. Sonraki analizler Temel plandan itibaren her ay açılıyor.'
+          : 'Bu ayki vücut analizini kullandın. Gelecek ay yeniden açılıyor.';
+
+      throw Yasak(mesaj, 'analiz_hakki_bitti');
     }
 
     if (govde.fotograflar && govde.fotograflar.length > 0 && !kullanici.fotoOnayi) {

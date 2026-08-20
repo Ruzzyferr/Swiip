@@ -145,6 +145,38 @@ describe('kota tüketimi — istemci beyanına güvenilmez', () => {
  * değeri veren bayraklar (manuel giriş, program düzenleme, reklamsızlık) muaf; onlar bir
  * kapı değil, yazılı bir taahhüt.
  */
+/**
+ * Hak yardımcıları da kullanılmalı.
+ *
+ * Tablo denetimi `vucut_analizi_aylik` alanını muaf tuttu: değeri her planda `1`, yani
+ * "planlar arasında farklılaşmıyor". Ama farklılaşan şey sayı değil **kural**:
+ * ücretsizde ömür boyu bir kez, ödemelide her ay. O kural `vucutAnaliziHakki` içinde
+ * yaşıyordu ve fonksiyon hiçbir yerden çağrılmıyordu — ücretsiz kullanıcı sınırsız
+ * analiz yapabiliyordu ve her fotoğraflı analiz bir görsel AI çağrısı.
+ *
+ * Alanları denetlemek yetmiyor; kuralı taşıyan fonksiyonu da denetlemek gerekiyor.
+ */
+describe('hak yardımcıları gerçekten çağrılıyor', () => {
+  const HAKLAR_KAYNAGI = readFileSync(
+    join(import.meta.dirname, '..', 'servisler', 'haklar.ts'),
+    'utf8',
+  );
+
+  /** `haklar.ts` içinden dışa açılan fonksiyonlar. */
+  const YARDIMCILAR = [...HAKLAR_KAYNAGI.matchAll(/export function (\w+)/g)].map((e) => e[1]!);
+
+  it('dışa açılan yardımcı var — test boşa dönmüyor', () => {
+    expect(YARDIMCILAR.length).toBeGreaterThan(1);
+  });
+
+  it.each(YARDIMCILAR)('%s bir uçtan çağrılıyor', (ad) => {
+    expect(
+      KAYNAK_METNI.includes(`${ad}(`),
+      `${ad} tanımlı ama hiçbir uçtan çağrılmıyor: taşıdığı kural uygulanmıyor demektir.`,
+    ).toBe(true);
+  });
+});
+
 describe('hak tablosu gerçekten uygulanıyor', () => {
   /** Her planda aynı olan, dolayısıyla kapı olmayan alanlar. */
   const TAAHHUTLER = new Set(['ad', 'aylik_fiyat_try', 'yillik_fiyat_try', 'degerlendirme']);

@@ -29,3 +29,18 @@ export function kisaTarihMetni(tarih: Date, dil: Dil): string {
 export function gunAyMetni(tarih: Date, dil: Dil): string {
   return new Intl.DateTimeFormat(BCP47[dil], { day: '2-digit', month: 'short' }).format(tarih);
 }
+
+/**
+ * Sunucudan gelen ISO tarihi kullanıcının dilinde yazar.
+ *
+ * API tarihi `2026-09-01` gibi gönderiyor; sözlük onu doğrudan cümleye koyarsa kullanıcı
+ * makine biçimi görür. Bozuk ya da beklenmedik bir değer gelirse olduğu gibi geçiliyor:
+ * kota mesajını hiç göstermemektense makine biçimi göstermek yeğdir.
+ */
+export function gunMetni(ham: string | number | undefined, dil: Dil): string {
+  if (ham === undefined) return '';
+  const metin = String(ham);
+  const zaman = Date.parse(metin.length === 10 ? `${metin}T00:00:00.000Z` : metin);
+  if (Number.isNaN(zaman)) return metin;
+  return tarihMetni(new Date(zaman), dil);
+}

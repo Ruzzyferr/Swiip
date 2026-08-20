@@ -97,9 +97,10 @@ export function vucutAnaliziHakki(plan: Plan, toplamAnaliz: number, buAyAnaliz: 
   return buAyAnaliz < HAK_TABLOSU[plan].vucut_analizi_aylik;
 }
 
-export function ozellikAcik(plan: Plan, ozellik: keyof Haklar): boolean {
-  const deger = HAK_TABLOSU[plan][ozellik];
-  if (typeof deger === 'boolean') return deger;
-  if (typeof deger === 'number') return deger > 0;
-  return true;
-}
+/*
+ * `ozellikAcik` kaldırıldı.
+ *
+ * `planHaklari(plan).x` ile aynı işi yapıyordu ve hiçbir uç onu çağırmıyordu. Kullanılan
+ * yolu tekrarlayan ölü bir soyutlama, iki farklı hak kontrolü yazılabileceği izlenimi
+ * veriyordu; bir gün ikisi ayrışırdı.
+ */

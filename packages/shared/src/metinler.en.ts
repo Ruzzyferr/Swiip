@@ -1,4 +1,5 @@
 import type { Metinler } from './i18n';
+import { gunMetni } from './tarih';
 
 /**
  * English dictionary.
@@ -196,6 +197,8 @@ export const en: Metinler = {
       'I cannot recognise a meal in this photo. You can shoot closer and better lit, or search ' +
       'manually. This attempt did not use your quota.',
     ilgi_gecersiz: () => 'A valid email address and explicit consent are required.',
+    analiz_hakki_bitti: () =>
+      'You have used your body analysis. The free plan includes one; paid plans open one every month.',
     profil_yok: () => 'Finish the assessment first.',
     barkod_yok: () => 'This barcode is not in our database. You can add it manually.',
     besin_yok: () => 'Food not found.',
@@ -228,10 +231,10 @@ export const en: Metinler = {
     geri_bildirim_plan_yetersiz: () =>
       'Post-session feedback, and the program updating from it, are available from the Basic plan.',
     koc_kotasi_doldu: (d: Record<string, string | number>) =>
-      `You have used this month's coach messages (${d.hak}). It resets on ${d.yenilenme}.`,
+      `You have used this month's coach messages (${d.hak}). It resets on ${gunMetni(d.yenilenme, 'en')}.`,
     tanima_kotasi_doldu: (d: Record<string, string | number>) =>
-      `You have used this month's photo recognitions (${d.hak}). It resets on ${d.yenilenme}. ` +
-      'Manual entry and barcode stay unlimited in the meantime.',
+      `You have used this month's photo recognitions (${d.hak}). It resets on ` +
+      `${gunMetni(d.yenilenme, 'en')}. Manual entry and barcode stay unlimited in the meantime.`,
   },
   genel: {
     devam: 'Continue',
@@ -691,6 +694,7 @@ export const en: Metinler = {
     },
     yukleniyor: 'Building your program',
     bosBaslik: 'You do not have a program yet',
+    uretilemedi: 'The program could not be computed right now. You can try again.',
     bosGovde:
       'If you finished the assessment we can compute your program now. If not, let us go back there first.',
     programimiHesapla: 'Compute my program',
@@ -721,6 +725,8 @@ export const en: Metinler = {
       pull: 'Pull',
       legs: 'Legs',
     },
+    gunSayfaBasligi: 'Session',
+    hareketSayfaBasligi: 'Exercise',
     gunBulunamadi: 'That day could not be found',
     programaDon: 'Back to the program',
     gunEki: (sira: number) => `Day ${sira}`,
@@ -1237,6 +1243,7 @@ export const en: Metinler = {
     },
 
     tarif: {
+      sayfaBasligi: 'Recipe',
       bosBaslik: 'Recipe not found',
       bosGovde: 'This recipe may have been removed, or may never have existed.',
       birPorsiyon: 'ONE PORTION',

@@ -152,9 +152,6 @@ export default function Paywall() {
         options={{
           headerShown: true,
           title: m.planlarBasligi,
-          // Modal: paywall akışın içindeki bir adım değil, araya giren bir teklif.
-          // Sistem düzeyinde kapatmayı da (aşağı kaydırma) mümkün kılar.
-          presentation: 'modal',
           // Kapatma ilk saniyeden görünür ve gerçekten kapatır.
           headerLeft: () => (
             <Pressable

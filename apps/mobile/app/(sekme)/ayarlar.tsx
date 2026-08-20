@@ -15,6 +15,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
+import { tarihMetni } from '@made2fit/shared';
 
 /**
  * Ayarlar.
@@ -194,7 +195,8 @@ export default function Ayarlar() {
               {abonelik.kota.adalet_notu}
             </Yazi>
             <Yazi tur="etiket" renk="metinSilik">
-              {a.kotaYenilenme(abonelik.kota.yenilenme)}
+              {/* Sunucu ISO tarih gönderiyor; kullanıcıya "2026-09-01" gösterilemez. */}
+              {a.kotaYenilenme(tarihMetni(new Date(abonelik.kota.yenilenme), aktifDil))}
             </Yazi>
 
             {/* Ödeyene tek satır bile upsell gösterilmez. */}

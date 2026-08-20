@@ -14,51 +14,69 @@ import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 
 let uygulama: TestUygulama;
 let app: FastifyInstance;
-let token: string;
 
 const OLCULER = { bel_cm: 92, boyun_cm: 39, kalca_cm: 100 };
 
-beforeAll(async () => {
-  uygulama = await testUygulamasi();
-  app = uygulama.app;
+/**
+ * Her testin KENDİ kullanıcısı var.
+ *
+ * Vücut analizi hakkı ücretsiz planda ömür boyu bir kez. Bu dosya eskiden tek kullanıcıyla
+ * defalarca analiz yapıyordu — hak kontrolü uygulanmadığı için çalışıyordu. Kontrol
+ * eklendiğinde testler düştü ve doğrusu buydu: sınırı test uğruna gevşetmek, sınırı
+ * kaldırmakla aynı şey.
+ */
+let sayac = 0;
 
+async function yeniKullanici(dil?: 'tr' | 'en'): Promise<string> {
+  sayac += 1;
   const kayit = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'vucut@made2fit.io', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    payload: {
+      email: `vucut${sayac}@made2fit.io`,
+      parola: 'Kirmizi-Bisiklet-42',
+      saglik_onayi: true,
+    },
   });
-  token = kayit.json().erisim_token;
+  const yeniToken: string = kayit.json().erisim_token;
 
   // Boy, cinsiyet ve doğum tarihi değerlendirmeden geliyor (K1-K3).
   await app.inject({
     method: 'POST',
     url: '/v1/degerlendirme/cevap',
-    headers: { authorization: `Bearer ${token}` },
+    headers: { authorization: `Bearer ${yeniToken}` },
     payload: { cevaplar: { K1: '1994-05-01', K2: 'Erkek', K3: 178, K4: 82 } },
   });
+
+  if (dil) {
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/dil',
+      headers: { authorization: `Bearer ${yeniToken}` },
+      payload: { dil },
+    });
+  }
+
+  return yeniToken;
+}
+
+beforeAll(async () => {
+  uygulama = await testUygulamasi();
+  app = uygulama.app;
 }, 60_000);
 
 afterAll(async () => {
   await uygulama?.kapat();
 });
 
-const yetkili = () => ({ authorization: `Bearer ${token}` });
-
-async function analizEt() {
+/** Tek seferlik hakkı olan taze bir kullanıcıyla analiz yapar. */
+async function analizEt(dil?: 'tr' | 'en') {
+  const t = await yeniKullanici(dil);
   return app.inject({
     method: 'POST',
     url: '/v1/vucut/analiz',
-    headers: yetkili(),
+    headers: { authorization: `Bearer ${t}` },
     payload: { olculer: OLCULER },
-  });
-}
-
-async function dilAyarla(dil: string) {
-  await app.inject({
-    method: 'POST',
-    url: '/v1/kimlik/dil',
-    headers: yetkili(),
-    payload: { dil },
   });
 }
 
@@ -99,15 +117,13 @@ describe('vücut analizi — ölçü yolu', () => {
  */
 describe('rapor dili', () => {
   it('Türkçe kullanıcı Türkçe rapor görüyor', async () => {
-    await dilAyarla('tr');
-    const rapor = (await analizEt()).json().rapor;
+    const rapor = (await analizEt('tr')).json().rapor;
 
     expect(/[çğıöşüÇĞİÖŞÜ]/.test(rapor.ozet + rapor.feragat)).toBe(true);
   });
 
   it('İngilizce kullanıcı İngilizce rapor görüyor', async () => {
-    await dilAyarla('en');
-    const rapor = (await analizEt()).json().rapor;
+    const rapor = (await analizEt('en')).json().rapor;
     const metin = [rapor.ozet, rapor.feragat, ...rapor.sinirlamalar].join(' ');
 
     expect(/[çğıöşüÇĞİÖŞÜ]/.test(metin)).toBe(false);
@@ -115,20 +131,16 @@ describe('rapor dili', () => {
 
   /** Tıbbi cihaz feragati çeviride kaybolamaz; sağlık kuralı, üslup değil. */
   it('İngilizce raporda da tıbbi cihaz feragati var', async () => {
-    await dilAyarla('en');
-    const feragat = (await analizEt()).json().rapor.feragat;
+    const feragat = (await analizEt('en')).json().rapor.feragat;
 
     expect(feragat.toLowerCase()).toContain('medical device');
     expect(feragat.toLowerCase()).toContain('doctor');
   });
 
   it('bel/boy mesajı da çevriliyor', async () => {
-    await dilAyarla('en');
-    const belBoy = (await analizEt()).json().rapor.bel_boy;
+    const belBoy = (await analizEt('en')).json().rapor.bel_boy;
 
     expect(belBoy.mesaj.length).toBeGreaterThan(20);
     expect(/[çğıöşüÇĞİÖŞÜ]/.test(belBoy.mesaj)).toBe(false);
-
-    await dilAyarla('tr');
   });
 });

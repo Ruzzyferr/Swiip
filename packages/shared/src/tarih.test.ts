@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { gunAyMetni, kisaTarihMetni, tarihMetni } from './tarih';
+import { gunAyMetni, gunMetni, kisaTarihMetni, tarihMetni } from './tarih';
 
 /**
  * Tarih biçimi (F10.3).
@@ -51,5 +51,33 @@ describe('gunAyMetni', () => {
 
   it('yıl göstermiyor — karşılaştırma kartı dar', () => {
     expect(gunAyMetni(GUN, 'tr')).not.toContain('2026');
+  });
+});
+
+/**
+ * Sunucudan gelen ISO tarih (F10.1).
+ *
+ * API kota yenilenme tarihini `2026-09-01` gibi gönderiyor ve sözlük onu doğrudan cümleye
+ * koyuyordu: kullanıcı ayarlar ekranında **"2026-09-01 tarihinde sıfırlanır"** okuyordu.
+ * Emülatörde görüldü.
+ */
+describe('gunMetni', () => {
+  it('ISO tarihi kullanıcının dilinde yazar', () => {
+    expect(gunMetni('2026-09-01', 'tr')).toContain('Eylül');
+    expect(gunMetni('2026-09-01', 'en')).toContain('September');
+  });
+
+  it('makine biçimi kalmıyor', () => {
+    expect(gunMetni('2026-09-01', 'tr')).not.toContain('2026-09-01');
+  });
+
+  it('tam zaman damgası da kabul ediliyor', () => {
+    expect(gunMetni('2026-09-01T10:30:00.000Z', 'tr')).toContain('Eylül');
+  });
+
+  /** Bozuk değer gelirse mesajı hiç göstermemektense olduğu gibi geçiriyoruz. */
+  it('bozuk değer çökmez, olduğu gibi geçer', () => {
+    expect(gunMetni('bilinmeyen', 'tr')).toBe('bilinmeyen');
+    expect(gunMetni(undefined, 'tr')).toBe('');
   });
 });

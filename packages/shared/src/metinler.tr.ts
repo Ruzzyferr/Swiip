@@ -1,3 +1,4 @@
+import { gunMetni } from './tarih';
 /**
  * Türkçe sözlük. Tüm kullanıcıya görünen metinler tek dosyada toplanır, dağıtılmaz.
  * İkinci dil `metinler.en.ts`; tip bütünlüğü `i18n.ts` üzerinden zorlanır.
@@ -184,6 +185,8 @@ export const tr = {
       'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
       'elle arayabilirsin. Bu deneme kotandan düşmedi.',
     ilgi_gecersiz: () => 'Geçerli bir e-posta adresi ve açık rıza gerekiyor.',
+    analiz_hakki_bitti: () =>
+      'Vücut analizi hakkını kullandın. Ücretsiz planda bir kez, ödemeli planlarda her ay açılıyor.',
     profil_yok: () => 'Önce değerlendirmeyi tamamla.',
     barkod_yok: () => 'Bu barkod veritabanımızda yok. Elle ekleyebilirsin.',
     besin_yok: () => 'Besin bulunamadı.',
@@ -215,11 +218,12 @@ export const tr = {
       'arama her planda sınırsız.',
     geri_bildirim_plan_yetersiz: () =>
       'Seans sonrası geri bildirim ve programın buna göre güncellenmesi Temel plandan itibaren açık.',
+    // Sunucu ISO tarih gönderiyor ("2026-09-01"); kullanıcıya öyle gösterilmez.
     koc_kotasi_doldu: (d: Record<string, string | number>) =>
-      `Bu ayki koç mesajı hakkın doldu (${d.hak}). ${d.yenilenme} tarihinde sıfırlanır.`,
+      `Bu ayki koç mesajı hakkın doldu (${d.hak}). ${gunMetni(d.yenilenme, 'tr')} tarihinde sıfırlanır.`,
     tanima_kotasi_doldu: (d: Record<string, string | number>) =>
-      `Bu ayki fotoğraf tanıma hakkın doldu (${d.hak}). ${d.yenilenme} tarihinde sıfırlanır. ` +
-      'Bu arada manuel giriş ve barkod sınırsız.',
+      `Bu ayki fotoğraf tanıma hakkın doldu (${d.hak}). ${gunMetni(d.yenilenme, 'tr')} tarihinde ` +
+      'sıfırlanır. Bu arada manuel giriş ve barkod sınırsız.',
   },
   genel: {
     devam: 'Devam',
@@ -691,6 +695,8 @@ export const tr = {
     },
     yukleniyor: 'Programın hazırlanıyor',
     bosBaslik: 'Henüz programın yok',
+    // Sunucu sebebi söyleyemediğinde; sessiz kalmaktan iyidir.
+    uretilemedi: 'Program şu an hesaplanamadı. Tekrar deneyebilirsin.',
     bosGovde:
       'Değerlendirmeyi tamamladıysan programı şimdi hesaplayabiliriz. Tamamlamadıysan önce oraya dönelim.',
     programimiHesapla: 'Programımı hesapla',
@@ -721,6 +727,9 @@ export const tr = {
       pull: 'Çekme',
       legs: 'Bacak',
     },
+    // Gün ve hareket başlıkları veri gelince kesinleşir; yüklenirken bunlar yazar.
+    gunSayfaBasligi: 'Seans',
+    hareketSayfaBasligi: 'Hareket',
     gunBulunamadi: 'Bu gün bulunamadı',
     programaDon: 'Programa dön',
     gunEki: (sira: number) => `${sira}. gün`,
@@ -1228,6 +1237,8 @@ export const tr = {
     },
 
     tarif: {
+      // Tarif adı yüklenene kadar başlıkta bu yazar; boş başlık ham rota yolu gösterir.
+      sayfaBasligi: 'Tarif',
       bosBaslik: 'Tarif bulunamadı',
       bosGovde: 'Bu tarif kaldırılmış ya da hiç olmamış olabilir.',
       birPorsiyon: 'BİR PORSİYON',

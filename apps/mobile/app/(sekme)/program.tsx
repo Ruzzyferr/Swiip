@@ -76,6 +76,7 @@ export default function ProgramEkrani() {
   const [program, setProgram] = useState<ProgramCevabi | null>(null);
   const [durum, setDurum] = useState<'yukleniyor' | 'hazir' | 'yok' | 'cevrimdisi'>('yukleniyor');
   const [yenileniyor, setYenileniyor] = useState(false);
+  const [uretimHatasi, setUretimHatasi] = useState<string | null>(null);
   const [gerekceler, setGerekceler] = useState<Record<string, string>>({});
 
   const yukle = useCallback(async () => {
@@ -117,14 +118,27 @@ export default function ProgramEkrani() {
 
   const uret = async () => {
     setDurum('yukleniyor');
+    setUretimHatasi(null);
     try {
       await istek('/v1/program/uret', { yontem: 'POST', govde: { hafta: 1 } });
       await yukle();
     } catch (hata) {
       setDurum('yok');
+
       if (hata instanceof ApiHatasi && hata.durum === 403) {
         router.push({ pathname: '/degerlendirme/kapi', params: { tip: 'kardiyak' } });
+        return;
       }
+
+      /**
+       * Sebebi söylüyoruz.
+       *
+       * Önce yalnızca 403 ele alınıyordu; diğer her hata sessizce yutuluyordu. Kullanıcı
+       * "Programımı hesapla"ya basıyor, hiçbir şey olmuyor ve neden olmadığını
+       * öğrenemiyor. Sunucu sebebi zaten söylüyor ("önce değerlendirmeyi tamamla");
+       * göstermemek, bilgiyi elimizde tutmak.
+       */
+      setUretimHatasi(hata instanceof ApiHatasi ? hata.mesaj : m.uretilemedi);
     }
   };
 
@@ -141,6 +155,7 @@ export default function ProgramEkrani() {
       <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
         <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
+          {uretimHatasi ? <Uyari tur="tehlike" govde={uretimHatasi} /> : null}
           <Dugme baslik={m.programimiHesapla} onPress={() => void uret()} />
           <Dugme
             baslik={m.degerlendirmeyeDon}

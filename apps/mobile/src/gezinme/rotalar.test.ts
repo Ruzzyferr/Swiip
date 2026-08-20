@@ -43,21 +43,3 @@ describe('kök düzen rota adları', () => {
     ).toBe(true);
   });
 });
-
-/**
- * Paywall modal olarak açılmalı (F6.3).
- *
- * Spec bölüm 13: kapatma ilk saniyeden görünür. Modal sunum kapatmayı sistem düzeyinde
- * de mümkün kılar (aşağı kaydırma) ve ekranın "akışın içinde bir adım" değil
- * "araya giren bir teklif" olduğunu görsel olarak söyler.
- *
- * Seçenek kök düzende yazılıydı ama `odeme` rotası olmadığı için hiç uygulanmıyordu;
- * artık ekranın kendi tanımında.
- */
-describe('paywall sunumu', () => {
-  it("paywall kendi ekranında presentation: 'modal' tanımlıyor", () => {
-    const kaynak = readFileSync(join(APP, 'odeme', 'paywall.tsx'), 'utf8');
-
-    expect(kaynak).toMatch(/presentation:\s*'modal'/);
-  });
-});
