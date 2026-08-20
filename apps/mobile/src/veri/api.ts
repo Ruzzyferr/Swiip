@@ -33,7 +33,21 @@ const aktifDil = (): Dil => aktif;
  * 401 alındığında bir kez sessizce yenilenir; yine olmazsa oturum düşer.
  */
 
-const VARSAYILAN_TABAN = 'http://localhost:3000';
+/**
+ * Üretim adresi. Caddy API'yi siteyle **aynı origin**den sunuyor.
+ *
+ * Bu sabit bir yedek değil, YAYIN ADRESİ. Eskiden yedek `http://localhost:3000`'di ve
+ * `EXPO_PUBLIC_API_URL` tanımsız derlenen bir yayın paketi kullanıcının telefonunda
+ * kendi localhost'una istek atardı: kayıt olamaz, giriş yapamaz, uygulama herkeste
+ * "İnternet yok" derdi. Derleme hiçbir uyarı vermiyor.
+ *
+ * Play'e yükleme hazırlanırken derlenmiş pakette gerçekten `http://127.0.0.1:3311`
+ * gömülü olduğu görüldü (`scripts/yayin-denetimi.mjs` bunu artık yakalıyor).
+ */
+const URETIM_TABAN = 'https://made2fit.io';
+
+/** Geliştirme yedeği. Emülatörde `adb reverse` ile ana makineye bağlanır. */
+const GELISTIRME_TABAN = 'http://127.0.0.1:3311';
 
 const ERISIM_ANAHTARI = 'made2fit.erisim';
 const YENILEME_ANAHTARI = 'made2fit.yenileme';
@@ -51,7 +65,18 @@ export class ApiHatasi extends Error {
 
 function tabanUrl(): string {
   const yapilandirma = Constants.expoConfig?.extra as { apiTabanUrl?: string } | undefined;
-  return yapilandirma?.apiTabanUrl ?? process.env.EXPO_PUBLIC_API_URL ?? VARSAYILAN_TABAN;
+  const acik = yapilandirma?.apiTabanUrl || process.env.EXPO_PUBLIC_API_URL;
+
+  /**
+   * BOŞ dize de tanımsız sayılıyor.
+   *
+   * `??` boş dizeyi geçirir: `.env` içinde `EXPO_PUBLIC_API_URL=` yazan bir derleme
+   * taban adresi olarak `''` alır ve her istek göreli yola gider. `||` bunu kapatıyor.
+   */
+  if (acik) return acik;
+
+  // Yayın paketinde yedek ÜRETİM adresidir; geliştirmede yerel sunucu.
+  return __DEV__ ? GELISTIRME_TABAN : URETIM_TABAN;
 }
 
 export async function tokenlariKaydet(erisim: string, yenileme: string): Promise<void> {
