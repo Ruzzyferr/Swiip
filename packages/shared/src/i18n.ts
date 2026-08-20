@@ -1,3 +1,4 @@
+import { DILLER, varsayilanDil, type Dil } from './diller';
 import { tr } from './metinler.tr';
 import { en } from './metinler.en';
 
@@ -13,22 +14,10 @@ import { en } from './metinler.en';
  * yakalanır — kullanıcının karşısına yarı Türkçe bir ekran çıkmaz.
  */
 
-export const DILLER = ['tr', 'en'] as const;
-export type Dil = (typeof DILLER)[number];
-
-/**
- * Dilin BCP47 karşılığı — sayı, para ve tarih biçimi için.
- *
- * Ayrı durmalı: 'tr' bizim iç kodumuz, 'tr-TR' `Intl`'in beklediği etiket. Biçimlendirme
- * çağrılarına doğrudan 'tr' vermek sessizce yanlış yerel ayar seçtirir.
- */
-export const BCP47: Record<Dil, string> = {
-  tr: 'tr-TR',
-  en: 'en-US',
-};
-
-/** Türkiye önce: kaynak dil ve yedek dil Türkçe. */
-export const varsayilanDil: Dil = 'tr';
+// Dil kimlikleri `diller.ts` içinde: sözlükler biçimlendiricileri, biçimlendiriciler de
+// dil kimliklerini kullanıyor. Aynı dosyada dururken zincir kapanıyor ve Metro modülü
+// yarı yüklenmiş veriyordu.
+export { BCP47, DILLER, varsayilanDil, type Dil } from './diller';
 
 /**
  * Sözlük tipi: Türkçe sözlükten türetilir ama string sabitleri genişletilir.

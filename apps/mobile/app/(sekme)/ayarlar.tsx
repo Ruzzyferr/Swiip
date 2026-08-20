@@ -156,8 +156,6 @@ export default function Ayarlar() {
           </Kart>
         ) : null}
 
-        <Yazi tur="baslik1">{a.baslik}</Yazi>
-
         {abonelik ? (
           <Kart>
             <Yazi tur="baslik3">{a.planKotaBasligi}</Yazi>

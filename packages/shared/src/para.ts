@@ -1,4 +1,4 @@
-import { BCP47, type Dil } from './i18n';
+import { BCP47, type Dil } from './diller';
 
 /**
  * Fiyat biçimi (F10.3).

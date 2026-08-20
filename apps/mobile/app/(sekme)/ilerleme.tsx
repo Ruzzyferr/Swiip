@@ -102,8 +102,6 @@ export default function Ilerleme() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
       <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
-        <Yazi tur="baslik1">{m.baslik}</Yazi>
-
         <Satir arasi="sm">
           <View style={{ flex: 1 }}>
             <Dugme

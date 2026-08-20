@@ -16,7 +16,7 @@ import {
   Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
-import { istek } from '../../src/veri/api';
+import { ApiHatasi, istek } from '../../src/veri/api';
 import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 
 /**
@@ -46,8 +46,15 @@ export default function Rapor() {
     void (async () => {
       try {
         setAnaliz(await istek<AnalizCevabi>('/v1/vucut/analiz', { yontem: 'POST', govde: {} }));
-      } catch {
-        setHata(m.hataMesaji);
+      } catch (h) {
+        /**
+         * Sunucunun söylediği sebebi gösteriyoruz.
+         *
+         * Her hata "Analiz şu an yapılamadı. Ölçülerini girip tekrar deneyebilirsin."
+         * oluyordu. Analiz hakkı bittiğinde bu cümle yanlış yönlendirme: kullanıcı
+         * ölçülerini giriyor, yine olmuyor ve nedenini öğrenemiyor.
+         */
+        setHata(h instanceof ApiHatasi ? h.mesaj : m.hataMesaji);
       }
     })();
   }, [m.hataMesaji]);

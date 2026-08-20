@@ -1,4 +1,4 @@
-import { varsayilanDil, type Dil } from './i18n';
+import { varsayilanDil, type Dil } from './diller';
 
 /**
  * Yazma işlemi hata metinleri.

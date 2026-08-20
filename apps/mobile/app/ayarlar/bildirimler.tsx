@@ -77,7 +77,6 @@ export default function Bildirimler() {
     <>
       <Stack.Screen options={{ headerShown: true, title: m.sayfaBasligi }} />
       <Ekran>
-        <Yazi tur="baslik1">{m.baslik}</Yazi>
         <Yazi renk="metinYumusak">{m.girisMetni}</Yazi>
 
         <Kart>

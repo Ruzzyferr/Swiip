@@ -149,7 +149,6 @@ export default function Koc() {
       >
         {mesajlar.length === 0 ? (
           <View style={{ gap: tema.bosluk.md }}>
-            <Yazi tur="baslik2">{m.baslik}</Yazi>
             <Yazi renk="metinYumusak">{m.tanitim}</Yazi>
             <Kart>
               <Yazi tur="etiket" renk="metinSilik">

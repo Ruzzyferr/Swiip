@@ -612,7 +612,6 @@ export const en: Metinler = {
     edUyariGovde:
       'Weight targets and rate calculations are off for you. We will track your progress by how you feel, what you lift and your tape measurements.',
     sayfaBasligi: 'Is your target realistic',
-    baslik: 'Is your target realistic?',
     girisMetni:
       'This page is not selling anything. It works out whether your target is physiologically possible, and says so when it is not.',
     seninBeklentin: 'WHAT YOU EXPECT',
@@ -1109,7 +1108,6 @@ export const en: Metinler = {
 
   bildirimAyarlari: {
     sayfaBasligi: 'Notifications',
-    baslik: 'Notifications',
     girisMetni:
       'We send reminders, we do not nag. No broken-streak alerts, no guilt language and no "we miss you" pings — none of that will ever exist here.',
     seansBaslik: 'Session reminder',

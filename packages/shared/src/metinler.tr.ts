@@ -613,7 +613,6 @@ export const tr = {
     edUyariGovde:
       'Kilo hedefi ve hız hesabı senin için kapalı. İlerlemeni nasıl hissettiğin, ne kadar kaldırdığın ve çevre ölçülerinle takip edeceğiz.',
     sayfaBasligi: 'Hedefin gerçekçi mi',
-    baslik: 'Hedefin gerçekçi mi?',
     girisMetni:
       'Bu sayfa satış yapmıyor. Hedefinin fizyolojik olarak mümkün olup olmadığını hesaplıyor ve mümkün değilse bunu söylüyor.',
     seninBeklentin: 'SENİN BEKLENTİN',
@@ -1108,7 +1107,6 @@ export const tr = {
 
   bildirimAyarlari: {
     sayfaBasligi: 'Bildirimler',
-    baslik: 'Bildirimler',
     girisMetni:
       'Hatırlatma gönderiyoruz, dürtmüyoruz. Seri bozulma uyarısı, suçluluk dili ve "seni özledik" bildirimi yok — hiçbiri olmayacak.',
     seansBaslik: 'Seans hatırlatması',
