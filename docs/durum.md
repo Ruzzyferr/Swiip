@@ -2,7 +2,8 @@
 
 `uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-20.
 
-**Özet:** 1.649 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**Özet:** 1.672 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**Son derin inceleme:** `docs/inceleme-2026-08-20.md` — on bulgu, hepsi düzeltildi.
 **İmzalı yayın paketi hazır:** `app-release.aab` · sürüm 1.0.0 · versionCode 1.
 
 **Uygulama gerçek bir Android cihazında (emülatör, API 36) baştan sona kullanıldı.**
@@ -89,7 +90,17 @@ npm run test:coverage     # motor kapsam eşikleri
 | Bel fıtığında yerden çekiş yok | ✅ | `program.test.ts` "bel fıtığında yerden çekiş hareketleri programda yoktur" |
 | Ekipmanı olmayan hareket önerilmiyor | ✅ | `program.test.ts` "ekipmanı olmayan hareket asla önerilmez" |
 | Her hareketin gerçek gerekçesi var | ✅ | `decisions` tablosu + `/v1/program/gerekce/:id` + yolculuk 8. adım |
-| Geri bildirim → sonraki seans değişiyor | ✅ | yolculuk 11. adım: "artıyor" kararı döner |
+| Geri bildirim → sonraki seans değişiyor | ✅ | `ilerlemeDongusu.test.ts` — plandaki hedef ağırlık ve set sayısı gerçekten değişiyor |
+| Hafta ilerliyor ve kazanım taşınıyor | ✅ | `POST /program/sonraki-hafta` · aynı test dosyası |
+
+> **2026-08-20 düzeltmesi — bu satır önceden yanlıştı.** Eski kanıt geri bildirim ucundan
+> dönen **cümleye** bakıyordu ("52,5 kg'a çıkıyor"), planın kendisine değil. Cümle
+> doğruydu, plan değişmiyordu: `/aktif` seans kalemlerini olduğu gibi döndürüyor ve
+> `progression_state` hiçbir yerde plana yansımıyordu. `set_degisimi` ise motorda
+> hesaplanıp hiç okunmuyordu — yani "hacmi bir set düşürdüm" cümlesi karşılıksızdı.
+> Ayrıca `/uret` yalnızca `{hafta: 1}` ile çağrıldığı için **sonraki hafta hiç yoktu**
+> ve `programs.hafta` hep 1 kaldığından takvim tabanlı deload koşulu hiç sağlanamıyordu.
+> Ayrıntı: `docs/inceleme-2026-08-20.md` bölüm 1.
 
 Alt görevler: hacim bütçesi (26 test), split (12), kısıt çözücü (37), 1RM ve yük (24),
 çift ilerleme + deload (32), **takvim yerleşimi (26)**, karar izi, gerekçe üretimi (21),
@@ -609,6 +620,7 @@ düşürüldü, sonra düzeltildi.
 | Kota yarışı | Kota "oku → AI'ı çağır → artır" sırasıyla işliyordu; aradaki boşlukta paralel istekler sınırı aşabiliyordu. Sınıra yakınken elli paralel istek yeter | Hak model çağrılmadan **önce** tek SQL cümlesinde koşullu rezerve ediliyor (`servisler/kotaRezerve.ts`, 10 test). Çağrı patlarsa iade ediliyor — kullanıcı bizim hatamızı ödemez |
 | Hata sözleşmesi | İki uç `hata` alanı gönderiyordu, istemci `kod` okuyor — o uçlarda kullanıcı "bilinmeyen hata" görüyordu | Alan `kod` olarak birleştirildi; bir test kaynak kodu tarayıp sözleşmeyi zorluyor |
 | Sessiz yazma hataları | Kullanıcının başlattığı yazmalar `catch(() => null)` ile yutuluyordu: kilo girilir ekran kapanır, ertesi gün kayıt yoktur. ED ayar anahtarı, fotoğraf rızası, yemek ekleme, tanıma onayı, değerlendirme tamamlama — hepsi sessizce kaybolabiliyordu | Her yazma kendi cümlesiyle hata gösteriyor (`shared/islem.ts`, 6 test, iki dilde). "Uygulama çökmez" kuralı hatayı gizlemek değil, çökmeden söylemek demek |
+| **Yetki açığı (2026-08-20)** | `POST /program/hareket-degistir` `session_items`'ı yalnızca `session_id` ile seçiyordu; sahiplik kontrolü yoktu. Kimliği doğrulanmış herkes başkasının programını değiştirebiliyordu — üstelik muadil zinciri **isteği yapanın** kısıtlarından hesaplandığı için kurbanın kontrendikasyonları (bel fıtığı gibi) tamamen atlanıyordu | Seans sahibine ait değilse 404. `kiraciAyrimi.test.ts` (8 test) kimlik taşıyan her uç için "B, A'nın kaydına dokunabiliyor mu" sorusunu ayrı ayrı soruyor |
 | Hesap silme kapsamı | Silmenin gerçekten her tabloyu süpürdüğü hiç sınanmamıştı | 21 doğrudan + 1 dolaylı tablo için "kalan satır yok" testi (`hesapSilme.test.ts`); yeni tablo zincire bağlanmazsa CI kırılıyor |
 | Log sızıntısı | Parola sıfırlama kodu, yemek fotoğrafı ve **koç mesajı** log maskesinde yoktu — koç mesajı KVKK'ya göre özel nitelikli veri | Maskeye eklendi; bir test maskeyi istek şemalarına karşı doğruluyor, yeni hassas alan maskesiz kalırsa CI kırılıyor |
 
@@ -722,8 +734,15 @@ dönüşüyor ve kaydırma konumunu kumpas ağzıyla gösteriyor. Kahraman böl�
 şey). Ürünün iddiası "gerekçesini gösteririz" ise, sayfa da iddia etmek yerine göstermeli.
 
 Tam genişlik: ortalanmış sabit sütun yok. Geniş ekranda tipografi ve **sütun sayısı**
-büyüyor, boşluk değil — 2560'ta dört karar izi aynı anda duruyor. 390 / 834 / 1440 / 2560
-piksellerde yatay taşma yok, konsol hatası yok, koyu tema destekli.
+büyüyor, boşluk değil — 2560'ta dört karar izi aynı anda duruyor. 320'den 3440 piksele
+on dört genişlikte, iki temada yatay taşma yok, konsol hatası yok.
+
+> **2026-08-20 düzeltmesi.** Bu kural bölüm başlıkları için tutmuyordu:
+> `.bolum-bas { max-width: 46ch }` bloğu dar bir sütuna hapsediyor, `--h2` tavanı 1900px'te
+> ve `--lede` tavanı 1600px'te doluyordu. Ölçüm: 3440 pikselde metin 736px'te bitiyor,
+> sağda görünümün **%79'u boş** kalıyordu. Başlık bloğu 80rem üstünde iki sütuna açıldı ve
+> tavanlar 2560'ta dolacak şekilde yükseltildi; sağ boşluk %79 → %19, 1280-1920 arası
+> %47-63 → %3. Ölçüm aracı: `scripts/site-tipografi.mjs`.
 
 Yayın haberi formu gerçekten çalışıyor: `/v1/ilgi` ucu (8 test), açık rıza zorunlu, aynı
 adres iki kez eklenmiyor ve "zaten kayıtlı" demiyor — kimin listede olduğunu sızdırmamak
