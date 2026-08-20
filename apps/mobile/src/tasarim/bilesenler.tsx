@@ -275,7 +275,8 @@ export function Dugme({
     tehlike: tema.renk.tehlikeZemin,
   };
   const metinler: Record<string, string> = {
-    birincil: '#FFFFFF',
+    // Zemin temayla değişiyor; metin de değişmek zorunda (bkz. tokens.ts aksanUstu).
+    birincil: tema.renk.aksanUstu,
     ikincil: tema.renk.metin,
     sessiz: tema.renk.aksan,
     tehlike: tema.renk.tehlike,

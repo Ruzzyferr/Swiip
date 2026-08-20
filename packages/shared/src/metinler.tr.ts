@@ -1169,6 +1169,10 @@ export const tr = {
     kaydedildiIzinYok:
       'Tercihlerin kaydedildi ama bildirim izni verilmedi. Cihaz ayarlarından açabilirsin.',
     kaydedildiBos: 'Tercihlerin kaydedildi. Şu an kurulu bildirim yok.',
+    // Programa ulaşılamadıysa hangi günlere kurulacağı bilinmiyor; sebebi söylenir.
+    kaydedildiProgramYok:
+      'Tercihlerin cihazında kaydedildi ama programına ulaşamadım, bu yüzden seans ' +
+      'hatırlatması kurulamadı. Bağlanınca bu ekrana dönüp tekrar kaydet.',
     kaydedildiKuruldu: 'Tercihlerin kaydedildi ve hatırlatmalar kuruldu.',
   },
 

@@ -160,6 +160,7 @@ describe('geri bildirim planı gerçekten değiştirir', () => {
     expect(hedef, 'ağırlıklı hareket bulunamadı').toBeTruthy();
 
     const oncekiKg = hedef!.target_weight!;
+    const oncekiSet = hedef!.target_sets;
 
     const cevap = await geriBildirim(gun.seans.id, hedef!.exercise_id, 'tamamladim');
     expect(cevap.motor_kararlari.join(' ')).toMatch(/artıyor|tekrara/);
@@ -170,6 +171,17 @@ describe('geri bildirim planı gerçekten değiştirir', () => {
     // Motor "artıyor" dedi. Plandaki sayı da artmalı, yoksa kullanıcıya yalan söylüyoruz.
     const enBuyuk = Math.max(...sonrakiKalemler.map((k) => k.target_weight ?? 0));
     expect(enBuyuk).toBeGreaterThan(oncekiKg);
+
+    /**
+     * Ama SET SAYISI değişmemeli.
+     *
+     * `planaYansit` set sayısına da dokunuyor (`set_degisimi`). Başarılı bir seansta o
+     * değer sıfır; sıfır olmasaydı kullanıcı iyi gittiği için hacmini kaybederdi.
+     * Yükü doğrulayıp hacmi doğrulamamak, düzeltmenin yan etkisini görmemek olurdu.
+     */
+    for (const k of sonrakiKalemler) {
+      expect(k.target_sets, `${hedef!.exercise_id} set sayısı değişmiş`).toBe(oncekiSet);
+    }
   });
 
   it('iki hafta üst üste zorlanınca plandaki set sayısı düşer', async () => {

@@ -16,7 +16,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 
 /** Günün programı — 1. gün dışındaki günler için okuma ekranı. */
 
@@ -41,6 +41,7 @@ export default function GunDetayi() {
   const tema = useTema();
   const m = useMetinler().program;
   const sayilarGizli = useSayilarGizli();
+  const dil = useDil();
   const { seans } = useLocalSearchParams<{ seans: string }>();
 
   const [gun, setGun] = useState<Gun | null>(null);
@@ -99,9 +100,9 @@ export default function GunDetayi() {
                   })
                 }
                 accessibilityRole="button"
-                accessibilityLabel={hareket?.ad_tr}
+                accessibilityLabel={hareketAdi(hareket, dil, kalem.exercise_id)}
               >
-                <Yazi tur="baslik3">{hareket?.ad_tr ?? kalem.exercise_id}</Yazi>
+                <Yazi tur="baslik3">{hareketAdi(hareket, dil, kalem.exercise_id)}</Yazi>
                 <Satir arasi="lg" hizala="baseline">
                   <Sayi tur="baslik3">
                     {kalem.target_sets} × {kalem.target_reps_low}-{kalem.target_reps_high}

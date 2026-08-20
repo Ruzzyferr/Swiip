@@ -159,7 +159,7 @@ export default function AlisverisListesi() {
                       }}
                     >
                       {alindi ? (
-                        <Yazi tur="etiket" stil={{ color: '#FFFFFF' }}>
+                        <Yazi tur="etiket" stil={{ color: tema.renk.aksanUstu }}>
                           ✓
                         </Yazi>
                       ) : null}

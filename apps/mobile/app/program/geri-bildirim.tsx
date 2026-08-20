@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { hareketBul, kgMetni } from '@made2fit/core';
-import type { GeriBildirim } from '@made2fit/shared';
+import { hareketAdi, type GeriBildirim } from '@made2fit/shared';
 import {
   Dugme,
   Ekran,
@@ -17,7 +17,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { VucutHaritasi } from '../../src/degerlendirme/VucutHaritasi';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**
  * Seans sonrası üç dokunuş (F3.9).
@@ -47,6 +47,7 @@ const SECENEK_KODLARI: GeriBildirim[] = ['tamamladim', 'zorlandim', 'yapamadim']
 export default function GeriBildirimEkrani() {
   const tema = useTema();
   const m = useMetinler().geriBildirim;
+  const dil = useDil();
   const { seans } = useLocalSearchParams<{ seans: string }>();
 
   const [kalemler, setKalemler] = useState<Kalem[] | null>(null);
@@ -157,7 +158,7 @@ export default function GeriBildirimEkrani() {
           const hareket = hareketBul(kalem.exercise_id);
           return (
             <Kart key={kalem.id}>
-              <Yazi tur="baslik3">{hareket?.ad_tr ?? kalem.exercise_id}</Yazi>
+              <Yazi tur="baslik3">{hareketAdi(hareket, dil, kalem.exercise_id)}</Yazi>
               <Satir arasi="md" hizala="baseline">
                 {kalem.target_weight !== null ? (
                   <Sayi renk="metinYumusak">{kgMetni(kalem.target_weight)} kg</Sayi>
@@ -178,7 +179,7 @@ export default function GeriBildirimEkrani() {
                         setSecimler((onceki) => ({ ...onceki, [kalem.exercise_id]: kod }))
                       }
                       accessibilityRole="radio"
-                      accessibilityLabel={`${hareket?.ad_tr}: ${ad}`}
+                      accessibilityLabel={`${hareketAdi(hareket, dil, kalem.exercise_id)}: ${ad}`}
                       accessibilityState={{ checked: secili }}
                       style={{
                         flex: 1,

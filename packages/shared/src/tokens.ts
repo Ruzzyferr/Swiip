@@ -11,6 +11,15 @@ export const renkler = {
   aksan: '#14615A',
   aksanKoyu: '#0E4741',
   aksanAcik: '#E4EFED',
+  /**
+   * Aksan ZEMİNİ üstündeki metin rengi.
+   *
+   * Birincil düğme metni `'#FFFFFF'` olarak sabit yazılmıştı. Açık temada aksan
+   * `#14615A` ve beyazla 7.27:1 — sorun yok. Koyu temada aksan `#4FA79C`'ye açılıyor
+   * ve beyaz metin **2.86:1**'e düşüyor: uygulamadaki her ana düğme okunmaz hâle
+   * geliyordu. Zemin temayla değişiyorsa üstündeki metin de değişmek zorunda.
+   */
+  aksanUstu: '#FFFFFF',
   zemin: '#F6F7F5',
   yuzey: '#FFFFFF',
   yuzeyIkincil: '#EFF1EE',
@@ -31,6 +40,8 @@ export const renkler = {
     cizgi: '#2E332F',
     aksan: '#4FA79C',
     aksanAcik: '#16302D',
+    // Açık aksan üstünde mürekkep okunur: 6.37:1.
+    aksanUstu: '#131614',
   },
 } as const;
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { hareketBul, kgMetni } from '@made2fit/core';
-import { haftaBittiMi, tarihMetni, type Metinler } from '@made2fit/shared';
+import { haftaBittiMi, hareketAdi, tarihMetni, type Metinler } from '@made2fit/shared';
 import {
   Ayirac,
   BosDurum,
@@ -332,7 +332,7 @@ export default function ProgramEkrani() {
               </Satir>
               <Yazi tur="kucuk" renk="metinSilik">
                 {gun.hareketler
-                  .map((h) => hareketBul(h.exercise_id)?.ad_tr ?? h.exercise_id)
+                  .map((h) => hareketAdi(hareketBul(h.exercise_id), dil, h.exercise_id))
                   .join(' · ')}
               </Yazi>
               <Pressable
@@ -383,13 +383,15 @@ function HareketKarti({
   const tema = useTema();
   const m = useMetinler().program;
   const hareket = hareketBul(kalem.exercise_id);
+  const dil = useDil();
+  const ad = hareketAdi(hareket, dil, kalem.exercise_id);
 
   return (
     <Kart>
-      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={hareket?.ad_tr}>
+      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={ad}>
         <Satir dagit="space-between" hizala="flex-start">
           <Yazi tur="baslik3" stil={{ flex: 1 }}>
-            {hareket?.ad_tr ?? kalem.exercise_id}
+            {ad}
           </Yazi>
         </Satir>
 
@@ -450,7 +452,7 @@ function HareketKarti({
           <Yazi tur="kucuk" renk="metinYumusak">
             {kalem.alternatifler
               .slice(0, 3)
-              .map((id) => hareketBul(id)?.ad_tr ?? id)
+              .map((id) => hareketAdi(hareketBul(id), dil, id))
               .join(' · ')}
           </Yazi>
         </View>

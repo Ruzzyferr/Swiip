@@ -48,6 +48,14 @@ export default function Bildirimler() {
   const [antrenmanGunleri, setAntrenmanGunleri] = useState<number[]>([]);
   const [zamanlayici, setZamanlayici] = useState<ZamanlayiciDurumu | null>(null);
   const [kaydedildi, setKaydedildi] = useState(false);
+  /**
+   * Program çekilemedi mi?
+   *
+   * Çekilemezse `antrenmanGunleri` boş kalıyor ve hiçbir seans hatırlatması kurulmuyor.
+   * Ekran bunu "Şu an kurulu bildirim yok" diye gösteriyordu: doğru ama eksik — kullanıcı
+   * programı olmadığı için mi yoksa bağlanamadığımız için mi olduğunu bilemiyordu.
+   */
+  const [programaUlasilamadi, setProgramaUlasilamadi] = useState(false);
 
   useEffect(() => {
     void oku<Tercihler>(ANAHTARLAR.bildirimTercihleri).then((kayit) => {
@@ -59,7 +67,10 @@ export default function Bildirimler() {
     // Hangi günlerde antrenman var: hatırlatma yalnızca o günlere kurulur.
     void istek<{ takvim: { gunler: number[] } }>('/v1/program/aktif')
       .then((program) => setAntrenmanGunleri(program.takvim?.gunler ?? []))
-      .catch(() => setAntrenmanGunleri([]));
+      .catch(() => {
+        setAntrenmanGunleri([]);
+        setProgramaUlasilamadi(true);
+      });
   }, []);
 
   const degistir = <A extends keyof Tercihler>(anahtar: A, deger: Tercihler[A]) => {
@@ -140,7 +151,16 @@ export default function Bildirimler() {
 
         <Uyari govde={m.durusNotu} />
 
-        {kaydedildi ? <Uyari govde={kaydetNotu(m, zamanlayici)} /> : null}
+        {kaydedildi ? (
+          <Uyari
+            tur={programaUlasilamadi ? 'uyari' : 'bilgi'}
+            govde={
+              programaUlasilamadi && (zamanlayici?.adet ?? 0) === 0
+                ? m.kaydedildiProgramYok
+                : kaydetNotu(m, zamanlayici)
+            }
+          />
+        ) : null}
 
         <Dugme baslik={genel.kaydet} onPress={() => void kaydet()} />
       </Ekran>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { hareketBul } from '@made2fit/core';
-import type { Hareket } from '@made2fit/shared';
+import { hareketAdi, type Hareket } from '@made2fit/shared';
 import {
   Ayirac,
   Dugme,
@@ -19,7 +19,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { hareketGorseli } from '../../src/veri/hareketMedyasi.uretilmis';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**
  * Hareket detayı ve değiştirme (F1.7, F1.8).
@@ -37,12 +37,15 @@ interface GerekceCevabi {
 export default function HareketDetayi() {
   const tema = useTema();
   const m = useMetinler().program;
+  const dil = useDil();
   const kasAdi = (kod: string) => m.kasAdlari[kod as keyof typeof m.kasAdlari] ?? kod;
   const { id, seans } = useLocalSearchParams<{ id: string; seans?: string }>();
 
   const [hareket, setHareket] = useState<Hareket | null>(null);
   const [gerekce, setGerekce] = useState<GerekceCevabi | null>(null);
-  const [muadiller, setMuadiller] = useState<Array<{ id: string; ad_tr: string }>>([]);
+  const [muadiller, setMuadiller] = useState<Array<{ id: string; ad_tr: string; ad_en?: string }>>(
+    [],
+  );
   const [degistirmeAcik, setDegistirmeAcik] = useState(false);
   const [mesaj, setMesaj] = useState<string | null>(null);
 
@@ -55,7 +58,7 @@ export default function HareketDetayi() {
 
   const muadilleriGetir = async () => {
     if (!seans) return;
-    const cevap = await istek<{ muadiller: Array<{ id: string; ad_tr: string }> }>(
+    const cevap = await istek<{ muadiller: Array<{ id: string; ad_tr: string; ad_en?: string }> }>(
       '/v1/program/hareket-degistir',
       { yontem: 'POST', govde: { seans_id: seans, eski_hareket_id: id } },
     ).catch(() => null);
@@ -89,10 +92,10 @@ export default function HareketDetayi() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: hareket.ad_tr }} />
+      <Stack.Screen options={{ headerShown: true, title: hareketAdi(hareket, dil) }} />
       <Ekran>
         <View style={{ gap: tema.bosluk.sm }}>
-          <Yazi tur="baslik1">{hareket.ad_tr}</Yazi>
+          <Yazi tur="baslik1">{hareketAdi(hareket, dil)}</Yazi>
           <Satir arasi="xs">
             <Etiket
               metin={
@@ -132,7 +135,7 @@ export default function HareketDetayi() {
           <View style={{ gap: tema.bosluk.xs }}>
             <Image
               source={gorsel}
-              accessibilityLabel={m.gorselErisim(hareket.ad_tr)}
+              accessibilityLabel={m.gorselErisim(hareketAdi(hareket, dil))}
               resizeMode="cover"
               style={{
                 width: '100%',
@@ -210,7 +213,7 @@ export default function HareketDetayi() {
                   muadiller.map((muadil) => (
                     <SecimDugmesi
                       key={muadil.id}
-                      baslik={muadil.ad_tr}
+                      baslik={hareketAdi(muadil, dil, muadil.id)}
                       secili={false}
                       onPress={() => void degistir(muadil.id)}
                     />

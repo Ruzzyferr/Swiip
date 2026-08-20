@@ -1159,6 +1159,9 @@ export const en: Metinler = {
     kaydedildiIzinYok:
       'Your preferences are saved, but notification permission was not granted. You can enable it in device settings.',
     kaydedildiBos: 'Your preferences are saved. Nothing is scheduled right now.',
+    kaydedildiProgramYok:
+      'Your preferences were saved on this device, but I could not reach your program, so ' +
+      'session reminders were not scheduled. Come back to this screen once you are online.',
     kaydedildiKuruldu: 'Your preferences are saved and the reminders are scheduled.',
   },
 

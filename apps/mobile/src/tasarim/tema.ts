@@ -21,6 +21,8 @@ export interface Tema {
     metinSilik: string;
     aksan: string;
     aksanZemin: string;
+    /** Aksan zemini üstündeki metin — temayla değişir. */
+    aksanUstu: string;
     cizgi: string;
     uyari: string;
     uyariZemin: string;
@@ -46,6 +48,7 @@ const acikTema: Tema = {
     metinSilik: renkler.murekkepSilik,
     aksan: renkler.aksan,
     aksanZemin: renkler.aksanAcik,
+    aksanUstu: renkler.aksanUstu,
     cizgi: renkler.cizgi,
     uyari: renkler.uyari,
     uyariZemin: renkler.uyariZemin,
@@ -72,6 +75,7 @@ const koyuTema: Tema = {
     metinSilik: renkler.koyu.murekkepSilik,
     aksan: renkler.koyu.aksan,
     aksanZemin: renkler.koyu.aksanAcik,
+    aksanUstu: renkler.koyu.aksanUstu,
     cizgi: renkler.koyu.cizgi,
     uyari: '#D9B54A',
     uyariZemin: '#2C2612',

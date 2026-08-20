@@ -817,7 +817,21 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
     });
 
     if (!govde.yeni_hareket_id) {
-      return { muadiller: zincir.map((h) => ({ id: h.id, ad_tr: h.ad_tr, patern: h.patern })) };
+      /**
+       * İngilizce adı da gönderiliyor.
+       *
+       * İstemci muadil listesini `ad_tr` ile basıyordu; İngilizce arayüzde aynı hareket
+       * gerekçede "Hammer Curl", listede "Çekiç curl" olarak görünüyordu. Kullanıcı
+       * bunların aynı hareket olduğunu bilemez.
+       */
+      return {
+        muadiller: zincir.map((h) => ({
+          id: h.id,
+          ad_tr: h.ad_tr,
+          ad_en: h.ad_en,
+          patern: h.patern,
+        })),
+      };
     }
 
     const yeni = zincir.find((h) => h.id === govde.yeni_hareket_id);
