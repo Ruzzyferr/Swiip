@@ -211,6 +211,8 @@ export default function Paywall() {
               accessibilityRole="radio"
               accessibilityLabel={m.planErisim(ad, fiyat)}
               accessibilityState={{ checked: isaretli }}
+
+              style={{ minHeight: tema.dokunmaHedefi }}
             >
               <Kart vurgulu={isaretli}>
                 <Satir dagit="space-between" hizala="baseline">

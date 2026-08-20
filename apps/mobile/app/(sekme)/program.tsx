@@ -388,7 +388,12 @@ function HareketKarti({
 
   return (
     <Kart>
-      <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={ad}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={ad}
+        style={{ minHeight: tema.dokunmaHedefi }}
+      >
         <Satir dagit="space-between" hizala="flex-start">
           <Yazi tur="baslik3" stil={{ flex: 1 }}>
             {ad}

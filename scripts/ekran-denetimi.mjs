@@ -32,6 +32,20 @@ const OYUNLASTIRMA =
 /** Tema dışı sabit renk: koyu temada kırılır. */
 const SABIT_RENK = /(?:color|backgroundColor|borderColor)\s*:\s*'#[0-9a-fA-F]{3,8}'/;
 
+/**
+ * Yükleniyor durumu gerekmeyen ekranlar — gerekçeli muafiyet.
+ *
+ * `guvenlik-denetimi.mjs` ile aynı desen: süresiz ve gerekçesiz muafiyet yok.
+ * Boş bırakılan bir kural, hiç olmayan bir kuraldan tehlikelidir; ama her koşuda
+ * kırmızı gösteren bir araç da kimsenin bakmadığı bir araç olur.
+ */
+const YUKLENIYOR_MUAF = {
+  'ayarlar/bildirimler.tsx':
+    'Tercihler cihazdaki önbellekten anında geliyor; ağdan gelen tek şey hangi günlere ' +
+    'hatırlatma kurulacağı. Boş ekran göstermek yerine tercihleri hemen çizmek doğru. ' +
+    'Ağ başarısız olursa kullanıcıya ayrıca söyleniyor (kaydedildiProgramYok).',
+};
+
 const bulgular = [];
 const satirlar = [];
 
@@ -72,7 +86,7 @@ for (const yol of dosyalar) {
    * çalışmak yerine sabit bir pencereye bakmak burada hem yeterli hem güvenli.
    */
   for (const eslesme of kod.matchAll(/<Pressable\b/g)) {
-    const pencere = kod.slice(eslesme.index, eslesme.index + 500);
+    const pencere = kod.slice(eslesme.index, eslesme.index + 1200);
     const hedefVar = /dokunmaHedefi|minHeight|hitSlop|paddingVertical|height:/.test(pencere);
     if (!hedefVar) {
       const satir = kod.slice(0, eslesme.index).split('\n').length;
@@ -81,10 +95,14 @@ for (const yol of dosyalar) {
   }
 
   // --- 3: durum kapsamı ---
-  if (VERI_CEKEN.test(kod)) {
+  if (VERI_CEKEN.test(kod) && !YUKLENIYOR_MUAF[ad]) {
     if (!/Yukleniyor|yukleniyor/.test(kod)) sorunlar.push('veri çekiyor ama yükleniyor durumu yok');
-    if (!/BosDurum|bos[BG]|Uyari|hata/i.test(kod))
+  }
+  if (VERI_CEKEN.test(kod)) {
+    // "Bulunamadı" da bir boş durumdur; yalnızca BosDurum bileşenini aramak dar kalıyordu.
+    if (!/BosDurum|bos[BG]|Uyari|hata|[Bb]ulunamadi|[Bb]ulunamadı/i.test(kod)) {
       sorunlar.push('veri çekiyor ama boş/hata durumu yok');
+    }
   }
 
   // --- 4: oyunlaştırma ---

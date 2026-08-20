@@ -101,6 +101,8 @@ export default function GunDetayi() {
                 }
                 accessibilityRole="button"
                 accessibilityLabel={hareketAdi(hareket, dil, kalem.exercise_id)}
+
+                style={{ minHeight: tema.dokunmaHedefi }}
               >
                 <Yazi tur="baslik3">{hareketAdi(hareket, dil, kalem.exercise_id)}</Yazi>
                 <Satir arasi="lg" hizala="baseline">
