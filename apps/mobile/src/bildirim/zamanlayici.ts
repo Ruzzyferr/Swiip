@@ -38,9 +38,18 @@ export type ZamanlayiciDurumu = { durum: 'kuruldu'; adet: number } | { durum: 'i
  */
 Bildirimler.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
+    shouldShowAlert: true,
+    /**
+     * `shouldPlaySound` Android'de yalnızca sesi kapatmıyor.
+     *
+     * Kütüphanenin kendi notu: Android'de `shouldPlaySound: false` verildiğinde açılır
+     * bildirim uyarısı da GÖSTERİLMİYOR — öncelik ne olursa olsun. Yani "sessiz olsun"
+     * demek, uygulama açıkken bildirimi tamamen kaybetmek demekti.
+     *
+     * Sessizliği kanal seviyesinde sağlıyoruz (`sound: null`, `enableVibrate: false`);
+     * orası hem doğru yer hem de kullanıcının sistem ayarlarından değiştirebileceği yer.
+     */
+    shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });

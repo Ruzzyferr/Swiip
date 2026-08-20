@@ -153,6 +153,19 @@ export const body_analyses = pgTable(
     bodyfat_high: real('bodyfat_high'),
     /** 'capraz' | 'gorsel' | 'olcu' */
     yontem: text('yontem').notNull(),
+    /**
+     * Analiz görüntüden mi üretildi?
+     *
+     * Ad bilerek "foto" içermiyor: `sema.test.ts` sütun adlarını photo/foto/image/base64
+     * kalıplarına karşı tarıyor ve `fotografli` denendiğinde kırmızıya döndü. Koruma
+     * haklı — saklanan şey fotoğraf değil, raporun hangi kaynaktan üretildiği.
+     *
+     * Gizlilik notu bu alana bakıyor. Bilgi önceden yalnızca üretim anında vardı; rapor
+     * sonradan okunduğunda duruş bayrağı sayısından ÇIKARILMAYA çalışılıyordu. Çıkarım
+     * yanlış: görsel analiz bayrak üretmediğinde fotoğraf gönderen kullanıcıya "fotoğraf
+     * göndermedin" deniyordu. Ürünün en hassas cümlesi tahmin edilecek yer değil.
+     */
+    gorselden_uretildi: boolean('gorselden_uretildi').notNull().default(false),
     muscle_map_jsonb: jsonb('muscle_map_jsonb').notNull().default({}),
     posture_flags: jsonb('posture_flags').notNull().default([]),
     measurements_jsonb: jsonb('measurements_jsonb').notNull().default({}),

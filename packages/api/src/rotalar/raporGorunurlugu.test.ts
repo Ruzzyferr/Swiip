@@ -162,4 +162,73 @@ describe('rapor ikinci kez hak harcamadan okunur', () => {
     expect(son.statusCode).toBe(404);
     expect(son.json().kod).toBeTruthy();
   });
+  it('okunan rapor TAMAMEN kullanıcının dilinde — feragat dahil', async () => {
+    const token = await ucretsizKullanici('rapor-dil@made2fit.io');
+    const basliklar = { authorization: `Bearer ${token}` };
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/vucut/analiz',
+      headers: basliklar,
+      payload: { olculer: { bel_cm: 84, boyun_cm: 38 } },
+    });
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/dil',
+      headers: basliklar,
+      payload: { dil: 'en' },
+    });
+
+    const son = await app.inject({
+      method: 'GET',
+      url: '/v1/vucut/analiz/son',
+      headers: basliklar,
+    });
+    expect(son.statusCode).toBe(200);
+
+    /**
+     * Kaçaklardan biri TIBBİ CİHAZ FERAGATİYDİ.
+     *
+     * İlk hâlinde okuma yolu yalnızca `ozet` ve `durus` çeviriyordu; `sinirlamalar`,
+     * `feragat` ve bel/boy mesajı Türkçe kalıyordu. Emülatörde İngilizce arayüzde
+     * doğrudan görüldü. `durum.md` zaten şunu söylüyor: çeviride kaybolabilecek en
+     * tehlikeli cümle feragattir.
+     */
+    const rapor = son.json().rapor;
+    expect(rapor.feragat, 'feragat Türkçe kalmış').not.toMatch(/tıbbi cihaz|teşhis koymaz/i);
+    expect(String(rapor.feragat)).toMatch(/medical device/i);
+    expect(JSON.stringify(rapor.sinirlamalar ?? []), 'sınırlamalar Türkçe kalmış').not.toMatch(
+      /girmedin|ölçünü|doğrulayabiliyoruz/i,
+    );
+  });
+
+  it('gizlilik notu fotoğraf gönderilip gönderilmediğini DOĞRU söyler', async () => {
+    const token = await ucretsizKullanici('rapor-gizlilik@made2fit.io');
+    const basliklar = { authorization: `Bearer ${token}` };
+
+    // Ölçülerle üretilen analiz: "fotoğraf göndermedin" demeli.
+    await app.inject({
+      method: 'POST',
+      url: '/v1/vucut/analiz',
+      headers: basliklar,
+      payload: { olculer: { bel_cm: 84, boyun_cm: 38 } },
+    });
+
+    const son = await app.inject({
+      method: 'GET',
+      url: '/v1/vucut/analiz/son',
+      headers: basliklar,
+    });
+
+    /**
+     * Not, kayıtlı bayraktan geliyor; duruş bayrağı sayısından ÇIKARILMIYOR.
+     *
+     * Çıkarım emülatörde yanlış çıktı: görsel analiz bayrak üretmediğinde (AI geçidi
+     * yapılandırılmamışsa) üç fotoğraf çeken kullanıcıya "fotoğraf göndermedin"
+     * deniyordu. Olmayan bir silme işleminden söz etmek kadar, yapılan bir silmeyi
+     * inkâr etmek de güveni harcar.
+     */
+    expect(son.json().gizlilik_notu).toBeTruthy();
+    expect(son.json().gizlilik_notu).toMatch(/ölçü|measurement/i);
+  });
 });

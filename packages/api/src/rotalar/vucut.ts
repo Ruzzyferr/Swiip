@@ -151,10 +151,10 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     }
 
     /** Gizlilik notu bu bayrağa bakıyor: söylediğimiz şey yaptığımız şey olmalı. */
-    const fotografGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
+    const gorselGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
 
     let gorsel: GorselAnalizCiktisi | undefined;
-    if (fotografGeldi) {
+    if (gorselGeldi) {
       // Fotoğraf yalnızca bu çağrının ömrü boyunca bellekte. Dönüş değeri sayılardır.
       gorsel = await fotografiAnalizEt({
         fotograflar: govde.fotograflar!,
@@ -177,6 +177,8 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
       .values({
         user_id: istek.kullaniciId,
         yontem: rapor.yontem,
+        // Gizlilik notu sonradan da dogru cumleyi secebilsin diye KAYDEDILIYOR.
+        gorselden_uretildi: gorselGeldi,
         bodyfat_low: rapor.yag_orani?.alt ?? null,
         bodyfat_high: rapor.yag_orani?.ust ?? null,
         muscle_map_jsonb: Object.fromEntries(rapor.kas_dagilimi.map((k) => [k.bolge, k.skor])),
@@ -218,7 +220,7 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
        * düştü." Ölçülerle devam eden kullanıcı fotoğraf göndermemişti; olmayan bir şeyin
        * silindiğine dair güvence, tam da kazanmak istediğimiz güveni harcıyor.
        */
-      gizlilik_notu: fotografGeldi
+      gizlilik_notu: gorselGeldi
         ? metinler.gizlilikNotu.fotografli
         : metinler.gizlilikNotu.olculerle,
     };
@@ -264,7 +266,24 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     return {
       analiz_id: kayit.id,
       taken_at: kayit.taken_at,
-      rapor: { ...ham, ozet: cevrilmis.ozet, durus: cevrilmis.durus },
+      /**
+       * Ceviri alanlarinin TAMAMI — uretim yoluyla ayni.
+       *
+       * Ilk halinde yalnizca `ozet` ve `durus` cevriliyordu; `sinirlamalar`, `feragat`
+       * ve bel/boy mesaji Turkce kaliyordu. Emulatorde Ingilizce arayuzde goruldu ve
+       * kacaklardan biri TIBBI CIHAZ FERAGATIYDI -- ceviride kaybolmasi en tehlikeli
+       * cumle.
+       */
+      rapor: {
+        ...ham,
+        ozet: cevrilmis.ozet,
+        durus: cevrilmis.durus,
+        sinirlamalar: cevrilmis.sinirlamalar,
+        feragat: cevrilmis.feragat,
+        ...(ham.bel_boy && cevrilmis.belBoyMesaji
+          ? { bel_boy: { ...ham.bel_boy, mesaj: cevrilmis.belBoyMesaji } }
+          : {}),
+      },
       sayilar_gizli: kullanici?.edModu ?? false,
       /**
        * Not, KAYITLI analizin nasıl üretildiğini anlatıyor.
@@ -274,10 +293,10 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
        * olmayan bir şeyin silindiğine dair güvence vermek, kazanmak istediğimiz güveni
        * harcar.
        */
-      gizlilik_notu:
-        ((kayit.posture_flags as unknown[]) ?? []).length > 0
-          ? metinler.gizlilikNotu.fotografli
-          : metinler.gizlilikNotu.olculerle,
+      // Kayitli bayrak: cikarim degil.
+      gizlilik_notu: kayit.gorselden_uretildi
+        ? metinler.gizlilikNotu.fotografli
+        : metinler.gizlilikNotu.olculerle,
     };
   });
 

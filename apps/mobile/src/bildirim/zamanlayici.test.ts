@@ -31,13 +31,17 @@ const KOK_DUZEN = readFileSync(join(__dirname, '..', '..', 'app', '_layout.tsx')
 describe('bildirim sunumu', () => {
   it('sunum işleyicisi tanımlı — ön planda gelen bildirim yutulmuyor', () => {
     expect(KAYNAK).toMatch(/setNotificationHandler\s*\(/);
-    expect(KAYNAK, 'banner gösterilmiyor').toMatch(/shouldShowBanner:\s*true/);
-    expect(KAYNAK, 'listede görünmüyor').toMatch(/shouldShowList:\s*true/);
+    // Alan adı KURULU PAKETİN tipinden: 0.29'da `shouldShowAlert`. Daha yeni SDK'ların
+    // `shouldShowBanner`/`shouldShowList` adlarını yazmak sessizce çalışmayan bir
+    // işleyici üretiyordu — cihazda ölçülerek görüldü.
+    expect(KAYNAK, 'bildirim gösterilmiyor').toMatch(/shouldShowAlert:\s*true/);
   });
 
-  it('hatırlatma ses çıkarmıyor ve rozet basmıyor — dürtmüyoruz', () => {
-    expect(KAYNAK).toMatch(/shouldPlaySound:\s*false/);
+  it('rozet basmıyor; sessizlik kanal seviyesinde', () => {
     expect(KAYNAK).toMatch(/shouldSetBadge:\s*false/);
+    // Android'de `shouldPlaySound: false` uyarıyı da gizliyor (kütüphanenin kendi notu),
+    // o yüzden sessizlik kanaldan geliyor.
+    expect(KAYNAK).toMatch(/sound:\s*null/);
   });
 
   it('işleyici açılışta kuruluyor, yalnızca ayar ekranında değil', () => {

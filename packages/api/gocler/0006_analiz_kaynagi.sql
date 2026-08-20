@@ -1,0 +1,23 @@
+-- Analizin fotoğraftan mı ölçüden mi üretildiği KAYDEDİLİR.
+--
+-- Rapordaki gizlilik notu iki farklı cümle söylüyor: "fotoğrafın analiz edildi ve
+-- bellekten düştü" ya da "fotoğraf göndermedin, bu rapor ölçülerinden çıktı". Not
+-- üretim anında doğru cümleyi seçiyordu çünkü isteği görüyordu.
+--
+-- Rapor sonradan okunduğunda bu bilgi kayıtta yoktu ve duruş bayrağı sayısından
+-- ÇIKARILMAYA çalışıldı. Çıkarım yanlış: görsel analiz bir bayrak üretmediğinde
+-- (ör. AI geçidi yapılandırılmamışsa) fotoğraf gönderen kullanıcıya "fotoğraf
+-- göndermedin" deniyordu — emülatörde üç fotoğraf çekip tam bunu gördük.
+--
+-- Gizlilik notu ürünün en hassas cümlesi; tahmin edilecek yer değil. Eklemeli ve
+-- varsayılanlı: eski satırlar `false` kalır, yani "ölçülerden üretildi" der. Fotoğraf
+-- saklamadığımız için eski satırlarda bunu geriye dönük doğrulamanın başka yolu yok
+-- ve yanlış tarafta hata yapmak: olmayan bir silme işleminden söz etmemek.
+-- Sütun adı bilerek "foto" içermiyor.
+--
+-- `sema.test.ts` her tablodaki sütun adlarını photo/foto/image/base64 gibi kalıplara
+-- karşı tarıyor: fotoğraf içeriğinin şemaya sızmadığının iki katmanlı garantisinden
+-- biri bu. Önce `fotografli` denendi ve test kırmızıya döndü — koruma haklı, ad
+-- değişti. Saklanan şey fotoğrafın kendisi değil, raporun HANGİ KAYNAKTAN üretildiği.
+alter table body_analyses
+  add column if not exists gorselden_uretildi boolean not null default false;
