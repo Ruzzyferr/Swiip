@@ -31,10 +31,20 @@ export const EGIM_TOLERANSI = 8;
 const OLCUM_YOK_DERECESI = 90;
 
 /**
- * Telefonun dikeyden sapması (derece).
+ * Telefonun dikeyden sapması (0-90 derece).
  *
- * Portre modda dik tutulan telefonda yerçekimi -y ekseninde okunur. Sapma, ölçülen
- * vektör ile bu referans arasındaki açı.
+ * Ölçülen şey, cihazın uzun ekseninin (y) yerçekimiyle ne kadar hizalı olduğu.
+ *
+ * **İşaret bilerek yok sayılıyor.** İlk hâli `-y` referansı kullanıyordu ve bu yalnızca
+ * iOS'ta doğru: CoreMotion dik tutulan telefonda `y = -1` verir, Android ise `y = +9.81`.
+ * Expo bu iki sözleşmeyi eşitlemiyor. Sonuç, Android'de eğim her zaman ~180 çıkıyor ve
+ * çekim düğmesi **hiç açılmıyordu** — kapı yalnızca telefon baş aşağı tutulduğunda
+ * açılıyordu. Emülatörde ölçülerek görüldü.
+ *
+ * Mutlak değer almak iki platformda da doğru sonucu veriyor ve hangi platformun hangi
+ * işareti kullandığına bağımlı kalmıyor. Bedeli: baş aşağı tutulan telefon da "hizalı"
+ * sayılıyor. Bu kabul edilebilir — ölçümü bozan şey perspektif, yani eğim; ters çevirmek
+ * oranları değiştirmiyor ve zaten canlı önizlemede apaçık görünüyor.
  */
 export function egimDerecesi(ivme: IvmeOkumasi): number {
   const buyukluk = Math.hypot(ivme.x, ivme.y, ivme.z);
@@ -42,11 +52,11 @@ export function egimDerecesi(ivme: IvmeOkumasi): number {
   // Sensör henüz veri vermediyse veya serbest düşüşteyse açı hesaplanamaz.
   if (buyukluk < 0.1) return OLCUM_YOK_DERECESI;
 
-  // -y referansıyla iç çarpım; buyukluk ile normalleştirince kosinüs kalır.
-  const kosinus = -ivme.y / buyukluk;
+  // Dikey eksenle hizalanma; işaret değil büyüklük önemli.
+  const kosinus = Math.abs(ivme.y) / buyukluk;
 
-  // Kayan nokta hatası kosinüsü [-1, 1] dışına taşırabilir; acos NaN verir.
-  const guvenli = Math.min(1, Math.max(-1, kosinus));
+  // Kayan nokta hatası kosinüsü 1'in üstüne taşırabilir; acos NaN verir.
+  const guvenli = Math.min(1, kosinus);
 
   return (Math.acos(guvenli) * 180) / Math.PI;
 }

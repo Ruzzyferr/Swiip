@@ -8,12 +8,23 @@ import { egimDerecesi, telefonDikMi, EGIM_TOLERANSI } from './egim';
  * gibi görünür, oysa değişen tek şey telefonun eğimidir. Bu yüzden eğik telefonla çekim
  * düğmesi açılmaz.
  *
- * Girdi ivmeölçerden gelir: yerçekimi vektörü, g cinsinden. Telefon dikken yerçekimi
- * neredeyse tamamen -y ekseninde okunur.
+ * Girdi ivmeölçerden gelir: yerçekimi vektörü. Telefon dikken yerçekimi neredeyse
+ * tamamen y ekseninde okunur — **işareti platforma göre değişir.**
+ *
+ * iOS (CoreMotion) dik telefonda `y = -1`, Android `y = +9.81` verir ve Expo bu iki
+ * sözleşmeyi eşitlemiyor. İlk hâl `-y` referansı kullanıyordu, yani yalnızca iOS'ta
+ * doğruydu: Android'de eğim her zaman ~180 çıkıyor ve çekim düğmesi **hiç
+ * açılmıyordu.** Emülatörde ölçülerek görüldü — `y = -9.81` verildiğinde (telefon baş
+ * aşağı) "açı uygun" diyordu.
+ *
+ * Hesap artık işareti yok sayıyor; iki platformda da doğru.
  */
 
-/** Portre modda dik tutulan telefon. */
+/** Portre modda dik tutulan telefon — iOS işaretiyle. */
 const DIK = { x: 0, y: -1, z: 0 };
+
+/** Aynı duruş, Android işaretiyle. İkisi de dik sayılmalı. */
+const DIK_ANDROID = { x: 0, y: 9.81, z: 0 };
 
 describe('egimDerecesi', () => {
   it('tam dik telefonda sıfır derece verir', () => {
@@ -37,8 +48,21 @@ describe('egimDerecesi', () => {
     expect(egimDerecesi({ x: 0, y: 0, z: 1 })).toBeCloseTo(90, 0);
   });
 
-  it('baş aşağı tutulan telefonu dik saymaz', () => {
-    expect(egimDerecesi({ x: 0, y: 1, z: 0 })).toBeCloseTo(180, 0);
+  /**
+   * Aynı fiziksel duruş, iki platformda iki işaret. İkisi de dik sayılmak zorunda;
+   * aksi hâlde bir platformda çekim düğmesi hiç açılmaz.
+   */
+  it('platform işaretinden bağımsız çalışır', () => {
+    expect(egimDerecesi(DIK_ANDROID)).toBe(0);
+    expect(egimDerecesi(DIK)).toBe(egimDerecesi(DIK_ANDROID));
+    expect(telefonDikMi(DIK_ANDROID)).toBe(true);
+  });
+
+  it('Android işaretiyle eğik telefon da yakalanır', () => {
+    const yarim = Math.SQRT1_2 * 9.81;
+
+    expect(egimDerecesi({ x: 0, y: yarim, z: yarim })).toBeCloseTo(45, 0);
+    expect(telefonDikMi({ x: 0, y: yarim, z: yarim })).toBe(false);
   });
 
   it('ölçüm gürültüsünde vektör tam birim olmayabilir — yine de çalışır', () => {

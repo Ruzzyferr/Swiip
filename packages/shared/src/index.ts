@@ -13,3 +13,4 @@ export * from './harf';
 export * from './tarihGirisi';
 export * from './aghatasi';
 export * from './veriYereli';
+export * from './tekUcus';

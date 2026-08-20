@@ -1,6 +1,13 @@
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
-import { apiHataMetni, dilCozumle, metinleriAl, varsayilanDil, type Dil } from '@made2fit/shared';
+import {
+  apiHataMetni,
+  dilCozumle,
+  metinleriAl,
+  tekUcus,
+  varsayilanDil,
+  type Dil,
+} from '@made2fit/shared';
 
 /**
  * Ağ katmanının bildiği dil.
@@ -65,7 +72,40 @@ export async function oturumVar(): Promise<boolean> {
   return (await erisimTokeni()) !== null;
 }
 
-async function tokenYenile(): Promise<boolean> {
+/**
+ * Oturum kesin olarak düştüğünde haber verilecek yer.
+ *
+ * Yenileme tokeni de geçersizse kullanıcı artık oturumda değil. Bunu söylemeden her
+ * ekranda genel hata göstermek, kullanıcıyı neden hiçbir şeyin çalışmadığını bilmeden
+ * bırakır. Oturum katmanı buraya abone oluyor ve karşılama ekranına götürüyor.
+ */
+let oturumDustuDinleyici: (() => void) | null = null;
+
+export function oturumDustugundeCalistir(geriCagri: (() => void) | null): void {
+  oturumDustuDinleyici = geriCagri;
+}
+
+/**
+ * Token yenileme — aynı anda yalnızca bir kez.
+ *
+ * Erişim tokeni dolduğunda ekrandaki birkaç istek aynı anda 401 alıyor. Yenileme tokeni
+ * **dönen** bir token: ilk çağrı onu tüketip yenisini alıyor, sonrakiler artık geçersiz
+ * olan eskisiyle gidiyor ve 401 alıyor.
+ *
+ * Asıl zarar oradan sonra geliyordu: başarısız çağrı `tokenlariSil()` çağırıp
+ * **kazanan çağrının az önce yazdığı yeni tokenı da siliyordu.** Kullanıcı hiçbir şey
+ * yapmadan oturumdan düşüyordu. Emülatörde ölçüldü:
+ * `/v1/kimlik/yenile` sonuçları `200, 200, 200, 200, 200, 401, 200, 401, 200, 401`.
+ *
+ * Program sekmesi açılışta bir program ve her hareket için bir gerekçe isteği atıyor;
+ * bu yarış istisna değil, kural.
+ *
+ * İki koruma var:
+ *  1. `tekUcus` — eşzamanlı çağrılar tek yenilemeyi bekliyor.
+ *  2. Silme koşulu — saklı token bu arada değiştiyse SİLMİYORUZ: başkası zaten
+ *     yenilemiş demektir ve o oturum geçerli.
+ */
+const tokenYenile = tekUcus(async (): Promise<boolean> => {
   const yenileme = await SecureStore.getItemAsync(YENILEME_ANAHTARI);
   if (!yenileme) return false;
 
@@ -76,14 +116,20 @@ async function tokenYenile(): Promise<boolean> {
   });
 
   if (!yanit.ok) {
-    await tokenlariSil();
-    return false;
+    // Denediğimiz token hâlâ saklıysa oturum gerçekten bitti; değiştiyse dokunma.
+    const suanki = await SecureStore.getItemAsync(YENILEME_ANAHTARI);
+    if (suanki === yenileme) {
+      await tokenlariSil();
+      oturumDustuDinleyici?.();
+      return false;
+    }
+    return true;
   }
 
   const govde = (await yanit.json()) as { erisim_token: string; yenileme_token: string };
   await tokenlariKaydet(govde.erisim_token, govde.yenileme_token);
   return true;
-}
+});
 
 export interface IstekSecenekleri {
   yontem?: 'GET' | 'POST' | 'PUT' | 'DELETE';

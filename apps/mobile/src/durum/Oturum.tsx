@@ -8,7 +8,15 @@ import {
   type ReactNode,
 } from 'react';
 import { dilCozumle, metinleriAl, type Dil, type Metinler } from '@made2fit/shared';
-import { agDiliniAyarla, istek, oturumVar, tokenlariKaydet, tokenlariSil } from '../veri/api';
+import {
+  agDiliniAyarla,
+  istek,
+  oturumDustugundeCalistir,
+  oturumVar,
+  tokenlariKaydet,
+  tokenlariSil,
+} from '../veri/api';
+import { router } from 'expo-router';
 import { tumunuTemizle } from '../veri/onbellek';
 import { magaza } from '../odeme/magaza';
 import { bildirimleriKapat } from '../bildirim/zamanlayici';
@@ -116,6 +124,20 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
     // Bir sonraki kullanıcıya öncekinin antrenman hatırlatmaları gitmesin.
     await bildirimleriKapat();
     setKullanici(null);
+  }, []);
+
+  /**
+   * Oturum kesin düştüğünde karşılama ekranına dönüyoruz.
+   *
+   * Yenileme tokeni de geçersizse kullanıcı artık oturumda değil; her ekranda genel hata
+   * göstermek onu neden hiçbir şeyin çalışmadığını bilmeden bırakır.
+   */
+  useEffect(() => {
+    oturumDustugundeCalistir(() => {
+      setKullanici(null);
+      router.replace('/');
+    });
+    return () => oturumDustugundeCalistir(null);
   }, []);
 
   const deger = useMemo<OturumDurumu>(
