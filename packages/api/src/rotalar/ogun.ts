@@ -187,19 +187,60 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
   });
 
   /** Kaydırmalı öğün destesi (F8.10). */
+  /**
+   * Kullanıcının öğün bölümünü ve istenen öğünü çözer.
+   *
+   * Eskiden öğün, Türkçe ADIN küçük harfli ilk üç harfiyle eşleştiriliyordu:
+   * `'Akşam'.toLocaleLowerCase('tr-TR')` → `'akşam'`, aranan önek `'aks'`. Türkçe
+   * 'ş' harfi ASCII 's' değil, yani eşleşme HİÇ tutmuyor ve kod sessizce
+   * `ogunler[1]` yedeğine, yani öğleye düşüyordu. Akşam öğünü günlüğün %40'ı,
+   * öğle %35'i: kullanıcı akşam için öğle boyunda tarifler görüyordu ve
+   * "makro kilidi ±%8" sözü tam burada kırılıyordu.
+   *
+   * Ramazan'da daha kötüydü: kodlar sahur/iftar/iftar_sonrasi olduğu için
+   * ÜÇ öğünün üçü birden yedeğe düşüyordu.
+   *
+   * Artık dilden bağımsız `kod` alanı kullanılıyor ve tanınmayan kod sessizce
+   * başka bir öğüne düşmek yerine hata veriyor.
+   */
+  async function ogunCozumle(kullaniciId: string, kod: string | undefined) {
+    const { kisitlar, profil } = await kisitlariGetir(kullaniciId);
+    const beslenme = beslenmeHedefiHesapla(profil);
+    const ogunler = ogunHedefleriniBol(beslenme, 3, kisitlar.ramazan);
+
+    const ogunAdlari = metinleriAl(dilCozumle(await kullaniciDili(kullaniciId))).ogun
+      .ogunAdlari as Record<string, string>;
+
+    // Öğün belirtilmezse günün ana öğünü: en büyük kalori payı olan.
+    const secili =
+      kod === undefined
+        ? ogunler.reduce((a, b) => (b.hedef.kalori > a.hedef.kalori ? b : a))
+        : ogunler.find((o) => o.kod === kod);
+
+    if (!secili) {
+      throw HataliIstek(
+        `Böyle bir öğün yok: ${kod}. Geçerli öğünler: ${ogunler.map((o) => o.kod).join(', ')}.`,
+        'ogun_kodu_gecersiz',
+      );
+    }
+
+    return {
+      kisitlar,
+      secili,
+      /** İstemci sekmeleri buradan çizer; Ramazan'da liste kendiliğinden değişir. */
+      ogunler: ogunler.map((o) => ({ kod: o.kod, ad: ogunAdlari[o.kod] ?? o.ad })),
+    };
+  }
+
   app.get('/deste', { preHandler: app.kimlikDogrula }, async (istek) => {
     const { ogun, dolaptan } = z
-      .object({ ogun: z.string().default('ogle'), dolaptan: z.coerce.boolean().default(false) })
+      .object({ ogun: z.string().optional(), dolaptan: z.coerce.boolean().default(false) })
       .parse(istek.query);
 
     await ozellikKontrol(istek.kullaniciId, 'kaydirmali_ogun');
-    const { kisitlar, profil } = await kisitlariGetir(istek.kullaniciId);
 
-    const beslenme = beslenmeHedefiHesapla(profil);
-    const ogunler = ogunHedefleriniBol(beslenme, 3, kisitlar.ramazan);
-    const hedef =
-      ogunler.find((o) => o.ad.toLocaleLowerCase('tr-TR').startsWith(ogun.slice(0, 3)))?.hedef ??
-      ogunler[1]!.hedef;
+    const { kisitlar, secili, ogunler } = await ogunCozumle(istek.kullaniciId, ogun);
+    const hedef = secili.hedef;
 
     const tarifler = await tarifleriGetir(istek.kullaniciId);
     const envanter = dolaptan ? await envanterGetir(istek.kullaniciId) : undefined;
@@ -212,7 +253,8 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
     });
 
     return {
-      ogun,
+      ogun: secili.kod,
+      ogunler,
       hedef,
       ...deste,
       kartlar: deste.kartlar.map((t) => ({
@@ -331,6 +373,13 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
         return {
           // Öğün adı kullanıcının dilinde; motorun Türkçe adı yalnızca yedek.
           ad: ogunAdlari[ogun.kod] ?? ogun.ad,
+          /**
+           * Dilden bağımsız kod da yazılır.
+           *
+           * Ad kullanıcının diline göre değişiyor; tek öğünü değiştirebilmek için
+           * plandaki öğünü ada bakarak bulmak, dil değiştiren kullanıcıda tutmazdı.
+           */
+          kod: ogun.kod,
           hedef: ogun.hedef,
           tarif: secim ? { id: secim.id, ad: secim.ad, makrolar: secim.makrolar } : null,
           secenek_sayisi: deste.kartlar.length,
@@ -369,6 +418,109 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
     });
 
     return { plan_id: plan!.id, hafta_basi, gunler, alisveris: liste };
+  });
+
+  /**
+   * Plandaki TEK bir öğünü değiştirir (F8.10).
+   *
+   * Bu uç eksikti ve eksikliği ürünün sattığı bir özelliği boşa düşürüyordu.
+   * "Kaydırmalı öğün değiştirme" yazan düğme desteyi açıyor, kullanıcı beğendiği
+   * tarifi sağa kaydırıyordu — ve o kaydırma yalnızca TERCİH ÖĞRENİYORDU.
+   * `meal_plans.days_jsonb` hiç güncellenmiyordu, yani kullanıcı plana döndüğünde
+   * beğenmediği öğünü aynen görüyordu. Sessiz, çünkü hiçbir yerde hata çıkmıyordu.
+   *
+   * Tarif desteden seçilmek zorunda: deste zaten sert kısıtları (alerji, dini/etik,
+   * intolerans, bütçe, süre) ve makro kilidini geçmiş tariflerdir. Kullanıcının
+   * göremediği bir tarifi plana yazmak, kısıt çözücüsünü atlatmak olurdu.
+   */
+  app.post('/degistir', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const govde = z
+      .object({
+        hafta_basi: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        gun: z.number().int().min(0).max(6),
+        ogun_kod: z.string().min(1),
+        tarif_id: z.string().min(1),
+      })
+      .parse(istek.body);
+
+    await ozellikKontrol(istek.kullaniciId, 'kaydirmali_ogun');
+
+    const [plan] = await db
+      .select()
+      .from(meal_plans)
+      .where(
+        and(eq(meal_plans.user_id, istek.kullaniciId), eq(meal_plans.week_of, govde.hafta_basi)),
+      )
+      .limit(1);
+
+    if (!plan) throw Bulunamadi('Bu hafta için plan yok.', 'haftalik_plan_yok');
+
+    const gunler = plan.days_jsonb as Array<{
+      gun: number;
+      ogunler: Array<{
+        ad: string;
+        kod?: string;
+        hedef: { kalori: number };
+        tarif: { id: string; ad: string; makrolar: Tarif['makrolar'] } | null;
+        secenek_sayisi: number;
+      }>;
+    }>;
+
+    const gun = gunler.find((g) => g.gun === govde.gun);
+    if (!gun) throw Bulunamadi('Bu gün planda yok.', 'plan_gunu_yok');
+
+    const { kisitlar, secili } = await ogunCozumle(istek.kullaniciId, govde.ogun_kod);
+
+    /**
+     * Eski planlarda `kod` yok; onlarda sıraya düşülüyor.
+     *
+     * Göç yazmak yerine yedek koymak bilinçli: plan haftalık ve kısa ömürlü bir kayıt,
+     * bir hafta sonra zaten kodlu hâli üretiliyor.
+     */
+    const ogunIndeksi = gun.ogunler.findIndex((o) => o.kod === govde.ogun_kod);
+    const hedefOgun =
+      ogunIndeksi >= 0
+        ? gun.ogunler[ogunIndeksi]
+        : gun.ogunler.find((o) => o.hedef.kalori === secili.hedef.kalori);
+
+    if (!hedefOgun) throw Bulunamadi('Bu öğün planda yok.', 'plan_ogunu_yok');
+
+    const tarifler = await tarifleriGetir(istek.kullaniciId);
+    const deste = desteHazirla({ tarifler, hedef: secili.hedef, kisitlar });
+    const secim = deste.kartlar.find((k) => k.id === govde.tarif_id);
+
+    if (!secim) {
+      throw HataliIstek(
+        'Bu tarif o öğünün makro bütçesine ya da kısıtlarına uymuyor. ' +
+          'Destede gördüğün tariflerden birini seçebilirsin.',
+        'makro_kilidi',
+      );
+    }
+
+    hedefOgun.tarif = { id: secim.id, ad: secim.ad, makrolar: secim.makrolar };
+    hedefOgun.secenek_sayisi = deste.kartlar.length;
+
+    await db.update(meal_plans).set({ days_jsonb: gunler }).where(eq(meal_plans.id, plan.id));
+
+    /**
+     * Alışveriş listesi plandan türer; öğün değişince onun da değişmesi gerekir.
+     * Yoksa kullanıcı markette artık pişirmeyeceği yemeğin malzemesini alır.
+     */
+    const seciliTarifler = gunler
+      .flatMap((g) => g.ogunler.map((o) => o.tarif?.id))
+      .filter((id): id is string => id !== undefined && id !== null)
+      .map((id) => tarifler.find((t) => t.id === id))
+      .filter((t): t is Tarif => t !== undefined);
+
+    const envanter = await envanterGetir(istek.kullaniciId);
+    const liste = alisverisListesi(seciliTarifler, envanter);
+
+    await db
+      .update(shopping_lists)
+      .set({ items_jsonb: liste.kalemler, grouped_by_aisle: liste.reyonlar })
+      .where(eq(shopping_lists.plan_id, plan.id));
+
+    return { degistirildi: true, gun: govde.gun, ogun_kod: govde.ogun_kod, tarif: hedefOgun.tarif };
   });
 
   app.get('/plan/:haftaBasi', { preHandler: app.kimlikDogrula }, async (istek) => {

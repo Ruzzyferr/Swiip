@@ -8,13 +8,14 @@ import {
   Kart,
   Sayi,
   Satir,
+  Uyari,
   Yazi,
   Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf } from '@made2fit/shared';
+import { buyukHarf, islemHatasiMetni } from '@made2fit/shared';
 
 /**
  * Alışveriş listesi (F8.8).
@@ -69,6 +70,7 @@ export default function AlisverisListesi() {
   const [reyonlar, setReyonlar] = useState<Record<string, Kalem[]>>({});
   const [alinanlar, setAlinanlar] = useState<Set<string>>(new Set());
   const [hazir, setHazir] = useState(false);
+  const [dolapHatasi, setDolapHatasi] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
     const cevap = await istek<ListeCevabi>(`/v1/ogun/plan/${haftaBasi()}`).catch(() => null);
@@ -179,13 +181,25 @@ export default function AlisverisListesi() {
           </Kart>
         ))}
 
+        {dolapHatasi ? <Uyari tur="tehlike" govde={dolapHatasi} /> : null}
+
         <Dugme
           baslik={m.dolabaEkle}
           onPress={() => {
+            /**
+             * Yakalanmayan bir reddi vardi.
+             *
+             * `void istek(...).then(...)` yaziliyordu: istek patlarsa yakalanmamis bir
+             * promise reddi kaliyor, kullaniciya hicbir sey soylenmiyor ve ekran da
+             * degismiyordu. Kullanici dokunuyor, hicbir sey olmuyor.
+             */
+            setDolapHatasi(null);
             void istek('/v1/ogun/dolap', {
               yontem: 'POST',
               govde: { malzemeler: [...alinanlar] },
-            }).then(() => router.push('/ogun/dolap'));
+            })
+              .then(() => router.push('/ogun/dolap'))
+              .catch(() => setDolapHatasi(islemHatasiMetni('dolap_kaydet', dil)));
           }}
           pasif={alinanlar.size === 0}
         />

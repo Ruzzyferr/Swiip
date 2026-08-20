@@ -28,6 +28,8 @@ import { buyukHarf } from '@made2fit/shared';
 
 interface OgunKalemi {
   ad: string;
+  /** Dilden bagimsiz ogun kodu; eski planlarda yok. */
+  kod?: string;
   hedef: { kalori: number; protein_g: number };
   tarif: { id: string; ad: string; makrolar: { kalori: number; protein_g: number } } | null;
   secenek_sayisi: number;
@@ -213,7 +215,23 @@ export default function HaftalikPlan() {
                     <Dugme
                       baslik={m.degistir}
                       tur="ikincil"
-                      onPress={() => router.push('/ogun/deste')}
+                      /**
+                       * Hangi gunun hangi ogunu degistiriliyor — soylenmek zorunda.
+                       *
+                       * Parametresiz gonderiliyordu: kullanici pazartesi kahvaltisina
+                       * basiyor, deste ogle destesi aciliyor ve secim hicbir yere
+                       * yazilmiyordu.
+                       */
+                      onPress={() =>
+                        router.push({
+                          pathname: '/ogun/deste',
+                          params: {
+                            hafta,
+                            gun: String(gun?.gun ?? acikGun),
+                            ...(ogun.kod ? { ogun: ogun.kod } : {}),
+                          },
+                        })
+                      }
                     />
                   </View>
                 </Satir>

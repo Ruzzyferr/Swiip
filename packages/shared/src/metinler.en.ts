@@ -225,6 +225,12 @@ export const en: Metinler = {
       'Coach chat is available from the Basic plan. Your program and its rationales are full on every plan.',
     tanima_plan_yetersiz: () =>
       'Photo food recognition is on the Pro plan. Manual entry and search are unlimited on every plan.',
+    ogun_kodu_gecersiz: () => 'There is no such meal. Pick one of the meals in the list.',
+    plan_gunu_yok: () => 'That day is not in the plan. Refresh the plan and try again.',
+    plan_ogunu_yok: () => 'That meal is not in the plan. Refresh the plan and try again.',
+    makro_kilidi: () =>
+      'This recipe does not fit the macro budget or limits for that meal. Pick one of the ' +
+      'recipes you saw in the deck.',
     ogun_plan_yetersiz: () =>
       'Meal planning and swipe-to-swap are available from the Basic plan. Manual calorie entry and ' +
       'search are unlimited on every plan.',

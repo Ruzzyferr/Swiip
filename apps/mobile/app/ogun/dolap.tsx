@@ -14,7 +14,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { aramaAnahtari, kucukHarf } from '@made2fit/shared';
+import { aramaAnahtari, islemHatasiMetni, kucukHarf } from '@made2fit/shared';
 
 /**
  * Buzdolabı envanteri (F8.9).
@@ -54,6 +54,7 @@ export default function Dolap() {
   const [girdi, setGirdi] = useState('');
   const [hazir, setHazir] = useState(false);
   const [kaydedildi, setKaydedildi] = useState(false);
+  const [kaydetmeHatasi, setKaydetmeHatasi] = useState<string | null>(null);
 
   useEffect(() => {
     void istek<{ malzemeler: string[] }>('/v1/ogun/dolap')
@@ -83,9 +84,27 @@ export default function Dolap() {
     setKaydedildi(false);
   };
 
-  const kaydet = async () => {
-    await istek('/v1/ogun/dolap', { yontem: 'POST', govde: { malzemeler } }).catch(() => null);
+  /**
+   * Kaydetme basarisiz olursa "kaydedildi" YAZILMAZ.
+   *
+   * Eskiden hata yutuluyor ve ardindan kosulsuz `setKaydedildi(true)` calisiyordu:
+   * kullanici dolabini giriyor, yesil "kaydedildi" notunu goruyor ve listeyi
+   * kaybediyordu. `islem.ts` bu durum icin `dolap_kaydet` cumlesini tasiyordu ama
+   * hicbir yerden cagrilmiyordu.
+   *
+   * Geri deger, cagiranin (tarifleri gor) basarisiz kayittan sonra ilerlememesi icin.
+   */
+  const kaydet = async (): Promise<boolean> => {
+    setKaydetmeHatasi(null);
+    try {
+      await istek('/v1/ogun/dolap', { yontem: 'POST', govde: { malzemeler } });
+    } catch {
+      setKaydedildi(false);
+      setKaydetmeHatasi(islemHatasiMetni('dolap_kaydet', dil));
+      return false;
+    }
     setKaydedildi(true);
+    return true;
   };
 
   if (!hazir) {
@@ -184,6 +203,7 @@ export default function Dolap() {
           </View>
         </Kart>
 
+        {kaydetmeHatasi ? <Uyari tur="tehlike" govde={kaydetmeHatasi} /> : null}
         {kaydedildi ? <Uyari govde={m.kaydedildi} /> : null}
 
         <Dugme baslik={genel.kaydet} onPress={() => void kaydet()} />
@@ -191,7 +211,10 @@ export default function Dolap() {
           baslik={m.tarifleriGor}
           tur="ikincil"
           onPress={() => {
-            void kaydet().then(() => router.push('/ogun/deste'));
+            // Kaydedilemediyse ilerlemiyoruz: deste kaydedilmemis dolaba gore acilirdi.
+            void kaydet().then((oldu) => {
+              if (oldu) router.push('/ogun/deste');
+            });
           }}
         />
       </Ekran>
