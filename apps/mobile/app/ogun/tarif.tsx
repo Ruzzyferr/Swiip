@@ -15,7 +15,8 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { buyukHarf } from '@made2fit/shared';
 import { useSayilarGizli } from '../../src/durum/Oturum';
 
 /**
@@ -49,6 +50,7 @@ export default function TarifDetayi() {
   const ogunMetinleri = useMetinler().ogun;
   const genel = useMetinler().genel;
   const m = ogunMetinleri.tarif;
+  const dil = useDil();
   const reyonlar = ogunMetinleri.reyonAdlari;
   const sayilarGizli = useSayilarGizli();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -87,9 +89,9 @@ export default function TarifDetayi() {
 
         <Satir arasi="xs">
           <Etiket metin={genel.dakikaKisa(tarif.prep_minutes)} />
-          <Etiket metin={'₺'.repeat(tarif.cost_tier)} />
+          <Etiket metin={genel.butceKademesi(tarif.cost_tier)} />
           {tarif.tags.slice(0, 3).map((etiket) => (
-            <Etiket key={etiket} metin={etiket.toLocaleUpperCase('tr-TR')} />
+            <Etiket key={etiket} metin={buyukHarf(etiket, dil)} />
           ))}
         </Satir>
 
@@ -129,7 +131,7 @@ export default function TarifDetayi() {
         )}
 
         <Kart>
-          <Yazi tur="baslik3">Malzemeler</Yazi>
+          <Yazi tur="baslik3">{genel.malzemeler}</Yazi>
           {tarif.ingredients_jsonb.map((malzeme, i) => (
             <View key={malzeme.ad} style={{ gap: tema.bosluk.xs }}>
               {i > 0 ? <Ayirac /> : null}

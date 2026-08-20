@@ -166,6 +166,16 @@ export const magaza = {
   },
 
   /**
+   * Plan ve döneme karşılık gelen mağaza ürün kimliği.
+   *
+   * Eşleme tek yerde durur: arayüz `URUNLER` dizisini tarayıp kendi kimliğini kurarsa
+   * ürün kimlikleri değiştiğinde iki yer birden güncellenmeyi bekler.
+   */
+  urunKimligi(kod: PlanKodu, donem: Donem): string | undefined {
+    return URUNLER.find((u) => u.kod === kod && u.donem === donem)?.urun_id;
+  },
+
+  /**
    * Satın alma akışı.
    *
    * Başarılı olsa bile hak İSTEMCİDE açılmaz: sunucu web kancayla doğrular.

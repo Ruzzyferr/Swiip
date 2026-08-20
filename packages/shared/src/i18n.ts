@@ -16,6 +16,17 @@ import { en } from './metinler.en';
 export const DILLER = ['tr', 'en'] as const;
 export type Dil = (typeof DILLER)[number];
 
+/**
+ * Dilin BCP47 karşılığı — sayı, para ve tarih biçimi için.
+ *
+ * Ayrı durmalı: 'tr' bizim iç kodumuz, 'tr-TR' `Intl`'in beklediği etiket. Biçimlendirme
+ * çağrılarına doğrudan 'tr' vermek sessizce yanlış yerel ayar seçtirir.
+ */
+export const BCP47: Record<Dil, string> = {
+  tr: 'tr-TR',
+  en: 'en-US',
+};
+
 /** Türkiye önce: kaynak dil ve yedek dil Türkçe. */
 export const varsayilanDil: Dil = 'tr';
 

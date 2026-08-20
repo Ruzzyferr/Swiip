@@ -14,7 +14,8 @@ import {
   Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { fiyatMetni, tarihMetni } from '@made2fit/shared';
 import { istek } from '../../src/veri/api';
 import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/odeme/magaza';
 
@@ -49,18 +50,40 @@ type Donem = 'aylik' | 'yillik';
 export default function Paywall() {
   const tema = useTema();
   const m = useMetinler().paywall;
+  const dil = useDil();
 
   const [planlar, setPlanlar] = useState<Plan[]>([]);
   const [secili, setSecili] = useState<string | null>(null); // ÖN SEÇİM YOK
   const [donem, setDonem] = useState<Donem>('aylik');
   const [yukleniyor, setYukleniyor] = useState(false);
   const [satinAlmaHatasi, setSatinAlmaHatasi] = useState<string | null>(null);
+  /**
+   * Mağazadan gelen yerelleştirilmiş fiyatlar: ürün kimliği → "$4.99" gibi hazır dize.
+   *
+   * Fiyatın tek doğruluk kaynağı mağazadır; tahsil edilen tutar odur. Bu ekran daha önce
+   * sunucudaki liste fiyatını sabit `₺` ile yazıyordu — mağaza dolar çekerken ekranda
+   * lira yazması, yalnızca çeviri hatası değil yanlış fiyat beyanıdır.
+   */
+  const [magazaFiyatlari, setMagazaFiyatlari] = useState<Record<string, string>>({});
 
   useEffect(() => {
     void istek<{ planlar: Plan[] }>('/v1/abonelik/planlar')
       .then((c) => setPlanlar(c.planlar.filter((p) => p.kod !== 'ucretsiz')))
       .catch(() => setPlanlar([]));
   }, []);
+
+  // Mağaza ulaşılamazsa boş döner ve liste fiyatına düşülür; ekran yine açılır.
+  useEffect(() => {
+    void magaza.fiyatlar().then(setMagazaFiyatlari);
+  }, []);
+
+  /** Önce mağaza fiyatı, yoksa liste fiyatı — her durumda para birimi görünür. */
+  const fiyatYazisi = (kod: string, d: Donem, listeFiyati: number): string =>
+    magazaFiyatlari[magaza.urunKimligi(kod as PlanKodu, d as MagazaDonemi) ?? ''] ??
+    fiyatMetni(listeFiyati, dil);
+
+  const planAdi = (kod: string, sunucuAdi: string): string =>
+    m.planAdlari[kod as keyof typeof m.planAdlari] ?? sunucuAdi;
 
   const seciliPlan = planlar.find((p) => p.kod === secili);
   const tutar = seciliPlan
@@ -129,6 +152,9 @@ export default function Paywall() {
         options={{
           headerShown: true,
           title: m.planlarBasligi,
+          // Modal: paywall akışın içindeki bir adım değil, araya giren bir teklif.
+          // Sistem düzeyinde kapatmayı da (aşağı kaydırma) mümkün kılar.
+          presentation: 'modal',
           // Kapatma ilk saniyeden görünür ve gerçekten kapatır.
           headerLeft: () => (
             <Pressable
@@ -173,22 +199,27 @@ export default function Paywall() {
 
         {planlar.map((plan) => {
           const isaretli = secili === plan.kod;
-          const fiyat = donem === 'aylik' ? plan.aylik_fiyat_try : plan.yillik_fiyat_try;
+          const fiyat = fiyatYazisi(
+            plan.kod,
+            donem,
+            donem === 'aylik' ? plan.aylik_fiyat_try : plan.yillik_fiyat_try,
+          );
+          const ad = planAdi(plan.kod, plan.ad);
 
           return (
             <Pressable
               key={plan.kod}
               onPress={() => setSecili(plan.kod)}
               accessibilityRole="radio"
-              accessibilityLabel={m.planErisim(plan.ad, String(fiyat))}
+              accessibilityLabel={m.planErisim(ad, fiyat)}
               accessibilityState={{ checked: isaretli }}
             >
               <Kart vurgulu={isaretli}>
                 <Satir dagit="space-between" hizala="baseline">
-                  <Yazi tur="baslik2">{plan.ad}</Yazi>
+                  <Yazi tur="baslik2">{ad}</Yazi>
                   <Satir arasi="xs" hizala="baseline">
                     <Sayi tur="baslik1" renk={isaretli ? 'aksan' : 'metin'}>
-                      {fiyat}₺
+                      {fiyat}
                     </Sayi>
                     <Yazi tur="kucuk" renk="metinSilik">
                       /{donem === 'aylik' ? m.ayKisa : m.yilKisa}
@@ -228,11 +259,9 @@ export default function Paywall() {
               {m.odenecekTutar}
             </Yazi>
             <Sayi tur="dev" renk="aksan">
-              {tutar}₺
+              {fiyatYazisi(seciliPlan.kod, donem, tutar)}
             </Sayi>
-            <Yazi tur="baslik3">
-              {yenilemeTarihi.toLocaleDateString('tr-TR')} tarihinde yenilenir
-            </Yazi>
+            <Yazi tur="baslik3">{m.yenilemeTarihi(tarihMetni(yenilemeTarihi, dil))}</Yazi>
             <Yazi tur="kucuk" renk="metinYumusak">
               {m.tahsilatNotu(donem === 'aylik' ? m.herAy : m.herYil)}
             </Yazi>

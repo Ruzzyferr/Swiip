@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
@@ -21,8 +21,10 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
 import { istek } from '../../src/veri/api';
+import { baglantiSorunuMu, yeniCevaplar } from '@made2fit/shared';
 import { islemHatasiMetni } from '@made2fit/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { buyukHarf } from '@made2fit/shared';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 
 /**
@@ -61,6 +63,15 @@ export default function Degerlendirme() {
   const [hata, setHata] = useState<string | null>(null);
   const [kaydediliyor, setKaydediliyor] = useState(false);
   const [cevrimdisi, setCevrimdisi] = useState(false);
+  /**
+   * Sunucuya gerçekten kaydettiğimiz cevaplar.
+   *
+   * Her kayıtta tüm küme gönderiliyordu. Sunucu gelen her cevabı doğruluyor; küme içinde
+   * bir kez geçersiz cevap oluşursa sonraki her kayıt da reddedilir ve değerlendirme
+   * kalıcı olarak zehirlenir — kullanıcı 123 soruyu bitirir, hiçbiri kaydedilmemiştir.
+   * Artık yalnızca fark gidiyor.
+   */
+  const gonderilmis = useRef<Cevaplar>({});
 
   // Açılışta: önce cihazdaki taslak, sonra sunucudaki kayıt.
   useEffect(() => {
@@ -69,16 +80,16 @@ export default function Degerlendirme() {
       if (taslak) setCevaplar(taslak);
 
       try {
-        const durum = await istek<DurumCevabi & { degerlendirme_id: string }>(
+        const durum = await istek<DurumCevabi & { degerlendirme_id: string; cevaplar?: Cevaplar }>(
           '/v1/degerlendirme/durum',
         );
-        const sunucuCevaplari = await istek<{ cevaplar?: Cevaplar }>('/v1/degerlendirme/durum')
-          .then(() => taslak ?? {})
-          .catch(() => taslak ?? {});
-        setCevaplar((mevcut) => ({ ...sunucuCevaplari, ...mevcut }));
-        void durum;
-      } catch {
-        setCevrimdisi(true);
+        // Sunucudaki cevaplar temel; cihazdaki taslak üstüne biner. Taslak daha yeni
+        // olabilir (çevrimdışı cevaplanan sorular), sunucudaki ise cihaz değişse de durur.
+        const sunucuCevaplari = durum.cevaplar ?? {};
+        gonderilmis.current = sunucuCevaplari;
+        setCevaplar((mevcut) => ({ ...sunucuCevaplari, ...taslak, ...mevcut }));
+      } catch (h) {
+        setCevrimdisi(baglantiSorunuMu(h));
       }
       setHazir(true);
     })();
@@ -94,22 +105,42 @@ export default function Degerlendirme() {
 
   const blok = SORU_BANKASI.blocks.find((b) => b.id === ilerleme.blok_id);
 
-  const kaydet = useCallback(async (yeniCevaplar: Cevaplar, blokId?: string) => {
-    await yaz(ANAHTARLAR.degerlendirmeTaslagi, yeniCevaplar);
+  const kaydet = useCallback(
+    async (hepsi: Cevaplar, blokId?: string) => {
+      await yaz(ANAHTARLAR.degerlendirmeTaslagi, hepsi);
 
-    try {
-      const sonuc = await istek<CevapSonucu>('/v1/degerlendirme/cevap', {
-        yontem: 'POST',
-        govde: { cevaplar: yeniCevaplar, blok_id: blokId },
-      });
-      setCevrimdisi(false);
-      return sonuc;
-    } catch {
-      // Ağ yoksa akış durmaz; cevaplar cihazda bekler.
-      setCevrimdisi(true);
-      return null;
-    }
-  }, []);
+      const fark = yeniCevaplar(hepsi, gonderilmis.current);
+      // Blok sonu geri bildirimi fark boş olsa da istenir; o yüzden blokId varsa yine gider.
+      if (Object.keys(fark).length === 0 && !blokId) return null;
+
+      try {
+        const sonuc = await istek<CevapSonucu>('/v1/degerlendirme/cevap', {
+          yontem: 'POST',
+          govde: { cevaplar: fark, blok_id: blokId },
+        });
+        gonderilmis.current = { ...gonderilmis.current, ...fark };
+        setCevrimdisi(false);
+        return sonuc;
+      } catch (h) {
+        /**
+         * Bağlantı yoksa akış durmaz; cevaplar cihazda bekler ve bunu söylemek doğru.
+         *
+         * Ama sunucu cevabı REDDETTİYSE aynı cümleyi kurmak yalan olur: o cevap hiçbir
+         * zaman gitmeyecek. Daha önce her hata çevrimdışı sayılıyordu ve kullanıcı
+         * "cevapların gönderilecek" yazısını okurken hiçbir şey kaydedilmiyordu.
+         */
+        if (baglantiSorunuMu(h)) {
+          setCevrimdisi(true);
+          return null;
+        }
+
+        setCevrimdisi(false);
+        setHata(h instanceof Error ? h.message : m.gecersizCevap);
+        return null;
+      }
+    },
+    [m.gecersizCevap],
+  );
 
   const ilerle = useCallback(async () => {
     if (!soru) return;
@@ -197,7 +228,7 @@ export default function Degerlendirme() {
         >
           <Satir dagit="space-between">
             <Yazi tur="etiket" renk="aksan">
-              {blok?.title.toLocaleUpperCase('tr-TR')}
+              {blok ? buyukHarf(blok.title, dil) : ''}
             </Yazi>
             <Yazi tur="etiket" renk="metinSilik">
               {cevaplanan} / {toplam}

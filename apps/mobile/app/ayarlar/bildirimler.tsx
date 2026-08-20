@@ -92,7 +92,7 @@ export default function Bildirimler() {
             <>
               <Ayirac />
               <Yazi tur="etiket" renk="metinSilik">
-                SAAT
+                {genel.saatBasligi}
               </Yazi>
               <Satir arasi="sm">
                 {['07:00', '12:00', '18:00', '20:00'].map((saat) => (

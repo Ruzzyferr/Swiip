@@ -17,7 +17,8 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
-import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { gunAyMetni } from '@made2fit/shared';
 
 /**
  * Fotoğraf karşılaştırma (F4.4).
@@ -45,6 +46,7 @@ interface CihazFotografi {
 export default function Karsilastirma() {
   const tema = useTema();
   const m = useMetinler().karsilastirma;
+  const dil = useDil();
   const sayilarGizli = useSayilarGizli();
 
   const [analizler, setAnalizler] = useState<Analiz[]>([]);
@@ -112,7 +114,7 @@ export default function Karsilastirma() {
               {m.once}
             </Yazi>
             <FotografYeri
-              tarih={solAnaliz ? tarihMetni(solAnaliz.taken_at) : ''}
+              tarih={solAnaliz ? gunAyMetni(new Date(solAnaliz.taken_at), dil) : ''}
               varMi={cihazFotograflari.some((f) => f.analiz_id === solAnaliz?.id)}
               tema={tema}
             />
@@ -122,7 +124,7 @@ export default function Karsilastirma() {
               {m.sonra}
             </Yazi>
             <FotografYeri
-              tarih={sagAnaliz ? tarihMetni(sagAnaliz.taken_at) : ''}
+              tarih={sagAnaliz ? gunAyMetni(new Date(sagAnaliz.taken_at), dil) : ''}
               varMi={cihazFotograflari.some((f) => f.analiz_id === sagAnaliz?.id)}
               tema={tema}
             />
@@ -137,7 +139,7 @@ export default function Karsilastirma() {
                 key={analiz.id}
                 onPress={() => (i > sag ? setSol(i) : setSag(i))}
                 accessibilityRole="button"
-                accessibilityLabel={tarihMetni(analiz.taken_at)}
+                accessibilityLabel={gunAyMetni(new Date(analiz.taken_at), dil)}
                 style={{
                   minHeight: tema.dokunmaHedefi,
                   justifyContent: 'center',
@@ -149,7 +151,7 @@ export default function Karsilastirma() {
                 }}
               >
                 <Yazi tur="etiket" renk={i === sol || i === sag ? 'aksan' : 'metinSilik'}>
-                  {tarihMetni(analiz.taken_at)}
+                  {gunAyMetni(new Date(analiz.taken_at), dil)}
                 </Yazi>
               </Pressable>
             ))}
@@ -309,8 +311,4 @@ function FotografYeri({
       </Yazi>
     </View>
   );
-}
-
-function tarihMetni(iso: string): string {
-  return new Date(iso).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
 }

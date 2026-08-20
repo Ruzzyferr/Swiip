@@ -17,6 +17,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { islemHatasiMetni } from '@made2fit/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { buyukHarf } from '@made2fit/shared';
 
 /**
  * Fotoğraftan yemek tanıma ve doğrulama (F7.5).
@@ -57,6 +58,7 @@ interface BesinSonucu {
 export default function Tanima() {
   const tema = useTema();
   const m = useMetinler().tanima;
+  const genel = useMetinler().genel;
   const dil = useDil();
 
   const [sonuc, setSonuc] = useState<TanimaCevabi | null>(null);
@@ -157,7 +159,7 @@ export default function Tanima() {
                   <Yazi tur="baslik3">{kalem.besin?.ad ?? kalem.ad}</Yazi>
                   {kalem.besin && kalem.besin.ad !== kalem.ad ? (
                     <Yazi tur="etiket" renk="metinSilik">
-                      {m.fotograftaEki(kalem.ad.toLocaleUpperCase('tr-TR'))}
+                      {m.fotograftaEki(buyukHarf(kalem.ad, dil))}
                     </Yazi>
                   ) : null}
                 </View>
@@ -253,7 +255,7 @@ export default function Tanima() {
 
           <Kart vurgulu>
             <Yazi tur="etiket" renk="aksan">
-              TOPLAM
+              {genel.toplamBasligi}
             </Yazi>
             <Satir arasi="xs" hizala="baseline">
               <Sayi tur="dev" renk="aksan">

@@ -16,9 +16,28 @@
 set -euo pipefail
 
 KOK_DIZIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Veritabani kullanicisi ve adi: compose ile ayni varsayilanlar.
+#
+# pg_dump kullanici verilmezse kabin OS kullanicisini (root) dener ve
+# "role root does not exist" ile duser -- betik ilk kez calistirildiginda cikan hata buydu.
+#
+# .env `source` EDILMIYOR: icinde POSTA_GONDEREN="Made2Fit <merhaba@...>" gibi
+# tirnaksiz degerler var ve `<` kabuk icin yonlendirmedir. Yalnizca ihtiyac duyulan
+# iki anahtar okunuyor.
+env_oku() {
+  local anahtar="$1" varsayilan="$2" dosya="${KOK_DIZIN}/infra/.env"
+  local deger=""
+  if [ -f "$dosya" ]; then
+    deger="$(sed -n "s/^${anahtar}=//p" "$dosya" | tail -n 1 | tr -d '' | sed 's/^"//; s/"$//')"
+  fi
+  printf '%s' "${deger:-$varsayilan}"
+}
+DB_KULLANICI="$(env_oku POSTGRES_USER made2fit)"
+DB_ADI="$(env_oku POSTGRES_DB made2fit)"
 TEST_KABI="made2fit-geri-yukleme-testi"
 TEST_PAROLA="geri-yukleme-testi-gecici"
-TEST_PORT="55432"
+TEST_PORT="55439"
 GECICI_DIZIN="$(mktemp -d)"
 
 temizle() {
@@ -40,8 +59,8 @@ if [ $# -ge 1 ]; then
 else
   YEDEK="${GECICI_DIZIN}/test.dump"
   echo "→ canlı veritabanından yedek alınıyor"
-  docker compose -f "${KOK_DIZIN}/infra/docker-compose.yml" exec -T postgres \
-    pg_dump --format=custom --no-owner --no-privileges > "$YEDEK"
+  docker compose --env-file "${KOK_DIZIN}/infra/.env"     -f "${KOK_DIZIN}/infra/docker-compose.yml" exec -T postgres \
+    pg_dump --username="$DB_KULLANICI" --dbname="$DB_ADI" --format=custom --no-owner --no-privileges > "$YEDEK"
 fi
 
 if [ ! -s "$YEDEK" ]; then

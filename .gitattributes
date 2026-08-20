@@ -1,0 +1,9 @@
+# Depoda her sey LF. Windows'ta calisan gelistirici de ayni baytlari gorur;
+# aksi halde satir sonu farki her dosyayi degismis gosterir ve inceleme okunmaz olur.
+* text=auto eol=lf
+
+# Ikili dosyalar dokunulmaz.
+*.png binary
+*.jpg binary
+*.svg text eol=lf
+*.apk binary

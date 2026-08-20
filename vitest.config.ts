@@ -2,7 +2,9 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ['packages/*/src/**/*.test.ts'],
+    // apps/mobile: yalnizca yapisal testler (rota adlari, yapilandirma tutarliligi).
+    // Bilesen testi degil -- React yorumlayicisi yok; burada sinanan sey dosya duzeni.
+    include: ['packages/*/src/**/*.test.ts', 'apps/mobile/src/**/*.test.ts'],
     testTimeout: 30_000,
     environment: 'node',
     coverage: {

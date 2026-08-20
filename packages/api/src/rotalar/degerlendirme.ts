@@ -65,6 +65,14 @@ export async function degerlendirmeRotalari(app: FastifyInstance): Promise<void>
     return {
       degerlendirme_id: kayit.id,
       version: kayit.version,
+      /**
+       * Kaydedilmiş cevaplar da dönüyor.
+       *
+       * Onboarding "yarıda bırakırsan kaldığın yerden devam edersin" diyor. Bu söz
+       * yalnızca cihazdaki taslakla tutuluyordu: uygulamayı silen ya da telefon
+       * değiştiren kullanıcı, sunucuda cevapları dururken sıfırdan başlıyordu.
+       */
+      cevaplar,
       ilerleme: blokIlerlemesi(cevaplar),
       sonraki_soru: sirada ?? null,
       toplam_gorunur: gorunurSorular(cevaplar).length,

@@ -15,7 +15,8 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { buyukHarf } from '@made2fit/shared';
 
 /**
  * Haftalık öğün planı (F8.7).
@@ -59,6 +60,7 @@ export default function HaftalikPlan() {
   const ogunMetinleri = useMetinler().ogun;
   const genel = useMetinler().genel;
   const m = ogunMetinleri.plan;
+  const dil = useDil();
   const gunAdlari = ogunMetinleri.haftaGunleri;
   const hafta = haftaBasi();
 
@@ -166,7 +168,7 @@ export default function HaftalikPlan() {
               }}
             >
               <Yazi tur="etiket" renk={acikGun === i ? 'aksan' : 'metinSilik'}>
-                {gunAdlari[i]?.slice(0, 2).toLocaleUpperCase('tr-TR')}
+                {buyukHarf(gunAdlari[i]?.slice(0, 2) ?? '', dil)}
               </Yazi>
             </Pressable>
           ))}
@@ -178,7 +180,7 @@ export default function HaftalikPlan() {
           <Kart key={ogun.ad}>
             <Satir dagit="space-between" hizala="flex-start">
               <Yazi tur="etiket" renk="aksan">
-                {ogun.ad.toLocaleUpperCase('tr-TR')}
+                {buyukHarf(ogun.ad, dil)}
               </Yazi>
               <Sayi tur="etiket" renk="metinSilik">
                 hedef {ogun.hedef.kalori} kcal

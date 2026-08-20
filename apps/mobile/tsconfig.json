@@ -9,7 +9,9 @@
       "@/*": ["./src/*"],
       "@made2fit/shared": ["../../packages/shared/src/index.ts"],
       "@made2fit/core": ["../../packages/core/src/index.ts"]
-    }
+    },
+    "module": "esnext",
+    "moduleResolution": "bundler"
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": ["node_modules"]

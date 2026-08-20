@@ -1,0 +1,17 @@
+# Yerel gelistirme ek dosyasi.
+#
+# Uretimde Postgres disari ACILMAZ: ana dosyada yalnizca `expose` var ve `ic` agi
+# `internal: true`. Ic ag port yayinlayamaz, bu yuzden yerelde ayrica `dis` agina
+# baglaniyor. Bu dosya sunucuda ASLA kullanilmaz:
+#
+#   docker compose -f docker-compose.yml up -d              # uretim
+#   docker compose -f docker-compose.yml \
+#                  -f docker-compose.gelistirme.yml up -d   # yerel
+#
+# Portlar bilerek yuksek secildi: bu makinede baska projelerin Postgres kaplari
+# 5432 ve 5433'u kullaniyor. Cakisan port, yanlis veritabanina baglanmak demek.
+services:
+  postgres:
+    networks: [ic, dis]
+    ports:
+      - '127.0.0.1:55433:5432'

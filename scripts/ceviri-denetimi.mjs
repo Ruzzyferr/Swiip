@@ -122,9 +122,24 @@ function bulgular(kaynak) {
   });
 
   // 3) JSX metin düğümleri: > ile < arasında kalan, ifade içermeyen düz metin.
-  for (const eslesme of temiz.matchAll(/>([^<>{}]*[çğıöşüÇĞİÖŞÜ][^<>{}]*)</g)) {
+  //
+  //    Kural DİLDEN BAĞIMSIZ. Önceki hâli yalnızca Türkçe'ye özgü harf arıyordu
+  //    (`[çğıöşü...]`); "Devam", "Plan", "Save" gibi yalnızca ASCII harf taşıyan metinler
+  //    ağdan geçiyordu. Props tarafında kural genelleştirilmişti ama metin düğümü
+  //    tarafında yarım kalmıştı — `KOD_ISARETI` de bu yüzden hiç kullanılmıyordu.
+  //    `(?<![=-])` : `=> Promise<void>` gibi tip imzalarını dışarıda bırakır. Oradaki
+  //    `>` bir etiket kapanışı değil, okun parçası.
+  for (const eslesme of temiz.matchAll(/(?<![=-])>([^<>{}]*)</g)) {
     const metin = eslesme[1].trim();
     if (metin.length === 0) continue;
+
+    // Tek satırda kalmalı: satır sonu, metin düğümü değil biçimlendirme demek.
+    if (/\n/.test(metin)) continue;
+    if (!HARF.test(metin)) continue;
+    if (SERBEST.has(metin)) continue;
+
+    // Kod parçası mı? JSX arasında kalan tip parametreleri ve ifadeler böyle ayrılıyor.
+    if (KOD_ISARETI.test(metin)) continue;
 
     const satir = temiz.slice(0, eslesme.index).split('\n').length;
     sonuc.push({ satir, metin });

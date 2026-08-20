@@ -237,6 +237,19 @@ export const tr = {
     ekle: 'Ekle',
     planlaraBak: 'Planlara bak',
     dakikaKisa: (dakika: number) => `${dakika} DK`,
+    saatBasligi: 'SAAT',
+    toplamBasligi: 'TOPLAM',
+    malzemelerBasligi: 'MALZEMELER',
+    malzemeler: 'Malzemeler',
+    /**
+     * Bütçe kademesi (1-4).
+     *
+     * Kart üstünde `'₺'.repeat(kademe)` ile çiziliyordu. Kademe bir fiyat değil, göreli
+     * bir pahalılık işareti; para simgesiyle çizmek onu Türkiye'ye çiviler ve dolarla
+     * ödeyen kullanıcıya yanlış para birimi gösterir.
+     */
+    butceKademesi: (kademe: number) =>
+      ['', 'EKONOMİK', 'UYGUN', 'ORTA', 'YÜKSEK'][kademe] ?? 'ORTA',
   },
 
   giris: {
@@ -1056,6 +1069,9 @@ export const tr = {
     edGovde:
       'İlerlemeni kaldırdığın ağırlık ve nasıl hissettiğinle takip ediyoruz. İstersen ayarlardan açabilirsin.',
     analizGecmisi: 'Vücut analizi geçmişi',
+    kiloSeyri: 'Kilo seyri',
+    // Yüzde işareti Türkçede sayının önünde, İngilizcede arkasında.
+    yagOraniAraligi: (alt: number, ust: number) => `%${alt}-${ust}`,
     hareketGelisimi: 'Hareket bazlı gelişim',
     hareketGelisimiNotu: 'Kilo değişmese bile burada ilerleme görürsün. Asıl kanıt bu.',
     bosBaslik: 'Henüz ilerleme verisi yok',
@@ -1299,7 +1315,15 @@ export const tr = {
     yillik: 'Yıllık',
     ayKisa: 'ay',
     yilKisa: 'yıl',
-    planErisim: (ad: string, fiyat: string) => `${ad} planı, ${fiyat} lira`,
+    planErisim: (ad: string, fiyat: string) => `${ad} planı, ${fiyat}`,
+    // Plan adı sunucudan Türkçe geliyordu; İngilizce başlık "Basic" derken kart
+    // "Temel" gösteriyordu. Ad da bir metindir, sözlükte durur.
+    planAdlari: {
+      ucretsiz: 'Ücretsiz',
+      temel: 'Temel',
+      pro: 'Pro',
+    },
+    yenilemeTarihi: (tarih: string) => `${tarih} tarihinde yenilenir`,
     ozellikler: {
       tumGunler: 'Haftanın tüm günleri',
       geriBildirim: 'Seans sonrası geri bildirim ve uyarlama',

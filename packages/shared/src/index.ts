@@ -7,3 +7,8 @@ export * from './sorular.uretilmis';
 export * from './islem';
 export * from './arama';
 export * from './gerekce';
+export * from './para';
+export * from './tarih';
+export * from './harf';
+export * from './tarihGirisi';
+export * from './aghatasi';

@@ -64,7 +64,7 @@ export const SORU_BANKASI: SoruBankasi = {
         },
         {
           "id": "K3",
-          "text": "Boyun",
+          "text": "Boy uzunluğun",
           "type": "number",
           "unit": "cm",
           "min": 120,

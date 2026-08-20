@@ -17,6 +17,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { islemHatasiMetni } from '@made2fit/shared';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { kisaTarihMetni } from '@made2fit/shared';
 
 /**
  * İlerleme (F: kilo/ölçü, hareket bazlı gelişim).
@@ -159,7 +160,7 @@ export default function Ilerleme() {
 
         {!sayilarGizli && kilolar.length > 1 ? (
           <Kart>
-            <Yazi tur="baslik3">Kilo seyri</Yazi>
+            <Yazi tur="baslik3">{m.kiloSeyri}</Yazi>
             <KiloGrafigi kayitlar={kilolar} />
           </Kart>
         ) : null}
@@ -170,11 +171,12 @@ export default function Ilerleme() {
             {analizler.slice(0, 6).map((analiz, i) => (
               <Satir key={i} dagit="space-between">
                 <Yazi tur="kucuk" renk="metinYumusak">
-                  {new Date(analiz.taken_at).toLocaleDateString('tr-TR')}
+                  {kisaTarihMetni(new Date(analiz.taken_at), dil)}
                 </Yazi>
                 <Sayi tur="kucuk" renk="aksan">
-                  {analiz.bodyfat_low !== null
-                    ? `%${analiz.bodyfat_low}-${analiz.bodyfat_high}`
+                  {/* Aralığın iki ucu da olmalı: tek uçlu bir "%22-0" yanlış bilgidir. */}
+                  {analiz.bodyfat_low !== null && analiz.bodyfat_high !== null
+                    ? m.yagOraniAraligi(analiz.bodyfat_low, analiz.bodyfat_high)
                     : '—'}
                 </Sayi>
               </Satir>

@@ -13,7 +13,8 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { buyukHarf } from '@made2fit/shared';
 
 /**
  * Alışveriş listesi (F8.8).
@@ -62,6 +63,7 @@ export default function AlisverisListesi() {
   const tema = useTema();
   const ogunMetinleri = useMetinler().ogun;
   const m = ogunMetinleri.alisveris;
+  const dil = useDil();
   const reyonAdlari = ogunMetinleri.reyonAdlari;
 
   const [reyonlar, setReyonlar] = useState<Record<string, Kalem[]>>({});
@@ -127,7 +129,7 @@ export default function AlisverisListesi() {
         {REYON_SIRASI.filter((reyon) => (reyonlar[reyon]?.length ?? 0) > 0).map((reyon) => (
           <Kart key={reyon}>
             <Yazi tur="etiket" renk="aksan">
-              {(reyonAdlari[reyon as keyof typeof reyonAdlari] ?? reyon).toLocaleUpperCase('tr-TR')}
+              {buyukHarf(reyonAdlari[reyon as keyof typeof reyonAdlari] ?? reyon, dil)}
             </Yazi>
 
             {reyonlar[reyon]!.map((kalem) => {

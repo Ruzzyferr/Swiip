@@ -15,7 +15,8 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { buyukHarf } from '@made2fit/shared';
 
 /**
  * Kaydırmalı öğün değiştirme (F8.10).
@@ -53,6 +54,7 @@ export default function OgunDestesi() {
   const ogunler = useMetinler().ogun;
   const genel = useMetinler().genel;
   const m = ogunler.deste;
+  const dil = useDil();
   const ogunAdlari = ogunler.ogunAdlari;
 
   const [ogun, setOgun] = useState('ogl');
@@ -229,14 +231,14 @@ export default function OgunDestesi() {
 
             <Satir arasi="xs">
               <Etiket metin={genel.dakikaKisa(kart.hazirlik_dakika)} />
-              <Etiket metin={'₺'.repeat(kart.maliyet_kademesi)} />
+              <Etiket metin={genel.butceKademesi(kart.maliyet_kademesi)} />
               {kart.etiketler.slice(0, 2).map((e) => (
-                <Etiket key={e} metin={e.toLocaleUpperCase('tr-TR')} />
+                <Etiket key={e} metin={buyukHarf(e, dil)} />
               ))}
             </Satir>
 
             <Yazi tur="etiket" renk="metinSilik">
-              MALZEMELER
+              {genel.malzemelerBasligi}
             </Yazi>
             <Yazi tur="kucuk" renk="metinYumusak">
               {kart.malzemeler.map((m) => `${m.ad} ${m.gram} g`).join(' · ')}

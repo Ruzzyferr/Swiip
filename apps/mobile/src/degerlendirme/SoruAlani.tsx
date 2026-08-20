@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import type { Soru } from '@made2fit/shared';
+import { tarihBirlestir, tarihParcala, type Soru, type TarihParcalari } from '@made2fit/shared';
 import { Ayirac, Kart, Sayi, Satir, SecimDugmesi, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
 import { useMetinler } from '../durum/Oturum';
@@ -10,8 +10,14 @@ import { EkipmanEnvanteri } from './EkipmanEnvanteri';
 
 /**
  * Soru tipi başına bileşen (F2.2).
- * Değer yukarıda tutulur; bu bileşen durumsuzdur, böylece kaldığı yerden devam eden
- * akışta ekran ile veri hiçbir zaman ayrışmaz.
+ *
+ * Cevap yukarıda tutulur ve kaydedilen tek doğruluk kaynağı odur; kaldığı yerden devam
+ * eden akışta ekran ile veri ayrışmasın diye.
+ *
+ * İstisna: birden çok metin kutusundan **tek bir cevap** üreten alanlar (tarih, sayı)
+ * kendi ham metnini yerelde tutar. Çünkü "14" ile "1992" arasında geçen anda cevap
+ * henüz geçerli değil ve yukarıya `null` yazılır; ham metin de yukarıdan okunursa
+ * kullanıcının yazdığı silinir. Tarih alanı tam bu yüzden hiç tamamlanamıyordu.
  */
 
 export type CevapDegeri = unknown;
@@ -272,6 +278,16 @@ function MetinGirisi({
   );
 }
 
+/**
+ * Gün / ay / yıl girişi.
+ *
+ * Üç parça **yerel durumda** tutulur. Daha önce üçü de üst durumdan okunuyordu, ama
+ * eksik girişte üst duruma `null` yazılıyordu: gün yazılınca ay ve yıl siliniyor,
+ * ay yazılınca gün siliniyordu. Üç parça hiçbir zaman aynı anda bilinemediği için
+ * tarih tamamlanamıyor ve değerlendirmenin **ilk sorusunda** "Devam et" hiç açılmıyordu.
+ *
+ * Birleştirme ve doğrulama `tarihBirlestir` içinde, saf ve test edilmiş.
+ */
 function TarihGirisi({
   deger,
   onDegisim,
@@ -281,16 +297,16 @@ function TarihGirisi({
 }) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
-  const mevcut = typeof deger === 'string' ? deger : '';
-  const [gun, ay, yil] = mevcut ? mevcut.split('-').reverse() : ['', '', ''];
+  const baslangic = tarihParcala(typeof deger === 'string' ? deger : null);
+  const [parca, setParca] = useState<TarihParcalari>(baslangic);
 
-  const guncelle = (g: string, a: string, y: string) => {
-    if (g.length === 2 && a.length === 2 && y.length === 4) {
-      onDegisim(`${y}-${a.padStart(2, '0')}-${g.padStart(2, '0')}`);
-    } else {
-      onDegisim(null);
-    }
+  const guncelle = (yeni: Partial<TarihParcalari>) => {
+    const sonraki = { ...parca, ...yeni };
+    setParca(sonraki);
+    onDegisim(tarihBirlestir(sonraki.gun, sonraki.ay, sonraki.yil));
   };
+
+  const { gun, ay, yil } = parca;
 
   const alanStili = {
     minHeight: tema.dokunmaHedefi,
@@ -308,8 +324,8 @@ function TarihGirisi({
   return (
     <Satir arasi="sm">
       <TextInput
-        defaultValue={gun ?? ''}
-        onChangeText={(v) => guncelle(v, ay ?? '', yil ?? '')}
+        value={gun}
+        onChangeText={(v) => guncelle({ gun: v })}
         placeholder={m.gunKisa}
         placeholderTextColor={tema.renk.metinSilik}
         keyboardType="number-pad"
@@ -318,8 +334,8 @@ function TarihGirisi({
         style={[alanStili, { flex: 1 }]}
       />
       <TextInput
-        defaultValue={ay ?? ''}
-        onChangeText={(v) => guncelle(gun ?? '', v, yil ?? '')}
+        value={ay}
+        onChangeText={(v) => guncelle({ ay: v })}
         placeholder={m.ayKisa}
         placeholderTextColor={tema.renk.metinSilik}
         keyboardType="number-pad"
@@ -328,8 +344,8 @@ function TarihGirisi({
         style={[alanStili, { flex: 1 }]}
       />
       <TextInput
-        defaultValue={yil ?? ''}
-        onChangeText={(v) => guncelle(gun ?? '', ay ?? '', v)}
+        value={yil}
+        onChangeText={(v) => guncelle({ yil: v })}
         placeholder={m.yilKisa}
         placeholderTextColor={tema.renk.metinSilik}
         keyboardType="number-pad"

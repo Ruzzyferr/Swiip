@@ -249,6 +249,11 @@ export const en: Metinler = {
     ekle: 'Add',
     planlaraBak: 'See plans',
     dakikaKisa: (dakika: number) => `${dakika} MIN`,
+    saatBasligi: 'TIME',
+    toplamBasligi: 'TOTAL',
+    malzemelerBasligi: 'INGREDIENTS',
+    malzemeler: 'Ingredients',
+    butceKademesi: (kademe: number) => ['', 'BUDGET', 'AFFORDABLE', 'MID', 'HIGH'][kademe] ?? 'MID',
   },
 
   giris: {
@@ -1075,6 +1080,8 @@ export const en: Metinler = {
     edGovde:
       'We track your progress by what you lift and how you feel. You can turn it on in settings.',
     analizGecmisi: 'Body analysis history',
+    kiloSeyri: 'Weight trend',
+    yagOraniAraligi: (alt: number, ust: number) => `${alt}-${ust}%`,
     hareketGelisimi: 'Progress by exercise',
     hareketGelisimiNotu:
       'Even when the scale does not move, you see progress here. This is the real evidence.',
@@ -1325,7 +1332,13 @@ export const en: Metinler = {
     yillik: 'Yearly',
     ayKisa: 'mo',
     yilKisa: 'yr',
-    planErisim: (ad: string, fiyat: string) => `${ad} plan, ${fiyat} lira`,
+    planErisim: (ad: string, fiyat: string) => `${ad} plan, ${fiyat}`,
+    planAdlari: {
+      ucretsiz: 'Free',
+      temel: 'Basic',
+      pro: 'Pro',
+    },
+    yenilemeTarihi: (tarih: string) => `Renews on ${tarih}`,
     ozellikler: {
       tumGunler: 'Every day of the week',
       geriBildirim: 'Post-session feedback and adaptation',

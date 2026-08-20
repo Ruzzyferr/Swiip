@@ -13,7 +13,8 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { aramaAnahtari, kucukHarf } from '@made2fit/shared';
 
 /**
  * Buzdolabı envanteri (F8.9).
@@ -47,6 +48,7 @@ export default function Dolap() {
   const tema = useTema();
   const m = useMetinler().ogun.dolap;
   const genel = useMetinler().genel;
+  const dil = useDil();
 
   const [malzemeler, setMalzemeler] = useState<string[]>([]);
   const [girdi, setGirdi] = useState('');
@@ -61,8 +63,16 @@ export default function Dolap() {
   }, []);
 
   const ekle = (ad: string) => {
-    const temiz = ad.trim().toLocaleLowerCase('tr-TR');
-    if (temiz === '' || malzemeler.includes(temiz)) return;
+    // Küçültme kullanıcının dilinde: 'tr-TR' sabiti İngilizce yazan kişinin "Ice"ını
+    // "ıce" yapıyor ve hiçbir tarifle eşleşmiyordu.
+    const temiz = kucukHarf(ad.trim(), dil);
+    if (temiz === '') return;
+
+    // Tekrar kontrolü şapkasız katlamayla: "Yoğurt" ve "yogurt" aynı malzeme.
+    // Küçük harfe bakmak ikisini ayrı sanır ve dolapta iki satır oluşurdu.
+    const anahtar = aramaAnahtari(temiz);
+    if (malzemeler.some((x) => aramaAnahtari(x) === anahtar)) return;
+
     setMalzemeler((m) => [...m, temiz]);
     setGirdi('');
     setKaydedildi(false);

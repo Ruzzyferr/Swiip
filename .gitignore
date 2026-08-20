@@ -10,3 +10,7 @@ coverage/
 *.log
 backups/
 .DS_Store
+
+# Expo prebuild ciktisi — app.json ve config eklentilerinden uretilir.
+apps/mobile/android/
+apps/mobile/ios/
