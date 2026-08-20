@@ -13,7 +13,7 @@ import {
   Yazi,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
-import { istek } from '../../src/veri/api';
+import { ApiHatasi, istek } from '../../src/veri/api';
 import { veriyiPaylas } from '../../src/veri/disaAktar';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
 import { tarihMetni } from '@made2fit/shared';
@@ -103,9 +103,21 @@ export default function Ayarlar() {
         text: a.sil,
         style: 'destructive',
         onPress: () => {
+          /**
+           * Silme basarisiz olursa kullanici bunu OGRENMELI.
+           *
+           * Once `void istek(...).then(...)` yaziliyordu: istek patlarsa yakalanmamis
+           * bir promise reddi kaliyor, ekran degismiyor ve kullanici hesabinin
+           * silindigini saniyordu. KVKK baglaminda bu, sessizce tutulmamis bir soz.
+           */
           void istek('/v1/hesap', { yontem: 'DELETE', govde: { onay: 'HESABIMI SİL' } })
             .then(() => cikisYap())
-            .then(() => router.replace('/'));
+            .then(() => router.replace('/'))
+            .catch((h) =>
+              setIslemHatasi(
+                h instanceof ApiHatasi ? h.mesaj : islemHatasiMetni('hesap_sil', aktifDil),
+              ),
+            );
         },
       },
     ]);

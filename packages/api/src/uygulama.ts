@@ -127,15 +127,40 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
         mesaj: ilk ? `${ilk.path.join('.')}: ${ilk.message}` : 'İstek geçersiz.',
       });
     }
-    if (
-      typeof hata === 'object' &&
-      hata !== null &&
-      'statusCode' in hata &&
-      hata.statusCode === 429
-    ) {
-      return cevap.status(429).send({
-        kod: 'cok_fazla_istek',
-        mesaj: 'Çok hızlı gidiyorsun. Bir dakika sonra tekrar dene.',
+    /**
+     * Çerçevenin kendi 4xx hataları 500'e düşmemeli.
+     *
+     * Burada yalnızca 429 tanınıyordu; boş gövde, bozuk JSON, desteklenmeyen içerik
+     * tipi ve gövde sınırı aşımı gibi Fastify hataları — hepsi kendi `statusCode`'unu
+     * taşıdığı hâlde — `500 sunucu_hatasi` oluyordu.
+     *
+     * Üç ayrı zarar veriyordu: kullanıcıya kendi hatası için "sunucu hatası" deniyordu,
+     * istemci kodu çeviremediği için ne yapacağını söyleyemiyordu, ve her bozuk istemci
+     * isteği `beklenmeyen hata` olarak loglanıp gerçek çökmeleri gürültüye gömüyordu.
+     */
+    const durumKodu =
+      typeof hata === 'object' && hata !== null && 'statusCode' in hata
+        ? Number((hata as { statusCode?: unknown }).statusCode)
+        : Number.NaN;
+
+    if (Number.isInteger(durumKodu) && durumKodu >= 400 && durumKodu < 500) {
+      const kodlar: Record<number, string> = {
+        413: 'govde_cok_buyuk',
+        415: 'desteklenmeyen_icerik',
+        429: 'cok_fazla_istek',
+      };
+      const mesajlar: Record<number, string> = {
+        413: 'Gönderdiğin veri çok büyük. Daha küçük bir dosyayla tekrar dene.',
+        415: 'Bu içerik tipini okuyamıyorum.',
+        429: 'Çok hızlı gidiyorsun. Bir dakika sonra tekrar dene.',
+      };
+
+      // Beklenen istemci hatası: `warn`, `error` değil. İzlemeyi boğmamak için.
+      istek.log.warn({ hata, durumKodu }, 'istemci hatası');
+
+      return cevap.status(durumKodu).send({
+        kod: kodlar[durumKodu] ?? 'gecersiz_istek',
+        mesaj: mesajlar[durumKodu] ?? 'İstek geçersiz. Tekrar deneyebilirsin.',
       });
     }
 

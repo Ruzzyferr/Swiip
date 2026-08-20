@@ -213,6 +213,9 @@ export const tr = {
       'Koç sohbeti Temel plandan itibaren açık. Programın ve gerekçeleri her planda tam.',
     tanima_plan_yetersiz: () =>
       'Fotoğraftan yemek tanıma Pro planda. Manuel giriş ve arama her planda sınırsız.',
+    govde_cok_buyuk: () =>
+      'Gönderdiğin veri çok büyük. Daha küçük bir dosyayla tekrar deneyebilirsin.',
+    desteklenmeyen_icerik: () => 'Bu içerik tipini okuyamıyorum.',
     ogun_kodu_gecersiz: () => 'Böyle bir öğün yok. Listeden öğünlerden birini seçebilirsin.',
     plan_gunu_yok: () => 'Bu gün planda yok. Planı yenileyip tekrar deneyebilirsin.',
     plan_ogunu_yok: () => 'Bu öğün planda yok. Planı yenileyip tekrar deneyebilirsin.',

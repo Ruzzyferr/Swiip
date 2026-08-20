@@ -25,6 +25,7 @@ export const YAZMA_ISLEMLERI = [
   'plan_uret',
   'ogun_degistir',
   'foto_riza',
+  'hesap_sil',
 ] as const;
 
 export type YazmaIslemi = (typeof YAZMA_ISLEMLERI)[number];
@@ -44,6 +45,7 @@ const METINLER: Record<Dil, Record<YazmaIslemi, string>> = {
     ogun_degistir: 'Öğün değiştirilemedi. Tekrar deneyebilirsin.',
     foto_riza:
       'Rızan kaydedilemedi. Rıza kaydedilmeden fotoğraf istemiyoruz; tekrar deneyebilirsin.',
+    hesap_sil: 'Hesabın silinemedi. Hesabın ve verilerin duruyor; tekrar deneyebilirsin.',
   },
   en: {
     kilo_kaydet: 'Your weight could not be saved. Check your connection and try again.',
@@ -59,6 +61,8 @@ const METINLER: Record<Dil, Record<YazmaIslemi, string>> = {
     plan_uret: 'The weekly plan could not be generated. You can try again.',
     ogun_degistir: 'The meal could not be swapped. You can try again.',
     foto_riza: 'Your consent could not be saved. We do not ask for photos without it; try again.',
+    hesap_sil:
+      'Your account could not be deleted. Your account and data are still here; you can try again.',
   },
 };
 
