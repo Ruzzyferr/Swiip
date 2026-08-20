@@ -2,9 +2,10 @@
 
 `uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-20.
 
-**Özet:** 1.690 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
-**Son derin inceleme:** `docs/inceleme-2026-08-20.md` — on sekiz bulgu, hepsi düzeltildi.
-İki tur: statik inceleme + emülatörde 32 ekran, 14 persona, 17 rakip iddiası.
+**Özet:** 1.701 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**Son derin inceleme:** `docs/inceleme-2026-08-20.md` — **yirmi üç bulgu**, hepsi düzeltildi.
+Üç tur: statik inceleme · emülatörde 32 ekran, 14 persona, 17 rakip iddiası · kamera ve
+bildirimler cihazda. **On üç bulgu yalnızca cihazda görülebilirdi.**
 **İmzalı yayın paketi hazır:** `app-release.aab` · sürüm 1.0.0 · versionCode 1.
 
 **Uygulama gerçek bir Android cihazında (emülatör, API 36) baştan sona kullanıldı.**
@@ -756,18 +757,28 @@ Dürüstlük gereği: bu ortamda yapılamayan iki şey var.
 
 1. ~~Yedekten geri yükleme testi~~ — **2026-08-20'de çalıştırıldı ve geçti.**
 2. ~~Mobil uygulamanın cihazda çalıştırılması~~ — **Android emülatöründe baştan sona
-   kullanıldı;** bulunanlar `docs/cihazda-calistirma.md` içinde. Kamera, bildirim ve
-   satın alma hâlâ denenmedi (aşağıda).
+   kullanıldı;** bulunanlar `docs/cihazda-calistirma.md` içinde. Kamera ve bildirimler de
+   2026-08-20'de denendi (5. madde); satın alma hâlâ denenmedi.
 3. **Besin toplu içe aktarma** — betik çalışıyor (kuru çalışmada 246 makul kayıt) ama
    veritabanına yazma `DATABASE_URL` istiyor; bu ortamda Postgres yok. Ayrıca yukarıdaki
    ODbL notu: çalıştırmak hukuki bir karar.
 4. **Posta gönderimi** — sağlayıcı hesabı yok. HTTP postacısı yazıldı; testler
    `testPostacisi` ile bellekteki kutuyu okuyor, gerçek bir e-posta gönderilmedi.
-5. **Yerel modüllerin cihazda çalıştırılması** — `expo-camera`, `expo-notifications`,
-   `expo-sensors` ve `react-native-purchases` kuruldu, bağlandı ve tip denetiminden
-   geçiyor; `npx expo config --type prebuild` yapılandırmayı doğruluyor. Ama hiçbiri
-   gerçek bir cihazda çalıştırılmadı: kamera açılmadı, bildirim düşmedi, satın alma
-   yapılmadı. Bunlar cihazda denenmeden yayına çıkılmamalı.
+5. **Yerel modüllerin cihazda çalıştırılması** — üçü denendi, biri kaldı.
+
+   - ~~`expo-camera`~~ **çalıştırıldı.** Vücut fotoğrafı akışı baştan sona: üç poz
+     gerçekten çekildi, canlı önizleme göründü, fotoğrafın diske yazılmadığı cihazda
+     doğrulandı (`/sdcard`'da yeni görüntü yok, medya veritabanına kayıt girmedi).
+   - ~~`expo-sensors`~~ **çalıştırıldı.** Eğim kapısı ivmeölçer sürülerek ölçüldü:
+     0°/3°/6° deklanşör açık, 8°/10°/45° kilitli — `EGIM_TOLERANSI = 8` ile birebir.
+   - ~~`expo-notifications`~~ **çalıştırıldı.** Alarm saati ileri alınarak gerçek bir
+     bildirim düşürüldü (`"How did the session go?"`, marka ikonu ve rengiyle,
+     kullanıcının dilinde). İki kusur çıktı ve düzeltildi: uygulama ön plandayken
+     bildirim sessizce kayboluyordu (`setNotificationHandler` hiç tanımlı değildi) ve
+     beş hatırlatma türü tek bir yedek kanaldaydı.
+   - **`react-native-purchases` hâlâ denenmedi.** RevenueCat anahtarı ve mağaza ürünleri
+     yok; paywall açılıyor, satın alma yapılmadı. Bu, cihazda denenmeden yayına
+     çıkılmaması gereken tek yerel modül olarak kalıyor.
 6. **RevenueCat mağaza kurulumu** — ürün tanımları, web kancası ve anahtarlar hesap
    açıldıktan sonra girilecek (`apps/mobile/.env.example`).
 

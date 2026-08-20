@@ -198,6 +198,14 @@ Emülatörde çalıştırmak her şeyi kapatmıyor:
 > sabitlenmiş olması ve ilerleme ekranının ham katalog kimliği basması.
 > Ayrıntı: `docs/inceleme-2026-08-20.md` bölüm 11-18.
 
+> **2026-08-20, üçüncü tur — kamera ve bildirimler.** İkisi de cihazda çalıştırıldı ve
+> **beş kusur daha** çıktı. En ağırı: ücretsiz kullanıcı kendi vücut analizini hiç
+> göremiyordu — iki ekran aynı ucu çağırıyor, tek dokunuşta iki istek gidiyor, ömür boyu
+> tek hak kullanıcının kendi çekimiyle yanıyor ve rapor ekranı 403 alıyordu. Eğim kapısı
+> ivmeölçer sürülerek ölçüldü ve `EGIM_TOLERANSI = 8` ile birebir çıktı. Bildirim
+> gerçekten düştü; ama uygulama ön plandayken sessizce kayboluyordu ve beş hatırlatma
+> türü tek bir yedek kanaldaydı. Ayrıntı: `docs/inceleme-2026-08-20.md` bölüm 19-23.
+
 - **Kamera** — emülatörde izin verilmedi; barkod ve vücut fotoğrafı akışları elle giriş
   yoluyla sınandı, gerçek çekim yapılmadı.
 - **Bildirimler** — zamanlayıcı kuruldu ama gerçek bir bildirim düşmedi.
