@@ -1,8 +1,9 @@
 # Uygulama durumu
 
-`uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-19.
+`uygulama-plani.md`'deki her görevin karşılığı ve kanıtı. Son güncelleme: 2026-08-20.
 
-**Özet:** 1.623 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**Özet:** 1.644 test yeşil · tip kontrolü, lint, biçim ve çeviri denetimi temiz.
+**İmzalı yayın paketi hazır:** `app-release.aab` · sürüm 1.0.0 · versionCode 1.
 
 **Uygulama gerçek bir Android cihazında (emülatör, API 36) baştan sona kullanıldı.**
 Bugüne kadar hiçbir ekran cihazda açılmamıştı; açılır açılmaz on beş hata çıktı ve
@@ -765,3 +766,40 @@ Dürüstlük gereği: bu ortamda yapılamayan iki şey var.
 
 Uygulama 2026-08-20'de ilk kez gerçek bir Android cihazında baştan sona kullanıldı ve on
 beş hata çıktı. Ayrıntılı döküm: **[docs/cihazda-calistirma.md](cihazda-calistirma.md)**.
+
+---
+
+## Yayına hazırlık — nerede duruyoruz
+
+| Adım | Durum | Not |
+|---|---|---|
+| İmzalı AAB | ✅ | `apps/mobile/android/app/build/outputs/bundle/release/app-release.aab` · `jarsigner -verify` geçiyor · SHA256withRSA 4096 bit |
+| Yükleme anahtarı | ✅ | `C:/dev/Made2Fit-imza/made2fit-upload.jks` — **depo dışında**, parolası `imza.properties` içinde ve o dosya gitignore'da |
+| İmzanın prebuild'i atlatması | ✅ | `scripts/android-imza.mjs` · `android/` her prebuild'de sıfırlandığı için yapılandırma depoda duruyor |
+| Mağaza görselleri | ✅ | `magaza/play/` — 512 ikon, 1024×500 öne çıkan, altı ekran görüntüsü (1080×2160) |
+| Mağaza metni (TR) | ✅ | `magaza/play/liste-tr.md` |
+| Konsol cevapları | ✅ | `magaza/play/konsol-rehberi.md` — veri güvenliği, içerik derecelendirmesi, sağlık beyanı, dört abonelik kimliği |
+| Gizlilik politikası sayfası | ✅ | `apps/site/gizlilik.html` — Play zorunlu tutuyor |
+| Hesap silme sayfası | ✅ | `apps/site/hesap-silme.html` — Play zorunlu tutuyor |
+| Play Console'a yükleme | ⛔ | **Google oturumu yok.** Ayrıntı aşağıda |
+| RevenueCat ürün tanımları | ⛔ | Play ürünleri oluşmadan bağlanamaz |
+
+### Play Console neden bekliyor
+
+Tarayıcıda `info@swiip.app` ile açılmış bir Google oturumu bulunamadı ve kayıtlı bir Google
+parolası da yok (Brave'in parola deposunda `accounts.google.com` girdisi var ama içi boş —
+"bu siteye kaydetme" işareti). İki adım doğrulama da işin içinde olacağı için giriş,
+telefonunda onay vermeni gerektiriyor.
+
+Ayrıca Play geliştirici hesabının kendisi tek seferlik 25 USD kayıt ve kimlik doğrulaması
+istiyor; o adım kimlik bilgisi gerektirdiği için zaten sende.
+
+Giriş yapıldıktan sonra kalan işin tamamı `konsol-rehberi.md`'de adım adım yazılı.
+
+### Site, tam genişlik doğrulaması
+
+Üç sayfa (`index`, `gizlilik`, `hesap-silme`) 320'den 3440 piksele kadar on dört genişlikte
+tarandı: hiçbirinde yatay taşma ve konsol hatası yok. Gövde metni her yerde 16 piksel ve
+üstü; 11–12 piksellik tek metinler taksimat rayının ölçü etiketleri ve bölüm numaraları —
+ölçü aleti metaforunun parçası, okunacak metin değil.
+

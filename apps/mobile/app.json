@@ -26,10 +26,7 @@
         "foregroundImage": "./assets/uyarlanabilir-ikon.png",
         "backgroundColor": "#131614"
       },
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.POST_NOTIFICATIONS"
-      ],
+      "permissions": ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"],
       "versionCode": 1
     },
     "plugins": [
