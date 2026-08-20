@@ -40,7 +40,14 @@ export default tseslint.config(
   {
     /* Kontrast denetimi Node'da çalışıyor ama gövdesinin bir kısmı `page.evaluate()`
        içinde, yani tarayıcıda değerlendiriliyor. Tarayıcı küreselleri o yüzden gerekli. */
-    files: ['scripts/site-kontrast.mjs'],
+    // Tarayıcı içinde çalışan denetim betikleri: gövdeleri `page.evaluate` ile
+    // sayfaya taşınıyor, dolayısıyla DOM globalleri burada meşru.
+    files: [
+      'scripts/site-kontrast.mjs',
+      'scripts/site-gorsel.mjs',
+      'scripts/site-tipografi.mjs',
+      'scripts/site-renk-denetimi.mjs',
+    ],
     languageOptions: {
       globals: {
         window: 'readonly',
