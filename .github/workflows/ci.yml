@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dogrula:
+    name: Biçim · Lint · Tip · Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: Üretilmiş veri güncel mi
+        # Kaynak dosyalar değişip derleme yapılmadıysa CI burada durur.
+        run: |
+          node scripts/hareketleri-derle.mjs
+          node scripts/sorulari-derle.mjs
+          git diff --exit-code -- data packages/shared/src/hareketler.uretilmis.ts packages/shared/src/sorular.uretilmis.ts
+
+      - name: Biçim
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tip kontrolü
+        run: npm run typecheck
+
+      - name: Çeviri denetimi
+        # Ekranlarda satır içi Türkçe metin kalırsa başarısız olur (F10.1).
+        run: npm run ceviri
+
+      - name: Testler
+        run: npm test
+
+      - name: Mobil tip kontrolü
+        run: npm -w @made2fit/mobile run typecheck
+
+      - name: Motor kapsamı
+        # Çekirdek motorun kapsamı eşiğin altına düşerse başarısız olur.
+        run: npm run test:coverage
+
+  guvenlik:
+    name: Bağımlılık taraması
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - name: Bilinen açıklar
+        # Düzeltilebilir her yüksek/kritik açık işi durdurur; muafiyetler gerekçeli
+        # ve tarihli olarak scripts/guvenlik-denetimi.mjs içinde yazılı.
+        run: npm run guvenlik

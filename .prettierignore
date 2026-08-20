@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.expo
+coverage
+*.md
+data/*.json
+packages/api/gocler/
+packages/shared/src/*.uretilmis.ts
+apps/mobile/src/veri/*.uretilmis.ts
+apps/mobile/.expo/

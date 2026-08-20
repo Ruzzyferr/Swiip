@@ -1,0 +1,35 @@
+# Made2Fit ters vekil. TLS sertifikaları Caddy tarafından otomatik alınır ve yenilenir.
+
+{$ALAN_ADI} {
+	encode zstd gzip
+
+	# Güvenlik başlıkları. HSTS'i yalnızca alan adı gerçekten yayındayken açık tut.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# Sağlık ucu log'u şişirmesin.
+	@saglik path /saglik
+	log_skip @saglik
+
+	reverse_proxy api:3000 {
+		# Vücut fotoğrafı isteği büyük olabilir; zaman aşımı buna göre.
+		transport http {
+			read_timeout 60s
+			write_timeout 60s
+		}
+	}
+
+	log {
+		output file /data/erisim.log {
+			roll_size 50MiB
+			roll_keep 10
+		}
+		format json
+	}
+}

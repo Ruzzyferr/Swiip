@@ -1,0 +1,6 @@
+{
+  "uretildi": "scripts/hareket-medya-ice-aktar.mjs",
+  "not": "Buradaki hareketler otomatik eşleşmedi. Yanlış görsel görselsizden kötüdür: kullanıcı yanlış hareketi yapar. Her birini elle eşle veya boş bırak.",
+  "guven_esigi": 0.72,
+  "elle_kontrol": []
+}

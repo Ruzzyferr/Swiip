@@ -1,0 +1,34 @@
+{
+  "name": "@made2fit/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/sunucu.ts",
+    "start": "node dist/sunucu.js",
+    "build": "tsc --build",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/goc.ts",
+    "db:seed": "tsx src/db/tohum.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@fastify/helmet": "^12.0.1",
+    "@fastify/jwt": "^10.2.2",
+    "@fastify/rate-limit": "^10.2.1",
+    "@made2fit/core": "*",
+    "@made2fit/shared": "*",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.2.0",
+    "pg": "^8.13.1",
+    "pino": "^9.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.2.15",
+    "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.30.1",
+    "tsx": "^4.19.2"
+  }
+}

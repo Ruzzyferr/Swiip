@@ -1,0 +1,117 @@
+name: made2fit
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-made2fit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD gerekli}
+      POSTGRES_DB: ${POSTGRES_DB:-made2fit}
+      # Türkçe sıralama: "İ" ve "ı" doğru sıralansın.
+      LANG: tr_TR.utf8
+    volumes:
+      - postgres_veri:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-made2fit} -d ${POSTGRES_DB:-made2fit}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    # Veritabanı dışarı açılmaz; yalnızca iç ağdan erişilir.
+    expose:
+      - '5432'
+    networks: [ic]
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgres://${POSTGRES_USER:-made2fit}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-made2fit}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET gerekli, en az 32 karakter}
+      AI_GATEWAY_URL: ${AI_GATEWAY_URL:-}
+      AI_GATEWAY_KEY: ${AI_GATEWAY_KEY:-}
+      REVENUECAT_KANCA_SIRRI: ${REVENUECAT_KANCA_SIRRI:-}
+      KIMLIK_ISTEK_SINIRI: ${KIMLIK_ISTEK_SINIRI:-10}
+      POSTA_API_URL: ${POSTA_API_URL:-}
+      POSTA_API_KEY: ${POSTA_API_KEY:-}
+      POSTA_GONDEREN: ${POSTA_GONDEREN:-Made2Fit <merhaba@made2fit.io>}
+      YONETIM_ANAHTARI: ${YONETIM_ANAHTARI:-}
+      LOG_SEVIYESI: ${LOG_SEVIYESI:-info}
+      CORS_KAYNAKLAR: ${CORS_KAYNAKLAR:-*}
+    expose:
+      - '3000'
+    networks: [ic, dis]
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/saglik').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [api]
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    environment:
+      ALAN_ADI: ${ALAN_ADI:-made2fit.io}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_veri:/data
+      - caddy_yapilandirma:/config
+    networks: [dis]
+
+  yedekleyici:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-made2fit}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-made2fit}
+      YEDEK_SAKLAMA_GUN: ${YEDEK_SAKLAMA_GUN:-30}
+    volumes:
+      - ../yedekler:/yedekler
+      - ../scripts/yedek-al.sh:/yedek-al.sh:ro
+    entrypoint: ['/bin/sh', '-c']
+    # Her gece 03:15'te yedek al. Kullanıcı verisi kabul etmeden önce
+    # geri yükleme bir kez gerçekten denenmiş olmalı (scripts/yedek-geri-yukleme-testi.sh).
+    command: >
+      "while true; do
+         su_an=$$(date +%H%M);
+         if [ \"$$su_an\" = '0315' ]; then sh /yedek-al.sh; sleep 60; fi;
+         sleep 30;
+       done"
+    networks: [ic]
+
+volumes:
+  postgres_veri:
+  caddy_veri:
+  caddy_yapilandirma:
+
+networks:
+  ic:
+    internal: true
+  dis:

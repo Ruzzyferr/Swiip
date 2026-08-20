@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "paths": {
+      "@made2fit/shared": ["../shared/src/index.ts"],
+      "@made2fit/core": ["../core/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../shared" }, { "path": "../core" }]
+}

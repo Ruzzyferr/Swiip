@@ -1,0 +1,154 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import { dilCozumle, metinleriAl, type Dil, type Metinler } from '@made2fit/shared';
+import { agDiliniAyarla, istek, oturumVar, tokenlariKaydet, tokenlariSil } from '../veri/api';
+import { tumunuTemizle } from '../veri/onbellek';
+import { magaza } from '../odeme/magaza';
+import { bildirimleriKapat } from '../bildirim/zamanlayici';
+
+/**
+ * Oturum durumu. Uygulamanın tek küresel durumu budur; gerisi ekranların kendi içinde.
+ * Küçük bir uygulamada durum yöneticisi kurmak, çözdüğünden fazla sorun yaratır.
+ */
+
+export interface Kullanici {
+  id: string;
+  email: string;
+  locale: string;
+  ed_mode: boolean;
+  ed_sayilar_acik: boolean;
+  medical_gate_status: string;
+  consent_photo: string | null;
+  email_dogrulandi_at: string | null;
+}
+
+interface OturumDurumu {
+  kullanici: Kullanici | null;
+  hazir: boolean;
+  girisYap: (email: string, parola: string) => Promise<void>;
+  kayitOl: (girdi: KayitGirdisi) => Promise<void>;
+  cikisYap: () => Promise<void>;
+  yenile: () => Promise<void>;
+}
+
+export interface KayitGirdisi {
+  email: string;
+  parola: string;
+  saglik_onayi: boolean;
+  olcum_onayi?: boolean;
+}
+
+interface OturumCevabi {
+  erisim_token: string;
+  yenileme_token: string;
+}
+
+const Baglam = createContext<OturumDurumu | null>(null);
+
+export function OturumSaglayici({ children }: { children: ReactNode }) {
+  const [kullanici, setKullanici] = useState<Kullanici | null>(null);
+  const [hazir, setHazir] = useState(false);
+
+  const yenile = useCallback(async () => {
+    if (!(await oturumVar())) {
+      setKullanici(null);
+      agDiliniAyarla(null);
+      return;
+    }
+    try {
+      const kayit = await istek<Kullanici>('/v1/kimlik/ben');
+      setKullanici(kayit);
+      // Ağ katmanı bir bileşen değil; dili kancayla okuyamıyor. Hata metinleri de
+      // kullanıcının dilinde çıksın diye burada bildiriliyor.
+      agDiliniAyarla(kayit.locale);
+      // Mağaza kullanıcı kimliğiyle hazırlanır; satın alma bu kimliğe bağlanır.
+      await magaza.hazirla(kayit.id);
+    } catch {
+      setKullanici(null);
+      agDiliniAyarla(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    void (async () => {
+      await yenile();
+      setHazir(true);
+    })();
+  }, [yenile]);
+
+  const girisYap = useCallback(
+    async (email: string, parola: string) => {
+      const cevap = await istek<OturumCevabi>('/v1/kimlik/giris', {
+        yontem: 'POST',
+        govde: { email, parola },
+        yetkisiz: true,
+      });
+      await tokenlariKaydet(cevap.erisim_token, cevap.yenileme_token);
+      await yenile();
+    },
+    [yenile],
+  );
+
+  const kayitOl = useCallback(
+    async (girdi: KayitGirdisi) => {
+      const cevap = await istek<OturumCevabi>('/v1/kimlik/kayit', {
+        yontem: 'POST',
+        govde: girdi,
+        yetkisiz: true,
+      });
+      await tokenlariKaydet(cevap.erisim_token, cevap.yenileme_token);
+      await yenile();
+    },
+    [yenile],
+  );
+
+  const cikisYap = useCallback(async () => {
+    await tokenlariSil();
+    // Cihazda kişisel veri bırakılmaz.
+    await tumunuTemizle();
+    // Bir sonraki kullanıcıya öncekinin antrenman hatırlatmaları gitmesin.
+    await bildirimleriKapat();
+    setKullanici(null);
+  }, []);
+
+  const deger = useMemo<OturumDurumu>(
+    () => ({ kullanici, hazir, girisYap, kayitOl, cikisYap, yenile }),
+    [kullanici, hazir, girisYap, kayitOl, cikisYap, yenile],
+  );
+
+  return <Baglam.Provider value={deger}>{children}</Baglam.Provider>;
+}
+
+export function useOturum(): OturumDurumu {
+  const deger = useContext(Baglam);
+  if (!deger) throw new Error('useOturum, OturumSaglayici içinde kullanılmalı.');
+  return deger;
+}
+
+/** ED modunda sayılar gizli mi — arayüzün her yerinde bu tek kaynaktan okunur. */
+export function useSayilarGizli(): boolean {
+  const { kullanici } = useOturum();
+  return (kullanici?.ed_mode ?? false) && !(kullanici?.ed_sayilar_acik ?? false);
+}
+
+/**
+ * Arayüz dili kullanıcının `locale` alanından gelir; oturum açılmamışsa varsayılan Türkçe.
+ *
+ * Cihaz dilini otomatik almıyoruz: Türkiye'de İngilizce telefon kullanan çok kişi var ve
+ * uygulamanın Türkçe içeriğini görmek istiyorlar. Dil, kullanıcının açık tercihidir.
+ */
+export function useDil(): Dil {
+  const { kullanici } = useOturum();
+  return dilCozumle(kullanici?.locale);
+}
+
+export function useMetinler(): Metinler {
+  return metinleriAl(useDil());
+}
