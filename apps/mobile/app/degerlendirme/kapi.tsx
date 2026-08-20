@@ -50,7 +50,7 @@ export default function Kapi() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={{ flex: 1, backgroundColor: tema.renk.zemin, justifyContent: 'center' }}>
-        <Ekran kaydirilabilir={false}>
+        <Ekran kaydirilabilir={false} ustGuvenliAlan>
           <Yazi tur="baslik1">{icerik.baslik}</Yazi>
           <Yazi renk="metinYumusak">{icerik.govde}</Yazi>
 

@@ -10,6 +10,7 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTema, type Tema } from './tema';
 import { useMetinler } from '../durum/Oturum';
 
@@ -101,21 +102,50 @@ export function Sayi({
 // Düzen
 // ---------------------------------------------------------------------------
 
+/**
+ * Ekran kabı — güvenli alanı bilen tek yer.
+ *
+ * `SafeAreaProvider` kökte takılıydı ama **hiçbir ekran kenar boşluklarını okumuyordu.**
+ * Başlığı gizlenmiş ekranlarda (açılış, giriş, değerlendirme, güvenlik kapıları) içerik
+ * durum çubuğunun altından başlıyor: emülatörde kapı ekranının başlığı saatin hizasına
+ * geliyordu, çentikli bir telefonda çentiğin altında kalırdı.
+ *
+ * Kural her ekrana ayrı ayrı yazılmıyor; kap biliyor:
+ *
+ *  - **Başlık varsa** üst boşluğu react-navigation zaten veriyor; buradan eklemek çift
+ *    boşluk yapardı. Varsayılan bu.
+ *  - **Başlık yoksa** ekran `ustGuvenliAlan` vererek üst boşluğu buradan ister.
+ *
+ * Bunu bileşenin kendisinin anlamasını denedik: `HeaderHeightContext` okumak
+ * `@react-navigation/elements`i doğrudan bağımlılık yapıyor ve expo-router'ın kullandığı
+ * sürümle çakışıyor. Açık bir prop daha az sihirli — ve unutulmasın diye
+ * `src/tasarim/guvenliAlan.test.ts` her başlıksız ekranın bunu yaptığını denetliyor.
+ *
+ * Alt kenar boşluğu her durumda ekleniyor: jest çubuğunun altında kalan içerik,
+ * dokunulamayan içeriktir.
+ */
 export function Ekran({
   children,
   kaydirilabilir = true,
   altBoslugu = true,
+  ustGuvenliAlan = false,
 }: {
   children: ReactNode;
   kaydirilabilir?: boolean;
   altBoslugu?: boolean;
+  /** Ekranın gezinme başlığı yoksa true: üst kenar boşluğunu bu kap verir. */
+  ustGuvenliAlan?: boolean;
 }) {
   const tema = useTema();
+  const kenar = useSafeAreaInsets();
+  const ustEk = ustGuvenliAlan ? kenar.top : 0;
+
   const icerik = (
     <View
       style={{
         padding: tema.bosluk.lg,
-        paddingBottom: altBoslugu ? tema.bosluk.xxxl : 0,
+        paddingTop: tema.bosluk.lg + ustEk,
+        paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + kenar.bottom,
         gap: tema.bosluk.lg,
       }}
     >

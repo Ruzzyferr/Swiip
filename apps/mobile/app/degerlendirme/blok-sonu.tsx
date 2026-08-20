@@ -28,7 +28,7 @@ export default function BlokSonu() {
           paddingHorizontal: tema.bosluk.lg,
         }}
       >
-        <Ekran kaydirilabilir={false}>
+        <Ekran ustGuvenliAlan kaydirilabilir={false}>
           <Yazi tur="etiket" renk="aksan">
             {m.bolum} {blok}
           </Yazi>

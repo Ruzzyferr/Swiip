@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Made2Fit — Ölçüne göre</title>
+    <meta
+      name="description"
+      content="134 soruya verdiğin cevapları, gerekçesi görünür bir antrenman ve beslenme programına çeviren koç. Her hareketin yanında neden orada olduğu yazar."
+    />
+    <meta name="theme-color" content="#F6F7F5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E100F" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="varliklar/isaret.svg" type="image/svg+xml" />
+
+    <meta property="og:title" content="Made2Fit — Ölçüne göre" />
+    <meta property="og:description" content="Programın neden o program olduğunu da söyleriz." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <!-- API tabanı. Üretimde boş: site ve API aynı origin'den sunuluyor (Caddy).
+         Ayrı bir kökten sunulacaksa buraya tam adres yazılır. -->
+    <meta name="m2f-api" content="" />
+
+    <link rel="stylesheet" href="stil.css" />
+  </head>
+
+  <body>
+    <a class="atla" href="#icerik">İçeriğe atla</a>
+
+    <!-- Marka işareti bir kez tanımlanıyor; kullanan yerler <use> ile çağırıyor.
+         Harici dosyaya <use href="dosya.svg#id"> tarayıcılarda güvenilir değil. -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <symbol id="isaret" viewBox="0 0 100 100">
+        <mask id="m2f" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+          <rect x="0" y="0" width="100" height="100" fill="white" />
+          <g stroke="black" stroke-linecap="butt">
+            <line x1="32.73" y1="31.69" x2="26.13" y2="30.05" stroke-width="1.8" />
+            <line x1="34.00" y1="28.20" x2="30.32" y2="26.40" stroke-width="1.4" />
+            <line x1="35.97" y1="25.04" x2="30.61" y2="20.85" stroke-width="1.8" />
+            <line x1="38.56" y1="22.36" x2="35.92" y2="19.22" stroke-width="1.4" />
+            <line x1="41.64" y1="20.28" x2="38.45" y2="14.28" stroke-width="1.8" />
+            <line x1="45.09" y1="18.89" x2="43.96" y2="14.95" stroke-width="1.4" />
+            <line x1="48.76" y1="18.24" x2="48.28" y2="11.46" stroke-width="1.8" />
+            <line x1="52.48" y1="18.37" x2="53.05" y2="14.31" stroke-width="1.4" />
+            <line x1="56.09" y1="19.27" x2="58.41" y2="12.88" stroke-width="1.8" />
+            <line x1="59.43" y1="20.90" x2="61.61" y2="17.43" stroke-width="1.4" />
+            <line x1="62.36" y1="23.20" x2="67.09" y2="18.30" stroke-width="1.8" />
+            <line x1="64.76" y1="26.05" x2="68.16" y2="23.75" stroke-width="1.4" />
+            <line x1="66.50" y1="29.33" x2="72.81" y2="26.78" stroke-width="1.8" />
+            <line x1="67.53" y1="32.91" x2="71.57" y2="32.20" stroke-width="1.4" />
+            <line x1="67.79" y1="36.62" x2="74.59" y2="36.86" stroke-width="1.8" />
+            <line x1="67.27" y1="40.31" x2="71.25" y2="41.30" stroke-width="1.4" />
+            <line x1="66.00" y1="43.80" x2="72.11" y2="46.78" stroke-width="1.8" />
+            <line x1="30.60" y1="91.50" x2="30.60" y2="83.70" stroke-width="1.9" />
+            <line x1="36.80" y1="91.50" x2="36.80" y2="86.90" stroke-width="1.5" />
+            <line x1="43.00" y1="91.50" x2="43.00" y2="83.70" stroke-width="1.9" />
+            <line x1="49.20" y1="91.50" x2="49.20" y2="86.90" stroke-width="1.5" />
+            <line x1="55.40" y1="91.50" x2="55.40" y2="83.70" stroke-width="1.9" />
+            <line x1="61.60" y1="91.50" x2="61.60" y2="86.90" stroke-width="1.5" />
+            <line x1="67.80" y1="91.50" x2="67.80" y2="83.70" stroke-width="1.9" />
+          </g>
+        </mask>
+        <g mask="url(#m2f)">
+          <path
+            d="M26.06 37.67 A24.0 24.0 0 1 1 64.11 55.42"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="13.0"
+          />
+          <path
+            d="M68.91 50.78 L31.10 82.00"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="13.0"
+            stroke-linecap="butt"
+          />
+          <rect x="22.0" y="78.50" width="52.0" height="13.0" fill="currentColor" />
+        </g>
+      </symbol>
+    </svg>
+
+    <!--
+      Taksimat rayı — sayfanın imzası.
+
+      Logodaki "2"nin tabanı taksimatlı bir cetvel. O cetvel burada sayfanın kenarına
+      dikiliyor: uzun ve kısa çentikler, bölüm başlarında etiketler, ve kaydırdıkça
+      kayan bir kumpas ağzı. Süs değil; hem gezinme hem konum göstergesi.
+    -->
+    <nav class="ray" aria-label="Bölümler">
+      <a class="ray-marka" href="#tepe" aria-label="Made2Fit — başa dön">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
+      </a>
+      <div class="ray-olcek" id="ray-olcek" aria-hidden="true"></div>
+      <ol class="ray-liste" id="ray-liste"></ol>
+      <span class="ray-kumpas" id="ray-kumpas" aria-hidden="true"></span>
+    </nav>
+
+    <main id="icerik">
+      <!-- ================================================================= -->
+      <section class="tepe" id="tepe" data-bolum="Ölçü">
+        <div class="tepe-yazi">
+          <p class="etiket">Türkiye'nin ilk gerekçeli antrenörü</p>
+
+          <h1 class="dev">Ölçüne<br /><span class="dev-vurgu">göre.</span></h1>
+
+          <p class="lede">
+            Programın neden o program olduğunu da söyleriz. Her hareketin yanında, hangi cevabından
+            doğduğu yazar.
+          </p>
+
+          <div class="tepe-eylem">
+            <a class="dugme dugme-ana" href="#haber">Yayına çıkınca haber ver</a>
+            <a class="dugme dugme-yan" href="#nasil">Nasıl kurulduğunu gör</a>
+          </div>
+        </div>
+
+        <dl class="olcum-seridi">
+          <div>
+            <dt>Soru</dt>
+            <dd class="sayi">134</dd>
+          </div>
+          <div>
+            <dt>Hareket</dt>
+            <dd class="sayi">122</dd>
+          </div>
+          <div>
+            <dt>Tarif</dt>
+            <dd class="sayi">335</dd>
+          </div>
+          <div>
+            <dt>AI karar verir</dt>
+            <dd class="sayi">0</dd>
+          </div>
+        </dl>
+
+        <!--
+          Kahraman bölüm slogan atmıyor, çalışıyor.
+
+          Ürünün iddiası "gerekçeyi gösteririz". Bunu bir cümleyle iddia etmek, tam da
+          rakiplerin yaptığı şey olurdu. Burada gerçek karar izleri dönüyor: cevap,
+          ateşlenen kural, ve programda değişen şey.
+        -->
+        <div class="iz-panel" aria-live="off">
+          <div class="iz-baslik">
+            <span class="iz-etiket">Karar izi</span>
+            <span class="iz-sayac sayi" id="iz-sayac">01 / 04</span>
+          </div>
+
+          <div class="iz-govde" id="iz-govde">
+            <!-- İzler script.js içinde, gerçek kural kimlikleriyle. -->
+          </div>
+
+          <p class="iz-alt">
+            Bu cümleler yazılmadı, hesaplandı. Kural kimliği ve parametreler
+            <code>decisions</code> tablosunda duruyor.
+          </p>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <section class="bolum bolum-soru" id="soru" data-bolum="Soru">
+        <header class="bolum-bas">
+          <p class="etiket">01 — Önce soruyoruz</p>
+          <h2>Sekiz soruyla program yazmak kolay. Doğrusunu yazmak değil.</h2>
+          <p class="bolum-lede">
+            Bel fıtığını bilmeden yerden çekiş yazabilirsin. Hızlı olur. Sonra ne olacağını
+            bilemezsin. Biz 134 soruyoruz ve her sorunun ne işe yaradığını söylüyoruz — sürücüsü
+            olmayan soru sormuyoruz.
+          </p>
+        </header>
+
+        <div class="dal-agaci">
+          <div class="dal dal-kok">
+            <span class="dal-kod sayi">S7</span>
+            <p class="dal-metin">Bel bölgende ağrı ya da tanı var mı?</p>
+          </div>
+
+          <div class="dal-cocuklar">
+            <div class="dal">
+              <span class="dal-kod sayi">Hayır</span>
+              <p class="dal-metin">Havuz olduğu gibi kalır. 4 soru atlanır.</p>
+            </div>
+            <div class="dal dal-acik">
+              <span class="dal-kod sayi">Bel fıtığı</span>
+              <p class="dal-metin">
+                4 soru açılır. Yerden çekiş paterni havuzdan çıkar. Kalça menteşesi desteklenen
+                varyasyona döner.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <ul class="kanit-listesi">
+          <li>
+            <span class="kanit-baslik">Yarıda bırakırsan kaybolmaz.</span>
+            Cevapların hem cihazında hem sunucuda durur; telefon değiştirsen de kaldığın yerden
+            devam edersin.
+          </li>
+          <li>
+            <span class="kanit-baslik">Her bölüm sonunda ne öğrendiğimizi söyleriz.</span>
+            On bölümün her biri bittiğinde, o bölümün programını nasıl değiştirdiğini gösteriyoruz.
+            Soru sormak yeterli değil; sorduğumuzu ne yaptığımızı da göstermek gerekiyor.
+          </li>
+          <li>
+            <span class="kanit-baslik">Dört soru atlanamaz.</span>
+            18 yaş, gebelik, kardiyak bayrak ve yeme bozukluğu. Bunlarda program üretmiyoruz — hızlı
+            bir "evet" yerine dürüst bir "hayır".
+          </li>
+        </ul>
+      </section>
+
+      <!-- ================================================================= -->
+      <section class="bolum bolum-motor" id="nasil" data-bolum="Motor">
+        <header class="bolum-bas">
+          <p class="etiket">02 — Sonra hesaplıyoruz</p>
+          <h2>Hesap formülle. Dil AI ile.</h2>
+          <p class="bolum-lede">
+            Hacim, progresif yüklenme, deload, 1RM, kalori, makro — hepsi deterministik formül. Aynı
+            girdi her zaman aynı çıktıyı verir. Dil modelleri aritmetikte tutarsızdır ve sağlık
+            bağlamında bu kabul edilemez.
+          </p>
+        </header>
+
+        <div class="motor-hat">
+          <div class="motor-yan motor-cekirdek">
+            <p class="motor-etiket">Deterministik çekirdek</p>
+            <ul>
+              <li>Hacim bütçesi</li>
+              <li>Split seçimi</li>
+              <li>Kısıt çözücü</li>
+              <li>1RM ve başlangıç yükü</li>
+              <li>Çift ilerleme ve deload</li>
+              <li>Kalori ve makro</li>
+              <li>Takvim yerleşimi</li>
+            </ul>
+            <p class="motor-not">
+              Ağ yok, saat yok, rastgelelik yok. Aynı profil iki kez girildiğinde
+              <strong>birebir aynı program</strong> çıkar; bunu bir test koruyor.
+            </p>
+          </div>
+
+          <div class="motor-yan motor-ai">
+            <p class="motor-etiket">AI yalnızca dört yerde</p>
+            <ol class="ai-liste">
+              <li>
+                <span class="ai-ad">Değerlendirme yorumlama</span>
+                <span class="ai-sik sayi">kullanıcı başına 1–2</span>
+              </li>
+              <li>
+                <span class="ai-ad">Vücut fotoğrafı analizi</span>
+                <span class="ai-sik sayi">ayda ~1</span>
+              </li>
+              <li>
+                <span class="ai-ad">Yemek tanıma</span>
+                <span class="ai-sik sayi">Pro · ayda 250</span>
+              </li>
+              <li>
+                <span class="ai-ad">Koç sohbeti</span>
+                <span class="ai-sik sayi">kotalı</span>
+              </li>
+            </ol>
+            <p class="motor-not">
+              Yemek tanımada AI yalnızca <em>"bu ne yemeği"</em> sorusunu cevaplar. Besin değeri
+              veritabanından gelir. Aynı yemeği iki kez eklediğinde aynı makroyu görmenin tek yolu
+              bu.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <section class="bolum bolum-yapmadik" id="duru" data-bolum="Duruş">
+        <header class="bolum-bas">
+          <p class="etiket">03 — Yapmadıklarımız</p>
+          <h2>Yapmadıklarımız da bir tasarım kararı.</h2>
+          <p class="bolum-lede">
+            Aşağıdaki maddelerin hepsi ölçülmüş bir şikâyetten doğdu. Yirmi rakip uygulamanın 14.960
+            Türkçe yorumunu okuduk.
+          </p>
+        </header>
+
+        <ul class="yapmadik-izgara">
+          <li>
+            <h3>Rozet, seri, konfeti yok</h3>
+            <p>
+              Bir rakibin en çok beğenilen iki şikâyeti tam buydu: <em>"çocuk muyuz biz"</em>.
+              Kutlama animasyonu koymadık, seri saymıyoruz.
+            </p>
+          </li>
+          <li>
+            <h3>Ödeyene reklam ve upsell yok</h3>
+            <p>Tek satır bile. Para ödeyen kullanıcıya bir şey satmaya çalışmayız.</p>
+          </li>
+          <li>
+            <h3>İptal tek tuş</h3>
+            <p>Ayarların en üstünde. Aramana, e-posta yazmana, sebep açıklamana gerek yok.</p>
+          </li>
+          <li>
+            <h3>Fotoğraf saklanmıyor</h3>
+            <p>
+              Vücut fotoğrafın analiz edildiği anda bellekten silinir; sunucumuzun diskine hiç
+              yazılmaz. Yalnızca ölçüler kalır.
+            </p>
+          </li>
+          <li>
+            <h3>Salonda telefon yok</h3>
+            <p>
+              Set kaydı tutturmuyoruz. Seans sonrası üç dokunuş yeterli; bir sonraki seansı ona göre
+              hesaplıyoruz.
+            </p>
+          </li>
+          <li>
+            <h3>Program düzenlemek ücretsiz</h3>
+            <p>
+              Ve sınırsız. Beğenmediğin hareketi değiştirirsin; buraya duvar koymak ürünü öldürür.
+            </p>
+          </li>
+          <li>
+            <h3>Tek sayı değil, aralık</h3>
+            <p>Yağ oranını "%18,4" diye söylemiyoruz. Ölçüm bir aralıktır; öyle sunuyoruz.</p>
+          </li>
+          <li>
+            <h3>Bizim hatamızı sen ödemezsin</h3>
+            <p>Önbellekten gelen tanıma ve yanlış tanıma sonrası tekrar deneme kotandan düşmez.</p>
+          </li>
+        </ul>
+      </section>
+
+      <!-- ================================================================= -->
+      <section class="bolum bolum-fiyat" id="fiyat" data-bolum="Fiyat">
+        <header class="bolum-bas">
+          <p class="etiket">04 — Fiyat</p>
+          <h2>Ücretsiz katman gerçekten kullanılabilir.</h2>
+          <p class="bolum-lede">
+            Değerlendirme, vücut analizi ve 1. gün programı ücretsiz. Manuel kalori girişi de öyle.
+            Ödeme, üstüne eklenen şey için.
+          </p>
+        </header>
+
+        <div class="fiyat-cetvel">
+          <article class="plan">
+            <h3>Ücretsiz</h3>
+            <p class="plan-fiyat sayi">0<span class="plan-birim">₺</span></p>
+            <p class="plan-yillik sayi">her zaman</p>
+            <ul>
+              <li>134 soruluk değerlendirme</li>
+              <li>Vücut analizi — bir kez</li>
+              <li>Programın 1. günü</li>
+              <li>Manuel kalori girişi</li>
+              <li>Program düzenleme — sınırsız</li>
+            </ul>
+          </article>
+
+          <article class="plan plan-one">
+            <h3>Temel</h3>
+            <p class="plan-fiyat sayi">99<span class="plan-birim">₺/ay</span></p>
+            <p class="plan-yillik sayi">690 ₺/yıl</p>
+            <ul>
+              <li>Haftanın tüm günleri</li>
+              <li>Seans sonrası uyarlama</li>
+              <li>Kalori ve makro hedefi</li>
+              <li>Öğün planı, tarifler, buzdolabı</li>
+              <li>Barkod okuma</li>
+              <li>AI koç — ayda 60 mesaj</li>
+            </ul>
+          </article>
+
+          <article class="plan">
+            <h3>Pro</h3>
+            <p class="plan-fiyat sayi">169<span class="plan-birim">₺/ay</span></p>
+            <p class="plan-yillik sayi">1.190 ₺/yıl</p>
+            <ul>
+              <li>Temel'in tamamı</li>
+              <li>Fotoğraftan yemek tanıma — ayda 250</li>
+              <li>AI koç — ayda 150 mesaj</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="fiyat-not">
+          Fiyatlar mağazada tahsil edilir ve yenileme tarihi satın alma ekranında en büyük puntoda
+          yazar. Önceden seçili plan yok, geri sayım yok, sahte kıtlık yok.
+        </p>
+      </section>
+
+      <!-- ================================================================= -->
+      <section class="bolum bolum-haber" id="haber" data-bolum="Haber">
+        <div class="haber-ic">
+          <h2>Yayına çıkınca tek bir e-posta göndeririz.</h2>
+          <p class="bolum-lede">
+            Bülten değil. Uygulama mağazada olduğunda bir kez yazarız, sonra listeden düşersin.
+          </p>
+
+          <form class="haber-form" id="haber-form" novalidate>
+            <div class="alan">
+              <label for="eposta">E-posta</label>
+              <input
+                id="eposta"
+                name="eposta"
+                type="email"
+                inputmode="email"
+                autocomplete="email"
+                placeholder="ornek@eposta.com"
+                required
+              />
+            </div>
+
+            <label class="onay">
+              <input type="checkbox" id="riza" name="riza" required />
+              <span>
+                Yalnızca yayın haberi için e-postamın saklanmasına izin veriyorum. İstediğim zaman
+                silinmesini isteyebilirim.
+              </span>
+            </label>
+
+            <button class="dugme dugme-ana" type="submit" id="haber-dugme">Listeye ekle</button>
+
+            <p class="haber-durum" id="haber-durum" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <!--
+          Boş kalan yarıya süs değil, bilgi koyuyoruz: ürün gerçekten ne durumda.
+          Bir alet paneli gibi okunuyor ve beklentiyi doğru yerde tutuyor.
+        -->
+        <aside class="durum-paneli" aria-labelledby="durum-basligi">
+          <h3 id="durum-basligi" class="durum-baslik">Şu an ne durumda</h3>
+          <dl class="durum-liste">
+            <div>
+              <dt>Değerlendirme motoru</dt>
+              <dd class="sayi" data-durum="hazir">hazır</dd>
+            </div>
+            <div>
+              <dt>Program motoru</dt>
+              <dd class="sayi" data-durum="hazir">hazır</dd>
+            </div>
+            <div>
+              <dt>Vücut analizi</dt>
+              <dd class="sayi" data-durum="hazir">hazır</dd>
+            </div>
+            <div>
+              <dt>Beslenme ve öğün planı</dt>
+              <dd class="sayi" data-durum="hazir">hazır</dd>
+            </div>
+            <div>
+              <dt>AI koç</dt>
+              <dd class="sayi" data-durum="hazir">hazır</dd>
+            </div>
+            <div>
+              <dt>Mağaza yayını</dt>
+              <dd class="sayi" data-durum="bekliyor">bekliyor</dd>
+            </div>
+            <div>
+              <dt>İngilizce arayüz</dt>
+              <dd class="sayi" data-durum="hazir">hazır</dd>
+            </div>
+            <div>
+              <dt>İngilizce tarif ve hareket metinleri</dt>
+              <dd class="sayi" data-durum="bekliyor">bekliyor</dd>
+            </div>
+          </dl>
+          <p class="durum-not">
+            "Bekliyor" yazan maddeler için tahmini tarih vermiyoruz. Vermediğimiz bir sözü tutmuş
+            olmayız.
+          </p>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="alt">
+      <div class="alt-ic">
+        <a class="alt-marka" href="#tepe" aria-label="Made2Fit">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
+          <span>Made2Fit</span>
+        </a>
+
+        <p class="alt-slogan">Ölçüne göre. Made to fit, and made to explain.</p>
+
+        <p class="alt-feragat">
+          Made2Fit tıbbi cihaz değildir ve teşhis koymaz. Verdiği sayılar tahmindir. Sağlık
+          durumunla ilgili bir sorun varsa hekimine danış.
+        </p>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>

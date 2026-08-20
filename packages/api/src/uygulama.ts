@@ -21,6 +21,7 @@ import { tanimaRotalari } from './rotalar/tanima';
 import { kocRotalari } from './rotalar/koc';
 import { ogunRotalari } from './rotalar/ogun';
 import { analitikRotalari } from './rotalar/analitik';
+import { ilgiRotalari } from './rotalar/ilgi';
 import { offSaglayici, type BarkodSaglayici } from './servisler/barkod';
 
 export interface UygulamaSecenekleri {
@@ -151,6 +152,7 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
 
   app.get('/saglik', async () => ({ durum: 'iyi', surum: 1 }));
 
+  await app.register(ilgiRotalari, { prefix: '/v1/ilgi' });
   await app.register(kimlikRotalari, { prefix: '/v1/kimlik' });
   await app.register(hesapRotalari, { prefix: '/v1/hesap' });
   await app.register(degerlendirmeRotalari, { prefix: '/v1/degerlendirme' });

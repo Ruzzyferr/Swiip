@@ -81,11 +81,14 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
       );
     }
 
+    /** Gizlilik notu bu bayrağa bakıyor: söylediğimiz şey yaptığımız şey olmalı. */
+    const fotografGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
+
     let gorsel: GorselAnalizCiktisi | undefined;
-    if (govde.fotograflar && govde.fotograflar.length > 0) {
+    if (fotografGeldi) {
       // Fotoğraf yalnızca bu çağrının ömrü boyunca bellekte. Dönüş değeri sayılardır.
       gorsel = await fotografiAnalizEt({
-        fotograflar: govde.fotograflar,
+        fotograflar: govde.fotograflar!,
         aiIstemcisi: app.aiIstemcisi,
       });
     }
@@ -139,9 +142,16 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
       },
       // ED modunda arayüz aralığı gizler; motor yine hesaplar.
       sayilar_gizli: kullanici.edModu,
-      gizlilik_notu:
-        'Fotoğrafın analiz edildi ve bu istek biterken bellekten düştü. Sunucumuzun diskine ' +
-        'hiç yazılmadı; sadece yukarıdaki sayılar saklandı.',
+      /**
+       * Not, GERÇEKTEN yapılan işi anlatıyor.
+       *
+       * Tek bir cümle her raporda yazıyordu: "Fotoğrafın analiz edildi ve bellekten
+       * düştü." Ölçülerle devam eden kullanıcı fotoğraf göndermemişti; olmayan bir şeyin
+       * silindiğine dair güvence, tam da kazanmak istediğimiz güveni harcıyor.
+       */
+      gizlilik_notu: fotografGeldi
+        ? metinler.gizlilikNotu.fotografli
+        : metinler.gizlilikNotu.olculerle,
     };
   });
 

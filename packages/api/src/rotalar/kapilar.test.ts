@@ -118,6 +118,14 @@ describe('temiz tarama programı açar', () => {
     const cevap = await programUretDene(token);
 
     expect(cevap.statusCode).toBe(200);
-    expect(cevap.json().gunler.length).toBeGreaterThan(0);
+    expect(cevap.json().program_id).toBeTruthy();
+
+    // Program `/aktif`ten okunuyor: üretim ucu artık yalnızca üretildiğini söylüyor.
+    const aktif = await app.inject({
+      method: 'GET',
+      url: '/v1/program/aktif',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(aktif.json().gunler.length).toBeGreaterThan(0);
   });
 });

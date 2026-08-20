@@ -195,6 +195,7 @@ export const en: Metinler = {
     tanima_basarisiz: () =>
       'I cannot recognise a meal in this photo. You can shoot closer and better lit, or search ' +
       'manually. This attempt did not use your quota.',
+    ilgi_gecersiz: () => 'A valid email address and explicit consent are required.',
     profil_yok: () => 'Finish the assessment first.',
     barkod_yok: () => 'This barcode is not in our database. You can add it manually.',
     besin_yok: () => 'Food not found.',
@@ -383,6 +384,8 @@ export const en: Metinler = {
     cevrimdisiNotu:
       'No connection — your answers are held on this device and will be sent once you are back online.',
     soruyuAtla: 'Skip this question',
+    listeAra: 'Type to search',
+    listeSonucYok: 'No match. Try a different spelling.',
     istersenAtla: 'You can skip this one',
     gecersizCevap: 'That answer is not valid.',
     okudumRizaVeriyorum: 'I have read this and give my explicit consent',
@@ -499,6 +502,14 @@ export const en: Metinler = {
      * izlenimi — tek dile bağlı kalamaz.
      */
     motor: {
+      gizlilikNotu: {
+        fotografli:
+          'Your photo was analysed and dropped from memory as this request finished. It was ' +
+          'never written to our disk; only the numbers above are stored.',
+        olculerle:
+          'You did not send a photo; this report comes from your measurements alone. The only ' +
+          'thing stored is the numbers above.',
+      },
       ozet: {
         veriYok:
           'Not enough data to estimate body fat. Enter your waist and neck measurements, or ' +

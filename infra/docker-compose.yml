@@ -76,6 +76,8 @@ services:
       ALAN_ADI: ${ALAN_ADI:-made2fit.io}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Marka sitesi statik; derleme adımı yok, doğrudan bağlanıyor.
+      - ../apps/site:/site:ro
       - caddy_veri:/data
       - caddy_yapilandirma:/config
     networks: [dis]

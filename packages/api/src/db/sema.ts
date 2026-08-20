@@ -565,3 +565,22 @@ export const ogun_tercihleri = pgTable('ogun_tercihleri', {
   sevilmeyen_jsonb: jsonb('sevilmeyen_jsonb').notNull().default({}),
   updated_at: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Yayın haberi listesi (marka sitesi).
+ *
+ * Uygulama henüz mağazada değil; sitedeki tek dönüşüm yolu bu. Bültene dönüşmez:
+ * tek bir e-posta gönderilir ve kayıt silinir.
+ *
+ * KVKK: e-posta kişisel veri. Rıza zamanı ayrıca saklanıyor — "izin verdi mi" sorusuna
+ * cevap verebilmek, iznin kendisi kadar önemli. IP adresi TUTULMUYOR: gerekmiyor.
+ */
+export const ilgi_kayitlari = pgTable('ilgi_kayitlari', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  /** Şapkasız katlanmış hâli değil, kullanıcının yazdığı hâli; ama küçük harfe indirilmiş. */
+  eposta: text('eposta').notNull().unique(),
+  riza_at: timestamp('riza_at', { withTimezone: true }).notNull().defaultNow(),
+  created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  /** Haber gönderildiğinde damgalanır; gönderim sonrası kayıt silinir. */
+  bildirildi_at: timestamp('bildirildi_at', { withTimezone: true }),
+});

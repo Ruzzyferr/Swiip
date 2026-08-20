@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { tarihBirlestir, tarihParcala, type Soru, type TarihParcalari } from '@made2fit/shared';
+import {
+  aramaAnahtari,
+  tarihBirlestir,
+  tarihParcala,
+  type Soru,
+  type TarihParcalari,
+} from '@made2fit/shared';
 import { Ayirac, Kart, Sayi, Satir, SecimDugmesi, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
 import { useMetinler } from '../durum/Oturum';
@@ -92,6 +98,9 @@ function Alan({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
 
 // ---------------------------------------------------------------------------
 
+/** Bu sayıdan uzun listeler aranarak seçilir; kaydırarak seçmek işkence olur. */
+const ARAMALI_ESIK = 12;
+
 function TekSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
 
@@ -101,6 +110,11 @@ function TekSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   }
 
   const secenekler = soru.options ?? [];
+
+  // 81 il için 81 düğme çizmek, kullanıcıyı ekranda gezdirmek demek.
+  if (secenekler.length > ARAMALI_ESIK) {
+    return <AramaliSecim soru={soru} deger={deger} onDegisim={onDegisim} />;
+  }
 
   return (
     <View style={{ gap: tema.bosluk.sm }}>
@@ -112,6 +126,69 @@ function TekSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
           onPress={() => onDegisim(secenek)}
         />
       ))}
+    </View>
+  );
+}
+
+/**
+ * Uzun listeden arayarak seçim.
+ *
+ * Arama şapkasız çalışıyor: acele eden kullanıcı "istanbul" yazar, "İstanbul" bulunur.
+ * Katlama `aramaAnahtari` ile — besin aramasıyla aynı kural, aynı kod. İki ayrı katlama
+ * yazmak, ikisinin ayrışmasını beklemek demek.
+ */
+function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
+  const tema = useTema();
+  const m = useMetinler().degerlendirme;
+  const [sorgu, setSorgu] = useState('');
+
+  const secenekler = soru.options ?? [];
+  const secili = typeof deger === 'string' ? deger : undefined;
+
+  const anahtar = aramaAnahtari(sorgu.trim());
+  const eslesen =
+    anahtar === ''
+      ? secenekler.slice(0, ARAMALI_ESIK)
+      : secenekler.filter((s) => aramaAnahtari(s).includes(anahtar)).slice(0, ARAMALI_ESIK);
+
+  return (
+    <View style={{ gap: tema.bosluk.sm }}>
+      <TextInput
+        value={sorgu}
+        onChangeText={setSorgu}
+        placeholder={m.listeAra}
+        placeholderTextColor={tema.renk.metinSilik}
+        accessibilityLabel={m.listeAra}
+        style={{
+          minHeight: tema.dokunmaHedefi,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: tema.renk.cizgi,
+          borderRadius: tema.yaricap.md,
+          paddingHorizontal: tema.bosluk.lg,
+          fontSize: 16,
+          color: tema.renk.metin,
+          backgroundColor: tema.renk.yuzey,
+        }}
+      />
+
+      {secili && !eslesen.includes(secili) ? (
+        <SecimDugmesi baslik={secili} secili onPress={() => onDegisim(secili)} />
+      ) : null}
+
+      {eslesen.length === 0 ? (
+        <Yazi tur="kucuk" renk="metinSilik">
+          {m.listeSonucYok}
+        </Yazi>
+      ) : (
+        eslesen.map((secenek) => (
+          <SecimDugmesi
+            key={secenek}
+            baslik={secenek}
+            secili={secili === secenek}
+            onPress={() => onDegisim(secenek)}
+          />
+        ))
+      )}
     </View>
   );
 }

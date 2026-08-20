@@ -9,3 +9,6 @@ packages/api/gocler/
 packages/shared/src/*.uretilmis.ts
 apps/mobile/src/veri/*.uretilmis.ts
 apps/mobile/.expo/
+
+# Expo tarafindan uretilir; bicimlendirme kapsami disinda.
+apps/mobile/expo-env.d.ts

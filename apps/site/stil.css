@@ -1,0 +1,1076 @@
+/* =====================================================================
+   Made2Fit — marka sitesi
+
+   Yön: "ölçü aleti". Logodaki 2'nin üst kavisi çentikli bir açıölçer, tabanı
+   taksimatlı bir cetvel. O taksimat sayfanın kenarına dikiliyor ve kaydırma
+   konumunu ölçüyor — sayfanın imzası bu.
+
+   Tam genişlik kuralı: ortalanmış sabit genişlikte bir sütun YOK. Kenar boşluğu
+   yerine kenarda çalışan bir ray var; içerik kalan genişliği ızgarayla dolduruyor
+   ve geniş ekranda sütun sayısı artıyor, boşluk değil.
+   ===================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* Marka paleti — packages/shared/src/tokens.ts ile birebir. */
+  --murekkep: #131614;
+  --murekkep-yumusak: #3a403c;
+  --murekkep-silik: #6b736e;
+  --aksan: #14615a;
+  --aksan-koyu: #0e4741;
+  --aksan-acik: #e4efed;
+  /* Koyu zemin üzerinde okunabilen aksan. #14615A mürekkep üzerinde kaybolur;
+     etiketler ve numaralar orada bu tonu kullanıyor. */
+  --aksan-parlak: #7cc5bc;
+  --zemin: #f6f7f5;
+  --yuzey: #ffffff;
+  --yuzey-ikincil: #eff1ee;
+  --cizgi: #dce0db;
+
+  --ray-genislik: 5.25rem;
+
+  /* Akışkan ölçek: 360px'te alt sınır, 2560px'te üst sınır.
+     vw katsayısı bilerek yüksek — geniş ekranda boşluk değil, tipografi büyüyor. */
+  --dev: clamp(3.25rem, 1.1rem + 9.4vw, 15.5rem);
+  --h2: clamp(1.7rem, 1.05rem + 2.2vw, 3.5rem);
+  --h3: clamp(1.05rem, 0.92rem + 0.5vw, 1.4rem);
+  --lede: clamp(1.05rem, 0.95rem + 0.55vw, 1.5rem);
+  --govde: clamp(0.98rem, 0.93rem + 0.22vw, 1.15rem);
+
+  --ic-bosluk: clamp(1.25rem, 0.6rem + 2.6vw, 5.5rem);
+  --bolum-bosluk: clamp(4.5rem, 2rem + 8vw, 12rem);
+
+  --gecis: 240ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --murekkep: #f1f3f0;
+    --murekkep-yumusak: #b9bfba;
+    --murekkep-silik: #828984;
+    --aksan: #4fa79c;
+    --aksan-koyu: #7cc5bc;
+    --aksan-parlak: #7cc5bc;
+    --aksan-acik: #16302d;
+    --zemin: #0e100f;
+    --yuzey: #181b19;
+    --yuzey-ikincil: #222623;
+    --cizgi: #2e332f;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--zemin);
+  color: var(--murekkep);
+  font-family:
+    'Instrument Sans',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-size: var(--govde);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  /* Archivo değişken font; genişlik ekseni açık. Geniş kesim, gravür yapılmış bir
+     alet yüzü gibi durur — bu ürünün metaforu tam olarak o. */
+  font-family: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  font-variation-settings: 'wdth' 112;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.03;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+}
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.88em;
+  background: var(--yuzey-ikincil);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--aksan);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.atla {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--aksan);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  z-index: 100;
+}
+.atla:focus {
+  left: 0;
+}
+
+/* Sayısal veri her yerde tabular monospace — rakamlar hizalanınca ölçü gibi okunuyor. */
+.sayi {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.etiket {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--aksan);
+  margin: 0;
+}
+
+/* =====================================================================
+   Taksimat rayı
+   ===================================================================== */
+
+/* Dar ekranda yatay şerit, geniş ekranda dikey ray. İkisi de aynı cetvel. */
+.ray {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--zemin) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--cizgi);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  height: 3.4rem;
+  padding: 0 clamp(1rem, 4vw, 1.5rem);
+}
+
+@media (min-width: 62rem) {
+  .ray {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--ray-genislik);
+    height: auto;
+    flex-direction: column;
+    gap: 0;
+    padding: 1.25rem 0;
+    border-bottom: none;
+    border-right: 1px solid var(--cizgi);
+    backdrop-filter: none;
+    background: var(--zemin);
+  }
+  body {
+    padding-left: var(--ray-genislik);
+  }
+}
+
+.ray-marka {
+  display: block;
+  width: 2.1rem;
+  height: 2.1rem;
+  color: var(--aksan);
+  flex: none;
+}
+.ray-marka svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Çentikler: uzun/kısa ikilisi, logonun cetvel tabanındaki ritmin aynısı. */
+/* Yatay şeritte çentikler alt kenardan, dikey rayda sağ kenardan çıkar. */
+.ray-olcek {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 0.75rem;
+  pointer-events: none;
+}
+.ray-cizik {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  background: var(--cizgi);
+}
+.ray-cizik.uzun {
+  height: 0.6rem;
+}
+.ray-cizik.kisa {
+  height: 0.3rem;
+}
+
+@media (min-width: 62rem) {
+  .ray-olcek {
+    inset: 5.5rem 0 3rem 0;
+    height: auto;
+  }
+  .ray-cizik {
+    bottom: auto;
+    right: 0;
+    width: auto;
+    height: 1px;
+  }
+  .ray-cizik.uzun {
+    width: 1.15rem;
+    height: 1px;
+  }
+  .ray-cizik.kisa {
+    width: 0.6rem;
+    height: 1px;
+  }
+}
+
+.ray-liste {
+  flex: 1;
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  align-items: center;
+}
+.ray-liste::-webkit-scrollbar {
+  display: none;
+}
+.ray-liste a {
+  display: block;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--murekkep-silik);
+  padding: 0.55rem 0.5rem;
+  transition: color var(--gecis);
+}
+.ray-liste a:hover,
+.ray-liste a[aria-current='true'] {
+  color: var(--aksan);
+}
+
+@media (min-width: 62rem) {
+  .ray-liste {
+    position: absolute;
+    inset: 5.5rem 0 3rem 0;
+    flex-direction: column;
+    justify-content: space-around;
+    overflow: visible;
+  }
+  .ray-liste a {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 0.16em;
+    padding: 0.5rem 0.2rem;
+  }
+}
+
+/* Kumpas ağzı: kaydırma konumunu gösteren tek hareketli parça. */
+.ray-kumpas {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  height: 0.75rem;
+  background: var(--aksan);
+  transition: transform var(--gecis);
+  will-change: transform;
+}
+.ray-kumpas::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -0.35rem;
+  width: 0.7rem;
+  height: 2px;
+  background: var(--aksan);
+}
+
+@media (min-width: 62rem) {
+  .ray-kumpas {
+    bottom: auto;
+    left: auto;
+    right: 0;
+    width: 1.9rem;
+    height: 2px;
+  }
+  .ray-kumpas::after {
+    right: 0;
+    left: auto;
+    bottom: auto;
+    top: -0.3rem;
+    width: 2px;
+    height: 0.7rem;
+  }
+}
+
+/* =====================================================================
+   Kahraman
+   ===================================================================== */
+
+.tepe {
+  min-height: 100svh;
+  display: grid;
+  gap: clamp(2.5rem, 4vw, 5rem);
+  align-content: center;
+  padding: clamp(5rem, 10vh, 9rem) var(--ic-bosluk) clamp(3rem, 6vh, 6rem);
+  border-bottom: 1px solid var(--cizgi);
+}
+
+@media (min-width: 60rem) {
+  .tepe {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    align-content: center;
+  }
+  .tepe-yazi {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Ölçüm şeridi iki sütunu birden geçiyor: alet yüzündeki taksimat gibi,
+     sayfanın enini boydan boya ölçüyor. Boşluk bırakmıyor. */
+  .olcum-seridi {
+    grid-column: 1 / -1;
+    order: 2;
+  }
+}
+
+.dev {
+  font-size: var(--dev);
+  font-variation-settings: 'wdth' 118;
+  letter-spacing: -0.035em;
+  margin: 0.6rem 0 0;
+}
+.dev-vurgu {
+  color: var(--aksan);
+}
+
+.lede {
+  font-size: var(--lede);
+  color: var(--murekkep-yumusak);
+  max-width: 34ch;
+  margin-top: 1.35rem;
+  text-wrap: pretty;
+}
+
+.tepe-eylem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.dugme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background var(--gecis),
+    color var(--gecis),
+    border-color var(--gecis);
+}
+.dugme-ana {
+  background: var(--aksan);
+  color: #fff;
+}
+.dugme-ana:hover {
+  background: var(--aksan-koyu);
+}
+@media (prefers-color-scheme: dark) {
+  .dugme-ana {
+    color: #0e100f;
+  }
+}
+.dugme-yan {
+  border-color: var(--cizgi);
+  color: var(--murekkep);
+  background: transparent;
+}
+.dugme-yan:hover {
+  border-color: var(--aksan);
+  color: var(--aksan);
+}
+
+/* Ölçüm şeridi: rakamlar bir alet yüzündeki gibi hizalı. */
+.olcum-seridi {
+  display: grid;
+  /* auto-fit dar ekranda 3+1 kırıyordu ve boş bir hücre kalıyordu. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+  background: var(--cizgi);
+  border: 1px solid var(--cizgi);
+  border-radius: 10px;
+  overflow: hidden;
+}
+@media (min-width: 34rem) {
+  .olcum-seridi {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.olcum-seridi > div {
+  background: var(--zemin);
+  padding: 0.9rem 1rem;
+}
+.olcum-seridi dt {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--murekkep-silik);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.olcum-seridi dd {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.5rem, 1.1rem + 1.1vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* Karar izi paneli */
+.iz-panel {
+  background: var(--yuzey);
+  border: 1px solid var(--cizgi);
+  border-radius: 16px;
+  padding: clamp(1.25rem, 2vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-height: clamp(20rem, 34vh, 27rem);
+  height: 100%;
+}
+
+.iz-baslik {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--cizgi);
+}
+.iz-etiket {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--aksan);
+}
+.iz-sayac {
+  font-size: 0.75rem;
+  color: var(--murekkep-silik);
+}
+
+.iz-govde {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 0.9rem;
+}
+
+.iz-adim {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: start;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: iz-gir 420ms cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+}
+.iz-adim:nth-child(2) {
+  animation-delay: 110ms;
+}
+.iz-adim:nth-child(3) {
+  animation-delay: 220ms;
+}
+
+@keyframes iz-gir {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.iz-tur {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--murekkep-silik);
+  padding-top: 0.28rem;
+}
+.iz-deger {
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+.iz-adim.kural .iz-deger {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.9rem;
+  color: var(--aksan);
+}
+.iz-adim.sonuc .iz-deger {
+  font-weight: 600;
+}
+.iz-ok {
+  color: var(--murekkep-silik);
+  padding: 0 0.35rem;
+}
+
+.iz-alt {
+  font-size: 0.85rem;
+  color: var(--murekkep-silik);
+  border-top: 1px solid var(--cizgi);
+  padding-top: 0.9rem;
+}
+
+/* =====================================================================
+   Bölümler
+   ===================================================================== */
+
+.bolum {
+  padding: var(--bolum-bosluk) var(--ic-bosluk);
+  border-bottom: 1px solid var(--cizgi);
+}
+
+.bolum-bas {
+  max-width: 46ch;
+}
+.bolum-bas h2 {
+  font-size: var(--h2);
+  margin-top: 0.9rem;
+}
+.bolum-lede {
+  font-size: var(--lede);
+  color: var(--murekkep-yumusak);
+  margin-top: 1.15rem;
+  text-wrap: pretty;
+}
+
+/* --- Dal ağacı --- */
+.dal-agaci {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 52rem) {
+  .dal-agaci {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    align-items: start;
+    gap: clamp(1rem, 3vw, 3rem);
+  }
+}
+.dal-cocuklar {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+.dal {
+  background: var(--yuzey);
+  border: 1px solid var(--cizgi);
+  border-radius: 12px;
+  padding: 1.2rem 1.35rem;
+}
+.dal-kok {
+  background: var(--murekkep);
+  color: var(--zemin);
+  border-color: var(--murekkep);
+}
+.dal-kok .dal-kod {
+  color: var(--aksan-koyu);
+}
+@media (prefers-color-scheme: dark) {
+  .dal-kok .dal-kod {
+    color: var(--aksan);
+  }
+}
+.dal-acik {
+  border-color: var(--aksan);
+  background: var(--aksan-acik);
+}
+.dal-kod {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aksan);
+  margin-bottom: 0.5rem;
+}
+.dal-metin {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.kanit-listesi {
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+  display: grid;
+  gap: 1px;
+  background: var(--cizgi);
+  border: 1px solid var(--cizgi);
+  border-radius: 12px;
+  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+.kanit-listesi li {
+  background: var(--zemin);
+  padding: 1.4rem 1.5rem;
+  color: var(--murekkep-yumusak);
+  font-size: 0.97rem;
+}
+.kanit-baslik {
+  display: block;
+  color: var(--murekkep);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+/* --- Motor --- */
+.bolum-motor {
+  background: var(--murekkep);
+  color: var(--zemin);
+  border-bottom-color: var(--murekkep);
+}
+.bolum-motor .bolum-lede {
+  color: color-mix(in srgb, var(--zemin) 82%, transparent);
+}
+.bolum-motor .etiket {
+  color: var(--aksan-parlak);
+}
+@media (prefers-color-scheme: dark) {
+  .bolum-motor {
+    background: var(--yuzey);
+  }
+}
+
+.motor-hat {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  display: grid;
+  gap: 1px;
+  background: color-mix(in srgb, var(--zemin) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--zemin) 18%, transparent);
+  border-radius: 14px;
+  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+.motor-yan {
+  background: var(--murekkep);
+  padding: clamp(1.4rem, 2.5vw, 2.4rem);
+}
+@media (prefers-color-scheme: dark) {
+  .motor-yan {
+    background: var(--yuzey);
+  }
+}
+.motor-etiket {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--aksan-parlak);
+  margin-bottom: 1.2rem;
+}
+.motor-cekirdek ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.55rem 1.5rem;
+}
+.motor-cekirdek li {
+  font-size: 0.97rem;
+  padding-left: 1.1rem;
+  position: relative;
+  color: color-mix(in srgb, var(--zemin) 88%, transparent);
+}
+.motor-cekirdek li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.65em;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--aksan-parlak);
+}
+
+.ai-liste {
+  counter-reset: ai;
+  display: grid;
+  gap: 0.65rem;
+}
+.ai-liste li {
+  counter-increment: ai;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--zemin) 14%, transparent);
+}
+.ai-liste li::before {
+  content: counter(ai, decimal-leading-zero);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  color: var(--aksan-parlak);
+  margin-right: 0.85rem;
+}
+.ai-ad {
+  flex: 1;
+  font-size: 0.99rem;
+}
+.ai-sik {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--zemin) 74%, transparent);
+}
+
+.motor-not {
+  margin-top: 1.4rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--zemin) 78%, transparent);
+  max-width: 46ch;
+}
+.motor-not strong {
+  color: var(--zemin);
+}
+
+/* --- Yapmadıklarımız --- */
+.yapmadik-izgara {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  display: grid;
+  gap: 1px;
+  background: var(--cizgi);
+  border: 1px solid var(--cizgi);
+  border-radius: 14px;
+  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+}
+.yapmadik-izgara li {
+  background: var(--zemin);
+  padding: clamp(1.3rem, 2vw, 2rem);
+  position: relative;
+}
+/* Reddedilen şeyin işareti: üstü çizili değil, kesilmiş bir çentik. */
+.yapmadik-izgara li::before {
+  content: '';
+  position: absolute;
+  top: clamp(1.3rem, 2vw, 2rem);
+  left: 0;
+  width: 0.85rem;
+  height: 2px;
+  background: var(--aksan);
+}
+.yapmadik-izgara h3 {
+  font-size: var(--h3);
+  font-variation-settings: 'wdth' 100;
+  margin-bottom: 0.55rem;
+}
+.yapmadik-izgara p {
+  color: var(--murekkep-yumusak);
+  font-size: 0.95rem;
+}
+
+/* --- Fiyat --- */
+.fiyat-cetvel {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  display: grid;
+  gap: 1px;
+  background: var(--cizgi);
+  border: 1px solid var(--cizgi);
+  border-radius: 14px;
+  overflow: hidden;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
+}
+.plan {
+  background: var(--zemin);
+  padding: clamp(1.4rem, 2.2vw, 2.2rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.plan-one {
+  background: var(--yuzey);
+}
+.plan h3 {
+  font-size: var(--h3);
+  font-variation-settings: 'wdth' 100;
+}
+.plan-fiyat {
+  font-size: clamp(2.4rem, 1.6rem + 2.2vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1;
+  margin-top: 0.6rem;
+  letter-spacing: -0.03em;
+}
+.plan-birim {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--murekkep-silik);
+  letter-spacing: 0;
+  margin-left: 0.25rem;
+}
+.plan-yillik {
+  font-size: 0.82rem;
+  color: var(--murekkep-silik);
+  /* Üç planda da aynı yüksekliği kaplasın: özellik listeleri hizalı başlasın. */
+  min-height: 1.25rem;
+}
+.plan ul {
+  margin-top: 1.3rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.plan li {
+  font-size: 0.94rem;
+  color: var(--murekkep-yumusak);
+  padding-left: 1.15rem;
+  position: relative;
+}
+.plan li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.55rem;
+  height: 1px;
+  background: var(--aksan);
+}
+.fiyat-not {
+  margin-top: 1.6rem;
+  font-size: 0.9rem;
+  color: var(--murekkep-silik);
+  max-width: 62ch;
+}
+
+/* --- Haber --- */
+.bolum-haber {
+  border-bottom: none;
+}
+.haber-ic {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 44rem;
+}
+.bolum-haber h2 {
+  font-size: var(--h2);
+}
+.haber-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.alan {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 26rem;
+}
+.alan label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--murekkep-silik);
+}
+.alan input {
+  min-height: 3rem;
+  padding: 0 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--cizgi);
+  background: var(--yuzey);
+  color: var(--murekkep);
+  font: inherit;
+}
+.alan input:focus-visible {
+  border-color: var(--aksan);
+}
+
+.onay {
+  display: grid;
+  grid-template-columns: 1.15rem minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+  font-size: 0.9rem;
+  color: var(--murekkep-yumusak);
+  max-width: 42rem;
+  cursor: pointer;
+}
+.onay input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.22rem 0 0;
+  accent-color: var(--aksan);
+}
+
+.haber-form .dugme {
+  justify-self: start;
+}
+.haber-durum {
+  font-size: 0.9rem;
+  min-height: 1.4rem;
+}
+.haber-durum[data-durum='hata'] {
+  color: #8c2f26;
+}
+.haber-durum[data-durum='tamam'] {
+  color: var(--aksan);
+}
+@media (prefers-color-scheme: dark) {
+  .haber-durum[data-durum='hata'] {
+    color: #e08a80;
+  }
+}
+
+/* --- Alt --- */
+.alt {
+  padding: clamp(3rem, 5vw, 5rem) var(--ic-bosluk);
+  background: var(--yuzey-ikincil);
+}
+.alt-ic {
+  display: grid;
+  gap: 1.1rem;
+}
+.alt-marka {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  font-family: 'Archivo', sans-serif;
+  font-variation-settings: 'wdth' 112;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--murekkep);
+}
+.alt-marka svg {
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--aksan);
+}
+.alt-slogan {
+  color: var(--murekkep-yumusak);
+}
+.alt-feragat {
+  font-size: 0.85rem;
+  color: var(--murekkep-silik);
+  max-width: 62ch;
+}
+
+/* Geniş ekranda dört iz alt alta; aralarında ince bir ayraç. */
+.iz-ayirac {
+  border: none;
+  border-top: 1px solid var(--cizgi);
+  margin: 0.35rem 0;
+}
+
+/* Durum paneli — haber bölümünün boş yarısı, bilgiyle doluyor. */
+@media (min-width: 60rem) {
+  .bolum-haber {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    gap: clamp(2rem, 5vw, 6rem);
+    align-items: start;
+  }
+}
+
+.durum-paneli {
+  margin-top: clamp(2.5rem, 4vw, 0rem);
+  border: 1px solid var(--cizgi);
+  border-radius: 14px;
+  background: var(--yuzey);
+  padding: clamp(1.25rem, 2vw, 2rem);
+}
+@media (min-width: 60rem) {
+  .durum-paneli {
+    margin-top: 0;
+  }
+}
+
+.durum-baslik {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variation-settings: normal;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--aksan);
+  margin-bottom: 1rem;
+}
+
+.durum-liste > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--cizgi);
+}
+.durum-liste dt {
+  font-size: 0.95rem;
+}
+.durum-liste dd {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+/* Renk tek başına anlam taşımıyor: kelime zaten yazıyor. */
+.durum-liste dd[data-durum='hazir'] {
+  color: var(--aksan);
+}
+.durum-liste dd[data-durum='bekliyor'] {
+  color: var(--murekkep-silik);
+}
+
+.durum-not {
+  margin-top: 1.1rem;
+  font-size: 0.85rem;
+  color: var(--murekkep-silik);
+}

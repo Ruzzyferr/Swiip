@@ -44,6 +44,33 @@ const kontrol = (kosul, mesaj) => {
 };
 
 const veri = JSON.parse(await readFile(kaynak, 'utf8'));
+
+/**
+ * `dataSource` seçenek listesine açılır.
+ *
+ * Soru bankası "şehir listesi dış kaynaktan gelir" diyordu ve doğrulama bunu kabul
+ * ediyordu — ama **hiçbir yerde açılmıyordu.** K9 ekranda seçeneksiz çiziliyor,
+ * kullanıcı yalnızca "Bu soruyu atla" diyebiliyordu. Soru `salon_zinciri_tespiti` ve
+ * `birim_sistemi` sürücülerini besliyor; atlanınca ikisi de boş kalıyordu.
+ *
+ * Açma **derleme zamanında** yapılıyor. Böylece motorun doğrulaması, sunucu ve arayüz
+ * aynı listeyi görüyor; çalışma zamanında çözülen bir liste üçünde ayrışabilirdi.
+ */
+async function veriKaynaginiOku(ad) {
+  const yol = join(kokDizin, 'data', 'veri-kaynaklari', `${ad}.json`);
+  const icerik = JSON.parse(await readFile(yol, 'utf8'));
+  if (!Array.isArray(icerik.degerler) || icerik.degerler.length === 0) {
+    throw new Error(`veri kaynağı boş: ${ad}`);
+  }
+  return icerik.degerler;
+}
+
+for (const blok of veri.blocks) {
+  for (const soru of blok.questions) {
+    if (!soru.dataSource) continue;
+    soru.options = await veriKaynaginiOku(soru.dataSource);
+  }
+}
 const tumIdler = new Set();
 const gorunurluk = new Map(); // hedef soru -> onu açan sorular
 
@@ -66,11 +93,11 @@ for (const blok of veri.blocks) {
     );
 
     if (soru.type === 'single' || soru.type === 'multi') {
-      // Şehir gibi listeler dış kaynaktan gelir; çıkış yolu tek seçenekli olabilir.
+      // Çıkış yolu tek seçenekli olabilir. `dataSource` ile gelen listeler bu noktada
+      // zaten açılmış oluyor: seçeneksiz bir seçim sorusu, cevaplanamayan bir sorudur.
       const asgari = soru.cikisYolu ? 1 : 2;
       kontrol(
-        soru.dataSource !== undefined ||
-          (Array.isArray(soru.options) && soru.options.length >= asgari),
+        Array.isArray(soru.options) && soru.options.length >= asgari,
         `${soru.id} — seçenek listesi en az ${asgari} olmalı`,
       );
     }

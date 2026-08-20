@@ -208,11 +208,16 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
       });
     }
 
-    return {
-      program_id: kayit!.id,
-      takvim: { gunler: yerlesim.gunler, gerekce: yerlesim.gerekce },
-      ...programCevabi(program, await planGetir(istek.kullaniciId)),
-    };
+    /**
+     * Üretim ucu programın KENDİSİNİ döndürmüyor; yalnızca üretildiğini söylüyor.
+     *
+     * Programı burada da döndürmek, kullanıcıya görünen metni iki ayrı yerde üretmek
+     * demekti. İkisi ayrışıyordu: `/aktif` cevabı kullanıcının diline çevriliyor,
+     * buradaki ham hâli çevrilmiyordu. İstemci zaten bu cevabı atıp `/aktif`i okuyor.
+     *
+     * Tek üretim yeri = çevrilmeyi unutabileceğimiz tek yer.
+     */
+    return { program_id: kayit!.id, uretildi: true };
   });
 
   app.get('/aktif', { preHandler: app.kimlikDogrula }, async (istek) => {
@@ -615,26 +620,13 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
   });
 }
 
-interface ProgramOzeti {
-  split: unknown;
-  butce: unknown;
-  seanslar: Array<{ gun_indeksi: number }>;
-  uyarilar: string[];
-  sayilar_gizli: boolean;
-}
-
-function programCevabi(program: ProgramOzeti, plan: string) {
-  const gorunur = plan === 'ucretsiz' ? program.seanslar.slice(0, 1) : program.seanslar;
-  return {
-    split: program.split,
-    butce: program.butce,
-    uyarilar: program.uyarilar,
-    sayilar_gizli: program.sayilar_gizli,
-    plan,
-    kilitli_gun_sayisi: program.seanslar.length - gorunur.length,
-    gunler: gorunur,
-  };
-}
+/*
+ * `programCevabi` kaldırıldı.
+ *
+ * Programı hem üretim hem okuma ucunda biçimlendiriyordu; iki ayrı yerde üretilen aynı
+ * metin ayrışmıştı: okuma ucu kullanıcının diline çeviriyor, üretim ucu ham Türkçe
+ * döndürüyordu. Artık programı yalnızca `/aktif` döndürüyor.
+ */
 
 /** API zamanı bilir, çekirdek bilmez: tarih üretimi yalnızca bu katmanda. */
 function bugunISO(): string {

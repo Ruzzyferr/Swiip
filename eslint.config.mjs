@@ -38,6 +38,24 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
+    // Marka sitesi: derleme adımı olmayan düz tarayıcı JS'i.
+    files: ['apps/site/**/*.js'],
+    languageOptions: {
+      sourceType: 'script',
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        fetch: 'readonly',
+        requestAnimationFrame: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
+        location: 'readonly',
+        HTMLInputElement: 'readonly',
+      },
+    },
+  },
+  {
     files: ['scripts/**/*.mjs', '**/*.config.mjs'],
     languageOptions: {
       globals: {

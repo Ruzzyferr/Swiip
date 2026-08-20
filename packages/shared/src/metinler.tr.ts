@@ -183,6 +183,7 @@ export const tr = {
     tanima_basarisiz: () =>
       'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
       'elle arayabilirsin. Bu deneme kotandan düşmedi.',
+    ilgi_gecersiz: () => 'Geçerli bir e-posta adresi ve açık rıza gerekiyor.',
     profil_yok: () => 'Önce değerlendirmeyi tamamla.',
     barkod_yok: () => 'Bu barkod veritabanımızda yok. Elle ekleyebilirsin.',
     besin_yok: () => 'Besin bulunamadı.',
@@ -377,6 +378,8 @@ export const tr = {
     devamEtDugmesi: 'Devam et',
     cevrimdisiNotu: 'Bağlantı yok — cevapların cihazında tutuluyor, bağlanınca gönderilecek.',
     soruyuAtla: 'Bu soruyu atla',
+    listeAra: 'Yazarak ara',
+    listeSonucYok: 'Eşleşen yok. Yazımı değiştirmeyi dene.',
     istersenAtla: 'İstersen atlayabilirsin',
     gecersizCevap: 'Bu cevap geçerli değil.',
     okudumRizaVeriyorum: 'Okudum, açık rıza veriyorum',
@@ -493,6 +496,21 @@ export const tr = {
      * izlenimi — tek dile bağlı kalamaz.
      */
     motor: {
+      /**
+       * Gizlilik notu, YAPILAN işi anlatmalı.
+       *
+       * Tek bir cümle vardı ve her raporda yazıyordu: "Fotoğrafın analiz edildi ve
+       * bellekten düştü." Ölçülerle devam eden kullanıcı hiç fotoğraf göndermemişti;
+       * olmayan bir şeyin silindiğine dair güvence, güvenin kendisini harcıyor.
+       */
+      gizlilikNotu: {
+        fotografli:
+          'Fotoğrafın analiz edildi ve bu istek biterken bellekten düştü. Sunucumuzun ' +
+          'diskine hiç yazılmadı; sadece yukarıdaki sayılar saklandı.',
+        olculerle:
+          'Fotoğraf göndermedin; bu rapor yalnızca ölçülerinden çıkarıldı. Saklanan tek ' +
+          'şey yukarıdaki sayılar.',
+      },
       ozet: {
         veriYok:
           'Yağ oranı tahmini için yeterli veri yok. Bel ve boyun ölçünü girer ya da fotoğraf ' +

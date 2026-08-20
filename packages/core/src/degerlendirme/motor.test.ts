@@ -11,6 +11,21 @@ import {
 } from './motor';
 
 /** Sıradaki soruyu cevaplayarak akışı sonuna kadar yürütür. */
+/**
+ * Bir bloğun tüm sorularını GEÇERLİ cevaplarla doldurur.
+ *
+ * Daha önce her soruya `'x'` yazılıyordu ve motor bunu kabul ediyordu. Artık geçersiz
+ * cevap, cevap sayılmıyor: yer tutucu değerler bloğu tamamlanmış göstermiyor. Testin
+ * ölçtüğü şey değişmedi, verisi gerçekçi oldu.
+ */
+function blogunuDoldur(blokId: string): Cevaplar {
+  const cevaplar: Cevaplar = {};
+  for (const soru of gorunurSorular({})) {
+    if (soru.blok_id === blokId) cevaplar[soru.id] = ornekCevap(soru);
+  }
+  return cevaplar;
+}
+
 function akisiTamamla(): { cevaplar: Cevaplar; adim: number } {
   const cevaplar: Cevaplar = {};
   let adim = 0;
@@ -164,7 +179,7 @@ describe('sonrakiSoru', () => {
     const cevaplar: Cevaplar = {};
     for (const soru of gorunurSorular({})) {
       if (soru.id === 'K8') break;
-      cevaplar[soru.id] = 'x';
+      cevaplar[soru.id] = ornekCevap(soru);
     }
     cevaplar['K8'] = 'Evet';
 
@@ -187,7 +202,14 @@ describe('sonrakiSoru', () => {
   });
 
   it('isteğe bağlı soru atlanabilir ve akış durmaz', () => {
-    const cevaplar: Cevaplar = { K1: 'x', K2: 'Erkek', K3: 178, K4: 82, K5: 'Bugün' };
+    // Değerler gerçekçi: geçersiz bir cevap artık cevap sayılmıyor ve soru geri geliyor.
+    const cevaplar: Cevaplar = {
+      K1: '1990-05-10',
+      K2: 'Erkek',
+      K3: 178,
+      K4: 82,
+      K5: 'Bugün',
+    };
 
     expect(sonrakiSoru(cevaplar)?.id).toBe('K6');
   });
@@ -203,26 +225,20 @@ describe('blokIlerlemesi', () => {
   });
 
   it('bir blok bitince sonraki bloğa geçer', () => {
-    const cevaplar: Cevaplar = {};
-    for (const soru of gorunurSorular({})) {
-      if (soru.id.startsWith('K')) cevaplar[soru.id] = 'x';
-    }
+    const cevaplar = blogunuDoldur('K');
 
     expect(blokIlerlemesi(cevaplar).blok_id).toBe('H');
   });
 
   it('yüzde ilerleme 0 ile 100 arasındadır', () => {
-    const ilerleme = blokIlerlemesi({ K1: 'x' });
+    const ilerleme = blokIlerlemesi({ K1: '1990-05-10' });
 
     expect(ilerleme.yuzde).toBeGreaterThanOrEqual(0);
     expect(ilerleme.yuzde).toBeLessThanOrEqual(100);
   });
 
   it('tamamlanan blokları listeler', () => {
-    const cevaplar: Cevaplar = {};
-    for (const soru of gorunurSorular({})) {
-      if (soru.id.startsWith('K')) cevaplar[soru.id] = 'x';
-    }
+    const cevaplar = blogunuDoldur('K');
 
     expect(blokIlerlemesi(cevaplar).tamamlanan_bloklar).toContain('K');
   });

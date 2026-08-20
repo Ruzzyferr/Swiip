@@ -1,5 +1,5 @@
 import { SORU_BANKASI, type Soru, type SoruBlogu } from '@made2fit/shared';
-import { dizi, type CevapDegeri, type Cevaplar } from '../cevaplar';
+import { atlandiMi, dizi, type CevapDegeri, type Cevaplar } from '../cevaplar';
 
 /**
  * Değerlendirme motoru — spec bölüm 3, plan F2.
@@ -150,9 +150,22 @@ function dolu(deger: CevapDegeri | undefined): boolean {
   return true;
 }
 
-/** Sıradaki cevaplanmamış görünür soru. Hepsi cevaplandıysa undefined. */
+/**
+ * Bir cevap gerçekten cevap mı?
+ *
+ * "Değer var" yetmez: aralık dışında bir sayı da bir değerdir. Yalnızca doluluğa bakmak,
+ * geçersiz cevabı cevaplanmış sayıp soruyu **atlıyordu** — ve kullanıcı o soruya bir daha
+ * dönemiyordu. Cihazdaki taslakta geçersiz değer kalıyor, sunucu her kaydı reddediyor,
+ * değerlendirme kalıcı olarak kilitleniyordu. Üstelik sessizce: ilerleme çubuğu doluyordu.
+ */
+function gecerliCevaplandiMi(soru: GorunurSoru, cevaplar: Cevaplar): boolean {
+  if (!dolu(cevaplar[soru.id])) return false;
+  return cevabiDogrula(soru, cevaplar[soru.id] as never).gecerli;
+}
+
+/** Sıradaki cevaplanmamış (ya da geçersiz cevaplanmış) görünür soru. */
 export function sonrakiSoru(cevaplar: Cevaplar): GorunurSoru | undefined {
-  return gorunurSorular(cevaplar).find((soru) => !dolu(cevaplar[soru.id]));
+  return gorunurSorular(cevaplar).find((soru) => !gecerliCevaplandiMi(soru, cevaplar));
 }
 
 export function toplamSoruSayisi(cevaplar: Cevaplar): number {
@@ -176,7 +189,7 @@ export function blokIlerlemesi(cevaplar: Cevaplar): BlokIlerlemesi {
 
   for (const blok of SORU_BANKASI.blocks) {
     const blokSorulari = sorular.filter((s) => s.blok_id === blok.id);
-    if (blokSorulari.length > 0 && blokSorulari.every((s) => dolu(cevaplar[s.id]))) {
+    if (blokSorulari.length > 0 && blokSorulari.every((s) => gecerliCevaplandiMi(s, cevaplar))) {
       tamamlanan_bloklar.push(blok.id);
     }
   }
@@ -216,6 +229,13 @@ function gecersiz(mesaj: string): DogrulamaSonucu {
 }
 
 export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
+  // Atlama, isteğe bağlı soruya özgü. Zorunlu bir soru atlanmış sayılamaz.
+  if (atlandiMi(cevap)) {
+    return soru.required
+      ? gecersiz('Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.')
+      : GECERLI;
+  }
+
   if (!dolu(cevap)) {
     return soru.required
       ? gecersiz('Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.')

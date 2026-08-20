@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
 import { sonrakiSoru, type Cevaplar } from '@made2fit/core';
 import { tr } from '@made2fit/shared';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
@@ -175,8 +175,21 @@ describe('uçtan uca yolculuk', () => {
     });
 
     expect(cevap.statusCode).toBe(200);
-    const govde = cevap.json();
-    expect(govde.program_id).toBeTruthy();
+    expect(cevap.json().program_id).toBeTruthy();
+
+    /**
+     * Programın kendisi `/aktif`ten okunuyor.
+     *
+     * Üretim ucu artık programı döndürmüyor: kullanıcıya görünen metni iki yerde
+     * üretmek, birinin çevrilmeden kalması demekti ve öyle olmuştu.
+     */
+    const aktif = await app.inject({
+      method: 'GET',
+      url: '/v1/program/aktif',
+      headers: yetkili(),
+    });
+
+    const govde = aktif.json();
     expect(govde.split.tip).toBe('upper_lower');
     // Ücretsiz kullanıcı yalnızca 1. günü görür.
     expect(govde.plan).toBe('ucretsiz');
@@ -590,10 +603,12 @@ describe('İngilizce kullanıcıya Türkçe metin gitmiyor', () => {
    * Kapsam dışı alanlar: bunlar veri, çeviri konusu değil.
    *
    * `ad_tr`/`talimat_tr` katalog verisi, `aciklama_tr` motorun izi, `name_tr` besin adı,
-   * `soru`/`secenekler` soru bankası. Ayarlardaki dil notu bunların Türkçe kaldığını
-   * kullanıcıya zaten söylüyor.
+   * `soru`/`secenekler` ve `blok_basligi` soru bankası. `cevaplar` ise kullanıcının kendi seçimleri —
+   * Türkçe soru bankasından geldikleri için Türkçe; çeviri konusu değiller.
+   * Ayarlardaki dil notu bunların Türkçe kaldığını kullanıcıya zaten söylüyor.
    */
-  const VERI_ALANLARI = /_tr$|^ad$|^name_tr$|^soru|^secenek|^etiketler$|^malzemeler$|^adimlar/;
+  const VERI_ALANLARI =
+    /_tr$|^ad$|^name_tr$|^soru|^secenek|^etiketler$|^malzemeler$|^adimlar|^cevaplar$|^blok_basligi$/;
 
   function turkceMetinler(deger: unknown, yol = ''): string[] {
     if (typeof deger === 'string') {
@@ -608,44 +623,68 @@ describe('İngilizce kullanıcıya Türkçe metin gitmiyor', () => {
     return [];
   }
 
-  const UCLAR = [
-    '/v1/program/aktif',
-    '/v1/beslenme/hedef',
-    '/v1/degerlendirme/blok/K/geri-bildirim',
-    '/v1/degerlendirme/blok/S/geri-bildirim',
-    '/v1/abonelik/durum',
-    '/v1/ogun/plan/2026-08-17',
+  /**
+   * Süpürme yalnızca GET uçlarını tarıyordu.
+   *
+   * Kural "kullanıcıya metin döndüren her uç" diyordu ama uygulama sadece yarısını
+   * kapsıyordu. Vücut analizi bir POST ve ücretsiz planın teslim ettiği tek çıktı;
+   * gizlilik notu orada sabit Türkçe duruyordu ve süpürme onu hiç görmedi.
+   */
+  const UCLAR: { url: string; yontem: 'GET' | 'POST'; govde?: Record<string, unknown> }[] = [
+    { url: '/v1/program/aktif', yontem: 'GET' },
+    { url: '/v1/beslenme/hedef', yontem: 'GET' },
+    { url: '/v1/degerlendirme/blok/K/geri-bildirim', yontem: 'GET' },
+    { url: '/v1/degerlendirme/blok/S/geri-bildirim', yontem: 'GET' },
+    { url: '/v1/abonelik/durum', yontem: 'GET' },
+    { url: '/v1/ogun/plan/2026-08-17', yontem: 'GET' },
+    { url: '/v1/degerlendirme/durum', yontem: 'GET' },
+    // Ölçü yolu: fotoğraf yok. Gizlilik notunun "fotoğrafın silindi" dememesi gereken hâl.
+    {
+      url: '/v1/vucut/analiz',
+      yontem: 'POST',
+      govde: { olculer: { bel_cm: 88, boyun_cm: 39 } },
+    },
+    { url: '/v1/program/uret', yontem: 'POST', govde: {} },
   ];
 
-  it.each(UCLAR)('%s cevabında Türkçe kalmıyor', async (url) => {
-    await app.inject({
-      method: 'POST',
-      url: '/v1/kimlik/dil',
-      headers: yetkili(),
-      payload: { dil: 'en' },
-    });
+  it.each(UCLAR.map((u) => [`${u.yontem} ${u.url}`, u] as const))(
+    '%s cevabında Türkçe kalmıyor',
+    async (_ad, uc) => {
+      const url = uc.url;
+      await app.inject({
+        method: 'POST',
+        url: '/v1/kimlik/dil',
+        headers: yetkili(),
+        payload: { dil: 'en' },
+      });
 
-    const cevap = await app.inject({ method: 'GET', url, headers: yetkili() });
-    const govde = cevap.json();
+      const cevap: LightMyRequestResponse = await app.inject({
+        method: uc.yontem,
+        url,
+        headers: yetkili(),
+        ...(uc.govde !== undefined ? { payload: uc.govde } : {}),
+      });
+      const govde = cevap.json();
 
-    await app.inject({
-      method: 'POST',
-      url: '/v1/kimlik/dil',
-      headers: yetkili(),
-      payload: { dil: 'tr' },
-    });
+      await app.inject({
+        method: 'POST',
+        url: '/v1/kimlik/dil',
+        headers: yetkili(),
+        payload: { dil: 'tr' },
+      });
 
-    /**
-     * Hata cevabında `mesaj` **bilerek** Türkçe: sunucu kullanıcının dilini bilmek zorunda
-     * değil, istemci metni `kod`dan kuruyor. Buradaki garanti "Türkçe yok" değil,
-     * **"kodu var ve sözlükte karşılığı var"**.
-     */
-    if (cevap.statusCode >= 400) {
-      expect(govde.kod, url).toBeTruthy();
-      expect(Object.keys(tr.apiHatalari), url).toContain(govde.kod);
-      return;
-    }
-
-    expect(turkceMetinler(govde)).toEqual([]);
-  });
+      /**
+       * Hata cevabında `mesaj` **bilerek** Türkçe: sunucu kullanıcının dilini bilmek zorunda
+       * değil, istemci metni `kod`dan kuruyor. Buradaki garanti "Türkçe yok" değil,
+       * **"kodu var ve sözlükte karşılığı var"**.
+       */
+      if (cevap.statusCode >= 400) {
+        expect(govde.kod, url).toBeTruthy();
+        expect(Object.keys(tr.apiHatalari), url).toContain(govde.kod);
+        return;
+      }
+      // Düşerse hangi alanların sızdığı mesajda görünsün; yol adı olmadan aranamıyor.
+      expect(turkceMetinler(govde), [url, ...turkceMetinler(govde)].join(' | ')).toEqual([]);
+    },
+  );
 });

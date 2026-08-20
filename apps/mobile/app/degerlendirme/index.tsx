@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
+  ATLANDI,
   blokIlerlemesi,
   cevabiDogrula,
   gorunurSorular,
@@ -20,6 +21,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { istek } from '../../src/veri/api';
 import { baglantiSorunuMu, yeniCevaplar } from '@made2fit/shared';
 import { islemHatasiMetni } from '@made2fit/shared';
@@ -57,6 +59,7 @@ export default function Degerlendirme() {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
   const dil = useDil();
+  const kenar = useSafeAreaInsets();
 
   const [cevaplar, setCevaplar] = useState<Cevaplar>({});
   const [hazir, setHazir] = useState(false);
@@ -191,7 +194,7 @@ export default function Degerlendirme() {
 
   const atla = useCallback(() => {
     if (!soru || soru.required) return;
-    setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: '__atlandi__' }));
+    setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: ATLANDI }));
     setHata(null);
   }, [soru]);
 
@@ -219,7 +222,8 @@ export default function Degerlendirme() {
       <View style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
         <View
           style={{
-            paddingTop: tema.bosluk.xxxl,
+            // Başlık gizli; durum çubuğunun altına girmemek için kenar boşluğu burada.
+            paddingTop: tema.bosluk.lg + kenar.top,
             paddingHorizontal: tema.bosluk.lg,
             paddingBottom: tema.bosluk.md,
             gap: tema.bosluk.sm,
@@ -245,7 +249,7 @@ export default function Degerlendirme() {
         <Ekran>
           <SoruAlani
             soru={soru}
-            deger={cevaplar[soru.id] === '__atlandi__' ? null : cevaplar[soru.id]}
+            deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
             onDegisim={(deger) => {
               setHata(null);
               setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: deger as never }));

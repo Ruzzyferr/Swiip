@@ -17,12 +17,31 @@
 	@saglik path /saglik
 	log_skip @saglik
 
-	reverse_proxy api:3000 {
-		# Vücut fotoğrafı isteği büyük olabilir; zaman aşımı buna göre.
-		transport http {
-			read_timeout 60s
-			write_timeout 60s
+	# API ve marka sitesi AYNI ORIGIN'den sunuluyor.
+	#
+	# Sitenin tek dinamik ucu yayın haberi formu; ayrı bir alan adına koymak yalnızca
+	# CORS ve çerez sorunu üretirdi. Uygulama ise zaten mutlak adres kullanıyor.
+	@api path /v1/* /saglik
+	handle @api {
+		reverse_proxy api:3000 {
+			# Vücut fotoğrafı isteği büyük olabilir; zaman aşımı buna göre.
+			transport http {
+				read_timeout 60s
+				write_timeout 60s
+			}
 		}
+	}
+
+	handle {
+		root * /site
+		try_files {path} {path}/ /index.html
+		file_server
+
+		# Yazı tipleri ve işaret uzun süre önbelleklenebilir; HTML asla.
+		@varlik path /varliklar/* /stil.css /script.js
+		header @varlik Cache-Control "public, max-age=604800"
+		@html path / /index.html
+		header @html Cache-Control "no-cache"
 	}
 
 	log {
