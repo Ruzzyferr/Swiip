@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import Svg, { Path } from 'react-native-svg';
 import { Dugme, Yazi, Yukleniyor } from '../src/tasarim/bilesenler';
 import { useTema } from '../src/tasarim/tema';
 import { useMetinler, useOturum } from '../src/durum/Oturum';
+import { Isaret } from '../src/marka/Isaret';
 
 /**
  * Karşılama ekranı.
@@ -89,34 +89,5 @@ function Madde({ metin }: { metin: string }) {
         {metin}
       </Yazi>
     </View>
-  );
-}
-
-/**
- * Marka işareti: rakam 2'nin kendisi bir ölçü aleti.
- * Üst kavis çentikli bir açıölçer, taban çizgisi taksimatlı bir cetvel.
- */
-function Isaret({ renk }: { renk: string }) {
-  return (
-    <Svg width={72} height={72} viewBox="0 0 48 48">
-      <Path
-        d="M12 16 C12 9 18 5 24 5 C31 5 36 10 36 16 C36 24 24 30 14 41 L36 41"
-        stroke={renk}
-        strokeWidth={3.5}
-        strokeLinecap="square"
-        fill="none"
-      />
-      {[16, 20, 24, 28, 32].map((x) => (
-        <Path key={x} d={`M${x} 41 v-4`} stroke={renk} strokeWidth={1.6} />
-      ))}
-      {[10, 14, 18].map((a) => (
-        <Path
-          key={a}
-          d={`M${24 + 11 * Math.cos((a * Math.PI) / 12)} ${16 - 11 * Math.sin((a * Math.PI) / 12)} l1.6 -1.6`}
-          stroke={renk}
-          strokeWidth={1.4}
-        />
-      ))}
-    </Svg>
   );
 }

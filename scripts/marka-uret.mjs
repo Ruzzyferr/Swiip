@@ -116,7 +116,52 @@ ${govde('swiipLockup')}
 </svg>
 `;
 
+/**
+ * Uygulama içindeki işaret.
+ *
+ * Bu bileşen olmadan işaret İKİ YERDE ayrı yaşıyordu: `brand/mark.svg` ve
+ * `apps/mobile/app/index.tsx` içinde elle çizilmiş yollar. İsim Swiip olduktan sonra
+ * SVG güncellendi ama uygulama açılışı hâlâ eski 2 rakamını çiziyordu — metin araması
+ * yakalamaz, çünkü fark metinde değil geometride.
+ *
+ * Artık ikisi de buradan üretiliyor.
+ */
+const rnBilesen = `import Svg, { G, Line, Mask, Path, Rect } from 'react-native-svg';
+
+/**
+ * Marka işareti — ÜRETİLMİŞ DOSYA, elle düzenleme.
+ * Kaynak: scripts/marka-uret.mjs · yeniden üretmek için: npm run marka
+ *
+ * İşaretin kendisi bir ölçü aleti: S, teğet noktasında birleşen iki yaydan kuruluyor
+ * ve üst yayın dış kenarında açıölçer taksimatı var.
+ */
+export function Isaret({ renk, boyut = 72 }: { renk: string; boyut?: number }) {
+  return (
+    <Svg width={boyut} height={boyut} viewBox="0 0 100 100">
+      <Mask id="swiipMark" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+        <Rect x="0" y="0" width="100" height="100" fill="white" />
+        <G stroke="black" strokeLinecap="butt">
+${taksimat(UST, -30, -195, 11)
+  .map((satir) => {
+    const s = satir.trim().replace('<line ', '').replace('/>', '');
+    const oz = Object.fromEntries([...s.matchAll(/([\w-]+)="([^"]+)"/g)].map((m) => [m[1], m[2]]));
+    return `          <Line x1={${oz.x1}} y1={${oz.y1}} x2={${oz.x2}} y2={${oz.y2}} strokeWidth={${oz['stroke-width']}} />`;
+  })
+  .join('\n')}
+        </G>
+      </Mask>
+      <G mask="url(#swiipMark)" fill="none" stroke={renk} strokeWidth={${KALINLIK}} strokeLinecap="butt">
+        <Path d="M ${yuvarla(ux1)} ${yuvarla(uy1)} A ${R} ${R} 0 1 0 50 50 A ${R} ${R} 0 1 1 ${yuvarla(ax2)} ${yuvarla(ay2)}" />
+      </G>
+    </Svg>
+  );
+}
+`;
+
 writeFileSync('brand/mark.svg', mark);
 writeFileSync('brand/icon.svg', icon);
 writeFileSync('brand/lockup.svg', lockup);
-console.log('brand/mark.svg, brand/icon.svg, brand/lockup.svg yazıldı.');
+writeFileSync('apps/mobile/src/marka/Isaret.tsx', rnBilesen);
+console.log(
+  'brand/mark.svg, brand/icon.svg, brand/lockup.svg, apps/mobile/src/marka/Isaret.tsx yazıldı.',
+);
