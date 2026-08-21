@@ -28,11 +28,8 @@
         "foregroundImage": "./assets/uyarlanabilir-ikon.png",
         "backgroundColor": "#131614"
       },
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.POST_NOTIFICATIONS"
-      ],
-      "versionCode": 1
+      "permissions": ["android.permission.CAMERA", "android.permission.POST_NOTIFICATIONS"],
+      "versionCode": 2
     },
     "plugins": [
       "expo-router",
@@ -50,11 +47,13 @@
           "color": "#14615A"
         }
       ],
-      "expo-build-properties",
       [
         "expo-build-properties",
         {
           "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.0.0",
             "kotlinVersion": "1.9.25"
           }
         }
