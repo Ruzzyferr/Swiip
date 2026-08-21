@@ -24,6 +24,29 @@ services:
       - '5432'
     networks: [ic]
 
+  # Göç adımı. Tek seferlik çalışır, biter ve API onun bitmesini bekler.
+  #
+  # Neden ayrı servis: göçü API'nin açılışına gömmek, birden çok kopya çalıştığında
+  # aynı göçü aynı anda uygulamaya kalkar. Ayrı ve tek seferlik adım, sırayı garanti eder.
+  #
+  # 2026-08-21'de ilk kurulumda bu adım yoktu: API sağlıklı göründü, /saglik 200 döndü,
+  # ama veritabanında tek tablo yoktu. Sessiz kusur; şema elle kuruldu.
+  gocmen:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: 'no'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-swiip}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-swiip}
+      # goc.ts yapılandırmanın tamamını okuyor; JWT_SECRET onun için de zorunlu.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET gerekli, en az 32 karakter}
+    command: ['node', '--import', 'tsx', 'packages/api/src/db/goc.ts']
+    networks: [ic]
+
   api:
     build:
       context: ..
@@ -32,6 +55,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      gocmen:
+        condition: service_completed_successfully
     environment:
       NODE_ENV: production
       PORT: 3000
