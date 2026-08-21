@@ -17,3 +17,7 @@ apps/mobile/ios/
 
 # Play yukleme anahtari yapilandirmasi; parola tasir.
 apps/mobile/imza.properties
+
+# iOS dagitim kimlik bilgileri — ozel anahtar ve sertifika, depoya girmez
+apps/mobile/kimlik/
+apps/mobile/credentials.json

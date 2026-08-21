@@ -17,8 +17,10 @@
       "bundleIdentifier": "app.swiip",
       "infoPlist": {
         "NSCameraUsageDescription": "Vücut analizi için fotoğraf çekilir. Fotoğrafın analiz edildikten sonra anında silinir, sunucumuzda saklanmaz.",
-        "NSPhotoLibraryUsageDescription": "Vücut analizi için galeriden fotoğraf seçebilirsin. Fotoğraf sunucumuzda saklanmaz."
-      }
+        "NSPhotoLibraryUsageDescription": "Vücut analizi için galeriden fotoğraf seçebilirsin. Fotoğraf sunucumuzda saklanmaz.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "2"
     },
     "android": {
       "package": "app.swiip",
@@ -62,6 +64,15 @@
       "bundler": "metro",
       "output": "single"
     },
-    "icon": "./assets/ikon.png"
+    "icon": "./assets/ikon.png",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "c4125b70-2cde-4270-88a4-f231d1ad4eb0"
+      }
+    },
+    "owner": "ruzzyferr"
   }
 }

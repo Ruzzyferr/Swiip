@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "gelistirme": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://127.0.0.1:3311"
+      }
+    },
+    "onizleme": {
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "uretim": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "credentialsSource": "local"
+    }
+  },
+  "submit": {
+    "uretim": {
+      "ios": {
+        "appleTeamId": "3HPYDLAP64",
+        "ascAppId": "PLACEHOLDER"
+      },
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      }
+    }
+  }
+}
