@@ -41,7 +41,7 @@ Metinler `liste-tr.md` içinde. Görseller:
 
 ```
 E-posta : inceleme@swiip.app
-Parola  : (kurulumda üretilecek, buraya yazılacak)
+Parola  : mercan-defter-7431-yelken
 ```
 
 Not olarak eklenecek açıklama:
@@ -106,6 +106,19 @@ Genel:
 | Sağlık ve fitness | Fitness bilgisi | Evet | Hayır | Zorunlu | Uygulama işlevi |
 | Fotoğraf ve video | Fotoğraf | Evet | Hayır | İsteğe bağlı | Uygulama işlevi |
 | Uygulama etkinliği | Uygulama içi eylemler | Evet | Hayır | Zorunlu | Analiz |
+
+### Eksik: kullanıcı kimliği ve satın alma geçmişi
+
+Bu tablo App Store beyanıyla karşılaştırılınca iki eksik çıktı — ikisi de **gerçekten
+toplanıyor** ve bir sonraki Play güncellemesinde forma eklenmeli:
+
+| Kategori | Tür | Kaynak |
+|---|---|---|
+| Kişisel bilgiler | Kullanıcı kimlikleri | `users.id` |
+| Finansal bilgiler | Satın alma geçmişi | `subscriptions.plan`, `product_id` |
+
+Beyan `packages/api/src/db/sema.ts` okunarak çıkarılmalı, hatırlayarak değil. App Store
+tarafındaki tam eşlemesi `magaza/appstore/konsol-rehberi.md` içinde.
 
 ### Fotoğraf — önemli ayrım
 

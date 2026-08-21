@@ -59,17 +59,44 @@ export function jwtUret() {
   return `${veri}.${b64url(imza)}`;
 }
 
-const TABAN = 'https://api.appstoreconnect.apple.com/v1';
+const TABAN = 'https://api.appstoreconnect.apple.com';
+
+/**
+ * Yol `/v2/...` gibi sürümle başlıyorsa olduğu gibi kullanılır, yoksa başına `/v1`
+ * eklenir.
+ *
+ * Apple'ın uçları tek sürümde değil: ülke kullanılabilirliği yalnızca v2'de, geri
+ * kalan neredeyse her şey v1'de. Sürümü çağıran tarafın yazabilmesi, her uç için ayrı
+ * istemci açmaktan iyi.
+ */
+const tamYol = (yol) => {
+  if (/^https?:\/\//.test(yol)) return yol; // sayfalamada gelen `links.next` tam URL
+  return `${TABAN}${/^\/v\d+\//.test(yol) ? yol : `/v1${yol}`}`;
+};
+
+const uyu = (ms) => new Promise((c) => setTimeout(c, ms));
+
+/**
+ * Apple 500 ve 429'u sebepsiz döndürüyor; aynı istek saniyeler sonra çalışıyor.
+ * Yeniden denemeden bırakmak, uzun betiklerin ortada yarım kalması demek.
+ * Yalnızca sunucu hataları ve hız sınırı tekrarlanır — 4xx'te ısrar anlamsız.
+ */
+const TEKRAR = 4;
 
 export async function apple(yol, secenekler = {}) {
-  const yanit = await fetch(`${TABAN}${yol}`, {
-    ...secenekler,
-    headers: {
-      Authorization: `Bearer ${jwtUret()}`,
-      'Content-Type': 'application/json',
-      ...(secenekler.headers ?? {}),
-    },
-  });
+  let yanit;
+  for (let deneme = 0; ; deneme++) {
+    yanit = await fetch(tamYol(yol), {
+      ...secenekler,
+      headers: {
+        Authorization: `Bearer ${jwtUret()}`,
+        'Content-Type': 'application/json',
+        ...(secenekler.headers ?? {}),
+      },
+    });
+    if (yanit.ok || deneme >= TEKRAR || !(yanit.status >= 500 || yanit.status === 429)) break;
+    await uyu(1500 * 2 ** deneme);
+  }
   const metin = await yanit.text();
   let govde;
   try {
