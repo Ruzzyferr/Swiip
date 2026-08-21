@@ -1,4 +1,4 @@
-import type { Cinsiyet, HacimGrubu, Hedef, HedefVektoru, Ortam, Profil } from '@made2fit/shared';
+import type { Cinsiyet, HacimGrubu, Hedef, HedefVektoru, Ortam, Profil } from '@swiip/shared';
 import { alan, dizi, metin, sayi, type Cevaplar } from '../cevaplar';
 import { kapilariDegerlendir, yasHesapla, type KapiSecenekleri } from '../kapilar/kapilar';
 import { epley1rm } from '../yuk/tahmin';

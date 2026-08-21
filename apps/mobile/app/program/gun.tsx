@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { hareketBul, kgMetni } from '@made2fit/core';
-import type { Metinler } from '@made2fit/shared';
+import { hareketBul, kgMetni } from '@swiip/core';
+import type { Metinler } from '@swiip/shared';
 import {
   Ayirac,
   Dugme,

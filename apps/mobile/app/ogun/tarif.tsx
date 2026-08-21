@@ -16,7 +16,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf } from '@made2fit/shared';
+import { buyukHarf } from '@swiip/shared';
 import { useSayilarGizli } from '../../src/durum/Oturum';
 
 /**

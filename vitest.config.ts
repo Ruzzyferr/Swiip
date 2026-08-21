@@ -21,8 +21,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@made2fit/shared': new URL('./packages/shared/src/index.ts', import.meta.url).pathname,
-      '@made2fit/core': new URL('./packages/core/src/index.ts', import.meta.url).pathname,
+      '@swiip/shared': new URL('./packages/shared/src/index.ts', import.meta.url).pathname,
+      '@swiip/core': new URL('./packages/core/src/index.ts', import.meta.url).pathname,
     },
   },
 });

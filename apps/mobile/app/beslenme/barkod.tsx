@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { barkodGecerliMi } from '@made2fit/core';
-import { islemHatasiMetni } from '@made2fit/shared';
+import { barkodGecerliMi } from '@swiip/core';
+import { islemHatasiMetni } from '@swiip/shared';
 import {
   Ayirac,
   Dugme,

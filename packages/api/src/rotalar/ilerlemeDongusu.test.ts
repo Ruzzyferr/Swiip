@@ -107,7 +107,7 @@ beforeAll(async () => {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {
-      email: 'ilerleme@made2fit.io',
+      email: 'ilerleme@swiip.app',
       parola: 'Kirmizi-Bisiklet-42',
       saglik_onayi: true,
       olcum_onayi: true,

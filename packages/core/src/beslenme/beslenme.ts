@@ -1,4 +1,4 @@
-import type { BeslenmeHedefi, Cinsiyet, Hedef, Profil } from '@made2fit/shared';
+import type { BeslenmeHedefi, Cinsiyet, Hedef, Profil } from '@swiip/shared';
 import { kirp, yuvarla } from '../profil/olcumler';
 
 /**

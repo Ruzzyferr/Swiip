@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import type { PorsiyonRehberi } from '@made2fit/core';
-import type { BeslenmeHedefi } from '@made2fit/shared';
+import type { PorsiyonRehberi } from '@swiip/core';
+import type { BeslenmeHedefi } from '@swiip/shared';
 import {
   Ayirac,
   BosDurum,
@@ -17,7 +17,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { islemHatasiMetni } from '@made2fit/shared';
+import { islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**

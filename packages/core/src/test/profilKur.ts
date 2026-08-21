@@ -1,4 +1,4 @@
-import type { Profil } from '@made2fit/shared';
+import type { Profil } from '@swiip/shared';
 
 /**
  * Test veri kurucusu. Yalnızca testlerden kullanılır, üretim kodundan içe aktarılmaz.

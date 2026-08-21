@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import type { AiIstemcisi, GorselAnalizCiktisi } from '@made2fit/core';
-import { modelSec } from '@made2fit/core';
+import type { AiIstemcisi, GorselAnalizCiktisi } from '@swiip/core';
+import { modelSec } from '@swiip/core';
 
 /**
  * Görsel analiz köprüsü.

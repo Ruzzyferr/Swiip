@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Karar } from '@made2fit/shared';
+import type { Karar } from '@swiip/shared';
 import {
   AI_ISLERI,
   aylikMaliyetTahmini,

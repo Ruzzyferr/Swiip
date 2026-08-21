@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Switch, View } from 'react-native';
 import { Stack } from 'expo-router';
-import type { Metinler } from '@made2fit/shared';
+import type { Metinler } from '@swiip/shared';
 import { Ayirac, Dugme, Ekran, Kart, Satir, Uyari, Yazi } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';

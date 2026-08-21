@@ -1,4 +1,4 @@
-import type { Karar } from '@made2fit/shared';
+import type { Karar } from '@swiip/shared';
 
 /**
  * AI geçidi — spec bölüm 12.

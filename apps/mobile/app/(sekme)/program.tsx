@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
-import { hareketBul, kgMetni } from '@made2fit/core';
-import { haftaBittiMi, hareketAdi, tarihMetni, type Metinler } from '@made2fit/shared';
+import { hareketBul, kgMetni } from '@swiip/core';
+import { haftaBittiMi, hareketAdi, tarihMetni, type Metinler } from '@swiip/shared';
 import {
   Ayirac,
   BosDurum,

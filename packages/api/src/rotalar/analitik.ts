@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { SORU_BANKASI } from '@made2fit/shared';
+import { SORU_BANKASI } from '@swiip/shared';
 import { Yasak } from '../hatalar';
 import { ai_usage, analytics_events, assessments, subscriptions, users } from '../db/sema';
 

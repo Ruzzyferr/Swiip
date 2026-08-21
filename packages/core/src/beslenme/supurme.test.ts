@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { beslenmeHedefiHesapla } from './beslenme';
 import { profilKur } from '../test/profilKur';
-import type { Cinsiyet, Hedef } from '@made2fit/shared';
+import type { Cinsiyet, Hedef } from '@swiip/shared';
 
 /**
  * Beslenme motorunun DEĞİŞMEZLERİ — örnek değil, ızgara.

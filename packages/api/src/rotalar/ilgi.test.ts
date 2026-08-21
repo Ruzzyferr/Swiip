@@ -33,22 +33,22 @@ function gonder(govde: Record<string, unknown>): Promise<LightMyRequestResponse>
 
 describe('POST /v1/ilgi', () => {
   it('rıza ile geçerli e-posta kaydediliyor', async () => {
-    const cevap = await gonder({ eposta: 'okur@made2fit.io', riza: true });
+    const cevap = await gonder({ eposta: 'okur@swiip.app', riza: true });
 
     expect(cevap.statusCode).toBe(201);
     expect(cevap.json().kaydedildi).toBe(true);
   });
 
   it('oturum istemiyor — sitede hesabı olmayan insanlar var', async () => {
-    const cevap = await gonder({ eposta: 'oturumsuz@made2fit.io', riza: true });
+    const cevap = await gonder({ eposta: 'oturumsuz@swiip.app', riza: true });
 
     expect(cevap.statusCode).not.toBe(401);
   });
 
   /** Varsayılanı kabul saymak açık rıza değildir. */
   it('rıza yoksa reddediliyor', async () => {
-    expect((await gonder({ eposta: 'rizasiz@made2fit.io' })).statusCode).toBe(400);
-    expect((await gonder({ eposta: 'rizasiz@made2fit.io', riza: false })).statusCode).toBe(400);
+    expect((await gonder({ eposta: 'rizasiz@swiip.app' })).statusCode).toBe(400);
+    expect((await gonder({ eposta: 'rizasiz@swiip.app', riza: false })).statusCode).toBe(400);
   });
 
   it('geçersiz e-posta reddediliyor', async () => {
@@ -57,8 +57,8 @@ describe('POST /v1/ilgi', () => {
   });
 
   it('aynı adres iki kez eklenirse hata vermiyor', async () => {
-    await gonder({ eposta: 'tekrar@made2fit.io', riza: true });
-    const ikinci = await gonder({ eposta: 'tekrar@made2fit.io', riza: true });
+    await gonder({ eposta: 'tekrar@swiip.app', riza: true });
+    const ikinci = await gonder({ eposta: 'tekrar@swiip.app', riza: true });
 
     expect(ikinci.statusCode).toBe(201);
   });
@@ -68,31 +68,31 @@ describe('POST /v1/ilgi', () => {
    * durumda da aynı olmalı — hesap varlığı sızdırmama kuralının aynısı.
    */
   it('kayıtlı ve kayıtsız adres aynı cevabı veriyor', async () => {
-    await gonder({ eposta: 'var@made2fit.io', riza: true });
+    await gonder({ eposta: 'var@swiip.app', riza: true });
 
-    const varOlan = await gonder({ eposta: 'var@made2fit.io', riza: true });
-    const yeni = await gonder({ eposta: 'yok@made2fit.io', riza: true });
+    const varOlan = await gonder({ eposta: 'var@swiip.app', riza: true });
+    const yeni = await gonder({ eposta: 'yok@swiip.app', riza: true });
 
     expect(varOlan.statusCode).toBe(yeni.statusCode);
     expect(varOlan.json()).toEqual(yeni.json());
   });
 
   it('büyük harfli adres küçük harfe indiriliyor — aynı adres iki kayıt olmuyor', async () => {
-    await gonder({ eposta: 'Buyuk@Made2Fit.io', riza: true });
-    const ikinci = await gonder({ eposta: 'buyuk@made2fit.io', riza: true });
+    await gonder({ eposta: 'Buyuk@Swiip.app', riza: true });
+    const ikinci = await gonder({ eposta: 'buyuk@swiip.app', riza: true });
 
     expect(ikinci.statusCode).toBe(201);
 
     const kayitlar = await uygulama.ortam.db
       .select()
       .from(ilgi_kayitlari)
-      .where(eq(ilgi_kayitlari.eposta, 'buyuk@made2fit.io'));
+      .where(eq(ilgi_kayitlari.eposta, 'buyuk@swiip.app'));
     expect(kayitlar).toHaveLength(1);
   });
 
   it('fazladan alanlar kaydı bozmuyor', async () => {
     const cevap = await gonder({
-      eposta: 'fazla@made2fit.io',
+      eposta: 'fazla@swiip.app',
       riza: true,
       admin: true,
       bildirildi_at: '2020-01-01',

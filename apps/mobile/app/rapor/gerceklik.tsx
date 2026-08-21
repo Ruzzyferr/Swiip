@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import { gercekcilikTesti } from '@made2fit/core';
-import type { Hedef } from '@made2fit/shared';
+import { gercekcilikTesti } from '@swiip/core';
+import type { Hedef } from '@swiip/shared';
 import {
   BosDurum,
   Dugme,

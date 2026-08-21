@@ -1,4 +1,4 @@
-import type { GeriBildirim, Hareket, IlerlemeDurumu, Karar } from '@made2fit/shared';
+import type { GeriBildirim, Hareket, IlerlemeDurumu, Karar } from '@swiip/shared';
 import { epley1rm, yukYuvarla } from '../yuk/tahmin';
 import { kirp } from '../profil/olcumler';
 

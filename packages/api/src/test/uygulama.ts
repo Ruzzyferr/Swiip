@@ -47,7 +47,7 @@ export async function testUygulamasi(): Promise<TestUygulama> {
       ERISIM_TOKEN_OMRU: '15m',
       YENILEME_TOKEN_GUN: 30,
       KIMLIK_ISTEK_SINIRI: 10_000,
-      POSTA_GONDEREN: 'Made2Fit <test@made2fit.io>',
+      POSTA_GONDEREN: 'Swiip <test@swiip.app>',
       LOG_SEVIYESI: 'fatal',
       CORS_KAYNAKLAR: '*',
     },

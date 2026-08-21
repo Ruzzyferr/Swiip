@@ -28,7 +28,7 @@ beforeAll(async () => {
   // Kota satırı kullanıcıya yabancı anahtarla bağlı; gerçek bir kayıt gerekiyor.
   const [kullanici] = await ortam.db
     .insert(users)
-    .values({ email: 'kota@made2fit.io', parola_hash: 'x', consent_health: new Date() })
+    .values({ email: 'kota@swiip.app', parola_hash: 'x', consent_health: new Date() })
     .returning({ id: users.id });
   KULLANICI = kullanici!.id;
 }, 60_000);

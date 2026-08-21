@@ -1,4 +1,4 @@
-import { offUrunuCevir, type IthalBesin, type OffUrun } from '@made2fit/core';
+import { offUrunuCevir, type IthalBesin, type OffUrun } from '@swiip/core';
 
 /**
  * Barkod sorgulama (F5.5, F5.9).
@@ -47,7 +47,7 @@ export function offSaglayici(secenekler: OffSecenekleri = {}): BarkodSaglayici {
         const yanit = await fetch(
           `${taban}/api/v2/product/${encodeURIComponent(barkod)}?fields=${OFF_ALANLARI}`,
           {
-            headers: { 'user-agent': 'Made2Fit/0.1 (made2fit.io)' },
+            headers: { 'user-agent': 'Swiip/0.1 (swiip.app)' },
             signal: durdurucu.signal,
           },
         );

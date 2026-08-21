@@ -15,9 +15,9 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { islemHatasiMetni } from '@made2fit/shared';
+import { islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf } from '@made2fit/shared';
+import { buyukHarf } from '@swiip/shared';
 
 /**
  * Fotoğraftan yemek tanıma ve doğrulama (F7.5).

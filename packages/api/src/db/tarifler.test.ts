@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { TARIF_TOHUMU } from './tarifler';
-import { bilesimHesapla } from '@made2fit/core';
+import { bilesimHesapla } from '@swiip/core';
 import { besinAra } from './malzemeEslemesi';
 
 /**

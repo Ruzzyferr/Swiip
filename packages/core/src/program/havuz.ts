@@ -1,4 +1,4 @@
-import { HAREKET_KATALOGU, type Hareket, type Profil } from '@made2fit/shared';
+import { HAREKET_KATALOGU, type Hareket, type Profil } from '@swiip/shared';
 import { hacimSayilir, isinmaMi, pliometrikMi } from '../katalog/katalog';
 
 /**

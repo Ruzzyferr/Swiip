@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { besinDegerleriMakulMu } from '@made2fit/core';
+import { besinDegerleriMakulMu } from '@swiip/core';
 import { BESIN_TOHUMU, EV_OLCULERI } from './besinler';
 
 /**

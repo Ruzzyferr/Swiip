@@ -1,5 +1,5 @@
 /**
- * Made2Fit ortak alan modeli.
+ * Swiip ortak alan modeli.
  * Kod tabanının her katmanı (motor, API, mobil) bu tipleri paylaşır.
  * Türkçe alan adları bilinçli: veri sözlüğü docs/spec.md bölüm 14 ile birebir.
  */

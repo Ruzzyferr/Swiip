@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
-import { aramaAnahtari, KATLANAN, KATLANMIS } from '@made2fit/shared';
+import { aramaAnahtari, KATLANAN, KATLANMIS } from '@swiip/shared';
 import { foods } from '../db/sema';
 import type { FastifyInstance } from 'fastify';
 import { besinleriTohumla } from '../db/tohum';
@@ -19,7 +19,7 @@ beforeAll(async () => {
   const kayit = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'beslenme@made2fit.io', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    payload: { email: 'beslenme@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
   });
   token = kayit.json().erisim_token;
 }, 60_000);

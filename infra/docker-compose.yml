@@ -1,20 +1,20 @@
-name: made2fit
+name: swiip
 
 services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-made2fit}
+      POSTGRES_USER: ${POSTGRES_USER:-swiip}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD gerekli}
-      POSTGRES_DB: ${POSTGRES_DB:-made2fit}
+      POSTGRES_DB: ${POSTGRES_DB:-swiip}
       # Türkçe sıralama: "İ" ve "ı" doğru sıralansın.
       LANG: tr_TR.utf8
     volumes:
       - postgres_veri:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-made2fit} -d ${POSTGRES_DB:-made2fit}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-swiip} -d ${POSTGRES_DB:-swiip}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -36,7 +36,7 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      DATABASE_URL: postgres://${POSTGRES_USER:-made2fit}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-made2fit}
+      DATABASE_URL: postgres://${POSTGRES_USER:-swiip}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-swiip}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET gerekli, en az 32 karakter}
       AI_GATEWAY_URL: ${AI_GATEWAY_URL:-}
       AI_GATEWAY_KEY: ${AI_GATEWAY_KEY:-}
@@ -44,7 +44,7 @@ services:
       KIMLIK_ISTEK_SINIRI: ${KIMLIK_ISTEK_SINIRI:-10}
       POSTA_API_URL: ${POSTA_API_URL:-}
       POSTA_API_KEY: ${POSTA_API_KEY:-}
-      POSTA_GONDEREN: ${POSTA_GONDEREN:-Made2Fit <merhaba@made2fit.io>}
+      POSTA_GONDEREN: ${POSTA_GONDEREN:-Swiip <merhaba@swiip.app>}
       YONETIM_ANAHTARI: ${YONETIM_ANAHTARI:-}
       LOG_SEVIYESI: ${LOG_SEVIYESI:-info}
       CORS_KAYNAKLAR: ${CORS_KAYNAKLAR:-*}
@@ -73,7 +73,7 @@ services:
       - '443:443'
       - '443:443/udp'
     environment:
-      ALAN_ADI: ${ALAN_ADI:-made2fit.io}
+      ALAN_ADI: ${ALAN_ADI:-swiip.app}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       # Marka sitesi statik; derleme adımı yok, doğrudan bağlanıyor.
@@ -90,9 +90,9 @@ services:
         condition: service_healthy
     environment:
       PGHOST: postgres
-      PGUSER: ${POSTGRES_USER:-made2fit}
+      PGUSER: ${POSTGRES_USER:-swiip}
       PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: ${POSTGRES_DB:-made2fit}
+      PGDATABASE: ${POSTGRES_DB:-swiip}
       YEDEK_SAKLAMA_GUN: ${YEDEK_SAKLAMA_GUN:-30}
     volumes:
       - ../yedekler:/yedekler

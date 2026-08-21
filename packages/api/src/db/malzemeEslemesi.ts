@@ -1,5 +1,5 @@
-import { bilesimHesapla, type BesinDegerleri } from '@made2fit/core';
-import type { Tarif } from '@made2fit/core';
+import { bilesimHesapla, type BesinDegerleri } from '@swiip/core';
+import type { Tarif } from '@swiip/core';
 import { BESIN_TOHUMU } from './besinler';
 
 /**

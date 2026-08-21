@@ -10,7 +10,7 @@ import {
   type Profil,
   type SeansPlani,
   type SplitPlani,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 import { hacimButcesiHesapla, type Kapasite } from '../hacim/hacim';
 import { hacimGrubu, muadilZinciri, yukReferansi } from '../katalog/katalog';
 import { splitSec } from '../split/split';

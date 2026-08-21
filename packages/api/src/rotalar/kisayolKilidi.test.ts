@@ -64,7 +64,7 @@ const hedefAl = (token: string) =>
 
 describe('kısayol kilitleri', () => {
   it('ücretsiz planda öğün kısayolları kilitli görünüyor', async () => {
-    const token = await kullaniciKur('kilit-ucretsiz@made2fit.io');
+    const token = await kullaniciKur('kilit-ucretsiz@swiip.app');
 
     const kilitler = hedefAl(token).then((c) => c.json().kilitler);
 
@@ -73,7 +73,7 @@ describe('kısayol kilitleri', () => {
 
   /** Ödeyen kullanıcıya tek satır bile upsell gösterilmez. */
   it('ödemeli planda hiçbir kısayol kilitli görünmüyor', async () => {
-    const token = await kullaniciKur('kilit-pro@made2fit.io');
+    const token = await kullaniciKur('kilit-pro@swiip.app');
 
     await app.inject({
       method: 'POST',
@@ -93,7 +93,7 @@ describe('kısayol kilitleri', () => {
    * (`kalori_makro_hedefi` ve `ogun_plani`) ve bir gün ayrışabilirler.
    */
   it('kilit alanı hedef kilidinden bağımsız geliyor', async () => {
-    const token = await kullaniciKur('kilit-ayri@made2fit.io');
+    const token = await kullaniciKur('kilit-ayri@swiip.app');
 
     const govde = (await hedefAl(token)).json();
 

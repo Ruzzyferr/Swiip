@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Yasak } from '../hatalar';
 import { quotas, subscriptions, users } from '../db/sema';
 import { HAK_TABLOSU, planHaklari, type Plan } from '../servisler/haklar';
-import { dilCozumle, metinleriAl } from '@made2fit/shared';
+import { dilCozumle, metinleriAl } from '@swiip/shared';
 
 /**
  * Abonelik, hak ve kota (F6).
@@ -19,10 +19,10 @@ import { dilCozumle, metinleriAl } from '@made2fit/shared';
 
 /** RevenueCat ürün kimliği → plan. Mağaza panelindeki kimliklerle birebir aynı olmalı. */
 const URUN_PLANI: Record<string, Plan> = {
-  made2fit_temel_aylik: 'temel',
-  made2fit_temel_yillik: 'temel',
-  made2fit_pro_aylik: 'pro',
-  made2fit_pro_yillik: 'pro',
+  swiip_temel_aylik: 'temel',
+  swiip_temel_yillik: 'temel',
+  swiip_pro_aylik: 'pro',
+  swiip_pro_yillik: 'pro',
 };
 
 const kancaSemasi = z.object({

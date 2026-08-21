@@ -22,7 +22,7 @@ KOK_DIZIN="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # pg_dump kullanici verilmezse kabin OS kullanicisini (root) dener ve
 # "role root does not exist" ile duser -- betik ilk kez calistirildiginda cikan hata buydu.
 #
-# .env `source` EDILMIYOR: icinde POSTA_GONDEREN="Made2Fit <merhaba@...>" gibi
+# .env `source` EDILMIYOR: icinde POSTA_GONDEREN="Swiip <merhaba@...>" gibi
 # tirnaksiz degerler var ve `<` kabuk icin yonlendirmedir. Yalnizca ihtiyac duyulan
 # iki anahtar okunuyor.
 env_oku() {
@@ -33,9 +33,9 @@ env_oku() {
   fi
   printf '%s' "${deger:-$varsayilan}"
 }
-DB_KULLANICI="$(env_oku POSTGRES_USER made2fit)"
-DB_ADI="$(env_oku POSTGRES_DB made2fit)"
-TEST_KABI="made2fit-geri-yukleme-testi"
+DB_KULLANICI="$(env_oku POSTGRES_USER swiip)"
+DB_ADI="$(env_oku POSTGRES_DB swiip)"
+TEST_KABI="swiip-geri-yukleme-testi"
 TEST_PAROLA="geri-yukleme-testi-gecici"
 TEST_PORT="55439"
 GECICI_DIZIN="$(mktemp -d)"
@@ -73,14 +73,14 @@ echo "→ yedek boyutu: $(wc -c < "$YEDEK") bayt"
 echo "→ geçici Postgres ayağa kalkıyor"
 docker run -d --name "$TEST_KABI" \
   -e POSTGRES_PASSWORD="$TEST_PAROLA" \
-  -e POSTGRES_USER=made2fit \
-  -e POSTGRES_DB=made2fit_test \
+  -e POSTGRES_USER=swiip \
+  -e POSTGRES_DB=swiip_test \
   -p "${TEST_PORT}:5432" \
   postgres:17-alpine > /dev/null
 
 echo -n "→ hazır olması bekleniyor"
 for _ in $(seq 1 60); do
-  if docker exec "$TEST_KABI" pg_isready -U made2fit -d made2fit_test > /dev/null 2>&1; then
+  if docker exec "$TEST_KABI" pg_isready -U swiip -d swiip_test > /dev/null 2>&1; then
     echo " ✓"
     break
   fi
@@ -91,13 +91,13 @@ done
 # --- 3. Geri yükleme ---
 echo "→ yedek geri yükleniyor"
 docker exec -i "$TEST_KABI" pg_restore \
-  --username=made2fit --dbname=made2fit_test --no-owner --no-privileges --exit-on-error \
+  --username=swiip --dbname=swiip_test --no-owner --no-privileges --exit-on-error \
   < "$YEDEK"
 
 # --- 4. Doğrulama ---
 echo "→ doğrulanıyor"
 
-TABLO_SAYISI="$(docker exec "$TEST_KABI" psql -U made2fit -d made2fit_test -tAc \
+TABLO_SAYISI="$(docker exec "$TEST_KABI" psql -U swiip -d swiip_test -tAc \
   "select count(*) from information_schema.tables where table_schema='public'")"
 
 echo "   geri yüklenen tablo sayısı: ${TABLO_SAYISI}"
@@ -108,7 +108,7 @@ fi
 
 ZORUNLU_TABLOLAR="users assessments profiles body_analyses programs sessions session_items decisions foods food_logs subscriptions quotas"
 for tablo in $ZORUNLU_TABLOLAR; do
-  VAR="$(docker exec "$TEST_KABI" psql -U made2fit -d made2fit_test -tAc \
+  VAR="$(docker exec "$TEST_KABI" psql -U swiip -d swiip_test -tAc \
     "select to_regclass('public.${tablo}') is not null")"
   if [ "$VAR" != "t" ]; then
     echo "HATA: ${tablo} tablosu geri yüklenmedi." >&2
@@ -118,14 +118,14 @@ done
 echo "   zorunlu tabloların hepsi yerinde ✓"
 
 # Satır sayıları: veri de geldi mi, yoksa yalnızca şema mı?
-KULLANICI="$(docker exec "$TEST_KABI" psql -U made2fit -d made2fit_test -tAc \
+KULLANICI="$(docker exec "$TEST_KABI" psql -U swiip -d swiip_test -tAc \
   'select count(*) from users')"
-BESIN="$(docker exec "$TEST_KABI" psql -U made2fit -d made2fit_test -tAc \
+BESIN="$(docker exec "$TEST_KABI" psql -U swiip -d swiip_test -tAc \
   'select count(*) from foods')"
 echo "   users: ${KULLANICI} satır · foods: ${BESIN} satır"
 
 # Yabancı anahtarlar korunmuş mu?
-FK_SAYISI="$(docker exec "$TEST_KABI" psql -U made2fit -d made2fit_test -tAc \
+FK_SAYISI="$(docker exec "$TEST_KABI" psql -U swiip -d swiip_test -tAc \
   "select count(*) from information_schema.table_constraints where constraint_type='FOREIGN KEY' and table_schema='public'")"
 echo "   yabancı anahtar kısıtı: ${FK_SAYISI}"
 if [ "$FK_SAYISI" -lt 10 ]; then

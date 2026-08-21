@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SORU_BANKASI } from '@made2fit/shared';
+import { SORU_BANKASI } from '@swiip/shared';
 import type { Cevaplar } from '../cevaplar';
 import {
   blokIlerlemesi,

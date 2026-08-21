@@ -1,4 +1,4 @@
-import type { AntrenmanYasi, Cinsiyet, ReferansLift } from '@made2fit/shared';
+import type { AntrenmanYasi, Cinsiyet, ReferansLift } from '@swiip/shared';
 import { kirp, yuvarla } from '../profil/olcumler';
 
 /**

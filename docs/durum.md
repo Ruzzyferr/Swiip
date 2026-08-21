@@ -39,7 +39,7 @@ npm run test:coverage     # motor kapsam eşikleri
 >
 > **İlk çalıştırma iki gerçek hata çıkardı** — betik yazılmış ama hiç koşturulmamıştı:
 > `pg_dump` kullanıcı almıyordu (kapta `root` rolü yok) ve `.env` kabukta `source`
-> edilemiyordu (`POSTA_GONDEREN="Made2Fit <...>"` içindeki `<` yönlendirme sayılıyor).
+> edilemiyordu (`POSTA_GONDEREN="Swiip <...>"` içindeki `<` yönlendirme sayılıyor).
 > Yazılmış ama çalıştırılmamış bir yedek betiği, olmayan bir yedektir.
 >
 > Bir sonraki test bir ay sonra. Ayrıca göçler ve tohumlama ilk kez **gerçek Postgres 17**
@@ -784,7 +784,7 @@ Dürüstlük gereği: bu ortamda yapılamayan iki şey var.
 
 ## Dış işler (koda bağlı değil)
 
-- `made2fit.io` alan adı
+- `swiip.app` alan adı
 - TürKomp kullanım koşulları yazılı teyidi → F5 tam içe aktarma
 - Marka sicili kontrolü
 - Play Console / App Store geliştirici hesabı
@@ -806,7 +806,7 @@ beş hata çıktı. Ayrıntılı döküm: **[docs/cihazda-calistirma.md](cihazda
 | Adım | Durum | Not |
 |---|---|---|
 | İmzalı AAB | ✅ | `apps/mobile/android/app/build/outputs/bundle/release/app-release.aab` · `jarsigner -verify` geçiyor · SHA256withRSA 4096 bit |
-| Yükleme anahtarı | ✅ | `C:/dev/Made2Fit-imza/made2fit-upload.jks` — **depo dışında**, parolası `imza.properties` içinde ve o dosya gitignore'da |
+| Yükleme anahtarı | ✅ | `C:/dev/Swiip-imza/swiip-upload.jks` — **depo dışında**, parolası `imza.properties` içinde ve o dosya gitignore'da |
 | İmzanın prebuild'i atlatması | ✅ | `scripts/android-imza.mjs` · `android/` her prebuild'de sıfırlandığı için yapılandırma depoda duruyor |
 | Mağaza görselleri | ✅ | `magaza/play/` — 512 ikon, 1024×500 öne çıkan, altı ekran görüntüsü (1080×2160) |
 | Mağaza metni (TR) | ✅ | `magaza/play/liste-tr.md` |

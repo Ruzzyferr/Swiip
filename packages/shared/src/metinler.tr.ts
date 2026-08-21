@@ -336,7 +336,7 @@ export const tr = {
       ],
       uyariBaslik: 'Bilmeni istediğimiz iki şey',
       uyariGovde:
-        'Made2Fit tıbbi cihaz değildir ve teşhis koymaz. Sağlık sorularına verdiğin cevaplar, sana güvenli bir program yazabilmemiz için gerekli — ve yalnızca bunun için kullanılır.',
+        'Swiip tıbbi cihaz değildir ve teşhis koymaz. Sağlık sorularına verdiğin cevaplar, sana güvenli bir program yazabilmemiz için gerekli — ve yalnızca bunun için kullanılır.',
       devamEt: 'Devam et',
     },
 
@@ -601,7 +601,7 @@ export const tr = {
           'ilerlemeyi takip ederken bu oranı izlemeye devam edeceğiz.',
       },
       feragat:
-        'Made2Fit tıbbi cihaz değildir, teşhis koymaz. Buradaki çıktılar ölçüm ve görüntüden ' +
+        'Swiip tıbbi cihaz değildir, teşhis koymaz. Buradaki çıktılar ölçüm ve görüntüden ' +
         'çıkarılmış tahminlerdir; kesin değer değildir. Bir şikâyetin varsa hekimine danış.',
     },
     sayfaBasligi: 'Vücut analizin',
@@ -671,7 +671,7 @@ export const tr = {
       'Hızlı verilen kilonun geri alınma oranı, yavaş verilene göre belirgin yüksek.',
     ],
     saglikUyarisi:
-      'Made2Fit tıbbi cihaz değildir ve teşhis koymaz. Bu hesaplar genel fizyoloji üzerinden yapılır; özel bir sağlık durumun varsa hekimine danış.',
+      'Swiip tıbbi cihaz değildir ve teşhis koymaz. Bu hesaplar genel fizyoloji üzerinden yapılır; özel bir sağlık durumun varsa hekimine danış.',
     programimiGor: 'Programımı gör',
     hedefimiGuncelle: 'Hedefimi güncelle',
   },
@@ -979,7 +979,7 @@ export const tr = {
 
   saglik: {
     tibbiCihazDegil:
-      'Made2Fit tıbbi cihaz değildir, teşhis koymaz ve tedavi önermez. Çıktılar tahmindir. Şikâyetin varsa hekimine danış.',
+      'Swiip tıbbi cihaz değildir, teşhis koymaz ve tedavi önermez. Çıktılar tahmindir. Şikâyetin varsa hekimine danış.',
     aralikDili: 'Bu bir tahmin aralığıdır, kesin ölçüm değildir.',
     agriYonlendirme:
       'Ağrın iki haftadan uzun sürüyorsa veya artıyorsa bir hekime ya da fizyoterapiste görünmeni öneriyoruz. Bu arada o bölgeyi zorlamayan bir program veriyoruz.',
@@ -1108,7 +1108,7 @@ export const tr = {
     cikisYap: 'Çıkış yap',
     hesabimiSil: 'Hesabımı sil',
     oyunlastirmaNotu:
-      "Made2Fit'te rozet, elmas, seri veya kutlama animasyonu yok. Bu bir eksiklik değil, tercih.",
+      "Swiip'te rozet, elmas, seri veya kutlama animasyonu yok. Bu bir eksiklik değil, tercih.",
     dilBasligi: 'Dil',
     dilNotu:
       'Hareket talimatları, tarifler ve vücut analizi raporu şimdilik yalnızca Türkçe. ' +

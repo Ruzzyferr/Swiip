@@ -10,8 +10,8 @@ import {
   profilDerle,
   sonrakiSoru,
   type Cevaplar,
-} from '@made2fit/core';
-import { blokGeriBildirimiMetni, dilCozumle, metinleriAl, SORU_BANKASI } from '@made2fit/shared';
+} from '@swiip/core';
+import { blokGeriBildirimiMetni, dilCozumle, metinleriAl, SORU_BANKASI } from '@swiip/shared';
 import { HataliIstek, Yasak } from '../hatalar';
 import { analytics_events, assessments, profiles, users } from '../db/sema';
 

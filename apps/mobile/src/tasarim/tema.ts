@@ -1,5 +1,5 @@
 import { useColorScheme } from 'react-native';
-import { bosluk, dokunmaHedefi, gecis, renkler, tipografi, yaricap } from '@made2fit/shared';
+import { bosluk, dokunmaHedefi, gecis, renkler, tipografi, yaricap } from '@swiip/shared';
 
 /**
  * Tema. Tek kaynak paylaşılan tasarım tokenleri.

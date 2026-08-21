@@ -3,7 +3,7 @@
 Konsolda doldurulacak her alanın cevabı. Cevaplar uygulamanın **gerçekten yaptığı şeye**
 göre yazıldı; tahmin yok. Yanlış beyan, yayından kaldırılma sebebi.
 
-Hesap: `info@swiip.app` · Paket adı: `io.made2fit.app`
+Hesap: `info@swiip.app` · Paket adı: `app.swiip`
 
 ---
 
@@ -11,7 +11,7 @@ Hesap: `info@swiip.app` · Paket adı: `io.made2fit.app`
 
 | Alan | Değer |
 |---|---|
-| Uygulama adı | Made2Fit |
+| Uygulama adı | Swiip |
 | Varsayılan dil | Türkçe (tr-TR) |
 | Uygulama mı oyun mu | Uygulama |
 | Ücretsiz mi ücretli mi | Ücretsiz (uygulama içi satın alma var) |
@@ -40,7 +40,7 @@ Metinler `liste-tr.md` içinde. Görseller:
 İnceleme ekibi için hesap:
 
 ```
-E-posta : inceleme@made2fit.io
+E-posta : inceleme@swiip.app
 Parola  : (kurulumda üretilecek, buraya yazılacak)
 ```
 
@@ -94,7 +94,7 @@ Genel:
 
 - Veriler aktarım sırasında **şifreleniyor** (TLS): **Evet**
 - Kullanıcı verisinin silinmesini isteyebiliyor mu: **Evet** — uygulama içinden ve
-  `https://made2fit.io/hesap-silme`
+  `https://swiip.app/hesap-silme`
 - Bağımsız güvenlik incelemesinden geçti mi: **Hayır**
 
 ### Toplanan veriler
@@ -153,10 +153,10 @@ Dört ürün. Kimlikler `apps/mobile/src/odeme/magaza.ts` içindeki `URUNLER` di
 
 | Ürün kimliği | Ad | Fiyat | Dönem |
 |---|---|---|---|
-| `made2fit_temel_aylik` | Temel — Aylık | 99,00 ₺ | 1 ay |
-| `made2fit_temel_yillik` | Temel — Yıllık | 690,00 ₺ | 1 yıl |
-| `made2fit_pro_aylik` | Pro — Aylık | 169,00 ₺ | 1 ay |
-| `made2fit_pro_yillik` | Pro — Yıllık | 1.190,00 ₺ | 1 yıl |
+| `swiip_temel_aylik` | Temel — Aylık | 99,00 ₺ | 1 ay |
+| `swiip_temel_yillik` | Temel — Yıllık | 690,00 ₺ | 1 yıl |
+| `swiip_pro_aylik` | Pro — Aylık | 169,00 ₺ | 1 ay |
+| `swiip_pro_yillik` | Pro — Yıllık | 1.190,00 ₺ | 1 yıl |
 
 - Deneme süresi: **yok**. Ücretsiz katman zaten kalıcı ve kullanılabilir.
 - Giriş teklifi (introductory offer): **yok**. Sahte indirim yok.
@@ -166,10 +166,10 @@ Dört ürün. Kimlikler `apps/mobile/src/odeme/magaza.ts` içindeki `URUNLER` di
 
 ## 11. RevenueCat bağlantısı
 
-1. RevenueCat'te proje: **Made2Fit**, platform **Google Play**.
+1. RevenueCat'te proje: **Swiip**, platform **Google Play**.
 2. Play Console → Kurulum → API erişimi: hizmet hesabı oluştur, RevenueCat'e JSON anahtarı ver.
 3. Ürünler: yukarıdaki dört kimlik. Hak (entitlement) adları: `temel`, `pro`.
-4. Web kancası: `https://made2fit.io/v1/abonelik/kanca`
+4. Web kancası: `https://swiip.app/v1/abonelik/kanca`
    - Yetkilendirme başlığı: `infra/.env` içindeki `REVENUECAT_KANCA_SIRRI` değeri.
    - **Sır tanımlı değilse uç hiç kurulmuyor** — doğrulanmamış kanca ödeme duvarını
      herkese açardı.
@@ -183,9 +183,9 @@ Dört ürün. Kimlikler `apps/mobile/src/odeme/magaza.ts` içindeki `URUNLER` di
 ## 12. Sürüm
 
 - Yapı: `apps/mobile/android/app/build/outputs/bundle/release/app-release.aab`
-- İmza: `C:/dev/Made2Fit-imza/made2fit-upload.jks` (yükleme anahtarı; Play App Signing açık)
+- İmza: `C:/dev/Swiip-imza/swiip-upload.jks` (yükleme anahtarı; Play App Signing açık)
 - İlk sürüm **iç test** kanalına yüklenir. Üretime çıkmadan önce:
-  - Alan adı alınmış ve `https://made2fit.io/gizlilik` yayında olmalı (Play çalışan bir
+  - Alan adı alınmış ve `https://swiip.app/gizlilik` yayında olmalı (Play çalışan bir
     URL istiyor).
   - Sunucu yayında olmalı; aksi hâlde inceleme ekibi giriş yapamaz.
 

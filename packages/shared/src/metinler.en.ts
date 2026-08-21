@@ -330,7 +330,7 @@ export const en: Metinler = {
       ],
       uyariBaslik: 'Two things we want you to know',
       uyariGovde:
-        'Made2Fit is not a medical device and does not diagnose. Your answers to the health questions are what let us write a safe program — and they are used for nothing else.',
+        'Swiip is not a medical device and does not diagnose. Your answers to the health questions are what let us write a safe program — and they are used for nothing else.',
       devamEt: 'Continue',
     },
 
@@ -349,7 +349,7 @@ export const en: Metinler = {
       olcumRizasiAciklama:
         'Optional. Without it, the body fat estimate comes out as a wider range.',
       gonder: 'Create account and start the assessment',
-      yasNotu: 'Made2Fit is for ages 18 and over.',
+      yasNotu: 'Swiip is for ages 18 and over.',
     },
 
     girisYap: {
@@ -380,7 +380,7 @@ export const en: Metinler = {
 
   kapilar: {
     yas: {
-      baslik: 'Made2Fit is for ages 18 and over',
+      baslik: 'Swiip is for ages 18 and over',
       govde:
         'Writing a program for a body that is still growing is a different specialty, and we cannot do it safely. When you turn 18, we will be here.',
     },
@@ -590,7 +590,7 @@ export const en: Metinler = {
           'watching this ratio as we track progress.',
       },
       feragat:
-        'Made2Fit is not a medical device and does not diagnose. These outputs are estimates ' +
+        'Swiip is not a medical device and does not diagnose. These outputs are estimates ' +
         'derived from measurements and imagery; they are not exact values. If you have a ' +
         'complaint, talk to your doctor.',
     },
@@ -661,7 +661,7 @@ export const en: Metinler = {
       'Weight lost quickly is regained at a markedly higher rate than weight lost slowly.',
     ],
     saglikUyarisi:
-      'Made2Fit is not a medical device and does not diagnose. These calculations use general physiology; if you have a specific health condition, talk to your doctor.',
+      'Swiip is not a medical device and does not diagnose. These calculations use general physiology; if you have a specific health condition, talk to your doctor.',
     programimiGor: 'See my program',
     hedefimiGuncelle: 'Update my target',
   },
@@ -966,7 +966,7 @@ export const en: Metinler = {
 
   saglik: {
     tibbiCihazDegil:
-      'Made2Fit is not a medical device. It does not diagnose and does not prescribe treatment. Its outputs are estimates. If you have a complaint, see your doctor.',
+      'Swiip is not a medical device. It does not diagnose and does not prescribe treatment. Its outputs are estimates. If you have a complaint, see your doctor.',
     aralikDili: 'This is an estimated range, not an exact measurement.',
     agriYonlendirme:
       'If your pain lasts longer than two weeks or is getting worse, we suggest seeing a doctor or physiotherapist. In the meantime we will give you a program that does not load that area.',
@@ -1096,7 +1096,7 @@ export const en: Metinler = {
     cikisYap: 'Sign out',
     hesabimiSil: 'Delete my account',
     oyunlastirmaNotu:
-      'Made2Fit has no badges, no gems, no streaks and no celebration animations. That is a choice, not an omission.',
+      'Swiip has no badges, no gems, no streaks and no celebration animations. That is a choice, not an omission.',
     dilBasligi: 'Language',
     dilNotu:
       'Exercise instructions, recipes and the body analysis report are Turkish-only for now. ' +

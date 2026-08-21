@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { disaAktarmaDosyaAdi, disaAktarmaMetni } from '@made2fit/shared';
+import { disaAktarmaDosyaAdi, disaAktarmaMetni } from '@swiip/shared';
 
 /**
  * Veriyi dosyaya yazıp paylaşım sayfasını açar.
@@ -56,7 +56,7 @@ export async function disaAktarmaArtiklariniSil(): Promise<void> {
     const dosyalar = await FileSystem.readDirectoryAsync(klasor);
     await Promise.all(
       dosyalar
-        .filter((ad) => ad.startsWith('made2fit-verilerim') && ad.endsWith('.json'))
+        .filter((ad) => ad.startsWith('swiip-verilerim') && ad.endsWith('.json'))
         .map((ad) => FileSystem.deleteAsync(`${klasor}${ad}`, { idempotent: true })),
     );
   } catch {

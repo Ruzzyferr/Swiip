@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 import Svg, { Circle, Ellipse, G, Path, Rect } from 'react-native-svg';
-import type { Soru } from '@made2fit/shared';
+import type { Soru } from '@swiip/shared';
 import { Satir, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
 import { useMetinler } from '../durum/Oturum';

@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { HAREKET_KATALOGU } from '@made2fit/shared';
-import { hareketBul, muadilZinciri } from '@made2fit/core';
+import { HAREKET_KATALOGU } from '@swiip/shared';
+import { hareketBul, muadilZinciri } from '@swiip/core';
 import { Bulunamadi } from '../hatalar';
 
 /**

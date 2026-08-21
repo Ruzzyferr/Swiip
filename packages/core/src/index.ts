@@ -1,5 +1,5 @@
 /**
- * Made2Fit deterministik çekirdek.
+ * Swiip deterministik çekirdek.
  *
  * Bu paketin tamamı saf fonksiyondur: ağ yok, dosya yok, zaman okuma yok.
  * Zamana bağlı her hesap referans tarihi dışarıdan alır. Böylece motor arayüzden

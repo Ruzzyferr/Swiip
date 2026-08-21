@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import type { VucutRaporu } from '@made2fit/core';
+import type { VucutRaporu } from '@swiip/core';
 import {
   Ayirac,
   BosDurum,

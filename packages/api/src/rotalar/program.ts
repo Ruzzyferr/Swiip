@@ -10,9 +10,9 @@ import {
   seansAtla,
   seanslariYerlestir,
   seansTarihleri,
-} from '@made2fit/core';
-import type { IlerlemeSonucu } from '@made2fit/core';
-import type { Karar, Profil } from '@made2fit/shared';
+} from '@swiip/core';
+import type { IlerlemeSonucu } from '@swiip/core';
+import type { Karar, Profil } from '@swiip/shared';
 import {
   dilCozumle,
   ilerlemeKuraliMetni,
@@ -21,7 +21,7 @@ import {
   metinleriAl,
   programUyarilari,
   splitGerekcesi,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 import { Bulunamadi, HataliIstek, PlanYetersiz, Yasak } from '../hatalar';
 import {
   ai_usage,

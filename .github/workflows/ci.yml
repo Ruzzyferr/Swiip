@@ -50,7 +50,7 @@ jobs:
         run: npm test
 
       - name: Mobil tip kontrolü
-        run: npm -w @made2fit/mobile run typecheck
+        run: npm -w @swiip/mobile run typecheck
 
       - name: Motor kapsamı
         # Çekirdek motorun kapsamı eşiğin altına düşerse başarısız olur.

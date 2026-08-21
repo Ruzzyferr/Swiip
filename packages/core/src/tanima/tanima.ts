@@ -94,7 +94,7 @@ export function tanimaCiktisiniAyristir(ham: string): TanimaCiktisi {
     : { kalemler };
 }
 
-import { aramaAnahtari } from '@made2fit/shared';
+import { aramaAnahtari } from '@swiip/shared';
 
 // ---------------------------------------------------------------------------
 // Eşleme

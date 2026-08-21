@@ -76,7 +76,7 @@ const OFF_ALANLARI = [
  */
 async function dayanikliGetir(url, deneme = 0) {
   const yanit = await fetch(url, {
-    headers: { 'user-agent': 'Made2Fit/0.1 (made2fit.io)' },
+    headers: { 'user-agent': 'Swiip/0.1 (swiip.app)' },
   });
 
   if (yanit.ok) return yanit.json();

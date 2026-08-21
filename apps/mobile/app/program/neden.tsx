@@ -1,14 +1,9 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
-import { grupAdi } from '@made2fit/core';
-import type {
-  HacimGrubu,
-  Karar as DomainKarar,
-  KararParametreleri,
-  Metinler,
-} from '@made2fit/shared';
-import { kararMetni } from '@made2fit/shared';
+import { grupAdi } from '@swiip/core';
+import type { HacimGrubu, Karar as DomainKarar, KararParametreleri, Metinler } from '@swiip/shared';
+import { kararMetni } from '@swiip/shared';
 import {
   BosDurum,
   Ekran,

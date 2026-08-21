@@ -6,7 +6,7 @@ import {
   tarihParcala,
   type Soru,
   type TarihParcalari,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 import { Ayirac, Kart, Sayi, Satir, SecimDugmesi, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
 import { useMetinler } from '../durum/Oturum';

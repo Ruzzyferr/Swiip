@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
-import { sonrakiSoru, type Cevaplar } from '@made2fit/core';
-import { tr } from '@made2fit/shared';
+import { sonrakiSoru, type Cevaplar } from '@swiip/core';
+import { tr } from '@swiip/shared';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 
 /**
@@ -23,7 +23,7 @@ beforeAll(async () => {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {
-      email: 'yolculuk@made2fit.io',
+      email: 'yolculuk@swiip.app',
       parola: 'Kirmizi-Bisiklet-42',
       saglik_onayi: true,
       olcum_onayi: true,

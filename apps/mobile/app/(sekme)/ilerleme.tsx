@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { hareketBul, kgMetni } from '@made2fit/core';
+import { hareketBul, kgMetni } from '@swiip/core';
 import {
   Ayirac,
   BosDurum,
@@ -15,9 +15,9 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { hareketAdi, islemHatasiMetni } from '@made2fit/shared';
+import { hareketAdi, islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
-import { kisaTarihMetni } from '@made2fit/shared';
+import { kisaTarihMetni } from '@swiip/shared';
 
 /**
  * İlerleme (F: kilo/ölçü, hareket bazlı gelişim).

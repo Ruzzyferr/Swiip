@@ -107,8 +107,8 @@ beforeAll(async () => {
   await besinleriTohumla(uygulama.ortam.db);
   await tarifleriTohumla(uygulama.ortam.db);
 
-  a = await kur('kiraci-a@made2fit.io');
-  b = await kur('kiraci-b@made2fit.io');
+  a = await kur('kiraci-a@swiip.app');
+  b = await kur('kiraci-b@swiip.app');
 }, 180_000);
 
 afterAll(async () => {
@@ -329,7 +329,7 @@ describe('beslenme kayıtları sahibine bağlı', () => {
     expect(disa.statusCode).toBe(200);
 
     const metin = JSON.stringify(disa.json());
-    expect(metin).toContain('kiraci-b@made2fit.io');
-    expect(metin).not.toContain('kiraci-a@made2fit.io');
+    expect(metin).toContain('kiraci-b@swiip.app');
+    expect(metin).not.toContain('kiraci-a@swiip.app');
   });
 });

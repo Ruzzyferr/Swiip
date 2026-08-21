@@ -5,7 +5,7 @@ export default defineConfig({
   out: './gocler',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? 'postgres://made2fit:made2fit@localhost:5432/made2fit',
+    url: process.env.DATABASE_URL ?? 'postgres://swiip:swiip@localhost:5432/swiip',
   },
   verbose: true,
   strict: true,

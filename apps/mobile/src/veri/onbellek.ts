@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * taslak cevaplar ve okunabilir program tutulur.
  */
 
-const ON_EK = 'made2fit.onbellek.';
+const ON_EK = 'swiip.onbellek.';
 
 export const ANAHTARLAR = {
   program: 'program',

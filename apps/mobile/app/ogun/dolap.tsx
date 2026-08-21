@@ -14,7 +14,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { aramaAnahtari, islemHatasiMetni, kucukHarf } from '@made2fit/shared';
+import { aramaAnahtari, islemHatasiMetni, kucukHarf } from '@swiip/shared';
 
 /**
  * Buzdolabı envanteri (F8.9).

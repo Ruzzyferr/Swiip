@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { bildirimPlaniHesapla, SESSIZ_BASLANGIC, SESSIZ_BITIS } from './plan';
 import type { BildirimTercihleri } from './plan';
-import { en, tr } from '@made2fit/shared';
+import { en, tr } from '@swiip/shared';
 
 /**
  * Bildirim planı (T7).

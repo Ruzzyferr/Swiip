@@ -63,7 +63,7 @@ describe('parolaGucKontrolu', () => {
   });
 
   it('marka adını içeren parolayı reddeder — tahmin edilmesi kolay', () => {
-    expect(parolaGucKontrolu('Made2Fit-guclu-parola').gecerli).toBe(false);
+    expect(parolaGucKontrolu('Swiip-guclu-parola').gecerli).toBe(false);
   });
 
   it('yaygın parolaları reddeder', () => {

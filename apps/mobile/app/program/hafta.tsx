@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Stack } from 'expo-router';
-import { grupAdi } from '@made2fit/core';
-import type { HacimGrubu, Metinler } from '@made2fit/shared';
+import { grupAdi } from '@swiip/core';
+import type { HacimGrubu, Metinler } from '@swiip/shared';
 import {
   Ayirac,
   BosDurum,

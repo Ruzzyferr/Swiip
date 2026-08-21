@@ -13,8 +13,8 @@ import {
   type BesinKaydi,
   type EslesmisKalem,
   type TanimaKalemi,
-} from '@made2fit/core';
-import { veriYereli } from '@made2fit/shared';
+} from '@swiip/core';
+import { veriYereli } from '@swiip/shared';
 import { Bulunamadi, HataliIstek, KotaDoldu, PlanYetersiz } from '../hatalar';
 import {
   ai_usage,
@@ -30,7 +30,7 @@ import { gorselParmakIzi } from '../servisler/gorselAnaliz';
 import { planHaklari, type Plan } from '../servisler/haklar';
 import { donemBitisi, donemKodu } from './abonelik';
 import { kotaIadeEt, kotaRezerveEt } from '../servisler/kotaRezerve';
-import { butceDurumu, fotografBoyutuUygunMu } from '@made2fit/core';
+import { butceDurumu, fotografBoyutuUygunMu } from '@swiip/core';
 
 /**
  * Fotoğraftan yemek tanıma (F7).

@@ -33,7 +33,7 @@ beforeAll(async () => {
   app = uygulama.app;
 
   // Üç kullanıcı: biri yarım bıraktı, biri tamamladı, biri hiç başlamadı.
-  const yarim = await kullaniciKur('yarim@made2fit.io');
+  const yarim = await kullaniciKur('yarim@swiip.app');
   await app.inject({
     method: 'POST',
     url: '/v1/degerlendirme/cevap',
@@ -41,7 +41,7 @@ beforeAll(async () => {
     payload: { cevaplar: TEMEL_CEVAPLAR, blok_id: 'K', son_soru_id: 'S12' },
   });
 
-  const tam = await kullaniciKur('tamamlayan@made2fit.io');
+  const tam = await kullaniciKur('tamamlayan@swiip.app');
   await app.inject({
     method: 'POST',
     url: '/v1/degerlendirme/cevap',
@@ -75,7 +75,7 @@ beforeAll(async () => {
     payload: { plan: 'pro' },
   });
 
-  await kullaniciKur('baslamayan@made2fit.io');
+  await kullaniciKur('baslamayan@swiip.app');
 }, 60_000);
 
 afterAll(async () => {
@@ -112,7 +112,7 @@ describe('yönetim kapısı', () => {
   });
 
   it('kullanıcı tokenı yönetim ucunu açmaz', async () => {
-    const token = await kullaniciKur('sizma@made2fit.io');
+    const token = await kullaniciKur('sizma@swiip.app');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/analitik/donusum',
@@ -171,7 +171,7 @@ describe('terk noktaları', () => {
     });
 
     const metin = JSON.stringify(cevap.json());
-    expect(metin).not.toContain('@made2fit.io');
+    expect(metin).not.toContain('@swiip.app');
     expect(metin).not.toContain('user_id');
   });
 });

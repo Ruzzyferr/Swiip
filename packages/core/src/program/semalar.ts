@@ -1,4 +1,4 @@
-import type { Hareket, Hedef } from '@made2fit/shared';
+import type { Hareket, Hedef } from '@swiip/shared';
 
 /**
  * Set/tekrar/dinlenme şemaları. Hedefe ve hareketin bileşik/izolasyon oluşuna bağlı.

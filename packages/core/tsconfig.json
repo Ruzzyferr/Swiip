@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "paths": {
-      "@made2fit/shared": ["../shared/src/index.ts"]
+      "@swiip/shared": ["../shared/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],

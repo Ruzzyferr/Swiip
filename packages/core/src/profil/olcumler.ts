@@ -1,4 +1,4 @@
-import { ANTRENMAN_YASLARI, type AntrenmanYasi } from '@made2fit/shared';
+import { ANTRENMAN_YASLARI, type AntrenmanYasi } from '@swiip/shared';
 import { metin, sayi, type Cevaplar } from '../cevaplar';
 
 /**

@@ -1,5 +1,5 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
-import { aramaAnahtari, dilCozumle, KATLANAN, KATLANMIS, veriYereli } from '@made2fit/shared';
+import { aramaAnahtari, dilCozumle, KATLANAN, KATLANMIS, veriYereli } from '@swiip/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -12,8 +12,8 @@ import {
   profilOzeti,
   sinirKontrolu,
   type KocMesaji,
-} from '@made2fit/core';
-import type { Profil } from '@made2fit/shared';
+} from '@swiip/core';
+import type { Profil } from '@swiip/shared';
 import { HataliIstek, KotaDoldu, PlanYetersiz } from '../hatalar';
 import {
   ai_usage,
@@ -31,7 +31,7 @@ import {
 import { planHaklari, type Plan } from '../servisler/haklar';
 import { donemBitisi, donemKodu } from './abonelik';
 import { kotaIadeEt, kotaRezerveEt } from '../servisler/kotaRezerve';
-import { butceDurumu, ucuzaDusur } from '@made2fit/core';
+import { butceDurumu, ucuzaDusur } from '@swiip/core';
 
 /**
  * AI koç sohbeti (F9).

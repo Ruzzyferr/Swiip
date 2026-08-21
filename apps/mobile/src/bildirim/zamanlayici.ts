@@ -7,12 +7,12 @@ import {
   type BildirimTercihleri,
   type BildirimTuru,
   type PlanliBildirim,
-} from '@made2fit/core';
+} from '@swiip/core';
 
 /**
  * Bildirim adaptörü (T7).
  *
- * Ne planlanacağı çekirdekte (`@made2fit/core` · bildirim/plan) hesaplanır ve orada
+ * Ne planlanacağı çekirdekte (`@swiip/core` · bildirim/plan) hesaplanır ve orada
  * test edilir. Burada yalnızca "kur / iptal et" var.
  *
  * Tetikleyici biçimi tahminle değil, kurulu paketin tipinden yazıldı: SDK 52'de haftalık
@@ -75,7 +75,7 @@ const KANAL_ADLARI: Record<BildirimTuru, string> = {
 };
 
 function kanalKimligi(tur: BildirimTuru): string {
-  return `made2fit-${tur}`;
+  return `swiip-${tur}`;
 }
 
 async function kanallariKur(): Promise<void> {

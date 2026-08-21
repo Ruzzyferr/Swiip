@@ -18,7 +18,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
-import { gunAyMetni } from '@made2fit/shared';
+import { gunAyMetni } from '@swiip/shared';
 
 /**
  * Fotoğraf karşılaştırma (F4.4).

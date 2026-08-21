@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AntrenmanYasi } from '@made2fit/shared';
+import type { AntrenmanYasi } from '@swiip/shared';
 import { splitSec } from './split';
 
 const temel = { antrenmanYasi: 'orta' as AntrenmanYasi, seansDakika: 60 };

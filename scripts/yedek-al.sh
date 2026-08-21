@@ -1,5 +1,5 @@
 #!/bin/sh
-# Made2Fit veritabanı yedeği.
+# Swiip veritabanı yedeği.
 #
 # Üç katman gerekir ve üçü de zorunludur (F0.4):
 #   1. Otomatik yedek        — bu betik, her gece
@@ -13,7 +13,7 @@ set -eu
 YEDEK_DIZINI="${YEDEK_DIZINI:-/yedekler}"
 SAKLAMA_GUN="${YEDEK_SAKLAMA_GUN:-30}"
 DAMGA="$(date -u +%Y%m%dT%H%M%SZ)"
-DOSYA="${YEDEK_DIZINI}/made2fit-${DAMGA}.dump"
+DOSYA="${YEDEK_DIZINI}/swiip-${DAMGA}.dump"
 
 mkdir -p "$YEDEK_DIZINI"
 
@@ -49,6 +49,6 @@ else
 fi
 
 # --- Eski yedekleri temizle ---
-find "$YEDEK_DIZINI" -name 'made2fit-*.dump' -type f -mtime "+${SAKLAMA_GUN}" -delete
-KALAN="$(find "$YEDEK_DIZINI" -name 'made2fit-*.dump' -type f | wc -l)"
+find "$YEDEK_DIZINI" -name 'swiip-*.dump' -type f -mtime "+${SAKLAMA_GUN}" -delete
+KALAN="$(find "$YEDEK_DIZINI" -name 'swiip-*.dump' -type f | wc -l)"
 echo "[$(date -u +%FT%TZ)] ${KALAN} yedek saklanıyor (${SAKLAMA_GUN} gün)"

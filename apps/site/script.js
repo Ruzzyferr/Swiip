@@ -1,5 +1,5 @@
 /**
- * Made2Fit sitesi.
+ * Swiip sitesi.
  *
  * Üç iş var ve üçü de sayfanın metaforuna bağlı:
  *  1. Taksimat rayını çizmek ve kaydırma konumunu kumpas ağzıyla göstermek.

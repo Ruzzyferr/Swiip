@@ -37,7 +37,7 @@ beforeAll(async () => {
   const kayit = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'yerel@made2fit.io', parola: 'Sari-Kalem-1907', saglik_onayi: true },
+    payload: { email: 'yerel@swiip.app', parola: 'Sari-Kalem-1907', saglik_onayi: true },
   });
   token = kayit.json().erisim_token;
 

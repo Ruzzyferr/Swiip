@@ -1,4 +1,4 @@
-# Made2Fit — Uygulama Planı
+# Swiip — Uygulama Planı
 
 Bu belge `spec.md`'yi inşa sırasına çevirir. Her faz **tam ve kullanılabilir** biter —
 yarım özellik yok. Faz sınırları, sonraki fazın öncekini bozmayacağı yerlerden geçirildi.
@@ -346,7 +346,7 @@ Koda bağlı değil ama fazları bloke edebilir:
 
 | İş | Ne zaman | Bloke ettiği |
 |---|---|---|
-| `made2fit.io` alan adı | Hemen | — |
+| `swiip.app` alan adı | Hemen | — |
 | TürKomp kullanım koşulları teyidi | F5 öncesi | F5.4 |
 | Marka sicili kontrolü | Markaya para harcamadan önce | — |
 | Play Console ve App Store geliştirici hesabı | F4 öncesi | Yayın |

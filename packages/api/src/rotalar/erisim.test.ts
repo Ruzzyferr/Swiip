@@ -26,7 +26,7 @@ beforeAll(async () => {
   const kayit = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'erisim@made2fit.io', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    payload: { email: 'erisim@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
   });
   token = kayit.json().erisim_token;
 }, 60_000);
@@ -84,7 +84,7 @@ describe('bilinçli olarak açık uçlar', () => {
     const cevap = await app.inject({
       method: 'POST',
       url: '/v1/kimlik/giris',
-      payload: { email: 'erisim@made2fit.io', parola: 'Kirmizi-Bisiklet-42' },
+      payload: { email: 'erisim@swiip.app', parola: 'Kirmizi-Bisiklet-42' },
     });
 
     expect(cevap.statusCode).toBe(200);

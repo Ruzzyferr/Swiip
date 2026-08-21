@@ -1,4 +1,4 @@
-import type { Tarif } from '@made2fit/core';
+import type { Tarif } from '@swiip/core';
 
 /**
  * Başlangıç tarif kütüphanesi.

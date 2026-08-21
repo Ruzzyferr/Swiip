@@ -13,7 +13,7 @@ afterAll(async () => {
   await ortam?.kapat();
 });
 
-async function kullaniciEkle(email = 'test@made2fit.io'): Promise<string> {
+async function kullaniciEkle(email = 'test@swiip.app'): Promise<string> {
   const [kullanici] = await ortam.db
     .insert(users)
     .values({ email, parola_hash: 'scrypt$x' })
@@ -101,7 +101,7 @@ describe('gizlilik mimarisi — şema düzeyinde garanti', () => {
 
 describe('veri bütünlüğü', () => {
   it('kullanıcı silinince analizleri de silinir', async () => {
-    const userId = await kullaniciEkle('silinecek@made2fit.io');
+    const userId = await kullaniciEkle('silinecek@swiip.app');
     await ortam.db.insert(body_analyses).values({ user_id: userId, yontem: 'olcu' });
 
     await ortam.db.delete(users).where(eq(users.id, userId));
@@ -114,19 +114,19 @@ describe('veri bütünlüğü', () => {
   });
 
   it('aynı e-posta iki kez kaydedilemez', async () => {
-    await kullaniciEkle('tekil@made2fit.io');
+    await kullaniciEkle('tekil@swiip.app');
 
-    await expect(kullaniciEkle('tekil@made2fit.io')).rejects.toThrow();
+    await expect(kullaniciEkle('tekil@swiip.app')).rejects.toThrow();
   });
 
   it('e-posta büyük/küçük harf farkı yeni hesap açmaz', async () => {
-    await kullaniciEkle('Buyuk@Made2Fit.io');
+    await kullaniciEkle('Buyuk@Swiip.app');
 
-    await expect(kullaniciEkle('buyuk@made2fit.io')).rejects.toThrow();
+    await expect(kullaniciEkle('buyuk@swiip.app')).rejects.toThrow();
   });
 
   it('kota kaydı kullanıcı ve dönem başına tektir', async () => {
-    const userId = await kullaniciEkle('kota@made2fit.io');
+    const userId = await kullaniciEkle('kota@swiip.app');
     await ortam.db.insert(quotas).values({ user_id: userId, period: '2026-08' });
 
     await expect(
@@ -135,7 +135,7 @@ describe('veri bütünlüğü', () => {
   });
 
   it('karar kaydı kural ve girdi listesini saklar', async () => {
-    const userId = await kullaniciEkle('karar@made2fit.io');
+    const userId = await kullaniciEkle('karar@swiip.app');
     await ortam.db.insert(decisions).values({
       user_id: userId,
       entity_type: 'hareket',
@@ -152,7 +152,7 @@ describe('veri bütünlüğü', () => {
   });
 
   it('seans kalemi olmayan hareket id kabul eder — katalog kodda tutulur', async () => {
-    const userId = await kullaniciEkle('seans@made2fit.io');
+    const userId = await kullaniciEkle('seans@swiip.app');
     const [seans] = await ortam.db
       .insert(sessions)
       .values({ user_id: userId, gun_indeksi: 0, gun_tipi: 'upper' })

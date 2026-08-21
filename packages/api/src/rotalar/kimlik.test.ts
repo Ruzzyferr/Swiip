@@ -16,7 +16,7 @@ afterAll(async () => {
 });
 
 const gecerliKayit = {
-  email: 'yeni@made2fit.io',
+  email: 'yeni@swiip.app',
   parola: 'Kirmizi-Bisiklet-42',
   saglik_onayi: true,
 };
@@ -27,24 +27,24 @@ async function kayitOl(govde: Record<string, unknown>) {
 
 describe('POST /v1/kimlik/kayit', () => {
   it('geçerli bilgilerle hesap açar', async () => {
-    const cevap = await kayitOl({ ...gecerliKayit, email: 'kayit1@made2fit.io' });
+    const cevap = await kayitOl({ ...gecerliKayit, email: 'kayit1@swiip.app' });
 
     expect(cevap.statusCode).toBe(201);
     const govde = cevap.json();
     expect(govde.erisim_token).toBeTruthy();
     expect(govde.yenileme_token).toBeTruthy();
-    expect(govde.kullanici.email).toBe('kayit1@made2fit.io');
+    expect(govde.kullanici.email).toBe('kayit1@swiip.app');
   });
 
   it('parola hiçbir cevapta geri dönmez', async () => {
-    const cevap = await kayitOl({ ...gecerliKayit, email: 'kayit2@made2fit.io' });
+    const cevap = await kayitOl({ ...gecerliKayit, email: 'kayit2@swiip.app' });
 
     expect(JSON.stringify(cevap.json())).not.toContain('Kirmizi-Bisiklet-42');
     expect(JSON.stringify(cevap.json())).not.toContain('parola_hash');
   });
 
   it('zayıf parolayı reddeder ve nedenini söyler', async () => {
-    const cevap = await kayitOl({ ...gecerliKayit, email: 'zayif@made2fit.io', parola: 'kisa' });
+    const cevap = await kayitOl({ ...gecerliKayit, email: 'zayif@swiip.app', parola: 'kisa' });
 
     expect(cevap.statusCode).toBe(400);
     expect(cevap.json().mesaj.length).toBeGreaterThan(15);
@@ -58,7 +58,7 @@ describe('POST /v1/kimlik/kayit', () => {
 
   it('sağlık verisi açık rızası olmadan hesap açmaz', async () => {
     const cevap = await kayitOl({
-      email: 'rizasiz@made2fit.io',
+      email: 'rizasiz@swiip.app',
       parola: 'Kirmizi-Bisiklet-42',
       saglik_onayi: false,
     });
@@ -68,22 +68,22 @@ describe('POST /v1/kimlik/kayit', () => {
   });
 
   it('aynı e-posta ile ikinci hesap açılmaz', async () => {
-    await kayitOl({ ...gecerliKayit, email: 'cift@made2fit.io' });
-    const ikinci = await kayitOl({ ...gecerliKayit, email: 'cift@made2fit.io' });
+    await kayitOl({ ...gecerliKayit, email: 'cift@swiip.app' });
+    const ikinci = await kayitOl({ ...gecerliKayit, email: 'cift@swiip.app' });
 
     expect(ikinci.statusCode).toBe(409);
   });
 
   it('e-posta büyük harfle yazılsa da aynı hesap sayılır', async () => {
-    await kayitOl({ ...gecerliKayit, email: 'harf@made2fit.io' });
-    const ikinci = await kayitOl({ ...gecerliKayit, email: 'HARF@Made2Fit.io' });
+    await kayitOl({ ...gecerliKayit, email: 'harf@swiip.app' });
+    const ikinci = await kayitOl({ ...gecerliKayit, email: 'HARF@Swiip.app' });
 
     expect(ikinci.statusCode).toBe(409);
   });
 });
 
 describe('POST /v1/kimlik/giris', () => {
-  const kullanici = { email: 'giris@made2fit.io', parola: 'Kirmizi-Bisiklet-42' };
+  const kullanici = { email: 'giris@swiip.app', parola: 'Kirmizi-Bisiklet-42' };
 
   beforeAll(async () => {
     await kayitOl({ ...kullanici, saglik_onayi: true });
@@ -119,7 +119,7 @@ describe('POST /v1/kimlik/giris', () => {
     const olmayanHesap = await app.inject({
       method: 'POST',
       url: '/v1/kimlik/giris',
-      payload: { email: 'yok@made2fit.io', parola: 'Yanlis-Parola-99' },
+      payload: { email: 'yok@swiip.app', parola: 'Yanlis-Parola-99' },
     });
 
     expect(olmayanHesap.statusCode).toBe(yanlisParola.statusCode);
@@ -129,7 +129,7 @@ describe('POST /v1/kimlik/giris', () => {
 
 describe('POST /v1/kimlik/yenile', () => {
   it('geçerli yenileme tokenı yeni erişim tokenı verir', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'yenile@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'yenile@swiip.app' });
     const { yenileme_token } = kayit.json();
 
     const cevap = await app.inject({
@@ -143,7 +143,7 @@ describe('POST /v1/kimlik/yenile', () => {
   });
 
   it('kullanılan yenileme tokenı bir daha çalışmaz — rotasyon', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'rotasyon@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'rotasyon@swiip.app' });
     const { yenileme_token } = kayit.json();
 
     await app.inject({ method: 'POST', url: '/v1/kimlik/yenile', payload: { yenileme_token } });
@@ -167,7 +167,7 @@ describe('POST /v1/kimlik/yenile', () => {
   });
 
   it('çıkış yapınca yenileme tokenı iptal olur', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'cikis@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'cikis@swiip.app' });
     const { yenileme_token, erisim_token } = kayit.json();
 
     await app.inject({
@@ -204,7 +204,7 @@ describe('korumalı uçlar', () => {
   });
 
   it('geçerli token kullanıcıyı döner', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'ben@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'ben@swiip.app' });
     const { erisim_token } = kayit.json();
 
     const cevap = await app.inject({
@@ -214,14 +214,14 @@ describe('korumalı uçlar', () => {
     });
 
     expect(cevap.statusCode).toBe(200);
-    expect(cevap.json().email).toBe('ben@made2fit.io');
+    expect(cevap.json().email).toBe('ben@swiip.app');
     expect(cevap.json().parola_hash).toBeUndefined();
   });
 });
 
 describe('KVKK — hesap silme ve veri dışa aktarma', () => {
   it('kullanıcı verisini dışa aktarabilir', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'disaaktar@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'disaaktar@swiip.app' });
     const { erisim_token } = kayit.json();
 
     const cevap = await app.inject({
@@ -231,12 +231,12 @@ describe('KVKK — hesap silme ve veri dışa aktarma', () => {
     });
 
     expect(cevap.statusCode).toBe(200);
-    expect(cevap.json().kullanici.email).toBe('disaaktar@made2fit.io');
+    expect(cevap.json().kullanici.email).toBe('disaaktar@swiip.app');
     expect(cevap.json()).toHaveProperty('degerlendirmeler');
   });
 
   it('hesap silme gerçekten siler', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'silinen@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'silinen@swiip.app' });
     const { erisim_token } = kayit.json();
 
     const silme = await app.inject({
@@ -256,7 +256,7 @@ describe('KVKK — hesap silme ve veri dışa aktarma', () => {
   });
 
   it('onay metni olmadan hesap silinmez', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'silinmez@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'silinmez@swiip.app' });
     const { erisim_token } = kayit.json();
 
     const cevap = await app.inject({
@@ -280,7 +280,7 @@ describe('sağlık ucu', () => {
 });
 
 describe('parola sıfırlama', () => {
-  const kullanici = { email: 'sifirla@made2fit.io', parola: 'Kirmizi-Bisiklet-42' };
+  const kullanici = { email: 'sifirla@swiip.app', parola: 'Kirmizi-Bisiklet-42' };
 
   beforeAll(async () => {
     await kayitOl({ ...kullanici, saglik_onayi: true });
@@ -314,7 +314,7 @@ describe('parola sıfırlama', () => {
     const olmayan = await app.inject({
       method: 'POST',
       url: '/v1/kimlik/parola-sifirla-istek',
-      payload: { email: 'hicyok@made2fit.io' },
+      payload: { email: 'hicyok@swiip.app' },
     });
 
     expect(olmayan.statusCode).toBe(varOlan.statusCode);
@@ -327,7 +327,7 @@ describe('parola sıfırlama', () => {
     await app.inject({
       method: 'POST',
       url: '/v1/kimlik/parola-sifirla-istek',
-      payload: { email: 'hicyok2@made2fit.io' },
+      payload: { email: 'hicyok2@swiip.app' },
     });
 
     expect(uygulama.kutu.length).toBe(oncekiSayi);
@@ -358,7 +358,7 @@ describe('parola sıfırlama', () => {
   });
 
   it('parola değişince tüm oturumlar kapanır', async () => {
-    const yeniKullanici = { email: 'oturumkapat@made2fit.io', parola: 'Kirmizi-Bisiklet-42' };
+    const yeniKullanici = { email: 'oturumkapat@swiip.app', parola: 'Kirmizi-Bisiklet-42' };
     const kayit = await kayitOl({ ...yeniKullanici, saglik_onayi: true });
     const { yenileme_token } = kayit.json();
 
@@ -399,7 +399,7 @@ describe('parola sıfırlama', () => {
   });
 
   it('kod tek kullanımlıktır', async () => {
-    const tekKullanim = { email: 'tekkullanim@made2fit.io', parola: 'Kirmizi-Bisiklet-42' };
+    const tekKullanim = { email: 'tekkullanim@swiip.app', parola: 'Kirmizi-Bisiklet-42' };
     await kayitOl({ ...tekKullanim, saglik_onayi: true });
 
     await app.inject({
@@ -441,7 +441,7 @@ describe('parola sıfırlama', () => {
   });
 
   it('yeni istek eski kodu iptal eder', async () => {
-    const iptal = { email: 'kodiptal@made2fit.io', parola: 'Kirmizi-Bisiklet-42' };
+    const iptal = { email: 'kodiptal@swiip.app', parola: 'Kirmizi-Bisiklet-42' };
     await kayitOl({ ...iptal, saglik_onayi: true });
 
     await app.inject({
@@ -488,7 +488,7 @@ describe('e-posta doğrulama', () => {
   }
 
   it('kod gönderilir ve doğrulama çalışır', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'dogrula@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'dogrula@swiip.app' });
     const basliklar = { authorization: `Bearer ${kayit.json().erisim_token}` };
 
     const gonder = await app.inject({
@@ -512,7 +512,7 @@ describe('e-posta doğrulama', () => {
   });
 
   it('doğrulanmış hesapta tekrar kod gönderilmez', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'dogrulandi2@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'dogrulandi2@swiip.app' });
     const basliklar = { authorization: `Bearer ${kayit.json().erisim_token}` };
 
     await app.inject({
@@ -538,7 +538,7 @@ describe('e-posta doğrulama', () => {
   });
 
   it('yanlış kod reddedilir', async () => {
-    const kayit = await kayitOl({ ...gecerliKayit, email: 'yanliskod@made2fit.io' });
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'yanliskod@swiip.app' });
     const basliklar = { authorization: `Bearer ${kayit.json().erisim_token}` };
 
     await app.inject({
@@ -570,7 +570,7 @@ describe('e-posta doğrulama', () => {
 
 describe('POST /v1/kimlik/dil', () => {
   it('desteklenen dile geçer ve /ben bunu yansıtır', async () => {
-    const oturum = (await kayitOl({ ...gecerliKayit, email: 'dil-degistiren@made2fit.io' })).json();
+    const oturum = (await kayitOl({ ...gecerliKayit, email: 'dil-degistiren@swiip.app' })).json();
 
     const cevap = await app.inject({
       method: 'POST',
@@ -591,7 +591,7 @@ describe('POST /v1/kimlik/dil', () => {
   });
 
   it('desteklenmeyen dili reddeder — yarım çevrilmiş arayüz göstermeyiz', async () => {
-    const oturum = (await kayitOl({ ...gecerliKayit, email: 'dil-reddi@made2fit.io' })).json();
+    const oturum = (await kayitOl({ ...gecerliKayit, email: 'dil-reddi@swiip.app' })).json();
 
     const cevap = await app.inject({
       method: 'POST',

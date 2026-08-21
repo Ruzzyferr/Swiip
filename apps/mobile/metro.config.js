@@ -17,12 +17,12 @@ config.resolver.disableHierarchicalLookup = true;
 /**
  * Sunucu kökü = proje kökü.
  *
- * Expo monorepo'da `serverRoot`u çalışma alanı köküne (C:/dev/Made2Fit) çekiyor ama
+ * Expo monorepo'da `serverRoot`u çalışma alanı köküne (C:/dev/Swiip) çekiyor ama
  * `projectRoot` uygulama klasörü olarak kalıyor. Geliştirmede sorun çıkmıyor; yayın
  * paketi alınırken `expo export:embed` giriş dosyasının yolunu proje köküne göre
  * hesaplayıp sunucu köküne göre çözmeye çalışıyor ve bulamıyor:
  *
- *   Unable to resolve module ./index.js from C:/dev/Made2Fit/.
+ *   Unable to resolve module ./index.js from C:/dev/Swiip/.
  *
  * İkisini eşitlemek çözüyor. Çalışma alanı paketleri `watchFolders` ve
  * `nodeModulesPaths` üzerinden çözülmeye devam ediyor.

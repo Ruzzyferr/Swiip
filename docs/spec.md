@@ -1,4 +1,4 @@
-# Made2Fit — Ürün Spesifikasyonu
+# Swiip — Ürün Spesifikasyonu
 
 Sürüm 1.0 · Bu belge kod yazmadan önce okunur. Kararların dayanağı `rakip-analizi.md`.
 

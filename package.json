@@ -1,8 +1,8 @@
 {
-  "name": "made2fit",
+  "name": "swiip",
   "version": "0.1.0",
   "private": true,
-  "description": "Made2Fit — gerekcesi gorunur AI antrenor ve beslenme kocu",
+  "description": "Swiip — gerekcesi gorunur AI antrenor ve beslenme kocu",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -22,11 +22,11 @@
     "ceviri": "node scripts/ceviri-denetimi.mjs",
     "guvenlik": "node scripts/guvenlik-denetimi.mjs",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run ceviri && npm run test",
-    "db:generate": "npm -w @made2fit/api run db:generate",
-    "db:migrate": "npm -w @made2fit/api run db:migrate",
-    "db:seed": "npm -w @made2fit/api run db:seed",
-    "api:dev": "npm -w @made2fit/api run dev",
-    "mobile:start": "npm -w @made2fit/mobile run start"
+    "db:generate": "npm -w @swiip/api run db:generate",
+    "db:migrate": "npm -w @swiip/api run db:migrate",
+    "db:seed": "npm -w @swiip/api run db:seed",
+    "api:dev": "npm -w @swiip/api run dev",
+    "mobile:start": "npm -w @swiip/mobile run start"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

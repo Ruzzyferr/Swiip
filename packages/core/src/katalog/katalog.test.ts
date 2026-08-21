@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { HAREKET_KATALOGU, HACIM_GRUPLARI } from '@made2fit/shared';
+import { HAREKET_KATALOGU, HACIM_GRUPLARI } from '@swiip/shared';
 import { hacimGrubu, hareketAdaGoreBul, hareketBul, katalogDizini, muadilZinciri } from './katalog';
 
 describe('hareket kataloğu — veri sözleşmesi', () => {

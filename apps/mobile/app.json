@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Made2Fit",
-    "slug": "made2fit",
+    "name": "Swiip",
+    "slug": "swiip",
     "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "made2fit",
+    "scheme": "swiip",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,14 +14,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "io.made2fit.app",
+      "bundleIdentifier": "app.swiip",
       "infoPlist": {
         "NSCameraUsageDescription": "Vücut analizi için fotoğraf çekilir. Fotoğrafın analiz edildikten sonra anında silinir, sunucumuzda saklanmaz.",
         "NSPhotoLibraryUsageDescription": "Vücut analizi için galeriden fotoğraf seçebilirsin. Fotoğraf sunucumuzda saklanmaz."
       }
     },
     "android": {
-      "package": "io.made2fit.app",
+      "package": "app.swiip",
       "adaptiveIcon": {
         "foregroundImage": "./assets/uyarlanabilir-ikon.png",
         "backgroundColor": "#131614"

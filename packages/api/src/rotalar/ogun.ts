@@ -11,9 +11,9 @@ import {
   type Ogrenme,
   type OgunKisitlari,
   type Tarif,
-} from '@made2fit/core';
-import type { Profil } from '@made2fit/shared';
-import { dilCozumle, metinleriAl, veriYereli } from '@made2fit/shared';
+} from '@swiip/core';
+import type { Profil } from '@swiip/shared';
+import { dilCozumle, metinleriAl, veriYereli } from '@swiip/shared';
 import { Bulunamadi, HataliIstek, PlanYetersiz } from '../hatalar';
 import {
   assessments,

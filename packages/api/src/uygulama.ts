@@ -4,7 +4,7 @@ import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { ZodError } from 'zod';
-import type { AiIstemcisi } from '@made2fit/core';
+import type { AiIstemcisi } from '@swiip/core';
 import type { Veritabani } from './db/baglanti';
 import type { Yapilandirma } from './yapilandirma';
 import { loglayanPostaci, type Postaci } from './servisler/postaci';

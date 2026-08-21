@@ -78,7 +78,7 @@ afterAll(async () => {
 
 describe('kardiyak bayrağı programı durdurur', () => {
   it('program üretilemez ve sebebi söylenir', async () => {
-    const token = await kur('kardiyak@made2fit.io', {
+    const token = await kur('kardiyak@swiip.app', {
       K7: 'Evet',
       S2: 'Evet',
       S3: 'Hayır',
@@ -99,7 +99,7 @@ describe('eksik tarama programı durdurur', () => {
    * uydurma bir sağlık bayrağı yaratmıyor ama program da üretmiyor.
    */
   it('zorunlu tarama eksikken program üretilemez', async () => {
-    const token = await kur('eksik@made2fit.io', { K7: 'Evet' });
+    const token = await kur('eksik@swiip.app', { K7: 'Evet' });
 
     expect((await programUretDene(token)).statusCode).toBe(403);
   });
@@ -107,7 +107,7 @@ describe('eksik tarama programı durdurur', () => {
 
 describe('temiz tarama programı açar', () => {
   it('tüm tarama cevaplandığında program üretilir', async () => {
-    const token = await kur('temiz@made2fit.io', {
+    const token = await kur('temiz@swiip.app', {
       K7: 'Evet',
       S2: 'Hayır',
       S3: 'Hayır',

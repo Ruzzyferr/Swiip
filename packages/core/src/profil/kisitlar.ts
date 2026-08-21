@@ -5,7 +5,7 @@ import type {
   Kontrendikasyon,
   Patern,
   Sakatlik,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 import { alan, dizi, metin, sayi, type Cevaplar } from '../cevaplar';
 
 /**

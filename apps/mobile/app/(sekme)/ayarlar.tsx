@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
-import { DILLER, islemHatasiMetni, kendiVerisiMi, type Dil } from '@made2fit/shared';
+import { DILLER, islemHatasiMetni, kendiVerisiMi, type Dil } from '@swiip/shared';
 import {
   Ayirac,
   Dugme,
@@ -16,7 +16,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { veriyiPaylas } from '../../src/veri/disaAktar';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
-import { tarihMetni } from '@made2fit/shared';
+import { tarihMetni } from '@swiip/shared';
 
 /**
  * Ayarlar.

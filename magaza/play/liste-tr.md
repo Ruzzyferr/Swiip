@@ -3,7 +3,7 @@
 ## Uygulama adı (en fazla 30 karakter)
 
 ```
-Made2Fit
+Swiip
 ```
 
 ## Kısa açıklama (en fazla 80 karakter)
@@ -17,7 +17,7 @@ Programın neden o program olduğunu da söyleyen antrenör ve beslenme koçu.
 ## Tam açıklama (en fazla 4000 karakter)
 
 ```
-Çoğu uygulama sekiz soru sorup program üretir. Made2Fit 134 soruyor ve her hareketin
+Çoğu uygulama sekiz soru sorup program üretir. Swiip 134 soruyor ve her hareketin
 yanına neden orada olduğunu yazıyor.
 
 "Bel fıtığın olduğunu söyledin; yerden çekiş yerine kalça itme koydum. Aynı kas
@@ -96,7 +96,7 @@ kalır.
 
 SAĞLIK UYARISI
 
-Made2Fit tıbbi cihaz değildir ve teşhis koymaz. Verdiği sayılar ölçüm ve görüntüden
+Swiip tıbbi cihaz değildir ve teşhis koymaz. Verdiği sayılar ölçüm ve görüntüden
 çıkarılmış tahminlerdir; kesin değer değildir. Sağlık durumunla ilgili bir sorun varsa
 hekimine danış.
 
@@ -108,7 +108,7 @@ Uygulamayı 18 yaş ve üzeri kullanabilir.
 - Kategori: **Sağlık ve Fitness**
 - Etiketler: fitness, antrenman, beslenme, kalori, kişisel antrenör
 - İletişim e-postası: `info@swiip.app`
-- Gizlilik politikası URL'si: `https://made2fit.io/gizlilik` *(alan adı alındıktan sonra)*
+- Gizlilik politikası URL'si: `https://swiip.app/gizlilik` *(alan adı alındıktan sonra)*
 
 ## Reklam beyanı
 

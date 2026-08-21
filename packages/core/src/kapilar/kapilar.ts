@@ -1,5 +1,5 @@
-import type { Kapi, KapiDurumu } from '@made2fit/shared';
-import { metinler } from '@made2fit/shared';
+import type { Kapi, KapiDurumu } from '@swiip/shared';
+import { metinler } from '@swiip/shared';
 import { metin, type Cevaplar } from '../cevaplar';
 
 /**

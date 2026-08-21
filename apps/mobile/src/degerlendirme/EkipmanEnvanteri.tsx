@@ -1,5 +1,5 @@
 import { Pressable, View } from 'react-native';
-import type { Soru } from '@made2fit/shared';
+import type { Soru } from '@swiip/shared';
 import { Dugme, Satir, Uyari, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
 import { useMetinler } from '../durum/Oturum';

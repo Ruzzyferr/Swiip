@@ -116,7 +116,7 @@ export function httpPostaci(secenekler: HttpPostaciSecenekleri): Postaci {
 export function parolaSifirlamaPostasi(alici: string, kod: string, dakika: number): Posta {
   return {
     alici,
-    konu: 'Made2Fit parola sıfırlama kodun',
+    konu: 'Swiip parola sıfırlama kodun',
     govde: [
       `Parolanı sıfırlamak için kodun: ${kod}`,
       '',
@@ -131,7 +131,7 @@ export function parolaSifirlamaPostasi(alici: string, kod: string, dakika: numbe
 export function epostaDogrulamaPostasi(alici: string, kod: string, dakika: number): Posta {
   return {
     alici,
-    konu: 'Made2Fit e-posta doğrulama kodun',
+    konu: 'Swiip e-posta doğrulama kodun',
     govde: [
       `E-posta adresini doğrulamak için kodun: ${kod}`,
       '',

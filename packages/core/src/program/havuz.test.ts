@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HAREKET_KATALOGU } from '@made2fit/shared';
+import { HAREKET_KATALOGU } from '@swiip/shared';
 import { havuzHazirla } from './havuz';
 import { profilKur } from '../test/profilKur';
 

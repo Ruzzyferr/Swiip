@@ -1,9 +1,9 @@
 import { and, desc, eq, gte, sql } from 'drizzle-orm';
-import { aramaAnahtari, KATLANAN, KATLANMIS, veriYereli } from '@made2fit/shared';
+import { aramaAnahtari, KATLANAN, KATLANMIS, veriYereli } from '@swiip/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { beslenmeHedefiHesapla, porsiyonRehberi, tdeeDuzelt } from '@made2fit/core';
-import type { Profil } from '@made2fit/shared';
+import { beslenmeHedefiHesapla, porsiyonRehberi, tdeeDuzelt } from '@swiip/core';
+import type { Profil } from '@swiip/shared';
 import { Bulunamadi, HataliIstek } from '../hatalar';
 import { food_logs, foods, profiles, subscriptions, users, weight_logs } from '../db/sema';
 import { planHaklari, type Plan } from '../servisler/haklar';

@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { Dugme, Ekran, Kart, Satir, Uyari, Yazi } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
-import { islemHatasiMetni } from '@made2fit/shared';
+import { islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { istek } from '../../src/veri/api';
 

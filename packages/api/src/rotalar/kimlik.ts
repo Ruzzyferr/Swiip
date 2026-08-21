@@ -12,7 +12,7 @@ import {
 import { dogrulama_kodlari, refresh_tokens, subscriptions, users } from '../db/sema';
 import { kodGecerliMi, kodSonGecerlilik, kodUret, KOD_OMRU_DAKIKA } from '../kimlik/kod';
 import { epostaDogrulamaPostasi, parolaSifirlamaPostasi } from '../servisler/postaci';
-import { DILLER } from '@made2fit/shared';
+import { DILLER } from '@swiip/shared';
 import { istekSayaciKur } from '../servisler/istekSayaci';
 
 /**

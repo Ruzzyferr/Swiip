@@ -32,7 +32,7 @@ beforeAll(async () => {
       JWT_SECRET: 'test-icin-en-az-otuz-iki-karakterlik-gizli-anahtar',
       ERISIM_TOKEN_OMRU: '15m',
       YENILEME_TOKEN_GUN: 30,
-      POSTA_GONDEREN: 'Made2Fit <test@made2fit.io>',
+      POSTA_GONDEREN: 'Swiip <test@swiip.app>',
       KIMLIK_ISTEK_SINIRI: 3,
       LOG_SEVIYESI: 'fatal',
       CORS_KAYNAKLAR: '*',
@@ -50,7 +50,7 @@ async function girisDene(parola: string) {
   return app.inject({
     method: 'POST',
     url: '/v1/kimlik/giris',
-    payload: { email: 'sinir@made2fit.io', parola },
+    payload: { email: 'sinir@swiip.app', parola },
   });
 }
 
@@ -68,7 +68,7 @@ describe('kimlik uçlarında istek sınırı', () => {
     const cevap = await app.inject({
       method: 'POST',
       url: '/v1/kimlik/parola-sifirla-istek',
-      payload: { email: 'sinir@made2fit.io' },
+      payload: { email: 'sinir@swiip.app' },
     });
 
     expect(cevap.statusCode).toBe(429);

@@ -1,12 +1,12 @@
 import { and, count, desc, eq, gte } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { vucutRaporuUret, type GorselAnalizCiktisi, type VucutRaporu } from '@made2fit/core';
-import { dilCozumle, metinleriAl, raporMetinleri } from '@made2fit/shared';
+import { vucutRaporuUret, type GorselAnalizCiktisi, type VucutRaporu } from '@swiip/core';
+import { dilCozumle, metinleriAl, raporMetinleri } from '@swiip/shared';
 import { Bulunamadi, HataliIstek, Yasak } from '../hatalar';
 import { body_analyses, subscriptions, users } from '../db/sema';
 import { fotografiAnalizEt } from '../servisler/gorselAnaliz';
-import { fotografBoyutuUygunMu } from '@made2fit/core';
+import { fotografBoyutuUygunMu } from '@swiip/core';
 import { vucutAnaliziHakki, type Plan } from '../servisler/haklar';
 
 /**

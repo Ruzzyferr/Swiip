@@ -7,7 +7,7 @@ import {
   type KasGrubu,
   type Kontrendikasyon,
   type YukReferansi,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 
 /**
  * Hareket kataloğuna erişim.

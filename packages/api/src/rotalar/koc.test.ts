@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import type { AiCevap, AiIstek } from '@made2fit/core';
-import { ARAC_TANIMLARI, PLAN_AYLIK_BUTCE_USD } from '@made2fit/core';
+import type { AiCevap, AiIstek } from '@swiip/core';
+import { ARAC_TANIMLARI, PLAN_AYLIK_BUTCE_USD } from '@swiip/core';
 import { ai_usage } from '../db/sema';
 import { uygulamaOlustur } from '../uygulama';
 import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
@@ -53,7 +53,7 @@ beforeAll(async () => {
       ERISIM_TOKEN_OMRU: '15m',
       YENILEME_TOKEN_GUN: 30,
       KIMLIK_ISTEK_SINIRI: 10_000,
-      POSTA_GONDEREN: 'Made2Fit <test@made2fit.io>',
+      POSTA_GONDEREN: 'Swiip <test@swiip.app>',
       LOG_SEVIYESI: 'fatal',
       CORS_KAYNAKLAR: '*',
     },
@@ -63,7 +63,7 @@ beforeAll(async () => {
   const kayit = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'koc@made2fit.io', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    payload: { email: 'koc@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
   });
   token = kayit.json().erisim_token;
 

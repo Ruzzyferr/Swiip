@@ -7,7 +7,7 @@ import {
   tekUcus,
   varsayilanDil,
   type Dil,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 
 /**
  * Ağ katmanının bildiği dil.
@@ -44,13 +44,13 @@ const aktifDil = (): Dil => aktif;
  * Play'e yükleme hazırlanırken derlenmiş pakette gerçekten `http://127.0.0.1:3311`
  * gömülü olduğu görüldü (`scripts/yayin-denetimi.mjs` bunu artık yakalıyor).
  */
-const URETIM_TABAN = 'https://made2fit.io';
+const URETIM_TABAN = 'https://swiip.app';
 
 /** Geliştirme yedeği. Emülatörde `adb reverse` ile ana makineye bağlanır. */
 const GELISTIRME_TABAN = 'http://127.0.0.1:3311';
 
-const ERISIM_ANAHTARI = 'made2fit.erisim';
-const YENILEME_ANAHTARI = 'made2fit.yenileme';
+const ERISIM_ANAHTARI = 'swiip.erisim';
+const YENILEME_ANAHTARI = 'swiip.yenileme';
 
 export class ApiHatasi extends Error {
   constructor(

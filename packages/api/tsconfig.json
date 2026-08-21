@@ -7,8 +7,8 @@
     "moduleResolution": "bundler",
     "types": ["node"],
     "paths": {
-      "@made2fit/shared": ["../shared/src/index.ts"],
-      "@made2fit/core": ["../core/src/index.ts"]
+      "@swiip/shared": ["../shared/src/index.ts"],
+      "@swiip/core": ["../core/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],

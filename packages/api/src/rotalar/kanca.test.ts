@@ -35,7 +35,7 @@ beforeAll(async () => {
       ERISIM_TOKEN_OMRU: '15m',
       YENILEME_TOKEN_GUN: 30,
       KIMLIK_ISTEK_SINIRI: 10_000,
-      POSTA_GONDEREN: 'Made2Fit <test@made2fit.io>',
+      POSTA_GONDEREN: 'Swiip <test@swiip.app>',
       REVENUECAT_KANCA_SIRRI: SIR,
       LOG_SEVIYESI: 'fatal',
       CORS_KAYNAKLAR: '*',
@@ -46,7 +46,7 @@ beforeAll(async () => {
   const kayit = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'kanca@made2fit.io', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    payload: { email: 'kanca@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
   });
   kullaniciId = kayit.json().kullanici.id;
 }, 60_000);
@@ -69,7 +69,7 @@ async function planOku(): Promise<string> {
   const giris = await app.inject({
     method: 'POST',
     url: '/v1/kimlik/giris',
-    payload: { email: 'kanca@made2fit.io', parola: 'Kirmizi-Bisiklet-42' },
+    payload: { email: 'kanca@swiip.app', parola: 'Kirmizi-Bisiklet-42' },
   });
   const durum = await app.inject({
     method: 'GET',
@@ -82,7 +82,7 @@ async function planOku(): Promise<string> {
 describe('kanca doğrulaması', () => {
   it('sırsız istek reddedilir', async () => {
     const cevap = await olay(
-      { type: 'INITIAL_PURCHASE', app_user_id: kullaniciId, product_id: 'made2fit_pro_aylik' },
+      { type: 'INITIAL_PURCHASE', app_user_id: kullaniciId, product_id: 'swiip_pro_aylik' },
       null,
     );
 
@@ -91,7 +91,7 @@ describe('kanca doğrulaması', () => {
 
   it('yanlış sırla gelen istek reddedilir', async () => {
     const cevap = await olay(
-      { type: 'INITIAL_PURCHASE', app_user_id: kullaniciId, product_id: 'made2fit_pro_aylik' },
+      { type: 'INITIAL_PURCHASE', app_user_id: kullaniciId, product_id: 'swiip_pro_aylik' },
       'yanlis-sir',
     );
 
@@ -108,7 +108,7 @@ describe('satın alma olayları', () => {
     const cevap = await olay({
       type: 'INITIAL_PURCHASE',
       app_user_id: kullaniciId,
-      product_id: 'made2fit_pro_aylik',
+      product_id: 'swiip_pro_aylik',
       expiration_at_ms: Date.parse('2026-12-31T00:00:00.000Z'),
     });
 
@@ -120,7 +120,7 @@ describe('satın alma olayları', () => {
     await olay({
       type: 'RENEWAL',
       app_user_id: kullaniciId,
-      product_id: 'made2fit_pro_aylik',
+      product_id: 'swiip_pro_aylik',
     });
 
     expect(await planOku()).toBe('pro');
@@ -130,7 +130,7 @@ describe('satın alma olayları', () => {
     await olay({
       type: 'PRODUCT_CHANGE',
       app_user_id: kullaniciId,
-      product_id: 'made2fit_temel_yillik',
+      product_id: 'swiip_temel_yillik',
     });
 
     expect(await planOku()).toBe('temel');
@@ -166,7 +166,7 @@ describe('bozuk ve bilinmeyen olaylar', () => {
     const cevap = await olay({
       type: 'INITIAL_PURCHASE',
       app_user_id: '00000000-0000-0000-0000-000000000000',
-      product_id: 'made2fit_pro_aylik',
+      product_id: 'swiip_pro_aylik',
     });
 
     expect(cevap.statusCode).toBe(200);

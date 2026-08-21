@@ -40,7 +40,7 @@ const sema = z.object({
   /** Posta sağlayıcısı; tanımsızsa kodlar loglanır ve kullanıcıya yanlış vaat verilmez. */
   POSTA_API_URL: z.string().url().optional(),
   POSTA_API_KEY: z.string().optional(),
-  POSTA_GONDEREN: z.string().default('Made2Fit <merhaba@made2fit.io>'),
+  POSTA_GONDEREN: z.string().default('Swiip <merhaba@swiip.app>'),
 
   /** Analitik uçlarını açar; en az 32 karakter. Tanımsızsa uçlar kapalıdır. */
   YONETIM_ANAHTARI: z.string().min(32).optional(),

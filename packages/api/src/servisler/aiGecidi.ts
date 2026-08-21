@@ -1,5 +1,5 @@
-import type { AiCevap, AiIstek, AiIstemcisi } from '@made2fit/core';
-import { modelSec } from '@made2fit/core';
+import type { AiCevap, AiIstek, AiIstemcisi } from '@swiip/core';
+import { modelSec } from '@swiip/core';
 
 /**
  * AI gateway istemcisi.

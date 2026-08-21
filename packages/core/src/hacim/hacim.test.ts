@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HACIM_GRUPLARI, tr, type Profil } from '@made2fit/shared';
+import { HACIM_GRUPLARI, tr, type Profil } from '@swiip/shared';
 import { hacimButcesiHesapla, seansBasinaSet, TABAN_HACIM } from './hacim';
 
 function profilKur(uzat: Partial<Profil> = {}): Profil {

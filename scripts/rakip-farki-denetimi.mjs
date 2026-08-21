@@ -75,7 +75,7 @@ function sonuc(baslik, rakip, tamam, ayrinti) {
 const kayit = await cagir('/v1/kimlik/kayit', {
   yontem: 'POST',
   govde: {
-    email: `rakip-${damga}@made2fit.io`,
+    email: `rakip-${damga}@swiip.app`,
     parola: 'Kirmizi-Bisiklet-42',
     saglik_onayi: true,
     olcum_onayi: true,
@@ -327,7 +327,7 @@ await cagir('/v1/program/uret', { yontem: 'POST', govde: { hafta: 1 }, token });
   const u = await cagir('/v1/kimlik/kayit', {
     yontem: 'POST',
     govde: {
-      email: `ucretsiz-${damga}@made2fit.io`,
+      email: `ucretsiz-${damga}@swiip.app`,
       parola: 'Kirmizi-Bisiklet-42',
       saglik_onayi: true,
     },

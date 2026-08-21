@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { tr } from '@made2fit/shared';
+import { tr } from '@swiip/shared';
 
 /**
  * Sekme başlığı sayfada tekrarlanmıyor (F1.6).

@@ -15,7 +15,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf, islemHatasiMetni } from '@made2fit/shared';
+import { buyukHarf, islemHatasiMetni } from '@swiip/shared';
 
 /**
  * Alışveriş listesi (F8.8).

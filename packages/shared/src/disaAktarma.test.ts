@@ -4,13 +4,11 @@ import { disaAktarmaDosyaAdi, disaAktarmaMetni } from './disaAktarma';
 
 describe('disaAktarmaDosyaAdi', () => {
   it('ISO damgasından tarihli bir ad üretiyor', () => {
-    expect(disaAktarmaDosyaAdi('2026-08-20T14:33:00.000Z')).toBe(
-      'made2fit-verilerim-2026-08-20.json',
-    );
+    expect(disaAktarmaDosyaAdi('2026-08-20T14:33:00.000Z')).toBe('swiip-verilerim-2026-08-20.json');
   });
 
   it('saat taşımayan tarihi de kabul ediyor', () => {
-    expect(disaAktarmaDosyaAdi('2026-08-20')).toBe('made2fit-verilerim-2026-08-20.json');
+    expect(disaAktarmaDosyaAdi('2026-08-20')).toBe('swiip-verilerim-2026-08-20.json');
   });
 
   it('aynı gün iki kez çağrılınca aynı adı veriyor', () => {
@@ -29,7 +27,7 @@ describe('disaAktarmaDosyaAdi', () => {
 
   it('okunamayan damgada bile geçerli bir ad döndürüyor', () => {
     const ad = disaAktarmaDosyaAdi('bilinmiyor');
-    expect(ad).toBe('made2fit-verilerim.json');
+    expect(ad).toBe('swiip-verilerim.json');
     expect(ad).not.toMatch(/[<>:"/\\|?*\s]/);
   });
 });

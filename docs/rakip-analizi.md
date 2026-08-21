@@ -174,7 +174,7 @@ Yorumlardan doğrudan okunan gerçek fiyatlar:
 - **EatBetter:** premium ~1.000 TL
 - **Türkiye'de PT seansı:** 500-1.500 TL · aylık paket beş haneli
 
-Made2Fit'in konumu: kalori uygulamasıyla değil **PT ile** kıyaslanmak. Temel 99₺, Pro 169₺
+Swiip'in konumu: kalori uygulamasıyla değil **PT ile** kıyaslanmak. Temel 99₺, Pro 169₺
 — YAZIO'nun iki katı ama PT'nin onda biri.
 
 ---
@@ -189,7 +189,7 @@ Made2Fit'in konumu: kalori uygulamasıyla değil **PT ile** kıyaslanmak. Temel 
 | Square | Block'un fintech markası |
 | FitMe | fit-me.app mevcut |
 
-**Made2Fit** seçildi: kategoride çakışma bulunamadı, `made2fit.io` müsait.
+**Swiip** seçildi: kategoride çakışma bulunamadı, `swiip.app` müsait.
 
 **Not:** Web üzerinden kategori taraması yapıldı, **tescil sorgusu yapılmadı.** Markaya para
 harcamadan önce sicil kontrolü şart.

@@ -5,7 +5,7 @@ bilerek içinde: bunları keşfetmek bir oturum sürdü, ikinci kez sürmesin.
 
 ---
 
-Made2Fit'i baştan sona incele. Kod, arayüz, işlevsellik, sağlamlık, rakip farkı — hepsi.
+Swiip'i baştan sona incele. Kod, arayüz, işlevsellik, sağlamlık, rakip farkı — hepsi.
 Amaç "iyi görünüyor" demek değil, **kanıtla göstermek**: ne ölçtün, ne gördün, ne kırdın.
 
 ## Önce oku, sonra dokun
@@ -22,15 +22,15 @@ Sırayla: `CLAUDE.md` (oturum başında zaten yükleniyor) · `docs/spec.md` ·
 
 | Konu | Bilgi |
 |---|---|
-| Kök | `C:\dev\Made2Fit` · npm workspaces · kod ve testler Türkçe |
+| Kök | `C:\dev\Swiip` · npm workspaces · kod ve testler Türkçe |
 | Doğrulama | `npm run verify` (biçim + lint + tip + çeviri denetimi + test) |
 | Geliştirme Postgres | `infra/docker-compose.gelistirme.yml` · `127.0.0.1:55433` (5432/5433 başka projelerde dolu) |
 | API portu | 3311 — 3000'i başka bir konteyner tutuyor |
 | Site sunucusu | `npx serve -l 8090 -s apps/site` |
 | Android | Emülatör API 36 · `adb` · ekran ağacı için `uiautomator dump` |
 | Sensörler | Emülatör konsoluna PowerShell'den TCP ile bağlanıp `sensor set acceleration` |
-| Gradle | `--project-cache-dir=C:/gradle-cache/made2fit` — Defender geçici klasörü kilitliyor |
-| İmza | `C:/dev/Made2Fit-imza/made2fit-upload.jks` · parolalar `apps/mobile/imza.properties` (gitignore) |
+| Gradle | `--project-cache-dir=C:/gradle-cache/swiip` — Defender geçici klasörü kilitliyor |
+| İmza | `C:/dev/Swiip-imza/swiip-upload.jks` · parolalar `apps/mobile/imza.properties` (gitignore) |
 | İmza uygulaması | `expo prebuild` **sonrasında** `node scripts/android-imza.mjs` — `android/` üretilen çıktı, her prebuild'de sıfırlanıyor |
 | Kontrast denetimi | `node scripts/site-kontrast.mjs` (tarayıcı ister) |
 
@@ -208,7 +208,7 @@ ya düzelt ya da neden bilinçli olarak bırakıldığını gerekçelendir.
 
 ## Dışarıya bağlı, sende değil
 
-`made2fit.io` alan adı ve Apple geliştirici hesabı kullanıcıda. Gizlilik politikası URL'si
+`swiip.app` alan adı ve Apple geliştirici hesabı kullanıcıda. Gizlilik politikası URL'si
 alan adına bağlı, dolayısıyla Play'de üretime çıkış da öyle. İmzalı AAB hazır ve doğrulandı;
 `magaza/play/konsol-rehberi.md` konsolda doldurulacak her alanın cevabını taşıyor.
 

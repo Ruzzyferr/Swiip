@@ -1,4 +1,4 @@
-# Made2Fit ters vekil. TLS sertifikaları Caddy tarafından otomatik alınır ve yenilenir.
+# Swiip ters vekil. TLS sertifikaları Caddy tarafından otomatik alınır ve yenilenir.
 
 {$ALAN_ADI} {
 	encode zstd gzip

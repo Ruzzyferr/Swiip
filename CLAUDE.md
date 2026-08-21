@@ -1,4 +1,4 @@
-# Made2Fit
+# Swiip
 
 AI antrenör ve beslenme koçu uygulaması. Türkiye önce, global mimari.
 
@@ -28,7 +28,7 @@ Değiştirmek istiyorsan önce `docs/rakip-analizi.md`'yi oku, gerekçeleri orad
 | AI erişimi | Gateway üzerinden çok model, iş başına model seçimi |
 | Ödeme | RevenueCat + mağaza içi satın alma |
 | Pazar | Türkiye önce, veri modeli ilk günden çok dilli |
-| İsim | Made2Fit · `made2fit.io` |
+| İsim | Swiip · `swiip.app` |
 | Zeka mimarisi | Deterministik çekirdek + yalnızca 4 noktada AI |
 | Vücut fotoğrafı | Analiz sonrası **anında silinir**, sadece ölçümler saklanır |
 | Antrenman takibi | Salonda kayıt **yok**. Seans sonrası üç dokunuş geri bildirim |
@@ -117,11 +117,11 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
-- `made2fit.io` alan adı alınacak
+- `swiip.app` alan adı alınacak
 - TürKomp kullanım koşulları yazılı teyit edilecek
 - Marka sicili kontrolü (markaya para harcamadan önce)
 - Sunucu yedekleri: otomatik + dışarı kopyalanan + **geri yüklemesi denenmiş**
-- Kilitteki "Made2Fit" yazısı outline'a çevrilecek
+- Kilitteki "Swiip" yazısı outline'a çevrilecek
 
 ## Bilinen en büyük risk
 

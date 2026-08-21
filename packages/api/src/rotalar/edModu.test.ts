@@ -73,8 +73,8 @@ beforeAll(async () => {
   await besinleriTohumla(uygulama.ortam.db);
   await tarifleriTohumla(uygulama.ortam.db);
 
-  edToken = await kullaniciKur('ed@made2fit.io', 'Evet');
-  normalToken = await kullaniciKur('normal@made2fit.io', 'Hayır');
+  edToken = await kullaniciKur('ed@swiip.app', 'Evet');
+  normalToken = await kullaniciKur('normal@swiip.app', 'Hayır');
 
   /**
    * ED olmayan kullanıcı **ücretli** plana alınıyor: buradaki sınama "sayı gizleme kuralı
@@ -230,7 +230,7 @@ describe('ücretsiz planda kalori hedefi kilidi', () => {
   let ucretsiz: string;
 
   beforeAll(async () => {
-    ucretsiz = await kullaniciKur('ucretsiz@made2fit.io', 'Hayır');
+    ucretsiz = await kullaniciKur('ucretsiz@swiip.app', 'Hayır');
   }, 60_000);
 
   const basliklar = () => ({ authorization: `Bearer ${ucretsiz}` });

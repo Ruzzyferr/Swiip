@@ -47,10 +47,10 @@ function ozellikleriOku(yol) {
 
 const o = ozellikleriOku(ozellikler);
 const gerekli = [
-  'MADE2FIT_ANAHTAR_DOSYASI',
-  'MADE2FIT_ANAHTAR_ALIAS',
-  'MADE2FIT_ANAHTAR_PAROLA',
-  'MADE2FIT_DEPO_PAROLA',
+  'SWIIP_ANAHTAR_DOSYASI',
+  'SWIIP_ANAHTAR_ALIAS',
+  'SWIIP_ANAHTAR_PAROLA',
+  'SWIIP_DEPO_PAROLA',
 ];
 const eksik = gerekli.filter((a) => !o[a]);
 if (eksik.length > 0) {
@@ -58,14 +58,14 @@ if (eksik.length > 0) {
   process.exit(1);
 }
 
-if (!existsSync(o.MADE2FIT_ANAHTAR_DOSYASI)) {
-  console.error(`Anahtar dosyası bulunamadı: ${o.MADE2FIT_ANAHTAR_DOSYASI}`);
+if (!existsSync(o.SWIIP_ANAHTAR_DOSYASI)) {
+  console.error(`Anahtar dosyası bulunamadı: ${o.SWIIP_ANAHTAR_DOSYASI}`);
   process.exit(1);
 }
 
 let kaynak = readFileSync(gradle, 'utf8');
 
-if (kaynak.includes('made2fitYukleme')) {
+if (kaynak.includes('swiipYukleme')) {
   console.log('imza yapılandırması zaten uygulanmış.');
   process.exit(0);
 }
@@ -75,11 +75,11 @@ if (kaynak.includes('made2fitYukleme')) {
  * `buildTypes.release` hata ayıklama anahtarıyla imzalanıyor — yayına çıkacak yapı
  * için kabul edilemez. İkisini de değiştiriyoruz.
  */
-const imzaBlogu = `        made2fitYukleme {
-            storeFile file('${o.MADE2FIT_ANAHTAR_DOSYASI}')
-            storePassword '${o.MADE2FIT_DEPO_PAROLA}'
-            keyAlias '${o.MADE2FIT_ANAHTAR_ALIAS}'
-            keyPassword '${o.MADE2FIT_ANAHTAR_PAROLA}'
+const imzaBlogu = `        swiipYukleme {
+            storeFile file('${o.SWIIP_ANAHTAR_DOSYASI}')
+            storePassword '${o.SWIIP_DEPO_PAROLA}'
+            keyAlias '${o.SWIIP_ANAHTAR_ALIAS}'
+            keyPassword '${o.SWIIP_ANAHTAR_PAROLA}'
         }
 `;
 
@@ -93,7 +93,7 @@ kaynak = kaynak.slice(0, satirSonu) + imzaBlogu + kaynak.slice(satirSonu);
 
 // Yayın yapısı artık hata ayıklama anahtarıyla değil, yükleme anahtarıyla imzalanıyor.
 const eskiImza = 'signingConfig signingConfigs.debug\n            shrinkResources';
-const yeniImza = 'signingConfig signingConfigs.made2fitYukleme\n            shrinkResources';
+const yeniImza = 'signingConfig signingConfigs.swiipYukleme\n            shrinkResources';
 
 if (kaynak.includes(eskiImza)) {
   kaynak = kaynak.replace(eskiImza, yeniImza);
@@ -107,7 +107,7 @@ if (kaynak.includes(eskiImza)) {
   const yayinSatirSonu = kaynak.indexOf('\n', yayin) + 1;
   kaynak =
     kaynak.slice(0, yayinSatirSonu) +
-    '            signingConfig signingConfigs.made2fitYukleme\n' +
+    '            signingConfig signingConfigs.swiipYukleme\n' +
     kaynak.slice(yayinSatirSonu);
 }
 
@@ -119,4 +119,4 @@ const UYARI = /[^\S\n]*\/\/ Caution! In production[^\n]*\n[^\S\n]*\/\/ see [^\n]
 kaynak = kaynak.replace(UYARI, '');
 
 writeFileSync(gradle, kaynak, 'utf8');
-console.log('imza yapılandırması uygulandı: made2fitYukleme');
+console.log('imza yapılandırması uygulandı: swiipYukleme');

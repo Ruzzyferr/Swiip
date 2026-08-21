@@ -4,7 +4,7 @@ import { router, Stack } from 'expo-router';
 import Svg, { Circle, Line, Rect } from 'react-native-svg';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Accelerometer } from 'expo-sensors';
-import { egimDerecesi, telefonDikMi } from '@made2fit/core';
+import { egimDerecesi, telefonDikMi } from '@swiip/core';
 import { Dugme, Ekran, Kart, Satir, Uyari, Yazi, Yukleniyor } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler } from '../../src/durum/Oturum';

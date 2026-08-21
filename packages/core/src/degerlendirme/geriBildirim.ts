@@ -1,4 +1,4 @@
-import { HAREKET_KATALOGU } from '@made2fit/shared';
+import { HAREKET_KATALOGU } from '@swiip/shared';
 import { metin, sayi, type Cevaplar } from '../cevaplar';
 import { bmrHesapla, beslenmeHedefiHesapla } from '../beslenme/beslenme';
 import { TABAN_HACIM } from '../hacim/hacim';

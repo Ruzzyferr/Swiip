@@ -1,5 +1,5 @@
 {
-  "name": "@made2fit/core",
+  "name": "@swiip/core",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,6 +12,6 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@made2fit/shared": "*"
+    "@swiip/shared": "*"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@made2fit/mobile",
+  "name": "@swiip/mobile",
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~4.0.1",
-    "@made2fit/core": "*",
-    "@made2fit/shared": "*",
+    "@swiip/core": "*",
+    "@swiip/shared": "*",
     "@react-native-async-storage/async-storage": "2.1.0",
     "expo": "~52.0.23",
     "expo-build-properties": "~0.13.3",

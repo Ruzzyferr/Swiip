@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { HAREKET_KATALOGU, type Profil } from '@made2fit/shared';
+import { HAREKET_KATALOGU, type Profil } from '@swiip/shared';
 import { programUret } from './program';
 import { hareketBul } from '../katalog/katalog';
 import { profilKur } from '../test/profilKur';

@@ -89,7 +89,7 @@ afterAll(async () => {
 
 describe('tarif kütüphanesi', () => {
   it('kısıtsız kullanıcı geniş bir tarif havuzu görür', async () => {
-    const token = await kullaniciKur('tarif@made2fit.io');
+    const token = await kullaniciKur('tarif@swiip.app');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -101,7 +101,7 @@ describe('tarif kütüphanesi', () => {
   });
 
   it('her tarifin insan kontrolünden geçmiş olması şart', async () => {
-    const token = await kullaniciKur('kontrol@made2fit.io');
+    const token = await kullaniciKur('kontrol@swiip.app');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -113,7 +113,7 @@ describe('tarif kütüphanesi', () => {
   });
 
   it('ücretsiz planda öğün planı kapalıdır ve nedeni söylenir', async () => {
-    const token = await kullaniciKur('ucretsizogun@made2fit.io', {}, 'ucretsiz');
+    const token = await kullaniciKur('ucretsizogun@swiip.app', {}, 'ucretsiz');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -127,7 +127,7 @@ describe('tarif kütüphanesi', () => {
 
 describe('sert kısıtlar uçtan uca', () => {
   it('alerjisi olan kullanıcıya o malzeme hiçbir tarifte çıkmaz', async () => {
-    const token = await kullaniciKur('alerji@made2fit.io', { B9: ['Yumurta'] });
+    const token = await kullaniciKur('alerji@swiip.app', { B9: ['Yumurta'] });
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -141,7 +141,7 @@ describe('sert kısıtlar uçtan uca', () => {
   });
 
   it('bütçesi kısıtlı kullanıcıya pahalı protein önerilmez', async () => {
-    const token = await kullaniciKur('butce@made2fit.io', { B8: 'Çok kısıtlı' });
+    const token = await kullaniciKur('butce@swiip.app', { B8: 'Çok kısıtlı' });
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -154,7 +154,7 @@ describe('sert kısıtlar uçtan uca', () => {
   });
 
   it('vegan kullanıcıya hayvansal ürün gelmez', async () => {
-    const token = await kullaniciKur('vegan@made2fit.io', { B11: ['Vegan'] });
+    const token = await kullaniciKur('vegan@swiip.app', { B11: ['Vegan'] });
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -167,7 +167,7 @@ describe('sert kısıtlar uçtan uca', () => {
   });
 
   it('laktoz intoleransı olan kullanıcıya laktozlu tarif gelmez', async () => {
-    const token = await kullaniciKur('laktoz@made2fit.io', { B10: ['Laktoz'] });
+    const token = await kullaniciKur('laktoz@swiip.app', { B10: ['Laktoz'] });
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -179,7 +179,7 @@ describe('sert kısıtlar uçtan uca', () => {
   });
 
   it('pişirme süresi kısıtlı kullanıcıya uzun tarif gelmez', async () => {
-    const token = await kullaniciKur('sure@made2fit.io', { B7: '15 dakikaya kadar' });
+    const token = await kullaniciKur('sure@swiip.app', { B7: '15 dakikaya kadar' });
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/tarifler',
@@ -193,7 +193,7 @@ describe('sert kısıtlar uçtan uca', () => {
 
 describe('kaydırmalı deste', () => {
   it('deste makro kilidini koruyan kartlardan oluşur', async () => {
-    const token = await kullaniciKur('deste@made2fit.io');
+    const token = await kullaniciKur('deste@swiip.app');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/deste?ogun=aksam',
@@ -211,7 +211,7 @@ describe('kaydırmalı deste', () => {
   });
 
   it('deste AI çağrısı yapmaz', async () => {
-    const token = await kullaniciKur('desteai@made2fit.io');
+    const token = await kullaniciKur('desteai@swiip.app');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/deste',
@@ -222,7 +222,7 @@ describe('kaydırmalı deste', () => {
   });
 
   it('deste sonsuz kaydırma değildir', async () => {
-    const token = await kullaniciKur('destesonlu@made2fit.io');
+    const token = await kullaniciKur('destesonlu@swiip.app');
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/deste',
@@ -233,7 +233,7 @@ describe('kaydırmalı deste', () => {
   });
 
   it('B5 ailem ise menü değil porsiyon modu gelir', async () => {
-    const token = await kullaniciKur('aile@made2fit.io', { B5: 'Ailem' });
+    const token = await kullaniciKur('aile@swiip.app', { B5: 'Ailem' });
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/ogun/deste',
@@ -245,7 +245,7 @@ describe('kaydırmalı deste', () => {
   });
 
   it('dolap boşken eksik malzeme önerisi çıkar', async () => {
-    const token = await kullaniciKur('bosdolap@made2fit.io');
+    const token = await kullaniciKur('bosdolap@swiip.app');
     await app.inject({
       method: 'POST',
       url: '/v1/ogun/dolap',
@@ -265,7 +265,7 @@ describe('kaydırmalı deste', () => {
   });
 
   it('dolap doluysa yalnızca yapılabilenler gelir', async () => {
-    const token = await kullaniciKur('dolulu@made2fit.io');
+    const token = await kullaniciKur('dolulu@swiip.app');
     await app.inject({
       method: 'POST',
       url: '/v1/ogun/dolap',
@@ -286,7 +286,7 @@ describe('kaydırmalı deste', () => {
 
 describe('kaydırma öğrenmesi', () => {
   it('sola kaydırma malzemeyi sevmeyenlere yazar', async () => {
-    const token = await kullaniciKur('kaydirma@made2fit.io');
+    const token = await kullaniciKur('kaydirma@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     let sonCevap;
@@ -303,7 +303,7 @@ describe('kaydırma öğrenmesi', () => {
   });
 
   it('üç kez reddedilen malzeme sonraki destelerden düşer', async () => {
-    const token = await kullaniciKur('ogrenen@made2fit.io');
+    const token = await kullaniciKur('ogrenen@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     for (let i = 0; i < 3; i++) {
@@ -327,7 +327,7 @@ describe('kaydırma öğrenmesi', () => {
 
 describe('haftalık plan ve alışveriş listesi', () => {
   it('haftalık plan yedi gün üretir', async () => {
-    const token = await kullaniciKur('plan@made2fit.io');
+    const token = await kullaniciKur('plan@swiip.app');
     const cevap = await app.inject({
       method: 'POST',
       url: '/v1/ogun/plan',
@@ -341,7 +341,7 @@ describe('haftalık plan ve alışveriş listesi', () => {
   });
 
   it('alışveriş listesi reyona göre gruplanır', async () => {
-    const token = await kullaniciKur('alisveris@made2fit.io');
+    const token = await kullaniciKur('alisveris@swiip.app');
     const cevap = await app.inject({
       method: 'POST',
       url: '/v1/ogun/plan',
@@ -355,7 +355,7 @@ describe('haftalık plan ve alışveriş listesi', () => {
   });
 
   it('plan kaydedilir ve tekrar okunabilir', async () => {
-    const token = await kullaniciKur('plankayit@made2fit.io');
+    const token = await kullaniciKur('plankayit@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     await app.inject({
@@ -376,7 +376,7 @@ describe('haftalık plan ve alışveriş listesi', () => {
   });
 
   it('Ramazan modunda öğün adları değişir', async () => {
-    const token = await kullaniciKur('ramazan@made2fit.io', { B12: 'Evet' });
+    const token = await kullaniciKur('ramazan@swiip.app', { B12: 'Evet' });
     const cevap = await app.inject({
       method: 'POST',
       url: '/v1/ogun/plan',
@@ -431,7 +431,7 @@ describe('tarif makroları veritabanından türetiliyor (F5.6, F8.2)', () => {
   it('tohumlanan tarifin makrosu malzemelerinden hesaplanmış', async () => {
     const menemen = TARIF_TOHUMU.find((t) => t.id === 'menemen')!;
     const beklenen = tarifMakrolariniHesapla(menemen)!;
-    const jeton = await kullaniciKur('tarif-makro@made2fit.io');
+    const jeton = await kullaniciKur('tarif-makro@swiip.app');
 
     const cevap = await app.inject({
       method: 'GET',
@@ -453,7 +453,7 @@ describe('tarif makroları veritabanından türetiliyor (F5.6, F8.2)', () => {
 
 describe('haftalık plan çeşitliliği (F8.7)', () => {
   it('aynı öğün yedi gün boyunca tekrar etmiyor', async () => {
-    const jeton = await kullaniciKur('plan-cesit@made2fit.io');
+    const jeton = await kullaniciKur('plan-cesit@swiip.app');
 
     const plan = await app.inject({
       method: 'POST',
@@ -481,7 +481,7 @@ describe('haftalık plan çeşitliliği (F8.7)', () => {
   });
 
   it('plan iki kez üretildiğinde aynı sonucu verir — belirlenirlik', async () => {
-    const jeton = await kullaniciKur('plan-belirli@made2fit.io');
+    const jeton = await kullaniciKur('plan-belirli@swiip.app');
 
     const istekYap = () =>
       app.inject({

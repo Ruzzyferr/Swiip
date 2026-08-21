@@ -1,4 +1,4 @@
-import { SORU_BANKASI, type Soru, type SoruBlogu } from '@made2fit/shared';
+import { SORU_BANKASI, type Soru, type SoruBlogu } from '@swiip/shared';
 import { atlandiMi, dizi, type CevapDegeri, type Cevaplar } from '../cevaplar';
 
 /**

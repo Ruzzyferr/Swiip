@@ -87,10 +87,10 @@ if (bulgular.length === 0) gecenler.push('Pakette bize ait yerel adres yok');
 
 // --- 2. Bir üretim API adresi GERÇEKTEN olmalı ---
 const httpsAdresler = [...new Set(paket.match(/https:\/\/[a-z0-9.-]+\.[a-z]{2,}/gi) ?? [])];
-const kendiAdres = httpsAdresler.filter((u) => /made2fit/i.test(u));
+const kendiAdres = httpsAdresler.filter((u) => /swiip/i.test(u));
 if (kendiAdres.length === 0) {
   bulgular.push(
-    'ÜRETİM ADRESİ YOK: pakette made2fit alan adına giden bir https adresi bulunamadı. ' +
+    'ÜRETİM ADRESİ YOK: pakette swiip alan adına giden bir https adresi bulunamadı. ' +
       'EXPO_PUBLIC_API_URL boş bırakılmış olabilir.',
   );
 } else {
@@ -98,7 +98,7 @@ if (kendiAdres.length === 0) {
 }
 
 // --- 3. Düz HTTP ile kendi sunucumuza gidilmiyor ---
-const httpKendi = [...new Set(paket.match(/http:\/\/[a-z0-9.-]*made2fit[a-z0-9.-]*/gi) ?? [])];
+const httpKendi = [...new Set(paket.match(/http:\/\/[a-z0-9.-]*swiip[a-z0-9.-]*/gi) ?? [])];
 if (httpKendi.length > 0) {
   bulgular.push(`ŞİFRESİZ: ${httpKendi.join(', ')} — sağlık verisi düz HTTP ile gitmez`);
 } else {

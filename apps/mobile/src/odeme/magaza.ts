@@ -32,10 +32,10 @@ export interface UrunTanimi {
 }
 
 export const URUNLER: UrunTanimi[] = [
-  { kod: 'temel', donem: 'aylik', urun_id: 'made2fit_temel_aylik' },
-  { kod: 'temel', donem: 'yillik', urun_id: 'made2fit_temel_yillik' },
-  { kod: 'pro', donem: 'aylik', urun_id: 'made2fit_pro_aylik' },
-  { kod: 'pro', donem: 'yillik', urun_id: 'made2fit_pro_yillik' },
+  { kod: 'temel', donem: 'aylik', urun_id: 'swiip_temel_aylik' },
+  { kod: 'temel', donem: 'yillik', urun_id: 'swiip_temel_yillik' },
+  { kod: 'pro', donem: 'aylik', urun_id: 'swiip_pro_aylik' },
+  { kod: 'pro', donem: 'yillik', urun_id: 'swiip_pro_yillik' },
 ];
 
 export interface SatinAlmaSonucu {

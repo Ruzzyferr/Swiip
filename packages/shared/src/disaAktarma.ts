@@ -5,10 +5,10 @@
  * biçimin nasıl oluştuğu ise saf mantık; burada duruyor ki test edilebilsin.
  */
 
-const ON_EK = 'made2fit-verilerim';
+const ON_EK = 'swiip-verilerim';
 
 /**
- * `made2fit-verilerim-2026-08-20.json`
+ * `swiip-verilerim-2026-08-20.json`
  *
  * Saat bilinçli olarak yok: aynı gün ikinci kez dışa aktaran kullanıcı, indirme
  * klasöründe birbirine benzeyen iki dosya değil, güncellenmiş tek dosya bulsun.

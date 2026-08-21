@@ -92,7 +92,7 @@ const YAYGIN_PAROLALAR = [
   'password',
   'qwerty123',
   'asdasd123',
-  'made2fit',
+  'swiip',
   'iloveyou',
   'sifre123',
 ];

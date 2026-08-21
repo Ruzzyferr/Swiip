@@ -5,7 +5,7 @@ import {
   type HacimGrubu,
   type Karar,
   type Profil,
-} from '@made2fit/shared';
+} from '@swiip/shared';
 import { kirp } from '../profil/olcumler';
 
 /**

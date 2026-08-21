@@ -7,8 +7,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@made2fit/shared": ["../../packages/shared/src/index.ts"],
-      "@made2fit/core": ["../../packages/core/src/index.ts"]
+      "@swiip/shared": ["../../packages/shared/src/index.ts"],
+      "@swiip/core": ["../../packages/core/src/index.ts"]
     },
     "module": "esnext",
     "moduleResolution": "bundler"

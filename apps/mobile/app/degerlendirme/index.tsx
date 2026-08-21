@@ -9,8 +9,8 @@ import {
   sonrakiSoru,
   type Cevaplar,
   type GorunurSoru,
-} from '@made2fit/core';
-import { SORU_BANKASI } from '@made2fit/shared';
+} from '@swiip/core';
+import { SORU_BANKASI } from '@swiip/shared';
 import {
   Dugme,
   Ekran,
@@ -23,10 +23,10 @@ import { useTema } from '../../src/tasarim/tema';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { istek } from '../../src/veri/api';
-import { baglantiSorunuMu, yeniCevaplar } from '@made2fit/shared';
-import { islemHatasiMetni } from '@made2fit/shared';
+import { baglantiSorunuMu, yeniCevaplar } from '@swiip/shared';
+import { islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf } from '@made2fit/shared';
+import { buyukHarf } from '@swiip/shared';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 
 /**

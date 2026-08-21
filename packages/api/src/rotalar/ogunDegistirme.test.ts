@@ -70,7 +70,7 @@ beforeAll(async () => {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {
-      email: 'ogun-degistir@made2fit.io',
+      email: 'ogun-degistir@swiip.app',
       parola: 'Kirmizi-Bisiklet-42',
       saglik_onayi: true,
       olcum_onayi: true,

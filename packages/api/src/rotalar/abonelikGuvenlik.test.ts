@@ -5,7 +5,7 @@ import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { HAK_TABLOSU } from '../servisler/haklar';
-import { tr } from '@made2fit/shared';
+import { tr } from '@swiip/shared';
 
 const SATIR_SONU = String.fromCharCode(10);
 
@@ -53,7 +53,7 @@ const TEMEL_YAPILANDIRMA = {
   ERISIM_TOKEN_OMRU: '15m',
   YENILEME_TOKEN_GUN: 30,
   KIMLIK_ISTEK_SINIRI: 10_000,
-  POSTA_GONDEREN: 'Made2Fit <test@made2fit.io>',
+  POSTA_GONDEREN: 'Swiip <test@swiip.app>',
   LOG_SEVIYESI: 'fatal' as const,
   CORS_KAYNAKLAR: '*',
 };
@@ -70,7 +70,7 @@ beforeAll(async () => {
   const kayit = await uretimApp.inject({
     method: 'POST',
     url: '/v1/kimlik/kayit',
-    payload: { email: 'paywall@made2fit.io', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    payload: { email: 'paywall@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
   });
   token = kayit.json().erisim_token;
 }, 60_000);

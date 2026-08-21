@@ -33,7 +33,7 @@ async function yeniKullanici(dil?: 'tr' | 'en'): Promise<string> {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {
-      email: `vucut${sayac}@made2fit.io`,
+      email: `vucut${sayac}@swiip.app`,
       parola: 'Kirmizi-Bisiklet-42',
       saglik_onayi: true,
     },

@@ -1,4 +1,4 @@
-import type { AntrenmanYasi, GunTipi, SplitPlani } from '@made2fit/shared';
+import type { AntrenmanYasi, GunTipi, SplitPlani } from '@swiip/shared';
 
 /**
  * Split seçimi — spec bölüm 6, aşama 3.

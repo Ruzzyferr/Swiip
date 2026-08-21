@@ -86,7 +86,7 @@ afterAll(async () => {
 
 describe('rapor ikinci kez hak harcamadan okunur', () => {
   it('analiz üretildikten sonra son rapor okunabilir', async () => {
-    const token = await ucretsizKullanici('rapor-oku@made2fit.io');
+    const token = await ucretsizKullanici('rapor-oku@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     const uret = await app.inject({
@@ -122,7 +122,7 @@ describe('rapor ikinci kez hak harcamadan okunur', () => {
   });
 
   it('okuma hakkı tüketmiyor — art arda beş okuma da çalışır', async () => {
-    const token = await ucretsizKullanici('rapor-oku-2@made2fit.io');
+    const token = await ucretsizKullanici('rapor-oku-2@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     await app.inject({
@@ -151,7 +151,7 @@ describe('rapor ikinci kez hak harcamadan okunur', () => {
   });
 
   it('hiç analizi olmayan kullanıcıya 404 döner — sessiz boş cevap değil', async () => {
-    const token = await ucretsizKullanici('rapor-yok@made2fit.io');
+    const token = await ucretsizKullanici('rapor-yok@swiip.app');
 
     const son = await app.inject({
       method: 'GET',
@@ -163,7 +163,7 @@ describe('rapor ikinci kez hak harcamadan okunur', () => {
     expect(son.json().kod).toBeTruthy();
   });
   it('okunan rapor TAMAMEN kullanıcının dilinde — feragat dahil', async () => {
-    const token = await ucretsizKullanici('rapor-dil@made2fit.io');
+    const token = await ucretsizKullanici('rapor-dil@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     await app.inject({
@@ -203,7 +203,7 @@ describe('rapor ikinci kez hak harcamadan okunur', () => {
   });
 
   it('gizlilik notu fotoğraf gönderilip gönderilmediğini DOĞRU söyler', async () => {
-    const token = await ucretsizKullanici('rapor-gizlilik@made2fit.io');
+    const token = await ucretsizKullanici('rapor-gizlilik@swiip.app');
     const basliklar = { authorization: `Bearer ${token}` };
 
     // Ölçülerle üretilen analiz: "fotoğraf göndermedin" demeli.

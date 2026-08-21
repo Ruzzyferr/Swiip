@@ -1,4 +1,4 @@
-import type { Cinsiyet } from '@made2fit/shared';
+import type { Cinsiyet } from '@swiip/shared';
 import { kirp, yuvarla } from '../profil/olcumler';
 
 /**
@@ -188,7 +188,7 @@ export interface VucutRaporu {
 }
 
 const FERAGAT =
-  'Made2Fit tıbbi cihaz değildir, teşhis koymaz. Buradaki çıktılar ölçüm ve görüntüden ' +
+  'Swiip tıbbi cihaz değildir, teşhis koymaz. Buradaki çıktılar ölçüm ve görüntüden ' +
   'çıkarılmış tahminlerdir; kesin değer değildir. Bir şikâyetin varsa hekimine danış.';
 
 export function vucutRaporuUret(girdi: VucutRaporuGirdisi): VucutRaporu {

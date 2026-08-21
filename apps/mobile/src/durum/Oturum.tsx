@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { dilCozumle, metinleriAl, type Dil, type Metinler } from '@made2fit/shared';
+import { dilCozumle, metinleriAl, type Dil, type Metinler } from '@swiip/shared';
 import {
   agDiliniAyarla,
   istek,

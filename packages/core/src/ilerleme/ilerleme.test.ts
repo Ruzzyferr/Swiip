@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { IlerlemeDurumu } from '@made2fit/shared';
+import type { IlerlemeDurumu } from '@swiip/shared';
 import { hareketBul } from '../katalog/katalog';
 import { deloadAraligi, deloadGerekli, ilerlemeUygula, TEKRAR_TAVANI } from './ilerleme';
 

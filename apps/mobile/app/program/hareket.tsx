@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { hareketBul } from '@made2fit/core';
-import { hareketAdi, type Hareket } from '@made2fit/shared';
+import { hareketBul } from '@swiip/core';
+import { hareketAdi, type Hareket } from '@swiip/shared';
 import {
   Ayirac,
   Dugme,

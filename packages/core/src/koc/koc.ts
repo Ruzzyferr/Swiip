@@ -1,5 +1,5 @@
-import type { Profil } from '@made2fit/shared';
-import { metinler } from '@made2fit/shared';
+import type { Profil } from '@swiip/shared';
+import { metinler } from '@swiip/shared';
 import { turkceNormalize } from '../tanima/tanima';
 
 /**
@@ -345,7 +345,7 @@ const SATIR_SONU = String.fromCharCode(10);
 
 const SISTEM_METINLERI = {
   tr: {
-    kimlik: 'Sen Made2Fit koçusun. Türkçe, kısa ve somut konuşursun.',
+    kimlik: 'Sen Swiip koçusun. Türkçe, kısa ve somut konuşursun.',
     profilBasligi: 'KULLANICI PROFİLİ:',
     sinirBasligi: 'SERT SINIRLAR:',
     sinirlar: [
@@ -369,7 +369,7 @@ const SISTEM_METINLERI = {
     ],
   },
   en: {
-    kimlik: 'You are the Made2Fit coach. You speak English, briefly and concretely.',
+    kimlik: 'You are the Swiip coach. You speak English, briefly and concretely.',
     profilBasligi: 'USER PROFILE:',
     sinirBasligi: 'HARD LIMITS:',
     sinirlar: [

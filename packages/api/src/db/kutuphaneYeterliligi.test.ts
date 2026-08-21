@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { desteHazirla, tarifleriFiltrele, type OgunKisitlari } from '@made2fit/core';
+import { desteHazirla, tarifleriFiltrele, type OgunKisitlari } from '@swiip/core';
 import { TARIF_TOHUMU } from './tarifler';
 
 /**

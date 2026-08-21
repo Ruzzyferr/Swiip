@@ -15,7 +15,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { fiyatMetni, tarihMetni } from '@made2fit/shared';
+import { fiyatMetni, tarihMetni } from '@swiip/shared';
 import { istek } from '../../src/veri/api';
 import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/odeme/magaza';
 
