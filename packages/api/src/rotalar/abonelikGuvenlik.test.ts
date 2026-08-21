@@ -6,6 +6,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { HAK_TABLOSU } from '../servisler/haklar';
 import { tr } from '@swiip/shared';
+import { urunPlani } from './abonelik';
 
 const SATIR_SONU = String.fromCharCode(10);
 
@@ -298,6 +299,59 @@ describe('plan adı sunucudan gönderilmiyor', () => {
     for (const plan of planlar) {
       expect(plan.kod, 'plan kodu olmadan istemci ismi kuramaz').toBeTruthy();
       expect(plan.ad, `${String(plan.kod)} için görünen ad gönderiliyor`).toBeUndefined();
+    }
+  });
+});
+
+/**
+ * İki mağazanın ürün kimliği aynı yazılmıyor ve fark sessizce kaybediyordu.
+ *
+ * Google Play taban plan kimliğini ekliyor (`swiip_pro_aylik:aylik`), App Store
+ * eklemiyor. Eşleme tablosu yalnızca eksiz hâli tanıdığı için Play'den gelen kanca
+ * hiçbir plana denk gelmiyor ve kanca 200 dönüp hiçbir şey yapmıyordu — parayı ödemiş
+ * kullanıcının hakkı hiç açılmıyordu ve log bile düşmüyordu.
+ */
+describe('ürün kimliği — iki mağaza iki biçim', () => {
+  it('App Store biçimini tanır', () => {
+    expect(urunPlani('swiip_temel_aylik')).toBe('temel');
+    expect(urunPlani('swiip_pro_yillik')).toBe('pro');
+  });
+
+  it('Google Play taban plan ekini kırpar', () => {
+    expect(urunPlani('swiip_temel_aylik:aylik')).toBe('temel');
+    expect(urunPlani('swiip_temel_yillik:yillik')).toBe('temel');
+    expect(urunPlani('swiip_pro_aylik:aylik')).toBe('pro');
+    expect(urunPlani('swiip_pro_yillik:yillik')).toBe('pro');
+  });
+
+  it('bilinmeyen ürüne plan uydurmaz', () => {
+    expect(urunPlani('baska_urun')).toBeUndefined();
+    expect(urunPlani('baska_urun:aylik')).toBeUndefined();
+    expect(urunPlani(undefined)).toBeUndefined();
+  });
+
+  it('mağaza panelindeki her ürün kimliği tabloda karşılık buluyor', () => {
+    const magaza = readFileSync(
+      join(
+        import.meta.dirname,
+        '..',
+        '..',
+        '..',
+        '..',
+        'apps',
+        'mobile',
+        'src',
+        'odeme',
+        'magaza.ts',
+      ),
+      'utf8',
+    );
+    const kimlikler = [...magaza.matchAll(/urun_id:\s*'([\w_]+)'/g)].map((m) => m[1]);
+
+    expect(kimlikler.length, 'magaza.ts içinde ürün kimliği bulunamadı').toBeGreaterThan(0);
+    for (const kimlik of kimlikler) {
+      expect(urunPlani(kimlik), `${kimlik} için plan yok`).toBeTruthy();
+      expect(urunPlani(`${kimlik}:aylik`), `${kimlik} Play biçiminde eşleşmiyor`).toBeTruthy();
     }
   });
 });

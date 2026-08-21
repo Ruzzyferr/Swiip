@@ -25,6 +25,21 @@ const URUN_PLANI: Record<string, Plan> = {
   swiip_pro_yillik: 'pro',
 };
 
+/**
+ * İki mağaza aynı ürünü farklı yazıyor.
+ *
+ * App Store kimliği olduğu gibi gönderiyor (`swiip_pro_aylik`), Google Play ise taban
+ * plan kimliğini iki nokta üst üste ile ekliyor (`swiip_pro_aylik:aylik`). Tabloda
+ * yalnızca eksiz hâli var; kırpmadan bakınca Play'den gelen her kanca eşleşmiyor ve
+ * `if (!plan) return` dalına düşüyor — yani **abonelik sessizce hiç açılmıyor.**
+ * Sessiz olduğu için de ancak parayı ödemiş kullanıcı şikâyet edince fark edilirdi.
+ */
+export function urunPlani(urunId: string | undefined): Plan | undefined {
+  if (!urunId) return undefined;
+  const eksiz = urunId.split(':')[0] ?? urunId;
+  return URUN_PLANI[urunId] ?? URUN_PLANI[eksiz];
+}
+
 const kancaSemasi = z.object({
   event: z.object({
     type: z.string(),
@@ -201,7 +216,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
       }
 
       const { event } = kancaSemasi.parse(istek.body);
-      const plan = URUN_PLANI[event.product_id ?? ''];
+      const plan = urunPlani(event.product_id);
 
       // Hakkı kapatan olaylar ürün kimliği taşımayabilir; tip yeterli.
       if (event.type === 'EXPIRATION' || event.type === 'BILLING_ISSUE') {
