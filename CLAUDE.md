@@ -90,8 +90,15 @@ Bunların hepsi ölçülmüş bir rakip zaafından türedi. Gerekçeleri `docs/s
 
 İngilizce: *Made to fit. And made to explain.*
 
-İşaret: rakam 2'nin kendisi bir ölçü aleti — üst kavis çentikli açıölçer, taban taksimatlı
-cetvel. `brand/mark.svg` · `brand/lockup.svg` · `brand/icon.svg`
+İşaret: **işaretin kendisi bir ölçü aleti.** Made2Fit'te bunu 2 rakamı yapıyordu — üst
+kavisi çentikli açıölçer, tabanı taksimatlı cetvel. Swiip'te 2 yok; fikir korundu, harfe
+taşındı: S, teğet noktasında birleşen iki yaydan kuruluyor ve dış kavislerinde taksimat
+var. `scripts/marka-uret.mjs` üretiyor — çentik açıları hesapla çıksın, elle kaymasın.
+`brand/mark.svg` · `brand/lockup.svg` · `brand/icon.svg`
+
+> **Bu işaret bir ilk taslak, onaylanmış değil.** İki tur döndü: ilkinde yaylar
+> birleşmiyordu ve dişli çark okunuyordu; ikincisi doğru bir S ama çentikler hâlâ
+> "taksimat" değil "yırtık kenar" gibi duruyor. Tasarımcı eli değmeden mağazaya gitmesin.
 
 Renk: mürekkep `#131614`, aksan çam yeşili `#14615A`, zemin `#F6F7F5`.
 **Neon veya turuncu kullanma** — kategorinin tamamı orada.
@@ -117,11 +124,17 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
-- `swiip.app` alan adı alınacak
+- **Göç adımı dağıtımda otomatik değil.** İlk kurulumda `goc.ts` elle çalıştırıldı;
+  compose'da göç servisi yok. Sonraki dağıtımda şema güncellemesi sessizce atlanır.
 - TürKomp kullanım koşulları yazılı teyit edilecek
-- Marka sicili kontrolü (markaya para harcamadan önce)
-- Sunucu yedekleri: otomatik + dışarı kopyalanan + **geri yüklemesi denenmiş**
+- Swiip için **sicil taraması yapılmadı.** Mağazalarda sıfır sonuç doğrulandı (App Store
+  TR ve Play), ama TÜRKPATENT/EUIPO sınıf 9/41/42/44 taraması yapılmadı — markaya para
+  harcamadan önce yapılmalı.
+- Sunucu yedekleri: DO anlık yedeği açık, ama **geri yüklemesi denenmedi**
 - Kilitteki "Swiip" yazısı outline'a çevrilecek
+- Mağaza görselleri (`magaza/play/`) hâlâ Made2Fit markalı — yeniden üretilecek
+- RevenueCat, AI gateway ve posta sağlayıcısı yapılandırılmadı; sunucu bunlarsız
+  çalışıyor ve açılışta uyarı basıyor
 
 ## Bilinen en büyük risk
 

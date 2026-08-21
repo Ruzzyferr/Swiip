@@ -13,10 +13,15 @@
  */
 import { writeFileSync } from 'node:fs';
 
-const R = 19; // yay yarıçapı
-const KALINLIK = 13; // gövde kalınlığı
-const UST = { cx: 50, cy: 33 };
-const ALT = { cx: 50, cy: 67 };
+/**
+ * Yarıçap ve merkezler birbirine bağlı: merkezler arası mesafe tam 2R olmalı ki iki
+ * çember **teğet** olsun ve S ortada gerçekten birleşsin. İlk denemede bu tutmuyordu
+ * ve işaret iki ayrı C gibi okunuyordu.
+ */
+const R = 16;
+const KALINLIK = 12;
+const UST = { cx: 50, cy: 50 - R };
+const ALT = { cx: 50, cy: 50 + R };
 
 const rad = (derece) => (derece * Math.PI) / 180;
 const nokta = (m, yaricap, derece) => [
@@ -36,9 +41,11 @@ function taksimat(merkez, baslangic, bitis, adet) {
   for (let i = 0; i <= adet; i++) {
     const t = i / adet;
     const aci = baslangic + (bitis - baslangic) * t;
-    const buyuk = i % 5 === 0;
-    const derinlik = buyuk ? 4.6 : 2.9;
-    const kalem = buyuk ? 1.9 : 1.5;
+    const buyuk = i % 3 === 0;
+    // Sığ ve seyrek: ilk denemede çentikler o kadar sık ve derindi ki işaret
+    // ölçü aleti değil dişli çark okunuyordu.
+    const derinlik = buyuk ? 3.4 : 2.1;
+    const kalem = buyuk ? 1.7 : 1.3;
     const dis = R + KALINLIK / 2 + 0.8;
     const [x1, y1] = nokta(merkez, dis - derinlik, aci);
     const [x2, y2] = nokta(merkez, dis, aci);
@@ -49,21 +56,26 @@ function taksimat(merkez, baslangic, bitis, adet) {
   return cizgiler;
 }
 
-// S, iki yarım yaydan kuruluyor: üstte sağdan başlayıp tepeden sola,
-// altta soldan başlayıp dipten sağa. Ortada ikisi birleşiyor.
-const UST_BAS = -25;
-const UST_BIT = -205; // tepeden geçerek sola
-const ALT_BAS = 155;
-const ALT_BIT = -25; // dipten geçerek sağa
+/**
+ * S, teğet noktasında (50,50) birleşen iki 250°'lik yay.
+ *
+ * Üst yay sağ üstten başlar, ekranda saat yönünün TERSİNE (açı azalarak) tepeden ve
+ * soldan dolanıp teğet noktasına iner. Alt yay aynı noktadan başlar, saat yönünde
+ * sağdan ve dipten dolanıp sol alta çıkar. Açılar 180°'yi aştığı için her ikisinde de
+ * large-arc bayrağı 1.
+ */
+const UST_BAS = -20;
+const ALT_BAS = -90; // teğet nokta (50,50); yol orada birleşiyor
+const ALT_BIT = 160;
 
 const [ux1, uy1] = nokta(UST, R, UST_BAS);
-const [ux2, uy2] = nokta(UST, R, UST_BIT);
-const [ax1, ay1] = nokta(ALT, R, ALT_BAS);
 const [ax2, ay2] = nokta(ALT, R, ALT_BIT);
 
+// Taksimat yalnızca dış kavislerde; birleşme noktasının yakını temiz bırakılıyor ki
+// S'in beli okunur kalsın.
 const maskeCizgileri = [
-  ...taksimat(UST, UST_BAS - 4, UST_BIT + 4, 20),
-  ...taksimat(ALT, ALT_BAS - 4, ALT_BIT + 4, 20),
+  ...taksimat(UST, UST_BAS - 6, -200, 12),
+  ...taksimat(ALT, ALT_BAS + 20, 140, 12),
 ].join('\n');
 
 function govde(maskeId) {
@@ -74,8 +86,7 @@ ${maskeCizgileri}
     </g>
   </mask>
   <g mask="url(#${maskeId})" fill="none" stroke="currentColor" stroke-width="${KALINLIK}" stroke-linecap="butt">
-    <path d="M ${yuvarla(ux1)} ${yuvarla(uy1)} A ${R} ${R} 0 1 0 ${yuvarla(ux2)} ${yuvarla(uy2)}"/>
-    <path d="M ${yuvarla(ax1)} ${yuvarla(ay1)} A ${R} ${R} 0 1 0 ${yuvarla(ax2)} ${yuvarla(ay2)}"/>
+    <path d="M ${yuvarla(ux1)} ${yuvarla(uy1)} A ${R} ${R} 0 1 0 50 50 A ${R} ${R} 0 1 1 ${yuvarla(ax2)} ${yuvarla(ay2)}"/>
   </g>`;
 }
 
