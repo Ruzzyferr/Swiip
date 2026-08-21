@@ -87,6 +87,7 @@ export default tseslint.config(
         clearTimeout: 'readonly',
         AbortController: 'readonly',
         Buffer: 'readonly',
+        URLSearchParams: 'readonly',
       },
     },
   },
