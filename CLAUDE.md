@@ -132,9 +132,25 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   Global açılımdan önce marka vekiline danış.
 - Sunucu yedekleri: DO anlık yedeği açık, ama **geri yüklemesi denenmedi**
 - Kilitteki "Swiip" yazısı outline'a çevrilecek
-- Mağaza görselleri (`magaza/play/`) hâlâ Made2Fit markalı — yeniden üretilecek
-- RevenueCat, AI gateway ve posta sağlayıcısı yapılandırılmadı; sunucu bunlarsız
-  çalışıyor ve açılışta uyarı basıyor
+- **AI gateway ve posta sağlayıcısı** yapılandırılmadı; sunucu bunlarsız çalışıyor ve
+  açılışta uyarı basıyor. (RevenueCat iki platformda da kuruldu.)
+- Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
+- Play veri güvenliği formunda **kullanıcı kimliği ve satın alma geçmişi eksik**;
+  ikisi de toplanıyor. Ayrıntı `magaza/play/konsol-rehberi.md` bölüm 7.
+
+## Dağıtım ve sunucu
+
+Dağıtım `scripts/sunucu-dagit.sh` ile. Kaynağı `git archive` ile paketler, `/opt/swiip`
+altına açar, `api` imajını kurar ve sağlık ucu 200 dönene kadar bekler. Dağıtılan commit
+sunucuda `/opt/swiip/SURUM` dosyasında yazar.
+
+Sunucudaki `/opt/swiip` bir git deposu **değil** — "hangi kod dönüyor" sorusunun tek
+cevabı o dosya.
+
+Erişim bilgileri (SSH, root parolası, DigitalOcean tokenı) depoda değil:
+`Masaüstü/Swiip-YEDEK/sunucu-erisimi.md`. Kurulumu yapan oturum SSH anahtarını
+kaydetmeyi unuttuğu için erişim bir kez kaybedildi ve parola sıfırlamayla geri alındı;
+o dosyayı kaybetme.
 
 ## Bilinen en büyük risk
 
