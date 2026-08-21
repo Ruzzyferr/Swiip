@@ -21,6 +21,7 @@
     "format:check": "prettier --check .",
     "ceviri": "node scripts/ceviri-denetimi.mjs",
     "guvenlik": "node scripts/guvenlik-denetimi.mjs",
+    "marka": "node scripts/marka-uret.mjs && node scripts/gorsel-uret.mjs && npm -w @swiip/mobile exec -- expo prebuild --platform android --clean && node scripts/android-imza.mjs",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run ceviri && npm run test",
     "db:generate": "npm -w @swiip/api run db:generate",
     "db:migrate": "npm -w @swiip/api run db:migrate",

@@ -124,12 +124,12 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
-- **Göç adımı dağıtımda otomatik değil.** İlk kurulumda `goc.ts` elle çalıştırıldı;
-  compose'da göç servisi yok. Sonraki dağıtımda şema güncellemesi sessizce atlanır.
 - TürKomp kullanım koşulları yazılı teyit edilecek
-- Swiip için **sicil taraması yapılmadı.** Mağazalarda sıfır sonuç doğrulandı (App Store
-  TR ve Play), ama TÜRKPATENT/EUIPO sınıf 9/41/42/44 taraması yapılmadı — markaya para
-  harcamadan önce yapılmalı.
+- **Marka: Türkiye temiz, AB/İngiltere çekişmeli.** TMview taraması (2026-08-21):
+  Türkiye'de "swiip" içeren **sıfır** kayıt — TÜRKPATENT'te 9/41/44 başvurusu yapılmalı.
+  Ama İngiltere'de birebir `swiip` (sınıf 35/42, Hassan Hashmi) ve EUIPO'da `Swiipe`
+  (sınıf 9/36, Swiipe ApS) tescilli. AB'de sınıf 9 başvurusunda `Swiipe` karşına çıkar.
+  Global açılımdan önce marka vekiline danış.
 - Sunucu yedekleri: DO anlık yedeği açık, ama **geri yüklemesi denenmedi**
 - Kilitteki "Swiip" yazısı outline'a çevrilecek
 - Mağaza görselleri (`magaza/play/`) hâlâ Made2Fit markalı — yeniden üretilecek

@@ -44,8 +44,8 @@ function taksimat(merkez, baslangic, bitis, adet) {
     const buyuk = i % 3 === 0;
     // Sığ ve seyrek: ilk denemede çentikler o kadar sık ve derindi ki işaret
     // ölçü aleti değil dişli çark okunuyordu.
-    const derinlik = buyuk ? 3.4 : 2.1;
-    const kalem = buyuk ? 1.7 : 1.3;
+    const derinlik = buyuk ? 6.8 : 4.2;
+    const kalem = buyuk ? 1.9 : 1.4;
     const dis = R + KALINLIK / 2 + 0.8;
     const [x1, y1] = nokta(merkez, dis - derinlik, aci);
     const [x2, y2] = nokta(merkez, dis, aci);
@@ -65,18 +65,21 @@ function taksimat(merkez, baslangic, bitis, adet) {
  * large-arc bayrağı 1.
  */
 const UST_BAS = -20;
-const ALT_BAS = -90; // teğet nokta (50,50); yol orada birleşiyor
+// Alt yay teğet noktadan (50,50) başlıyor; yol tek `d` içinde orada birleşiyor.
 const ALT_BIT = 160;
 
 const [ux1, uy1] = nokta(UST, R, UST_BAS);
 const [ax2, ay2] = nokta(ALT, R, ALT_BIT);
 
-// Taksimat yalnızca dış kavislerde; birleşme noktasının yakını temiz bırakılıyor ki
-// S'in beli okunur kalsın.
-const maskeCizgileri = [
-  ...taksimat(UST, UST_BAS - 6, -200, 12),
-  ...taksimat(ALT, ALT_BAS + 20, 140, 12),
-].join('\n');
+/**
+ * Taksimat YALNIZCA üst yayın dış kenarında.
+ *
+ * İlk iki denemede çentikler her iki yayın çevresine dağıtılmıştı ve işaret ölçü aleti
+ * değil testere okunuyordu. Made2Fit'in işaretine bakınca sebep görüldü: orada da
+ * çentikler tek bir yerde, açıölçerin dış kavsinde, yelpaze gibi duruyor. Gövdenin geri
+ * kalanı temiz. Aynı kompozisyon buraya taşındı.
+ */
+const maskeCizgileri = taksimat(UST, -30, -195, 11).join('\n');
 
 function govde(maskeId) {
   return `  <mask id="${maskeId}" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
