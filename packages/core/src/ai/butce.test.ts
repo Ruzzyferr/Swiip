@@ -111,10 +111,23 @@ describe('ucuzaDusur', () => {
     expect(dusuk.gorsel).toBe(true);
   });
 
-  it('zaten ucuz olanı değiştirmez', () => {
-    const secim = { seviye: 'ucuz' as const, gorsel: false, max_cikti_token: 300 };
+  /**
+   * Koç sohbeti ucuz seviyeye alınınca ortaya çıktı: "zaten ucuzsa dokunma" demek,
+   * bütçe supabını o iş için tamamen kapatmak oluyordu — bütçe aşılıyor ama hiçbir şey
+   * ucuzlamıyordu. Seviye dibe vurduğunda elde kalan tek kaldıraç uzunluk.
+   */
+  it('zaten ucuzsa seviyeyi korur ama çıktıyı yine kısar', () => {
+    const secim = { seviye: 'ucuz' as const, gorsel: false, max_cikti_token: 700 };
+    const dusuk = ucuzaDusur(secim);
 
-    expect(ucuzaDusur(secim)).toEqual(secim);
+    expect(dusuk.seviye).toBe('ucuz');
+    expect(dusuk.max_cikti_token).toBeLessThan(secim.max_cikti_token);
+  });
+
+  it('taban 150 tokenın altına inmez — cevap kullanılmaz hâle gelmesin', () => {
+    const dusuk = ucuzaDusur({ seviye: 'ucuz', gorsel: false, max_cikti_token: 160 });
+
+    expect(dusuk.max_cikti_token).toBe(150);
   });
 
   /**

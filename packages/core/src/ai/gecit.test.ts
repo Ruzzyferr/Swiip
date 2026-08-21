@@ -5,8 +5,10 @@ import {
   aylikMaliyetTahmini,
   gerekceAnlat,
   maliyetHesapla,
+  modelAdi,
   modelSec,
   sayilariDogrula,
+  tumSeviyeler,
 } from './gecit';
 
 const kararlar: Karar[] = [
@@ -146,8 +148,39 @@ describe('modelSec', () => {
     expect(secim.gorsel).toBe(true);
   });
 
-  it('koç sohbeti orta seviyede kalır', () => {
-    expect(modelSec('koc_sohbeti').seviye).toBe('orta');
+  /**
+   * Koç maliyetin belini tutuyor (Pro'da ~%69). Ucuz seviye burada bilinçli bir karar:
+   * koç hesap yapmıyor, `sayiDogrula` uydurulan her sayıyı reddediyor. Biri "kalite için"
+   * diye üst seviyeye çekerse marj sessizce erir — bu test o değişikliği görünür kılıyor.
+   */
+  it('koç sohbeti ucuz seviyede kalır — maliyetin çoğunluğu burada', () => {
+    expect(modelSec('koc_sohbeti').seviye).toBe('ucuz');
+  });
+});
+
+describe('model adı ile fiyat aynı tabloda', () => {
+  it('her seviyenin bir model adı var', () => {
+    for (const seviye of tumSeviyeler()) {
+      expect(modelAdi(seviye), `${seviye} için model adı yok`).toBeTruthy();
+    }
+  });
+
+  /**
+   * Adlar bir kez Claude 4 kuşağında kalıp fiyat tablosundan koptu; maliyet gerçeğin
+   * 3,5 katı altında göründü. Biçim kontrolü o sessiz kaymayı yakalamaz ama en azından
+   * "sağlayıcı/model" kalıbını korur.
+   */
+  it('model adları gateway biçiminde (saglayici/model)', () => {
+    for (const seviye of tumSeviyeler()) {
+      expect(modelAdi(seviye), `${seviye}: ${modelAdi(seviye)}`).toMatch(/^[a-z0-9-]+\/\S+$/);
+    }
+  });
+
+  it('ucuz seviye güçlüden gerçekten ucuz', () => {
+    const ucuz = maliyetHesapla('ucuz', { girdi_token: 1_000_000, cikti_token: 100_000 });
+    const guclu = maliyetHesapla('guclu', { girdi_token: 1_000_000, cikti_token: 100_000 });
+
+    expect(ucuz).toBeLessThan(guclu);
   });
 });
 

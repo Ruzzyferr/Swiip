@@ -36,7 +36,16 @@ const IS_MODELLERI: Record<AiIsi, ModelSecimi> = {
   degerlendirme_yorumlama: { seviye: 'guclu', gorsel: false, max_cikti_token: 1200 },
   vucut_analizi: { seviye: 'guclu_gorsel', gorsel: true, max_cikti_token: 800 },
   yemek_tanima: { seviye: 'ucuz_gorsel', gorsel: true, max_cikti_token: 400 },
-  koc_sohbeti: { seviye: 'orta', gorsel: false, max_cikti_token: 700 },
+  /**
+   * Koç sohbeti maliyetin belini tutuyor: Pro'da toplamın ~%69'u, Temel'de ~%79'u.
+   * Diğer beş iş birlikte kalanı ediyor.
+   *
+   * Ucuz seviye burada güvenli, çünkü koç **hesap yapmıyor** — hacim, kalori, makro,
+   * ilerleme hepsi deterministik çekirdekten geliyor ve modelin uydurduğu her sayı
+   * `sayiDogrula` ile reddediliyor. Modelden istenen tek şey o sayıları Türkçe bir
+   * cümleye dökmek. Bunun için güçlü model almak, marjı bir üslup farkına yatırmak olurdu.
+   */
+  koc_sohbeti: { seviye: 'ucuz', gorsel: false, max_cikti_token: 700 },
   gerekce_anlatimi: { seviye: 'ucuz', gorsel: false, max_cikti_token: 300 },
   ogun_plani: { seviye: 'orta', gorsel: false, max_cikti_token: 900 },
 };
@@ -45,14 +54,35 @@ export function modelSec(is: AiIsi): ModelSecimi {
   return IS_MODELLERI[is];
 }
 
-/** Milyon token başına USD. Gateway fiyatı değişince yalnızca bu tablo güncellenir. */
-const FIYATLAR: Record<ModelSeviyesi, { girdi: number; cikti: number }> = {
-  guclu: { girdi: 3, cikti: 15 },
-  guclu_gorsel: { girdi: 3, cikti: 15 },
-  orta: { girdi: 0.8, cikti: 4 },
-  ucuz: { girdi: 0.25, cikti: 1.25 },
-  ucuz_gorsel: { girdi: 0.25, cikti: 1.25 },
+/**
+ * Seviye → model adı ve milyon token başına USD.
+ *
+ * Ad ve fiyat **aynı satırda** duruyor. Önce ayrı dosyalardaydılar (ad `aiGecidi.ts`'te,
+ * fiyat burada) ve birbirinden koptular: adlar Claude 4 kuşağında kalmışken fiyatlar
+ * bambaşka bir tabloydu — maliyet gerçeğin 3,5 katı **altında** görünüyordu ve bu, birim
+ * ekonomisi hesabını olduğundan iyi gösteriyordu. Tek satırda tutmak bu sınıf hatayı
+ * yapısal olarak imkânsız kılıyor.
+ *
+ * Fiyatlar Anthropic liste fiyatı (2026-06 itibarıyla); gateway marj eklemiyor.
+ * Model adını değiştirdiğinde fiyatı da aynı satırda değiştir.
+ */
+const MODELLER: Record<ModelSeviyesi, { ad: string; girdi: number; cikti: number }> = {
+  guclu: { ad: 'anthropic/claude-opus-5', girdi: 5, cikti: 25 },
+  guclu_gorsel: { ad: 'anthropic/claude-opus-5', girdi: 5, cikti: 25 },
+  orta: { ad: 'anthropic/claude-sonnet-5', girdi: 3, cikti: 15 },
+  ucuz: { ad: 'anthropic/claude-haiku-4.5', girdi: 1, cikti: 5 },
+  ucuz_gorsel: { ad: 'anthropic/claude-haiku-4.5', girdi: 1, cikti: 5 },
 };
+
+/** Gateway'e gönderilecek model adı. */
+export function modelAdi(seviye: ModelSeviyesi): string {
+  return MODELLER[seviye].ad;
+}
+
+/** Tüm seviyeler — doğrulama betiği bunun üzerinden geziyor. */
+export function tumSeviyeler(): ModelSeviyesi[] {
+  return Object.keys(MODELLER) as ModelSeviyesi[];
+}
 
 export interface TokenKullanimi {
   girdi_token: number;
@@ -60,7 +90,7 @@ export interface TokenKullanimi {
 }
 
 export function maliyetHesapla(seviye: ModelSeviyesi, kullanim: TokenKullanimi): number {
-  const fiyat = FIYATLAR[seviye];
+  const fiyat = MODELLER[seviye];
   const usd =
     (kullanim.girdi_token / 1_000_000) * fiyat.girdi +
     (kullanim.cikti_token / 1_000_000) * fiyat.cikti;

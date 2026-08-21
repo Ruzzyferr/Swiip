@@ -1,5 +1,5 @@
 import type { AiCevap, AiIstek, AiIstemcisi } from '@swiip/core';
-import { modelSec } from '@swiip/core';
+import { modelAdi, modelSec } from '@swiip/core';
 
 /**
  * AI gateway istemcisi.
@@ -12,15 +12,6 @@ import { modelSec } from '@swiip/core';
 
 const ZAMAN_ASIMI_MS = 20_000;
 
-/** İş seviyesi -> gateway model kimliği. Gateway bu adları kendi sağlayıcılarına eşler. */
-const MODEL_ADLARI: Record<string, string> = {
-  guclu: 'anthropic/claude-opus-4',
-  guclu_gorsel: 'anthropic/claude-opus-4',
-  orta: 'anthropic/claude-sonnet-4',
-  ucuz: 'anthropic/claude-haiku-4',
-  ucuz_gorsel: 'anthropic/claude-haiku-4',
-};
-
 export interface GatewaySecenekleri {
   url: string;
   anahtar: string;
@@ -31,7 +22,8 @@ export function gatewayIstemcisi(secenekler: GatewaySecenekleri): AiIstemcisi {
   return {
     async metinUret(istek: AiIstek): Promise<AiCevap> {
       const secim = modelSec(istek.is);
-      const model = MODEL_ADLARI[secim.seviye] ?? MODEL_ADLARI.orta!;
+      // Ad çekirdekteki fiyat tablosuyla aynı satırdan geliyor; ikisi ayrışamaz.
+      const model = modelAdi(secim.seviye);
 
       const durdurucu = new AbortController();
       const zamanlayici = setTimeout(

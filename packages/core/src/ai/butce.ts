@@ -81,12 +81,15 @@ export function butceDurumu(girdi: ButceGirdisi): ButceDurumu {
 export function ucuzaDusur(secim: ModelSecimi): ModelSecimi {
   const seviye: ModelSeviyesi = secim.gorsel ? 'ucuz_gorsel' : 'ucuz';
 
-  if (secim.seviye === seviye) return secim;
-
   return {
     seviye,
     gorsel: secim.gorsel,
     // Çıktıyı da kısıyoruz: model ucuzlatmak maliyetin yarısı, uzunluk diğer yarısı.
+    //
+    // Uzunluk kısıtı, seviye ZATEN ucuz olsa bile uygulanır. Önce "zaten ucuzsa
+    // dokunma" deniyordu; koç sohbeti ucuz seviyeye alınınca bu, bütçe supabını
+    // sessizce işlevsiz bıraktı — bütçe aşılıyor, `ucuzaDus` true dönüyor, ama hiçbir
+    // şey ucuzlamıyordu. Seviye dibe vurduğunda elde kalan tek kaldıraç uzunluk.
     max_cikti_token: Math.max(150, Math.round(secim.max_cikti_token * 0.6)),
   };
 }
