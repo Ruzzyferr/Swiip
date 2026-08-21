@@ -135,6 +135,13 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 - **AI gateway ve posta sağlayıcısı** yapılandırılmadı; sunucu bunlarsız çalışıyor ve
   açılışta uyarı basıyor. (RevenueCat iki platformda da kuruldu.)
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
+- **Play servis hesabı anahtarı bu bilgisayarda yok.** Hesap duruyor
+  (`revenuecat-connect@swiip-revenuecat.iam.gserviceaccount.com`) ve RevenueCat'teki
+  kopyası çalışıyor; kaybolan yalnızca bizim JSON dosyamız. Bu hâliyle
+  `scripts/play-*.mjs` çalışmaz, yani **sonraki Play sürümü API ile yüklenemez**
+  (konsolden elle yüklenebilir). Yenisi Google Cloud Console → IAM → Hizmet
+  hesapları → Anahtarlar'dan üretilir; Cloud Console `info@swiip.app` parolasını
+  yeniden soruyor
 - Play veri güvenliği formunda **kullanıcı kimliği ve satın alma geçmişi eksik**;
   ikisi de toplanıyor. Ayrıntı `magaza/play/konsol-rehberi.md` bölüm 7.
 
