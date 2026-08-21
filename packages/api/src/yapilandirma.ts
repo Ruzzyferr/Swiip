@@ -51,8 +51,26 @@ const sema = z.object({
 
 export type Yapilandirma = z.infer<typeof sema>;
 
+/**
+ * Boş dizeyi "tanımsız" sayar.
+ *
+ * Ortam değişkeni her zaman dizedir; "tanımsız" diye bir değeri yoktur. docker compose
+ * `${AI_GATEWAY_URL:-}` yazdığında değişkeni **boş dize** olarak geçirir. Şemada
+ * `.optional()` yalnızca `undefined` kabul ettiği için boş dize doğrulamaya takılıyor
+ * ve yapılandırılmamış bir isteğe bağlı servis sunucuyu hiç açtırmıyordu.
+ *
+ * Silmek, ayarlanmamış alanın şemadaki varsayılanına düşmesini de sağlar.
+ */
+function bosAlanlariAt(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const temiz: NodeJS.ProcessEnv = {};
+  for (const [anahtar, deger] of Object.entries(env)) {
+    if (deger !== undefined && deger.trim() !== '') temiz[anahtar] = deger;
+  }
+  return temiz;
+}
+
 export function yapilandirmayiOku(env: NodeJS.ProcessEnv = process.env): Yapilandirma {
-  const sonuc = sema.safeParse(env);
+  const sonuc = sema.safeParse(bosAlanlariAt(env));
 
   if (!sonuc.success) {
     const eksikler = sonuc.error.issues
