@@ -169,12 +169,16 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
-- **App Store: 1.0 sürümü REDDEDİLDİ (2026-08-22).** Gönderim
-  `897eade5-e9ee-4187-a4fa-91a393afe5b1`, durum `UNRESOLVED_ISSUES`; reddedilen kalem
-  uygulama sürümünün kendisi. **Gerekçe API ile okunamıyor** — Resolution Center yalnızca
-  konsolda ve oturum açmayı istiyor. `scripts/apple-api.mjs` yalnızca durumu veriyor.
-  Build 3 yüklemede ITMS-90725 almıştı (iOS 18.2 SDK ile derlenmiş; iOS 26 SDK şart);
-  build 4 sorunsuz yüklendi ve `VALID`, yani o iş kapandı.
+- **App Store: 1.0 reddedildi — Guideline 2.1, Information Needed (2026-08-22).**
+  Hata bulunmuş değil; yeni uygulamadan istenen sekiz bilgi. Cevap taslağı
+  `magaza/appstore/inceleme-cevabi.md`. **Eksik iki şey var ve uydurulamaz:**
+  fiziksel cihazda çekilmiş ekran kaydı (simülatör kabul edilmiyor) ve test edilen
+  iPhone modeli + iOS sürümü listesi. Cevap Resolution Center'dan yazılıyor,
+  aynı metin `App Review Information → Notes` alanına da konmalı.
+
+  Gerekçe App Store Connect API ile **okunamıyor** — Resolution Center yalnızca
+  konsolda. `scripts/apple-api.mjs` sadece durumu veriyor. Build 3 yüklemede
+  ITMS-90725 almıştı (iOS 18.2 SDK; iOS 26 şart), build 4 sorunsuz ve `VALID`.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
   (`revenuecat-connect@swiip-revenuecat`). `scripts/play-*.mjs` bunu
