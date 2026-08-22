@@ -1,3 +1,4 @@
+import type { AiGorsel } from './gorselGirdi';
 import type { Karar } from '@swiip/shared';
 
 /**
@@ -172,6 +173,13 @@ export interface AiIstek {
   sistem: string;
   kullanici: string;
   max_cikti_token: number;
+  /**
+   * Modele gonderilecek gorseller.
+   *
+   * Fotograf metne GOMULMEZ. Gomuldugunde model gorsel gormez ve base64 dizesi token
+   * olarak sayilir; ikisi de sessiz. Ayri alan, o hatayi tip duzeyinde imkansiz kiliyor.
+   */
+  gorseller?: AiGorsel[];
 }
 
 export interface AiCevap {

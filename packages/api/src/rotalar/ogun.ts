@@ -7,6 +7,7 @@ import {
   desteHazirla,
   kaydirmaOgren,
   ogunHedefleriniBol,
+  ramazanMi,
   tarifleriFiltrele,
   type Ogrenme,
   type OgunKisitlari,
@@ -106,7 +107,16 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
   }
 
   /** Kısıtlar değerlendirme cevaplarından çıkar; her istekte yeniden hesaplanır. */
-  async function kisitlariGetir(kullaniciId: string): Promise<{
+  /**
+   * `bugun` disaridan gecirilebiliyor.
+   *
+   * Ramazan penceresi takvime bagli ve haftalik plan gelecekteki bir haftaya da
+   * kurulabiliyor; kisiti "su an"a gore cozmek, o haftanin gercegini kaciririr.
+   */
+  async function kisitlariGetir(
+    kullaniciId: string,
+    bugun: Date = new Date(),
+  ): Promise<{
     kisitlar: OgunKisitlari;
     profil: Profil;
   }> {
@@ -131,7 +141,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
 
     return {
       profil: profilKaydi.profil as Profil,
-      kisitlar: cevaplardanKisit(cevaplar, tercihler),
+      kisitlar: cevaplardanKisit(cevaplar, tercihler, bugun),
     };
   }
 
@@ -356,7 +366,11 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
       .parse(istek.body);
 
     await ozellikKontrol(istek.kullaniciId);
-    const { kisitlar, profil } = await kisitlariGetir(istek.kullaniciId);
+    // Plan hangi haftaya kuruluyorsa kisit da o haftaya gore cozuluyor.
+    const { kisitlar, profil } = await kisitlariGetir(
+      istek.kullaniciId,
+      new Date(`${hafta_basi}T12:00:00.000Z`),
+    );
 
     const beslenme = beslenmeHedefiHesapla(profil);
     const ogunler = ogunHedefleriniBol(beslenme, 3, kisitlar.ramazan);
@@ -585,6 +599,8 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
 export function cevaplardanKisit(
   cevaplar: Record<string, unknown>,
   tercihler: Ogrenme,
+  /** Referans gün dışarıdan geliyor: kısıt çözümü test edilebilir kalsın. */
+  bugun: Date = new Date(),
 ): OgunKisitlari {
   const dizi = (id: string): string[] => {
     const deger = cevaplar[id];
@@ -618,8 +634,14 @@ export function cevaplardanKisit(
         : kimPisiriyor === 'Dışarıdan alıyorum'
           ? 'disaridan'
           : 'kendim',
-    // "Bazı günler" de öğün penceresini kaydırır; o günlerde plan iftar-sahura göre kurulur.
-    ramazan: ['Evet', 'Bazı günler'].includes(String(cevaplar['B12'] ?? '')),
+    /**
+     * Oruç tercihi VE takvim.
+     *
+     * B12 bir tercih sorusu ("tutar mısın"), durum sorusu değil ("bugün oruçlusun mu").
+     * Tek başına okunduğunda Ağustos ayında sahur/iftar planı üretiyordu — kullanıcının
+     * gördüğü ilk şey, ürünün onu hiç dinlemediğinin kanıtı olurdu.
+     */
+    ramazan: ['Evet', 'Bazı günler'].includes(String(cevaplar['B12'] ?? '')) && ramazanMi(bugun),
   };
 }
 

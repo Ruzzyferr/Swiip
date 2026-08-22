@@ -1,3 +1,4 @@
+import { jsonCikar } from '../ai/jsonCikar';
 /**
  * Görsel yemek tanıma boru hattı — spec bölüm 9, plan F7.
  *
@@ -49,12 +50,13 @@ const MAKS_KALEM = 12;
 const YASAKLI_ALANLAR = ['kalori', 'kcal', 'protein_g', 'yag_g', 'karbonhidrat_g', 'makro'];
 
 export function tanimaCiktisiniAyristir(ham: string): TanimaCiktisi {
-  let json: { kalemler?: unknown };
-  try {
-    json = JSON.parse(ham) as { kalemler?: unknown };
-  } catch {
-    return { kalemler: [] };
-  }
+  /**
+   * Cikti ```json citiyle sarili gelebiliyor. Duz `JSON.parse` ilk karakterde patliyor,
+   * hata sessizce yutuluyor ve kullanici "fotografta tanıyabildigim bir yemek yok"
+   * goruyordu — model tabagi gayet iyi gormusken.
+   */
+  const json = jsonCikar(ham) as { kalemler?: unknown } | undefined;
+  if (!json || typeof json !== 'object') return { kalemler: [] };
 
   if (!Array.isArray(json.kalemler)) return { kalemler: [] };
 
@@ -109,7 +111,19 @@ import { aramaAnahtari } from '@swiip/shared';
  * tanıma çıktısında araları bozuk adlar geliyor ("köfte   ekmek").
  */
 export function turkceNormalize(metin: string): string {
-  return aramaAnahtari(metin).replace(/\s+/g, ' ').trim();
+  /**
+   * Noktalama boşluğa çevriliyor.
+   *
+   * Katalog adlarının çoğu virgüllü ("Beyaz peynir, tam yağlı") ve model çıktısı
+   * parantezli ("beyaz peynir (feta)"). Noktalama kelimeye yapışınca "peynir," hiçbir
+   * zaman "peynir" ile eşleşmiyor ve skor kelime örtüşmesini kaçırıyordu. Sonuç sessizdi:
+   * eşleşme bulunuyor, sadece yanlışını buluyordu — kullanıcıya peynirin makrosu yerine
+   * **ekmeğin** makrosu yazılıyordu.
+   */
+  return aramaAnahtari(metin)
+    .replace(/[,;:()[\]{}/.!?"'`*_+&|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /** 0-1 arası benzerlik. Tam eşleşme, kelime içerme ve ortak kelime oranı üzerinden. */

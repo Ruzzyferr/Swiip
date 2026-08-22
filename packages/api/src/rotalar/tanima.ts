@@ -9,6 +9,7 @@ import {
   modelSec,
   tanimaCiktisiniAyristir,
   TANIMA_SISTEM_MESAJI,
+  gorselHazirla,
   turkceNormalize,
   type BesinKaydi,
   type EslesmisKalem,
@@ -221,12 +222,37 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
      */
     const secim = modelSec('yemek_tanima');
 
+    /**
+     * Fotograf GORSEL olarak gidiyor, metne gomulmuyor.
+     *
+     * Eskiden `kullanici: JSON.stringify({ fotograf })` yaziliydi ve iki hasari birden
+     * vardi, ikisi de sessiz: model gorsel gormuyordu (tanima her zaman bos donuyordu)
+     * ve base64 dizesi token sayiliyordu (~900 yerine ~90.000). Yani ozellik hic
+     * calismiyor, ama en pahali istegi uretiyordu.
+     */
+    const gorsel = gorselHazirla(govde.fotograf);
+    if (!gorsel) {
+      if (kotaDusecek) {
+        await kotaIadeEt(db, {
+          kullaniciId: istek.kullaniciId,
+          donem: donemKodu(),
+          alan: 'food_photos_used',
+        });
+      }
+      throw HataliIstek(
+        'Bu dosyayı okuyamadım. JPEG, PNG veya WebP bir fotoğraf gönderebilir misin? ' +
+          'Bu deneme kotandan düşmedi.',
+        'gorsel_bicimi_desteklenmiyor',
+      );
+    }
+
     let cevap;
     try {
       cevap = await app.aiIstemcisi.metinUret({
         is: 'yemek_tanima',
         sistem: TANIMA_SISTEM_MESAJI,
-        kullanici: JSON.stringify({ fotograf: govde.fotograf }),
+        kullanici: 'Bu fotoğraftaki yemekleri ve miktarlarını çıkar.',
+        gorseller: [gorsel],
         max_cikti_token: secim.max_cikti_token,
       });
     } catch (hata) {

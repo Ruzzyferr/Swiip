@@ -4,7 +4,14 @@ import { z } from 'zod';
 import { vucutRaporuUret, type GorselAnalizCiktisi, type VucutRaporu } from '@swiip/core';
 import { dilCozumle, metinleriAl, raporMetinleri } from '@swiip/shared';
 import { Bulunamadi, HataliIstek, Yasak } from '../hatalar';
-import { body_analyses, subscriptions, users } from '../db/sema';
+import {
+  assessments,
+  body_analyses,
+  profiles,
+  subscriptions,
+  users,
+  weight_logs,
+} from '../db/sema';
 import { fotografiAnalizEt } from '../servisler/gorselAnaliz';
 import { fotografBoyutuUygunMu } from '@swiip/core';
 import { vucutAnaliziHakki, type Plan } from '../servisler/haklar';
@@ -81,6 +88,47 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     const ayBasi = new Date(Date.UTC(simdi.getUTCFullYear(), simdi.getUTCMonth(), 1));
     if (abonelikBaslangici && abonelikBaslangici > ayBasi) return abonelikBaslangici;
     return ayBasi;
+  }
+
+  /**
+   * Kullanicinin guncel kilosu.
+   *
+   * Burada bir zamanlar `const kiloKg = 0;` yaziyordu ve rapor ozeti her kullaniciya
+   * "0 kg ve 178 cm degerlerinle" diyordu. Ucretsiz planin teslim ettigi tek cikti bu
+   * rapor; olcen bir urunun kullaniciya soyleyebilecegi en kotu cumleydi.
+   *
+   * Kaynak sirasi: en yeni tartim, yoksa degerlendirmedeki K4. Kilo hic yoksa 0 kaliyor
+   * ve rapor metni sayiyi hic yazmiyor — uydurmaktansa susmak dogru.
+   */
+  async function guncelKilo(kullaniciId: string): Promise<number> {
+    const [tartim] = await db
+      .select({ kilo: weight_logs.kilo_kg })
+      .from(weight_logs)
+      .where(eq(weight_logs.user_id, kullaniciId))
+      .orderBy(desc(weight_logs.gun))
+      .limit(1);
+
+    if (tartim?.kilo) return tartim.kilo;
+
+    const [profilKaydi] = await db
+      .select({ profil: profiles.profil_jsonb })
+      .from(profiles)
+      .where(eq(profiles.user_id, kullaniciId))
+      .limit(1);
+
+    const profilKilosu = (profilKaydi?.profil as { kilo_kg?: number } | undefined)?.kilo_kg;
+    if (typeof profilKilosu === 'number' && profilKilosu > 0) return profilKilosu;
+
+    const [degerlendirme] = await db
+      .select({ cevaplar: assessments.answers_jsonb })
+      .from(assessments)
+      .where(eq(assessments.user_id, kullaniciId))
+      .orderBy(desc(assessments.version))
+      .limit(1);
+
+    const ham = (degerlendirme?.cevaplar as Record<string, unknown> | undefined)?.K4;
+    const sayi = typeof ham === 'number' ? ham : Number(String(ham ?? '').replace(',', '.'));
+    return Number.isFinite(sayi) && sayi > 0 ? sayi : 0;
   }
 
   app.post('/analiz', { preHandler: app.kimlikDogrula }, async (istek) => {
@@ -162,7 +210,7 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
       });
     }
 
-    const kiloKg = 0;
+    const kiloKg = await guncelKilo(istek.kullaniciId);
     const rapor = vucutRaporuUret({
       cinsiyet: kullanici.cinsiyet === 'Kadın' ? 'kadin' : 'erkek',
       yas: yasHesapla(kullanici.dogum),

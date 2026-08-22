@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import type { AiIstemcisi, GorselAnalizCiktisi } from '@swiip/core';
-import { modelSec } from '@swiip/core';
+import type { AiGorsel, AiIstemcisi, GorselAnalizCiktisi } from '@swiip/core';
+import { gorselHazirla, jsonCikar, modelSec } from '@swiip/core';
 
 /**
  * Görsel analiz köprüsü.
@@ -49,13 +49,31 @@ export async function fotografiAnalizEt(girdi: AnalizGirdisi): Promise<GorselAna
 
   const secim = modelSec('vucut_analizi');
 
+  /**
+   * Fotoğraflar GÖRSEL olarak gidiyor, metne gömülmüyor.
+   *
+   * Eskiden `JSON.stringify({ pozlar: [...veri] })` yazılıydı: model hiçbir zaman bir
+   * beden görmedi, yalnızca base64 harflerini gördü. Rapor her seferinde sessizce
+   * ölçü tabanlı akışa düşüyordu ve fotoğraf çeken kullanıcı bunu bilmiyordu.
+   */
+  const gorseller: AiGorsel[] = [];
+  const pozlar: string[] = [];
+  for (const f of girdi.fotograflar) {
+    const hazir = gorselHazirla(f.veri);
+    if (!hazir) continue;
+    gorseller.push(hazir);
+    pozlar.push(f.poz);
+  }
+
+  // Okunamayan karelerle model çağırmak, parayı hiçbir şey için harcamak olurdu.
+  if (gorseller.length === 0) return { kasDagilimi: {}, durusBayraklari: [] };
+
   const cevap = await girdi.aiIstemcisi.metinUret({
     is: 'vucut_analizi',
     sistem: SISTEM_MESAJI,
-    // Fotoğraf içeriği yalnızca bu çağrıda; değişken çağrı bitince erişilemez hâle gelir.
-    kullanici: JSON.stringify({
-      pozlar: girdi.fotograflar.map((f) => ({ poz: f.poz, veri: f.veri })),
-    }),
+    // Sıra anlam taşıyor: fotoğraflar bu sırayla verildi.
+    kullanici: `Fotoğraflar sırasıyla: ${pozlar.join(', ')}. Yalnızca JSON döndür.`,
+    gorseller,
     max_cikti_token: secim.max_cikti_token,
   });
 
@@ -65,7 +83,9 @@ export async function fotografiAnalizEt(girdi: AnalizGirdisi): Promise<GorselAna
 /** Model çıktısı asla doğrudan güvenilmez; tip ve sınır kontrolünden geçirilir. */
 export function ciktiyiAyristir(ham: string): GorselAnalizCiktisi {
   try {
-    const json = JSON.parse(ham) as Record<string, unknown>;
+    // Cikti ```json citiyle sarili gelebiliyor; duz parse burada da patliyordu.
+    const json = jsonCikar(ham) as Record<string, unknown> | undefined;
+    if (!json || typeof json !== 'object') return { kasDagilimi: {}, durusBayraklari: [] };
 
     const yagOrani = typeof json.yag_orani === 'number' ? json.yag_orani : undefined;
     const kasDagilimi: Record<string, number> = {};

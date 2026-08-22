@@ -44,6 +44,39 @@ describe('turkceNormalize', () => {
   });
 });
 
+/**
+ * Persona kosusunda bulundu: "beyaz peynir (feta)" fotograftan dogru okundu ama
+ * veritabaninda **Beyaz ekmek**e eslesti. Sebep noktalama: katalog adlarinin cogu
+ * virgullu ("Beyaz peynir, tam yagli") ve kelime "peynir," olarak ayrisiyor; hicbir
+ * zaman "peynir" ile eslesmiyor.
+ *
+ * Sessiz bir hata: eslesme bulunuyor, sadece yanlis olani buluyor. Kullaniciya peynirin
+ * makrosu yerine ekmegin makrosu yaziliyordu.
+ */
+describe('turkceNormalize — noktalama', () => {
+  it('virgül kelime sınırını bozmaz', () => {
+    expect(turkceNormalize('Beyaz peynir, tam yağlı')).toBe('beyaz peynir tam yagli');
+  });
+
+  it('parantez ve tire temizlenir', () => {
+    expect(turkceNormalize('beyaz peynir (feta)')).toBe('beyaz peynir feta');
+    expect(turkceNormalize('pide/bazlama')).toBe('pide bazlama');
+  });
+});
+
+describe('eslesmeSkoru — katalog adları noktalamalı', () => {
+  it('peynir peynire eşleşir, ekmeğe değil', () => {
+    const peynir = eslesmeSkoru('beyaz peynir (feta)', 'Beyaz peynir, tam yağlı');
+    const ekmek = eslesmeSkoru('beyaz peynir (feta)', 'Beyaz ekmek');
+
+    expect(peynir).toBeGreaterThan(ekmek);
+  });
+
+  it('virgüllü katalog adı tam eşleşmeyi kaçırmaz', () => {
+    expect(eslesmeSkoru('kırmızı mercimek', 'Kırmızı mercimek, kuru')).toBeGreaterThan(0.6);
+  });
+});
+
 describe('eslesmeSkoru', () => {
   it('birebir eşleşme en yüksek skoru alır', () => {
     expect(eslesmeSkoru('köfte', 'köfte')).toBe(1);

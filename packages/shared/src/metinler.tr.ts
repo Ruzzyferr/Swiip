@@ -10,6 +10,13 @@ import { gunMetni } from './tarih';
  *  - "Kişiselleştirilmiş" kelimesi yasak.
  */
 
+/**
+ * Ondalık ayraç Türkçede virgül. "78.5 kg" yabancı bir üründen çıkmış gibi duruyor;
+ * ölçü aleti olmayı iddia eden bir arayüzde sayının yazılışı da ölçünün parçası.
+ */
+const ondalik = (deger: number): string =>
+  (Math.round(deger * 10) / 10).toString().replace('.', ',');
+
 export const tr = {
   bildirim: {
     seans: {
@@ -184,6 +191,9 @@ export const tr = {
     tanima_basarisiz: () =>
       'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
       'elle arayabilirsin. Bu deneme kotandan düşmedi.',
+    gorsel_bicimi_desteklenmiyor: () =>
+      'Bu dosyayı okuyamadım. JPEG, PNG veya WebP bir fotoğraf gönderebilir misin? ' +
+      'Bu deneme kotandan düşmedi.',
     ilgi_gecersiz: () => 'Geçerli bir e-posta adresi ve açık rıza gerekiyor.',
     analiz_hakki_bitti: () =>
       'Vücut analizi hakkını kullandın. Ücretsiz planda bir kez, ödemeli planlarda her ay açılıyor.',
@@ -557,10 +567,17 @@ export const tr = {
           gorsel: 'Fotoğraf üzerinden değerlendirdik',
           olcu: 'Çevre ölçülerin üzerinden değerlendirdik',
         },
+        /**
+         * Kilo bilinmiyorsa cümleden çıkar. Burası bir zamanlar her raporda "0 kg"
+         * yazıyordu; ölçen bir ürünün söyleyebileceği en kötü cümle.
+         */
         cumle: (yontem: string, alt: number, ust: number, kilo: number, boy: number) =>
           `${yontem}: vücut yağ oranın yaklaşık %${alt}-${ust} aralığında görünüyor. ` +
-          `Bu bir aralıktır, kesin ölçüm değil — ${kilo} kg ve ${boy} cm değerlerinle ` +
-          'birlikte ilerlemeyi bu aralığın nasıl değiştiğine bakarak takip edeceğiz.',
+          `Bu bir aralıktır, kesin ölçüm değil — ` +
+          (kilo > 0
+            ? `${ondalik(kilo)} kg ve ${ondalik(boy)} cm değerlerinle`
+            : `${ondalik(boy)} cm boyunla`) +
+          ' birlikte ilerlemeyi bu aralığın nasıl değiştiğine bakarak takip edeceğiz.',
       },
       durus: {
         omuz_protraksiyonu:

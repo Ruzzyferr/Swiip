@@ -80,6 +80,54 @@ async function analizEt(dil?: 'tr' | 'en') {
   });
 }
 
+/**
+ * Rapor metnindeki kilo.
+ *
+ * Persona kosusunda yakalandi: ucretsiz planin teslim ettigi TEK ciktida, urunun ilk
+ * izleniminde, ozet cumlesi "0 kg ve 178 cm degerlerinle" diyordu. Sebep rota icinde
+ * sabit yazilmis bir `const kiloKg = 0` satiriydi; kilo hicbir yerden okunmuyordu.
+ *
+ * Kullanicinin kendi kilosunu 0 olarak gormesi, olcen bir urunun soyleyebilecegi en kotu
+ * cumle. Kilo K4'te zaten var.
+ */
+describe('rapor özetindeki kilo', () => {
+  it('değerlendirmeden gelen kiloyu yazar, sıfır değil', async () => {
+    const t = await yeniKullanici();
+
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/vucut/analiz',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { olculer: OLCULER },
+    });
+
+    const ozet: string = cevap.json().rapor.ozet;
+
+    expect(ozet).toContain('82 kg');
+    expect(ozet).not.toContain('0 kg ');
+  });
+
+  it('daha yeni kilo kaydı varsa onu kullanır', async () => {
+    const t = await yeniKullanici();
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/kilo',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { kilo_kg: 78.5 },
+    });
+
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/vucut/analiz',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { olculer: OLCULER },
+    });
+
+    expect(cevap.json().rapor.ozet).toContain('78,5 kg');
+  });
+});
+
 describe('vücut analizi — ölçü yolu', () => {
   it('ölçülerle rapor üretiliyor', async () => {
     const cevap = await analizEt();

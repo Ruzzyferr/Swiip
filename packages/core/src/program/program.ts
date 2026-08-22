@@ -238,7 +238,16 @@ function seansKur(girdi: SeansGirdisi): { seans: SeansPlani; seansKararlari: Kar
       if (!aday) continue;
 
       const sema = semaSec(profil.hedef_vektoru.birincil, aday.hareket);
-      const set = Math.min(kalan[grup], sema.max_set);
+      /**
+       * Set TAM SAYI. `kalan` kesirli olabilir — ikincil kas grubundan yarım set
+       * düşülüyor ve bu doğru bir muhasebe — ama kesir atanan set sayısına geçemez.
+       *
+       * Geçtiğinde iki şey oluyordu: `session_items.target_sets` tamsayı sütunu
+       * kaydı reddediyor ve program HİÇ üretilemiyordu (kullanıcı "bir şeyler ters
+       * gitti" görüyordu), üstelik cümle de saçmalıyordu: "3,5 setin hepsinde...".
+       * Set sayılır; yarım set diye bir şey yok.
+       */
+      const set = Math.floor(Math.min(kalan[grup], sema.max_set));
       if (set < MIN_SET) continue;
 
       const sure = hareketSuresiDakika(set, sema.dinlenme_sn);

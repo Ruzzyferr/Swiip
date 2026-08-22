@@ -268,6 +268,11 @@ export function vucutRaporuUret(girdi: VucutRaporuGirdisi): VucutRaporu {
   return rapor;
 }
 
+/** Ondalık ayraç Türkçede virgül. "78.5 kg" yabancı bir üründen çıkmış gibi duruyor. */
+function sayiYaz(deger: number): string {
+  return (Math.round(deger * 10) / 10).toString().replace('.', ',');
+}
+
 function ozetYaz(aralik: YagOraniAraligi | undefined, girdi: VucutRaporuGirdisi): string {
   if (!aralik) {
     return (
@@ -283,9 +288,20 @@ function ozetYaz(aralik: YagOraniAraligi | undefined, girdi: VucutRaporuGirdisi)
         ? 'Fotoğraf üzerinden değerlendirdik'
         : 'Çevre ölçülerin üzerinden değerlendirdik';
 
+  /**
+   * Kilo bilinmiyorsa cümleden çıkıyor.
+   *
+   * Bir zamanlar burası her raporda "0 kg" yazıyordu; ölçen bir ürünün kullanıcıya
+   * söyleyebileceği en kötü cümle. Bilmediğimiz sayıyı yazmamak, uydurmaktan iyidir.
+   */
+  const olcuMetni =
+    girdi.kiloKg > 0
+      ? `${sayiYaz(girdi.kiloKg)} kg ve ${sayiYaz(girdi.boyCm)} cm değerlerinle`
+      : `${sayiYaz(girdi.boyCm)} cm boyunla`;
+
   return (
     `${yontemMetni}: vücut yağ oranın yaklaşık %${aralik.alt}-${aralik.ust} aralığında ` +
-    `görünüyor. Bu bir aralıktır, kesin ölçüm değil — ${girdi.kiloKg} kg ve ${girdi.boyCm} cm ` +
-    'değerlerinle birlikte ilerlemeyi bu aralığın nasıl değiştiğine bakarak takip edeceğiz.'
+    `görünüyor. Bu bir aralıktır, kesin ölçüm değil — ${olcuMetni} ` +
+    'birlikte ilerlemeyi bu aralığın nasıl değiştiğine bakarak takip edeceğiz.'
   );
 }

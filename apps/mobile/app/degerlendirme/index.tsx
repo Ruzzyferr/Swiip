@@ -21,6 +21,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
+import { gosterilecekSoru, ilerlenecekSoruId } from '../../src/degerlendirme/akis';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { istek } from '../../src/veri/api';
 import { baglantiSorunuMu, yeniCevaplar } from '@swiip/shared';
@@ -76,6 +77,17 @@ export default function Degerlendirme() {
    */
   const gonderilmis = useRef<Cevaplar>({});
 
+  /**
+   * Ekranda duran soru.
+   *
+   * Bir zamanlar gösterilen soru doğrudan `sonrakiSoru(cevaplar)` idi ve kullanıcı bir
+   * şık seçer seçmez ekran kendiliğinden ilerliyordu. "Devam et" cevabı sunucuya
+   * kaydeden tek yol; ekran ondan önce ilerlediği için düğmeye hiç sıra gelmiyordu.
+   * Hiçbir cevap sunucuya yazılmıyor, blok sonu geri bildirimi hiç görünmüyor ve
+   * güvenlik kapıları sunucuda hiç değerlendirilmiyordu — hepsi sessizce.
+   */
+  const [aktifSoruId, setAktifSoruId] = useState<string | undefined>(undefined);
+
   // Açılışta: önce cihazdaki taslak, sonra sunucudaki kayıt.
   useEffect(() => {
     void (async () => {
@@ -90,15 +102,22 @@ export default function Degerlendirme() {
         // olabilir (çevrimdışı cevaplanan sorular), sunucudaki ise cihaz değişse de durur.
         const sunucuCevaplari = durum.cevaplar ?? {};
         gonderilmis.current = sunucuCevaplari;
-        setCevaplar((mevcut) => ({ ...sunucuCevaplari, ...taslak, ...mevcut }));
+        setCevaplar((mevcut) => {
+          const birlesik = { ...sunucuCevaplari, ...taslak, ...mevcut };
+          // Açılışta da soru sabitleniyor; yoksa ilk cevap ekranı kendiliğinden atlatır.
+          setAktifSoruId(ilerlenecekSoruId(birlesik));
+          return birlesik;
+        });
       } catch (h) {
         setCevrimdisi(baglantiSorunuMu(h));
+        // Sunucuya ulaşılamasa da soru sabitlenmeli; çevrimdışı akış da aynı kuralı izler.
+        setAktifSoruId((mevcut) => mevcut ?? ilerlenecekSoruId(taslak ?? {}));
       }
       setHazir(true);
     })();
   }, []);
 
-  const soru = useMemo(() => sonrakiSoru(cevaplar), [cevaplar]);
+  const soru = useMemo(() => gosterilecekSoru(cevaplar, aktifSoruId), [cevaplar, aktifSoruId]);
   const ilerleme = useMemo(() => blokIlerlemesi(cevaplar), [cevaplar]);
   const toplam = useMemo(() => gorunurSorular(cevaplar).length, [cevaplar]);
   const cevaplanan = useMemo(
@@ -174,6 +193,8 @@ export default function Degerlendirme() {
     const oncekiBlok = soru.blok_id;
     const sonrasi = sonrakiSoru(cevaplar);
     const blokBitti = !sonrasi || sonrasi.blok_id !== oncekiBlok;
+    // Ekran ancak kayıt denemesinden sonra ilerler.
+    setAktifSoruId(sonrasi?.id);
 
     const kayit = await kaydet(cevaplar, blokBitti ? oncekiBlok : undefined);
     setKaydediliyor(false);
@@ -186,7 +207,11 @@ export default function Degerlendirme() {
      * ekranda "önce değerlendirmeyi tamamla" diyen bir hata alıyordu ve nedenini
      * anlayamıyordu.
      */
-    if (kayit.durum === 'reddedildi') return;
+    if (kayit.durum === 'reddedildi') {
+      // Sunucu reddettiyse aynı soruda kalıyoruz; ilerlemek cevabı kaybetmek olurdu.
+      setAktifSoruId(soru.id);
+      return;
+    }
 
     const sonuc = kayit.durum === 'gonderildi' ? kayit.cevap : null;
 
@@ -273,6 +298,12 @@ export default function Degerlendirme() {
 
         <Ekran>
           <SoruAlani
+            /**
+             * Soru kimliği anahtar: alan durumu sorular arasında taşınmasın.
+             * Taşındığında sayı alanı önceki metni koruyup "178" + "92" = "17892"
+             * üretiyordu.
+             */
+            key={soru.id}
             soru={soru}
             deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
             onDegisim={(deger) => {

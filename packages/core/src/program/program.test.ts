@@ -3,6 +3,7 @@ import { HAREKET_KATALOGU, type Profil } from '@swiip/shared';
 import { programUret } from './program';
 import { hareketBul } from '../katalog/katalog';
 import { profilKur } from '../test/profilKur';
+import { TOPARLANMASI_DUSUK_PROFIL } from '../test/ornekler/toparlanmasiDusukProfil';
 
 function uret(uzat: Partial<Profil> = {}) {
   const sonuc = programUret(profilKur(uzat));
@@ -48,6 +49,54 @@ describe('programUret — temel yapı', () => {
     for (const seans of uret().seanslar) {
       const idler = seans.hareketler.map((h) => h.hareket_id);
       expect(new Set(idler).size).toBe(idler.length);
+    }
+  });
+});
+
+/**
+ * Persona kosusunda bulundu: 41 yasinda, uykusu kisa ve stresi yuksek bir kullanicinin
+ * programi HIC uretilemiyordu. Sunucu 500 doneryordu, sebebi `target_sets = 3.5`:
+ * ikincil kas grubu butcesinden yarim set dusuluyor, kalan kesirli kaliyor ve atanan
+ * set sayisi kesirli cikiyordu. Postgres `integer` sutunu bunu reddediyor.
+ *
+ * Kullaniciya gorunen tarafi daha da kotu: "3,5 setin hepsinde 12 tekrari tamamlarsan"
+ * diye bir cumle. Set sayilir; yarim set diye bir sey yok.
+ */
+describe('programUret — set sayısı tam sayıdır', () => {
+  it('her hareketin set sayısı tam sayı', () => {
+    for (const seans of uret().seanslar) {
+      for (const hareket of seans.hareketler) {
+        expect(Number.isInteger(hareket.set), `${hareket.hareket_id}: ${hareket.set}`).toBe(true);
+      }
+    }
+  });
+
+  /**
+   * Hatayi ureten GERCEK profil. Sentetik profillerle 16 bin kombinasyon denendi ve
+   * hicbiri kesir uretmedi: kesir yalnizca butcesi tek sayiya denk gelen bir grubun
+   * ikincil kas dusumuyle yarimlandigi ve havuzun daralttigi durumda doguyor.
+   * Bu yuzden profil oldugu gibi saklaniyor.
+   */
+  it('hatayı üreten gerçek profilde de tam sayı', () => {
+    const sonuc = programUret(TOPARLANMASI_DUSUK_PROFIL);
+    if (sonuc.durum !== 'uretildi') throw new Error(`program üretilmedi: ${sonuc.durum}`);
+
+    for (const seans of sonuc.program.seanslar) {
+      for (const hareket of seans.hareketler) {
+        expect(Number.isInteger(hareket.set), `${hareket.hareket_id}: ${hareket.set}`).toBe(true);
+        expect(hareket.ilerleme_kurali).not.toMatch(/[0-9]+[.,][0-9]+ set/);
+      }
+    }
+  });
+
+  /** Set kesilince hacim kaybolmasin: bu profilde seans hala dolu kalmali. */
+  it('tam sayıya yuvarlama seansı boşaltmaz', () => {
+    const sonuc = programUret(TOPARLANMASI_DUSUK_PROFIL);
+    if (sonuc.durum !== 'uretildi') throw new Error('program üretilmedi');
+
+    for (const seans of sonuc.program.seanslar) {
+      expect(seans.hareketler.length).toBeGreaterThanOrEqual(3);
+      for (const hareket of seans.hareketler) expect(hareket.set).toBeGreaterThanOrEqual(2);
     }
   });
 });

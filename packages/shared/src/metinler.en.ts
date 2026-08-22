@@ -196,6 +196,9 @@ export const en: Metinler = {
     tanima_basarisiz: () =>
       'I cannot recognise a meal in this photo. You can shoot closer and better lit, or search ' +
       'manually. This attempt did not use your quota.',
+    gorsel_bicimi_desteklenmiyor: () =>
+      'I could not read this file. Could you send a JPEG, PNG or WebP photo? ' +
+      'This attempt did not use your quota.',
     ilgi_gecersiz: () => 'A valid email address and explicit consent are required.',
     analiz_hakki_bitti: () =>
       'You have used your body analysis. The free plan includes one; paid plans open one every month.',
@@ -548,8 +551,9 @@ export const en: Metinler = {
         },
         cumle: (yontem: string, alt: number, ust: number, kilo: number, boy: number) =>
           `${yontem}: your body fat looks to be around ${alt}-${ust}%. This is a range, not ` +
-          `an exact measurement — together with ${kilo} kg and ${boy} cm, we will track ` +
-          'progress by watching how this range moves.',
+          `an exact measurement — together with ` +
+          (kilo > 0 ? `${kilo} kg and ${boy} cm` : `${boy} cm`) +
+          ', we will track progress by watching how this range moves.',
       },
       durus: {
         omuz_protraksiyonu:

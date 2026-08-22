@@ -381,12 +381,33 @@ describe('haftalık plan ve alışveriş listesi', () => {
       method: 'POST',
       url: '/v1/ogun/plan',
       headers: { authorization: `Bearer ${token}` },
-      payload: { hafta_basi: '2026-08-17' },
+      // Ramazan 2026: 18 Subat - 19 Mart. Plan o haftaya kuruluyor.
+      payload: { hafta_basi: '2026-03-02' },
     });
 
     const adlar = cevap.json().gunler[0].ogunler.map((o: { ad: string }) => o.ad);
     expect(adlar).toContain('Sahur');
     expect(adlar).toContain('İftar');
+  });
+
+  /**
+   * Persona kosusunda bulundu: Agustos ayinda sahur/iftar plani cikiyordu. B12 bir
+   * TERCIH sorusu ("tutar misin"), durum sorusu degil. Takvime bakmayan bir bayrak,
+   * kullanicinin gordugu ilk seyi urunun onu hic dinlemedigi kanitina cevirir.
+   */
+  it('Ramazan dışında normal öğün düzeni kurulur', async () => {
+    const token = await kullaniciKur('ramazan-disi@swiip.app', { B12: 'Evet' });
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/ogun/plan',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { hafta_basi: '2026-08-17' },
+    });
+
+    const adlar = cevap.json().gunler[0].ogunler.map((o: { ad: string }) => o.ad);
+    expect(adlar).not.toContain('Sahur');
+    expect(adlar).not.toContain('İftar');
+    expect(adlar).toContain('Kahvaltı');
   });
 });
 

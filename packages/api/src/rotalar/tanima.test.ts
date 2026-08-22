@@ -42,7 +42,17 @@ const sahteIstemci = {
   }),
 };
 
-const FOTOGRAF = 'x'.repeat(400);
+/**
+ * Test fotografi GERCEK bir JPEG basligiyla basliyor: `/9j/` = FF D8 FF.
+ *
+ * Eskiden `'x'.repeat(400)` yaziliydi ve testler geciyordu — cunku rota fotografi hic
+ * dogrulamiyordu, hatta modele gorsel olarak hic gondermiyordu; base64 duz metin olarak
+ * mesaja gomuluyordu. Sahte girdi, gercekte hic calismayan bir ozelligi yesil
+ * gosteriyordu. Persona kosusunda sekiz gercek yemek fotografindan sifiri tanindi.
+ */
+const foto = (tohum: string, uzunluk = 400): string => `/9j/${tohum.repeat(uzunluk)}`;
+
+const FOTOGRAF = foto('x');
 
 beforeAll(async () => {
   ortam = await testVeritabaniAc();
@@ -110,7 +120,7 @@ describe('POST /v1/beslenme/tani', () => {
   });
 
   it('besin değeri veritabanından hesaplanır, modelden değil', async () => {
-    const cevap = await tani({ fotograf: 'y'.repeat(400) });
+    const cevap = await tani({ fotograf: foto('y', 400) });
     const govde = cevap.json();
 
     expect(govde.toplam.kalori).toBeGreaterThan(0);
@@ -121,7 +131,7 @@ describe('POST /v1/beslenme/tani', () => {
   });
 
   it('kullanıcı onaylamadan hiçbir şey kaydedilmez', async () => {
-    const cevap = await tani({ fotograf: 'z'.repeat(400) });
+    const cevap = await tani({ fotograf: foto('z', 400) });
 
     expect(cevap.json().onay_bekliyor).toBe(true);
 
@@ -134,7 +144,7 @@ describe('POST /v1/beslenme/tani', () => {
   });
 
   it('aynı fotoğrafın ikincisi AI çağrısı yapmadan tanınır', async () => {
-    const benzersiz = 'a'.repeat(500);
+    const benzersiz = foto('a', 500);
     await tani({ fotograf: benzersiz });
     const oncekiSayac = cagriSayaci.adet;
 
@@ -145,7 +155,7 @@ describe('POST /v1/beslenme/tani', () => {
   });
 
   it('önbellekten gelen tanıma kotadan düşmez', async () => {
-    const benzersiz = 'b'.repeat(500);
+    const benzersiz = foto('b', 500);
     await tani({ fotograf: benzersiz });
 
     const oncesi = await kotaOku();
@@ -159,7 +169,7 @@ describe('POST /v1/beslenme/tani', () => {
   it('yanlış tanıma sonrası tekrar deneme kotadan düşmez', async () => {
     const oncesi = await kotaOku();
 
-    const cevap = await tani({ fotograf: 'c'.repeat(500), tekrar_deneme: true });
+    const cevap = await tani({ fotograf: foto('c', 500), tekrar_deneme: true });
     const sonrasi = await kotaOku();
 
     expect(cevap.json().kota.dusuldu).toBe(false);
@@ -170,7 +180,7 @@ describe('POST /v1/beslenme/tani', () => {
   it('normal tanıma kotadan düşer', async () => {
     const oncesi = await kotaOku();
 
-    await tani({ fotograf: 'd'.repeat(500) });
+    await tani({ fotograf: foto('d', 500) });
     const sonrasi = await kotaOku();
 
     expect(sonrasi.kullanilan).toBe(oncesi.kullanilan + 1);
@@ -191,7 +201,7 @@ describe('POST /v1/beslenme/tani', () => {
 
 describe('POST /v1/beslenme/tani/onayla', () => {
   it('onaylanan kalemler güne kaydedilir', async () => {
-    const tanima = await tani({ fotograf: 'e'.repeat(500) });
+    const tanima = await tani({ fotograf: foto('e', 500) });
     const govde = tanima.json();
     const eslesen = govde.kalemler.find((k: { eslesti: boolean }) => k.eslesti);
 
@@ -242,7 +252,7 @@ describe('POST /v1/beslenme/tani/onayla', () => {
       });
     }
 
-    const yeni = await tani({ fotograf: 'f'.repeat(500) });
+    const yeni = await tani({ fotograf: foto('f', 500) });
     const kofte = yeni.json().kalemler.find((k: { ad: string }) => k.ad === 'köfte');
 
     expect(kofte.besin.id).toBe(izmirKofte.id);
@@ -317,7 +327,7 @@ describe('plan kilidi', () => {
       payload: { plan: 'temel' },
     });
 
-    const cevap = await tani({ fotograf: 'g'.repeat(500) });
+    const cevap = await tani({ fotograf: foto('g', 500) });
 
     expect(cevap.statusCode).toBe(402);
     expect(cevap.json().mesaj).toContain('Pro');
@@ -387,7 +397,7 @@ describe('AI bütçesi (F7.8 · birim ekonomisi)', () => {
     });
 
     // Önbelleğe düşmemesi için farklı bir fotoğraf.
-    const cevap = await tani({ fotograf: 'y'.repeat(420) });
+    const cevap = await tani({ fotograf: foto('y', 420) });
 
     expect(cevap.statusCode).toBe(200);
     expect(sonIstek.deger!.max_cikti_token).toBe(oncekiTavan);

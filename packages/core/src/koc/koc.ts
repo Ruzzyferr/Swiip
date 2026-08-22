@@ -58,17 +58,33 @@ const TANI_DESENLERI = [
   /sakatlan/,
 ];
 
-/** Doz ve ilaç soruları. */
+/**
+ * Doz ve ilaç soruları.
+ *
+ * Kapının yeri doğru, genişliği yanlıştı: "ilaç" kelimesinin geçmesi yetiyordu. Tansiyon
+ * ilacı kullanan bir kullanıcı "bu programda dikkat etmem gereken bir şey var mı" diye
+ * sorduğunda tek cevap "ilaç dozu konusunda yönlendirme yapamam" oluyordu. Kullanıcı
+ * dozu sormamıştı; değerlendirmede zaten yazdığı bir şeyi tekrar ediyordu ve karşılığında
+ * kapıyı gördü.
+ *
+ * Şimdi eşleşme için ilacın **kendisine dair bir soru** gerekiyor: doz, miktar, başlama,
+ * bırakma, zamanlama. Doz vermeyi sistem mesajı zaten yasaklıyor; bu desenlerin işi
+ * konuyu hiç açtırmamak değil, soruyu ayıklamak.
+ */
 const DOZ_DESENLERI = [
   /kac\s*(gram|mg|mcg|ml|iu|unite)/,
   /(^|[^a-z])doz/,
-  /(^|[^a-z])ilac/,
+  /(ilac|hap)\w*\s*(kac|ne kadar|birak|kes|artir|azalt|degistir)/,
+  /(kac|ne kadar|doz)\w*\s*\w*\s*(ilac|hap)/,
+  /(ilac|hap)\w*\s*\w*\s*(mali miyim|meli miyim)/,
   /(^|[^a-z])hap([^a-z]|$)/,
   /kreatin.*(kac|ne kadar|almali|iceyim)/,
   /vitamin.*(doz|kac|ne kadar|olmali)/,
   /(cinko|magnezyum|omega).*(kac|mg|iceyim|almali)/,
   /(al|ic)abilir miyim.*(ilac|hap|antibiyotik)/,
   /antrenmandan (once|sonra).*(ilac|hap)/,
+  // Zamanlama sorusu iki yonlu sorulabiliyor: "ilaci antrenmandan once alabilir miyim".
+  /(ilac|hap)\w*.{0,24}(antrenman|yemek|yatmadan)\w*\s*(once|sonra)/,
 ];
 
 /** Aşırı kısıtlayıcı veya tehlikeli hedefler. */

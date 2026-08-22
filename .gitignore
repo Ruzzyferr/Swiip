@@ -21,3 +21,8 @@ apps/mobile/imza.properties
 # iOS dagitim kimlik bilgileri — ozel anahtar ve sertifika, depoya girmez
 apps/mobile/kimlik/
 apps/mobile/credentials.json
+
+# Erisim ve imza yedegi. Depoda DURUYOR ama depoya GIRMEZ: icinde Apple imza
+# anahtarlari, sunucu erisimi ve RevenueCat kanca sirri var. Tek bir `git add -A`
+# hepsini uzaktaki depoya tasirdi.
+Swiip-YEDEK/

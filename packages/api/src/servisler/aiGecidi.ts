@@ -16,6 +16,30 @@ export interface GatewaySecenekleri {
   url: string;
   anahtar: string;
   zamanAsimiMs?: number;
+  /** Testlerde gövdeyi okuyabilmek için; üretimde global `fetch`. */
+  fetch?: typeof globalThis.fetch;
+}
+
+/**
+ * Anthropic biçiminde mesaj içeriği.
+ *
+ * Görsel varsa içerik bir **blok dizisi** olmak zorunda; düz dize olarak gönderilen
+ * fotoğraf model tarafından görsel değil, harf dizisi olarak okunur.
+ */
+type IcerikBlogu =
+  | { type: 'text'; text: string }
+  | { type: 'image'; source: { type: 'base64'; media_type: string; data: string } };
+
+function icerikKur(istek: AiIstek): string | IcerikBlogu[] {
+  if (!istek.gorseller || istek.gorseller.length === 0) return istek.kullanici;
+
+  return [
+    ...istek.gorseller.map((g): IcerikBlogu => ({
+      type: 'image',
+      source: { type: 'base64', media_type: g.ortam_tipi, data: g.veri },
+    })),
+    { type: 'text', text: istek.kullanici },
+  ];
 }
 
 export function gatewayIstemcisi(secenekler: GatewaySecenekleri): AiIstemcisi {
@@ -25,6 +49,7 @@ export function gatewayIstemcisi(secenekler: GatewaySecenekleri): AiIstemcisi {
       // Ad çekirdekteki fiyat tablosuyla aynı satırdan geliyor; ikisi ayrışamaz.
       const model = modelAdi(secim.seviye);
 
+      const agaGit = secenekler.fetch ?? globalThis.fetch;
       const durdurucu = new AbortController();
       const zamanlayici = setTimeout(
         () => durdurucu.abort(),
@@ -32,7 +57,7 @@ export function gatewayIstemcisi(secenekler: GatewaySecenekleri): AiIstemcisi {
       );
 
       try {
-        const yanit = await fetch(`${secenekler.url}/v1/messages`, {
+        const yanit = await agaGit(`${secenekler.url}/v1/messages`, {
           method: 'POST',
           headers: {
             'content-type': 'application/json',
@@ -42,7 +67,7 @@ export function gatewayIstemcisi(secenekler: GatewaySecenekleri): AiIstemcisi {
             model,
             max_tokens: Math.min(istek.max_cikti_token, secim.max_cikti_token),
             system: istek.sistem,
-            messages: [{ role: 'user', content: istek.kullanici }],
+            messages: [{ role: 'user', content: icerikKur(istek) }],
           }),
           signal: durdurucu.signal,
         });
