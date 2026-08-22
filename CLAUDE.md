@@ -124,6 +124,33 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
+- **Arayüz premium değil — tasarım turu gerekiyor.** Üç persona emülatörde
+  gezdirildi, dışarıdan da görüş alındı. Ortak yargı: "şablon / yarım kalmış,
+  geliştirici prototipi". Somut nedenler ve öneri sırası:
+  1. Değerlendirme ekranlarının %80'i boş. 134 soru × tek soru/ekran, 12 dakika.
+     Boşluk odak değil, terk sebebi. Sorular mantıksal adımlara gruplanmalı
+     (15-20 ekran); dikey ortalama çözmez, veri yoğunluğu çözer.
+  2. Renkli kart dolguları (mint/krem) kliniği çağrıştırıyor, salonu değil.
+     Aksan rengi zemine yayılmamalı; yalnız aktif öğede ve kritik sayıda.
+     Ayrım kart yerine 1 px kılavuz çizgisiyle.
+  3. Tipografi varsayılan ölçekte. Sayısal veride tabular monospace zaten var,
+     hiyerarşi yok. Puntolar/ağırlıklar elden geçmeli.
+  4. Sekme ikonları jenerik (beslenme = kronometre). "Ölçü aleti" fikriyle bağı yok.
+  5. Beslenme sekmesinde 6 eş ağırlıklı buton 2×3 ızgarada. Pro'nun tek farkı
+     olan "Fotoğraftan ekle" ile "Alışveriş listesi" aynı görünüyor.
+  6. İlerleme sekmesinde hiç grafik yok — en çok grafiğe ihtiyaç duyan ekran.
+  7. Rıza kutucuklarının işaretsiz hâlinde onay kutusu yok; dokunulabilir
+     olduğu anlaşılmıyor. KVKK açık rızası için fazla belirsiz.
+  8. Koç ekranında kalan kota yazmıyor (Pro 150, Temel 60).
+
+- **Besin kataloğunda sade karşılıklar eksik.** Fotoğraf tanıma çalışıyor ama
+  "pilav" → *Perde pilav*, "ekmek" → *Etli ekmek*, "yeşil biber" → *Pul biber*
+  eşleşiyor: sade giriş yoksa eşleştirici en yakın bileşik yemeği seçiyor.
+  Katalogda düz "Pilav", "Ekmek", "Yeşil biber", "Mısır" gibi temel kayıtlar olmalı.
+
+- **Genel istek sınırı IP başına dakikada 120.** Mobil operatörlerde CGNAT
+  yüzünden çok kullanıcı tek IP'den çıkıyor; sınır kullanıcı başına değil.
+
 - TürKomp kullanım koşulları yazılı teyit edilecek
 - **Marka: Türkiye temiz, AB/İngiltere çekişmeli.** TMview taraması (2026-08-21):
   Türkiye'de "swiip" içeren **sıfır** kayıt — TÜRKPATENT'te 9/41/44 başvurusu yapılmalı.
