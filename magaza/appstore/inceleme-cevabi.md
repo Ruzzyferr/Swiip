@@ -9,26 +9,44 @@ Cevap Resolution Center'dan yazılıyor:
 Review`. Aynı metin ileride `App Review Information → Notes` alanına da konmalı; Apple
 bunu açıkça istiyor.
 
-## Bende olmayan iki şey
+## Hazır olan her şey (2026-08-23)
 
-**1. Ekran kaydı.** Apple **fiziksel cihazda**, güncel işletim sistemiyle çekilmiş bir
-kayıt istiyor — simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp şu akışları
-sırayla göstermeli:
+| Ne | Durum |
+|---|---|
+| TestFlight derlemesi | **build 5**, `VALID` · `IN_BETA_TESTING` |
+| TestFlight grubu | "Ic test", iç grup, **tüm derlemelere otomatik erişim** |
+| Testçi | `info@swiip.app` |
+| Sunucu | commit `3547544`, sağlık ucu 200 |
+| İnceleme hesabı | 134 cevap, hafta 1 programı, 7 günlük öğün planı, Pro hakkı |
+| App Review → Notes | 3.986 karakter, altı başlık dolu |
+| Paywall | kullanım koşulları + gizlilik bağlantısı eklendi (kural 3.1.2) |
+| RevenueCat anahtarı | EAS `production` ortamında; satın alma artık derlemede çalışıyor |
+
+İç grup Beta App Review'dan geçmez, yani derleme **şu anda** kurulabilir durumda.
+TestFlight'ta `info@swiip.app` ile giriş yap, uygulamayı arkadaşının telefonuna kur.
+
+## Kaydın göstermesi gerekenler
+
+Apple **fiziksel cihazda**, güncel işletim sistemiyle çekilmiş kayıt istiyor —
+simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp sırayla:
 
 1. Uygulamayı açış (soğuk başlangıç)
-2. Kayıt olma, çıkış, tekrar giriş (kayıtta e-posta doğrulama adımı yok — kod yalnızca
-   parola sıfırlamada gönderiliyor; istersen onu da göster)
+2. Kayıt olma, çıkış, tekrar giriş — kayıtta e-posta doğrulama adımı yok; kod yalnızca
+   parola sıfırlamada gidiyor, istersen onu da göster
 3. Değerlendirmenin ilk bloğu (birkaç soru yeter, 134'ünün hepsi değil)
 4. Kamera izni istemi ve vücut fotoğrafı çekimi; ardından fotoğrafın silindiğini
    söyleyen ekran
 5. Program sekmesi: bir hareketin detayı ve "neden bu hareket" gerekçesi
 6. Beslenme sekmesi: öğün planı, kaydırmalı öğün değiştirme, barkod okuma
-7. Kilitli bir özelliğe dokunup paywall'a düşme → plan seçme → **satın alma sayfasının
-   açılması** (sandbox hesabıyla)
+7. Ayarlar → "Planlar" → paywall → plan seçme → **satın alma sayfasının açılması**
+   (sandbox hesabıyla). İnceleme hesabı zaten Pro olduğu için kilitli özelliğe
+   dokunarak paywall'a düşmez; Ayarlar'dan gir.
 8. Ayarlar: bildirim izni istemi, "Aboneliği iptal et", "Hesabımı sil" akışı sonuna kadar
 
-**2. Test edilen cihaz ve işletim sistemi listesi.** Aşağıdaki 2. maddeyi hangi
-iPhone modellerinde ve hangi iOS sürümünde denediğinle doldur. Uydurmadım.
+## Tek eksik: cihaz listesi
+
+Aşağıdaki 2. maddeyi hangi iPhone modelinde ve hangi iOS sürümünde denediğinle doldur.
+Bilmediğim için uydurmadım.
 
 ---
 
