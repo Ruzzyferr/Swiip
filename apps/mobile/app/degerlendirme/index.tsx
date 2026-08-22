@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import { ATLANDI, sonrakiSoru, type Cevaplar, type GorunurSoru } from '@swiip/core';
+import {
+  ATLANDI,
+  sonrakiSoru,
+  type BlokIlerlemesi,
+  type Cevaplar,
+  type GorunurSoru,
+} from '@swiip/core';
 import { SORU_BANKASI } from '@swiip/shared';
 import { Dugme, Ekran, Yazi, Yukleniyor } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
@@ -33,12 +39,12 @@ import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
  */
 
 interface DurumCevabi {
-  ilerleme: ReturnType<typeof blokIlerlemesi>;
+  ilerleme: BlokIlerlemesi;
   sonraki_soru: GorunurSoru | null;
 }
 
 interface CevapSonucu {
-  ilerleme: ReturnType<typeof blokIlerlemesi>;
+  ilerleme: BlokIlerlemesi;
   kapi_durumu: {
     kayit_engelli: boolean;
     program_engelli: boolean;

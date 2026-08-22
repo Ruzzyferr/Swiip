@@ -155,7 +155,7 @@ export default function Bildirimler() {
           <Uyari
             tur={programaUlasilamadi ? 'uyari' : 'bilgi'}
             govde={
-              programaUlasilamadi && (zamanlayici?.adet ?? 0) === 0
+              programaUlasilamadi && kurulanAdet(zamanlayici) === 0
                 ? m.kaydedildiProgramYok
                 : kaydetNotu(m, zamanlayici)
             }
@@ -174,6 +174,11 @@ export default function Bildirimler() {
  * "Kaydedildi" deyip bildirimin hiç kurulmadığını gizlemek, kullanıcının haftalar sonra
  * fark edeceği sessiz bir hata olurdu.
  */
+/** Kaç bildirim kurulabildi. İzin yoksa sıfır: o dalda `adet` alanı yok. */
+function kurulanAdet(durum: ZamanlayiciDurumu | null): number {
+  return durum?.durum === 'kuruldu' ? durum.adet : 0;
+}
+
 function kaydetNotu(m: Metinler['bildirimAyarlari'], durum: ZamanlayiciDurumu | null): string {
   // `durum` yalnızca kaydetmeden önce null; kaydet notu ancak kaydettikten sonra gösterilir.
   if (!durum) return m.kaydedildiBos;

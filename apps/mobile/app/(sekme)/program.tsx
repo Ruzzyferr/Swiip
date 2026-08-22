@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { hareketBul, kgMetni } from '@swiip/core';
 import { haftaBittiMi, hareketAdi, tarihMetni, type Metinler } from '@swiip/shared';
@@ -8,6 +8,7 @@ import {
   BosDurum,
   Dugme,
   Etiket,
+  Gorsel,
   Kart,
   Sayi,
   Satir,
@@ -427,17 +428,7 @@ function HareketKarti({
         */}
         <Satir arasi="md" hizala="flex-start">
           {gorsel !== undefined ? (
-            <Image
-              source={gorsel}
-              accessibilityIgnoresInvertColors
-              resizeMode="cover"
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: tema.yaricap.sm,
-                backgroundColor: tema.renk.yuzeyIkincil,
-              }}
-            />
+            <Gorsel kaynak={gorsel} oran={3 / 2} sigdir genislik={96} yaricap="sm" />
           ) : null}
 
           <View style={{ flex: 1, gap: tema.bosluk.xs }}>

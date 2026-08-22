@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { hareketBul } from '@swiip/core';
 import { hareketAdi, kararGirdisiMetni, type Hareket } from '@swiip/shared';
@@ -8,6 +8,7 @@ import {
   Dugme,
   Ekran,
   Etiket,
+  Gorsel,
   Kart,
   Sayi,
   Satir,
@@ -134,17 +135,7 @@ export default function HareketDetayi() {
 
         {gorsel !== undefined ? (
           <View style={{ gap: tema.bosluk.xs }}>
-            <Image
-              source={gorsel}
-              accessibilityLabel={m.gorselErisim(hareketAdi(hareket, dil))}
-              resizeMode="cover"
-              style={{
-                width: '100%',
-                aspectRatio: 4 / 3,
-                borderRadius: tema.yaricap.md,
-                backgroundColor: tema.renk.yuzeyIkincil,
-              }}
-            />
+            <Gorsel kaynak={gorsel} erisimEtiketi={m.gorselErisim(hareketAdi(hareket, dil))} />
             <Yazi tur="etiket" renk="metinSilik">
               {m.gorselKaynagi}
             </Yazi>

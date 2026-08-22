@@ -16,7 +16,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { islemHatasiMetni } from '@swiip/shared';
+import { buyukHarf, islemHatasiMetni } from '@swiip/shared';
 
 /**
  * Kaydırmalı öğün değiştirme (F8.10).

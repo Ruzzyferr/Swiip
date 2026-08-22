@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { gorselOrani } from './gorselOrani';
 import { useTema, type Tema } from './tema';
 import { useMetinler } from '../durum/Oturum';
 
@@ -287,6 +289,74 @@ export function Satir({
       }}
     >
       {children}
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Görsel
+// ---------------------------------------------------------------------------
+
+/**
+ * Fotoğraf kabı.
+ *
+ * `<Image>` bu sürümde ölçüsünü yalnızca SAYI olarak kabul ediyor. Yüzde de,
+ * `aspectRatio` da, mutlak konumun dört kenarı da yok sayılıp fotoğrafın kendi piksel
+ * ölçüsüne düşülüyor: 850 px'lik bir fotoğraf 480 dp'lik ekranda iki kat büyük çiziliyor.
+ * Hareket detayında görünen buydu — kadraj hareketi yapan kişiyi tamamen dışarıda
+ * bırakıyor, ekranda yalnızca aletin bir köşesi kalıyordu.
+ *
+ * Bu yüzden oran, ölçüsü olmayan dış `View`e veriliyor; genişlik ölçüldükten sonra
+ * fotoğrafa sayı olarak geçiliyor. Ölçülmeden önce çizilmiyor — yanlış ölçekte bir kare
+ * gösterip düzeltmek, boş bir kap göstermekten daha rahatsız edici.
+ */
+export function Gorsel({
+  kaynak,
+  oran,
+  sigdir = false,
+  yaricap: yaricapAnahtari = 'md',
+  erisimEtiketi,
+  genislik: sabitGenislik,
+}: {
+  kaynak: number;
+  /** Verilmezse fotoğrafın kendi oranı okunur. */
+  oran?: number;
+  /** true: fotoğraf kırpılmadan kaba sığdırılır (oranı kaba uymayan az sayıda görsel). */
+  sigdir?: boolean;
+  yaricap?: keyof Tema['yaricap'];
+  erisimEtiketi?: string;
+  /** Verilirse kap bu genişlikte sabitlenir (liste küçük görselleri). */
+  genislik?: number;
+}) {
+  const tema = useTema();
+  const [olculenGenislik, setOlculenGenislik] = useState(sabitGenislik ?? 0);
+  const olcu = Image.resolveAssetSource(kaynak) as { width?: number; height?: number } | undefined;
+  const kapOrani = oran ?? gorselOrani(olcu?.width, olcu?.height);
+
+  return (
+    <View
+      onLayout={
+        sabitGenislik === undefined
+          ? (olay) => setOlculenGenislik(olay.nativeEvent.layout.width)
+          : undefined
+      }
+      style={{
+        ...(sabitGenislik === undefined ? {} : { width: sabitGenislik }),
+        aspectRatio: kapOrani,
+        borderRadius: tema.yaricap[yaricapAnahtari],
+        backgroundColor: tema.renk.yuzeyIkincil,
+        overflow: 'hidden',
+      }}
+    >
+      {olculenGenislik > 0 ? (
+        <Image
+          source={kaynak}
+          accessibilityLabel={erisimEtiketi}
+          accessibilityIgnoresInvertColors
+          resizeMode={sigdir ? 'contain' : 'cover'}
+          style={{ width: olculenGenislik, height: olculenGenislik / kapOrani }}
+        />
+      ) : null}
     </View>
   );
 }
