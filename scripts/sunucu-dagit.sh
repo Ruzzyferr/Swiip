@@ -51,10 +51,14 @@ cp infra/.env /tmp/.env.koruma
 tar -xzf /tmp/swiip.tar.gz -C "$UZAK_DIZIN"
 cp /tmp/.env.koruma infra/.env
 rm -f /tmp/swiip.tar.gz /tmp/.env.koruma
-echo "$SURUM" > "$UZAK_DIZIN/SURUM"
 
 docker compose -f infra/docker-compose.yml build api
 docker compose -f infra/docker-compose.yml up -d
+
+# SURUM en sonda yazılıyor. Önce yazılıyordu ve derleme yarıda kaldığında dosya yeni
+# commit'i gösterirken konteynerde hâlâ eski kod dönüyordu — "hangi kod dönüyor?"
+# sorusunun tek cevabı olan dosya yalan söylüyordu. Derleme düşerse eski değer kalır.
+echo "$SURUM" > "$UZAK_DIZIN/SURUM"
 UZAK
 
 echo "  sağlık bekleniyor..."
