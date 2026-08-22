@@ -107,18 +107,28 @@ Genel:
 | Fotoğraf ve video | Fotoğraf | Evet | Hayır | İsteğe bağlı | Uygulama işlevi |
 | Uygulama etkinliği | Uygulama içi eylemler | Evet | Hayır | Zorunlu | Analiz |
 
-### Eksik: kullanıcı kimliği ve satın alma geçmişi
+### Formun gerçek hâli (2026-08-22'de konsoldan doğrulandı)
 
-Bu tablo App Store beyanıyla karşılaştırılınca iki eksik çıktı — ikisi de **gerçekten
-toplanıyor** ve bir sonraki Play güncellemesinde forma eklenmeli:
+Bu bölüm bir zamanlar "iki eksik var" diyordu. Konsol açılıp tek tek bakıldığında tablo
+başka çıktı: kullanıcı kimlikleri **zaten işaretliymiş**, eksik olan üçü şuydu ve üçü de
+o gün eklendi.
 
-| Kategori | Tür | Kaynak |
-|---|---|---|
-| Kişisel bilgiler | Kullanıcı kimlikleri | `users.id` |
-| Finansal bilgiler | Satın alma geçmişi | `subscriptions.plan`, `product_id` |
+| Kategori | Tür | Durum | Kaynak |
+|---|---|---|---|
+| Finansal bilgiler | Satın alma geçmişi | **eklendi** | `subscriptions.plan`, `product_id` |
+| Fotoğraf ve video | Fotoğraf | **eklendi** (geçici işleniyor) | `POST /v1/vucut/analiz` |
+| Uygulama etkinliği | Uygulama içi eylemler | **eklendi** | `assessments.son_soru_id` |
 
-Beyan `packages/api/src/db/sema.ts` okunarak çıkarılmalı, hatırlayarak değil. App Store
-tarafındaki tam eşlemesi `magaza/appstore/konsol-rehberi.md` içinde.
+Fotoğrafın "geçici işleniyor" işaretli olması, Play'in kendi kuralı gereği onu mağaza
+listesinde kullanıcıya **göstermiyor** — ama beyan edilmiş oluyor. Önizlemede
+görünmemesi eksiklik değil, doğru sonuç.
+
+Beyan `packages/api/src/db/sema.ts` okunarak çıkarılmalı, hatırlayarak değil — bu
+bölümün bir kez yanlış hatırlaması da tam bundan. App Store tarafındaki tam eşlemesi
+`magaza/appstore/konsol-rehberi.md` içinde.
+
+**Kaydedildi, gönderilmedi.** Play "Publishing overview"da taslak olarak duruyor;
+incelemeye göndermek ayrı bir adım ve sende.
 
 ### Fotoğraf — önemli ayrım
 
