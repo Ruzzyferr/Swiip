@@ -3,9 +3,11 @@ import helmet from '@fastify/helmet';
 import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { type FastifyInstance } from 'fastify';
+import { eq } from 'drizzle-orm';
 import { ZodError } from 'zod';
 import type { AiIstemcisi } from '@swiip/core';
 import type { Veritabani } from './db/baglanti';
+import { users } from './db/sema';
 import type { Yapilandirma } from './yapilandirma';
 import { loglayanPostaci, type Postaci } from './servisler/postaci';
 import { HataliIstek, UygulamaHatasi } from './hatalar';
@@ -141,13 +143,39 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
     keyGenerator: (istek) => istekAnahtari({ ...(kimlikCoz(app, istek) ?? {}), ip: istek.ip }),
   });
 
+  const yetkisiz = () =>
+    new UygulamaHatasi(401, 'yetkisiz', 'Oturumun sona ermiş. Tekrar giriş yap.');
+
   app.decorate('kimlikDogrula', async (istek) => {
+    let kullaniciId: string;
     try {
       const yuk = await istek.jwtVerify<{ sub: string }>();
-      istek.kullaniciId = yuk.sub;
+      kullaniciId = yuk.sub;
     } catch {
-      throw new UygulamaHatasi(401, 'yetkisiz', 'Oturumun sona ermiş. Tekrar giriş yap.');
+      throw yetkisiz();
     }
+
+    /**
+     * İmzanın geçerli olması kullanıcının VAR olduğu anlamına gelmiyor.
+     *
+     * Hesap silindiğinde elindeki erişim tokeni ömrünü doldurana kadar geçerli kalıyor.
+     * Kimlik katmanı isteği geçiriyordu ve rotalar olmayan bir kullanıcıya göre çalışmaya
+     * kalkışıyordu: üretimde denendi, `/v1/degerlendirme/durum` 500, `/v1/program/aktif`
+     * 404, `/v1/ogun/deste` 402 dönüyordu. Üçü de yanlış — doğru cevap 401.
+     *
+     * Bedeli istek başına bir birincil anahtar okuması. Silme akışının doğru davranması
+     * bunu fazlasıyla hak ediyor; kullanıcı kendi hatası olmayan bir "sunucu hatası"
+     * görmemeli.
+     */
+    const [kullanici] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.id, kullaniciId))
+      .limit(1);
+
+    if (!kullanici) throw yetkisiz();
+
+    istek.kullaniciId = kullaniciId;
   });
 
   app.setErrorHandler((hata: unknown, istek, cevap) => {

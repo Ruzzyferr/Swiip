@@ -192,13 +192,27 @@ describe('silme tüm izleri süpürür', () => {
     expect(cevap.statusCode).toBe(401);
   });
 
-  it('elindeki erişim tokeni artık iş görmüyor', async () => {
-    const cevap = await app.inject({
-      method: 'GET',
-      url: '/v1/kimlik/ben',
-      headers: { authorization: `Bearer ${token}` },
-    });
+  /**
+   * Silinmiş hesabın tokenı HER uçta 401 dönmeli, yalnızca /kimlik/ben'de değil.
+   *
+   * Üretimde denendi (2026-08-23): hesap silindikten sonra aynı tokenla
+   * `/v1/degerlendirme/durum` çağrılınca 500 dönüyordu. İmza geçerli, kullanıcı yok;
+   * kimlik katmanı isteği geçiriyor, rota da olmayan kullanıcıya göre çalışmaya
+   * kalkışıyordu. Bu test tek uca bakıyordu ve kusuru göremiyordu.
+   *
+   * Zararı görünürdü: silme akışı Apple'ın inceleme sırasında özellikle denediği
+   * akışlardan biri ve kullanıcı kendi hatası olmayan bir "sunucu hatası" görüyordu.
+   */
+  it.each(['/v1/kimlik/ben', '/v1/degerlendirme/durum', '/v1/program/aktif', '/v1/ogun/deste'])(
+    'silinmiş hesabın tokenı %s ucunda 401 alır',
+    async (yol) => {
+      const cevap = await app.inject({
+        method: 'GET',
+        url: yol,
+        headers: { authorization: `Bearer ${token}` },
+      });
 
-    expect(cevap.statusCode).toBe(401);
-  });
+      expect(cevap.statusCode).toBe(401);
+    },
+  );
 });
