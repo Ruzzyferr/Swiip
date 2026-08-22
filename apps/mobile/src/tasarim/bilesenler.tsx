@@ -356,7 +356,19 @@ export function Dugme({
         <ActivityIndicator color={metinler[tur]} />
       ) : (
         <>
-          <Text style={{ color: metinler[tur], fontSize: 16, fontWeight: '600' }}>{baslik}</Text>
+          {/*
+            Duğme metni de uygulamanın yazı tipini kullanıyor.
+            Ham `<Text>` `fontFamily` almıyor; her ana düğme sistem fontuyla çıkıyordu.
+          */}
+          <Text
+            style={{
+              color: metinler[tur],
+              fontSize: 16,
+              fontFamily: tema.tipografi.aileler.baslik,
+            }}
+          >
+            {baslik}
+          </Text>
           {kilitli ? (
             <Text
               style={{
@@ -364,6 +376,7 @@ export function Dugme({
                 fontSize: 11,
                 letterSpacing: 0.3,
                 marginTop: 2,
+                fontFamily: tema.tipografi.aileler.govde,
               }}
             >
               {kilitMetni}
@@ -430,7 +443,16 @@ export function SecimDugmesi({
         }}
       >
         {secili ? (
-          <Text style={{ color: tema.renk.aksanUstu, fontSize: 13, lineHeight: 16 }}>✓</Text>
+          <Text
+            style={{
+              color: tema.renk.aksanUstu,
+              fontSize: 13,
+              lineHeight: 16,
+              fontFamily: tema.tipografi.aileler.baslik,
+            }}
+          >
+            ✓
+          </Text>
         ) : null}
       </View>
 
@@ -597,7 +619,14 @@ export function Etiket({
         alignSelf: 'flex-start',
       }}
     >
-      <Text style={{ color: renk, fontSize: 12, fontWeight: '600', letterSpacing: 0.3 }}>
+      <Text
+        style={{
+          color: renk,
+          fontSize: 12,
+          letterSpacing: 0.3,
+          fontFamily: tema.tipografi.aileler.baslik,
+        }}
+      >
         {metin}
       </Text>
     </View>
@@ -610,27 +639,29 @@ export function Yukleniyor({ metin }: { metin?: string }) {
   return (
     <View style={{ padding: tema.bosluk.xxl, alignItems: 'center', gap: tema.bosluk.md }}>
       <ActivityIndicator color={tema.renk.aksan} />
-      <Text style={{ color: tema.renk.metinSilik, fontSize: 14 }}>
+      <Yazi tur="kucuk" renk="metinSilik">
         {metin ?? metinler.genel.yukleniyor}
-      </Text>
+      </Yazi>
     </View>
   );
 }
 
+/**
+ * Boş durum.
+ *
+ * İki şey değişti. Metin `Yazi` kullanıyor: ham `<Text>` uygulamanın yazı tipini
+ * atlıyor ve o blok tek başına sistem fontuyla çıkıyordu. Ve hizalama sola alındı:
+ * baştan sona sola dayalı bir arayüzün ortasında ortalanmış bir metin bloğu, ekrana
+ * sonradan yapıştırılmış gibi duruyor.
+ *
+ * Boş ekran bir eylem davetidir; eylemin kendisi çağıran ekranda, hemen altında.
+ */
 export function BosDurum({ baslik, govde }: { baslik: string; govde: string }) {
   const tema = useTema();
   return (
-    <View style={{ padding: tema.bosluk.xxl, gap: tema.bosluk.sm, alignItems: 'center' }}>
-      <Text
-        style={{ color: tema.renk.metin, fontSize: 17, fontWeight: '600', textAlign: 'center' }}
-      >
-        {baslik}
-      </Text>
-      <Text
-        style={{ color: tema.renk.metinSilik, fontSize: 14, textAlign: 'center', lineHeight: 20 }}
-      >
-        {govde}
-      </Text>
+    <View style={{ gap: tema.bosluk.sm, paddingVertical: tema.bosluk.md }}>
+      <Yazi tur="baslik2">{baslik}</Yazi>
+      <Yazi renk="metinYumusak">{govde}</Yazi>
     </View>
   );
 }

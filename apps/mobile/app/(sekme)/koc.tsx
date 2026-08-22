@@ -270,6 +270,7 @@ export default function Koc() {
               paddingHorizontal: tema.bosluk.md,
               paddingTop: tema.bosluk.sm,
               fontSize: 16,
+              fontFamily: tema.tipografi.aileler.govde,
               color: tema.renk.metin,
               backgroundColor: tema.renk.zemin,
             }}

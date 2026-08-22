@@ -67,7 +67,8 @@ export default function Barkod() {
     borderRadius: tema.yaricap.md,
     paddingHorizontal: tema.bosluk.lg,
     fontSize: 18,
-    fontVariant: ['tabular-nums'] as 'tabular-nums'[],
+    // Barkod bir sayi dizisi: monospace hem okunur hem hatali haneyi belli eder.
+    fontFamily: tema.tipografi.aileler.sayisal,
     color: tema.renk.metin,
     backgroundColor: tema.renk.yuzey,
   };

@@ -124,7 +124,11 @@ export const SORU_BANKASI: SoruBankasi = {
           },
           "drives": [
             "guvenlik_kapisi"
-          ]
+          ],
+          "conditionalOn": {
+            "K2": "Kadın"
+          },
+          "not": "Erkek beyan edene sorulmuyor: karsiligi olmayan soru, \"134 sorunun hepsinin bir karsiligi var\" sozunu ilk on iki dakikada yalanliyor. Kapi tarafi da biliyor (bkz. kapilar.ts): erkekte tarama karsilanmis sayilir."
         },
         {
           "id": "K7",

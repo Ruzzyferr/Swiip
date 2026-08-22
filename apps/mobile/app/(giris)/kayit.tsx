@@ -51,6 +51,7 @@ export default function Kayit() {
     borderRadius: tema.yaricap.md,
     paddingHorizontal: tema.bosluk.lg,
     fontSize: 16,
+    fontFamily: tema.tipografi.aileler.govde,
     color: tema.renk.metin,
     backgroundColor: tema.renk.yuzey,
   };

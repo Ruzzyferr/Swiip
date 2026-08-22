@@ -15,6 +15,24 @@ export const ZORUNLU_TARAMA = ['K6', 'K7', 'S2', 'S3', 'S7', 'S18'] as const;
 /** Kardiyak kırmızı bayrak taşıyan PAR-Q+ soruları. */
 const KARDIYAK_SORULAR = ['S2', 'S3', 'S7'] as const;
 
+/**
+ * Gebelik taraması bu kullanıcıda gereksiz mi?
+ *
+ * K6 ("Hamile misin veya emziriyor musun?") erkek beyan edene artık sorulmuyor:
+ * karşılığı olmayan bir soru, ürünün "134 sorunun hepsinin bir karşılığı var" sözünü
+ * kullanıcının ilk on iki dakikasında yalanlıyordu.
+ *
+ * Ama K6 aynı zamanda dört sert kapıdan birinin tarama sorusu. Yalnızca gizlenseydi
+ * `eksik_tarama` hiç kapanmaz ve program HİÇ üretilemezdi. Bu yüzden kapı da biliyor.
+ *
+ * Gevşetme değil, aynı sonucun daha kısa yolu: "Erkek" beyanı gebelik ve emzirme
+ * ihtimalini zaten dışarıda bırakıyor. Cinsiyet CEVAPLANMAMIŞSA gevşetme yok — bilgi
+ * yokken güvenlik tarafında varsayım yapılmaz.
+ */
+function gebelikTaramasiGereksizMi(cevaplar: Cevaplar): boolean {
+  return metin(cevaplar, 'K2') === 'Erkek';
+}
+
 export interface KapiSecenekleri {
   /** Yaş hesabında referans gün. Test edilebilirlik için dışarıdan verilir. */
   bugun: Date;
@@ -28,6 +46,9 @@ export function kapilariDegerlendir(cevaplar: Cevaplar, secenekler: KapiSecenekl
   const kapilar: Kapi[] = [];
 
   const eksik_tarama = ZORUNLU_TARAMA.filter((id) => {
+    // Erkek beyan edende gebelik taraması karşılanmış sayılır; soru da sorulmuyor.
+    if (id === 'K6' && gebelikTaramasiGereksizMi(cevaplar)) return false;
+
     const deger = cevaplar[id];
     return deger === undefined || deger === null || deger === '';
   });

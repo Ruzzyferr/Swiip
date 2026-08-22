@@ -1243,6 +1243,22 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
     verified: true,
   },
   {
+    /**
+     * Yeşil biber katalogda HİÇ yoktu.
+     *
+     * Menemen, çoban salata, kısır — Türk mutfağının çekirdeğinde. Fotoğraf tanıma
+     * "yeşil biber" dediğinde katalogda karşılığı olmadığı için **Pul biber**e
+     * bağlanıyordu: bir avuç taze biber, bir tutam kuru acı biberin makrosuyla
+     * yazılıyordu.
+     */
+    name_tr: 'Yeşil biber, çiğ',
+    name_en: 'Green pepper, raw',
+    per_100g: { kalori: 20, protein_g: 0.9, yag_g: 0.2, karbonhidrat_g: 4.6, lif_g: 1.7 },
+    portions: [adet(35)],
+    source: 'turkomp',
+    verified: true,
+  },
+  {
     name_tr: 'Havuç, çiğ',
     per_100g: { kalori: 44, protein_g: 0.9, yag_g: 0.2, karbonhidrat_g: 9.6, lif_g: 2.8 },
     portions: [adet(70)],

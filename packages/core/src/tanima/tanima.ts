@@ -166,11 +166,57 @@ export interface EslesmisKalem {
   skor?: number;
 }
 
+/**
+ * Genel terimin katalogdaki sade karşılığı.
+ *
+ * Görsel model çoğu zaman genel ad veriyor: "pilav", "ekmek", "mısır". Katalogda o
+ * genel adın kendisi yok — sade kayıt başka bir adla duruyor ("Pirinç pilavı",
+ * "Ekmek, beyaz") ve yanında bileşik yemekler var ("Perde pilav", "Etli ekmek").
+ *
+ * Benzerlik skoru ikisini ayırt edemiyor: her ikisi de terimi içeriyor ve kısa olan
+ * kazanıyor. Persona koşusunda sade pilav **Perde pilav**a, ekmek **Etli ekmek**e
+ * bağlandı — ve kullanıcıya o yemeğin makroları yazıldı.
+ *
+ * Bu bir tahmin tablosu değil, sözlük: genel terimin hangi sade kaydı kastettiği.
+ * Yalnızca modelin gerçekten ürettiği ve katalogda sade karşılığı OLAN terimler var.
+ * Eşleşme TAM: "perde pilav" buraya takılmaz, normal skorlamaya gider.
+ */
+const GENEL_TERIMLER: Record<string, string> = {
+  pilav: 'Pirinç pilavı',
+  ekmek: 'Ekmek, beyaz',
+  misir: 'Mısır, haşlanmış',
+  yogurt: 'Yoğurt, tam yağlı',
+  peynir: 'Beyaz peynir, tam yağlı',
+  makarna: 'Makarna, haşlanmış',
+  'yesil biber': 'Yeşil biber, çiğ',
+};
+
+/** Genel terim sözlüğünden birebir karşılık; katalogda yoksa undefined. */
+function genelTerimKarsiligi(ad: string, besinler: readonly BesinKaydi[]): BesinKaydi | undefined {
+  const hedef = GENEL_TERIMLER[turkceNormalize(ad)];
+  if (!hedef) return undefined;
+
+  const anahtar = turkceNormalize(hedef);
+  return besinler.find((b) => turkceNormalize(b.ad) === anahtar);
+}
+
 export function kalemleriEslestir(
   kalemler: readonly TanimaKalemi[],
   besinler: readonly BesinKaydi[],
 ): EslesmisKalem[] {
   return kalemler.map((kalem) => {
+    const genel = genelTerimKarsiligi(kalem.ad, besinler);
+    if (genel) {
+      return {
+        ad: kalem.ad,
+        miktar: kalem.miktar,
+        gram: gramHesapla(kalem, genel),
+        eslesti: true,
+        besin: genel,
+        skor: 1,
+      };
+    }
+
     const adaylar = besinler
       .map((besin) => ({ besin, skor: eslesmeSkoru(kalem.ad, besin.ad) }))
       .sort((a, b) => (b.skor !== a.skor ? b.skor - a.skor : a.besin.id.localeCompare(b.besin.id)));

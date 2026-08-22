@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Image, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { hareketBul, kgMetni } from '@swiip/core';
 import { haftaBittiMi, hareketAdi, tarihMetni, type Metinler } from '@swiip/shared';
@@ -19,6 +19,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { ANAHTARLAR, oku, okuYas, yaz } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { hareketGorseli } from '../../src/veri/hareketMedyasi.uretilmis';
 
 /**
  * 1. GÜN AÇILIŞI — ürünün tamamının kazanıldığı veya kaybedildiği ekran.
@@ -167,10 +168,28 @@ export default function ProgramEkrani() {
 
   if (durum === 'yok' || !program) {
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-        <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+      /**
+       * Boş ekran da bir kompozisyon.
+       *
+       * Metin ve iki düğme üstte toplanıyor, altta yedi yüz piksel boşluk kalıyordu.
+       * Boşluk tek yerde ve eylemden ÖNCE: içerik yukarıda, eylem elin altında.
+       */
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: tema.renk.zemin,
+          padding: tema.bosluk.lg,
+          paddingBottom: tema.bosluk.xxl,
+        }}
+      >
+        <View style={{ gap: tema.bosluk.md }}>
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
           {uretimHatasi ? <Uyari tur="tehlike" govde={uretimHatasi} /> : null}
+        </View>
+
+        <View style={{ flex: 1, minHeight: tema.bosluk.xl }} />
+
+        <View style={{ gap: tema.bosluk.sm }}>
           <Dugme baslik={m.programimiHesapla} onPress={() => void uret()} />
           <Dugme
             baslik={m.degerlendirmeyeDon}
@@ -178,7 +197,7 @@ export default function ProgramEkrani() {
             onPress={() => router.push('/degerlendirme')}
           />
         </View>
-      </ScrollView>
+      </View>
     );
   }
 
@@ -385,6 +404,7 @@ function HareketKarti({
   const hareket = hareketBul(kalem.exercise_id);
   const dil = useDil();
   const ad = hareketAdi(hareket, dil, kalem.exercise_id);
+  const gorsel = hareketGorseli(kalem.exercise_id);
 
   return (
     <Kart>
@@ -394,30 +414,55 @@ function HareketKarti({
         accessibilityLabel={ad}
         style={{ minHeight: tema.dokunmaHedefi }}
       >
-        <Satir dagit="space-between" hizala="flex-start">
-          <Yazi tur="baslik3" stil={{ flex: 1 }}>
-            {ad}
-          </Yazi>
-        </Satir>
+        {/*
+          Hareketin karesi listede de var.
 
-        <Satir arasi="lg" hizala="baseline">
-          <Sayi tur="baslik2">
-            {kalem.target_sets} × {kalem.target_reps_low}-{kalem.target_reps_high}
-          </Sayi>
-          {kalem.target_weight !== null && !sayilarGizli ? (
-            <Sayi tur="baslik3" renk="aksan">
-              {kgMetni(kalem.target_weight)} kg
-            </Sayi>
-          ) : (
-            <Yazi tur="kucuk" renk="metinSilik">
-              {kalem.target_weight === null ? m.vucutAgirligi : ''}
+          Görseller kütüphanede duruyordu ama yalnızca hareket DETAY ekranında
+          gösteriliyordu: kullanıcının seansını okuduğu ekran, yani asıl ekran, salt
+          metindi. Salonda ne yapacağını okuyan biri için hareketin nasıl göründüğü
+          isminden daha hızlı bilgi.
+
+          Görseli olmayan hareket için yer tutucu çizilmiyor: boş gri kutu, olmayan bir
+          şeyin yerini işaretlemekten başka bir şey yapmaz.
+        */}
+        <Satir arasi="md" hizala="flex-start">
+          {gorsel !== undefined ? (
+            <Image
+              source={gorsel}
+              accessibilityIgnoresInvertColors
+              resizeMode="cover"
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: tema.yaricap.sm,
+                backgroundColor: tema.renk.yuzeyIkincil,
+              }}
+            />
+          ) : null}
+
+          <View style={{ flex: 1, gap: tema.bosluk.xs }}>
+            <Yazi tur="baslik3">{ad}</Yazi>
+
+            <Satir arasi="lg" hizala="baseline">
+              <Sayi tur="baslik2">
+                {kalem.target_sets} × {kalem.target_reps_low}-{kalem.target_reps_high}
+              </Sayi>
+              {kalem.target_weight !== null && !sayilarGizli ? (
+                <Sayi tur="baslik3" renk="aksan">
+                  {kgMetni(kalem.target_weight)} kg
+                </Sayi>
+              ) : (
+                <Yazi tur="kucuk" renk="metinSilik">
+                  {kalem.target_weight === null ? m.vucutAgirligi : ''}
+                </Yazi>
+              )}
+            </Satir>
+
+            <Yazi tur="etiket" renk="metinSilik">
+              {m.dinlenmeEtiketi(kalem.rest_seconds)}
             </Yazi>
-          )}
+          </View>
         </Satir>
-
-        <Yazi tur="etiket" renk="metinSilik">
-          {m.dinlenmeEtiketi(kalem.rest_seconds)}
-        </Yazi>
       </Pressable>
 
       <Ayirac />

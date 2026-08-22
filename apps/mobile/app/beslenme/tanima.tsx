@@ -201,6 +201,7 @@ export default function Tanima() {
                       borderRadius: tema.yaricap.md,
                       paddingHorizontal: tema.bosluk.md,
                       fontSize: 18,
+                      fontFamily: tema.tipografi.aileler.sayisal,
                       fontVariant: ['tabular-nums'],
                       color: tema.renk.metin,
                       backgroundColor: tema.renk.zemin,
@@ -386,6 +387,7 @@ function BesinDegistir({ onSec }: { onSec: (besin: BesinSonucu) => void }) {
           borderRadius: tema.yaricap.md,
           paddingHorizontal: tema.bosluk.md,
           fontSize: 16,
+          fontFamily: tema.tipografi.aileler.govde,
           color: tema.renk.metin,
           backgroundColor: tema.renk.zemin,
         }}

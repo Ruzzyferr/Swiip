@@ -77,6 +77,58 @@ describe('eslesmeSkoru — katalog adları noktalamalı', () => {
   });
 });
 
+/** Test besinlerinin bileşimi; bu testler eşleşmeye bakıyor, sayıya değil. */
+function bilesim() {
+  return { kalori: 100, protein_g: 5, yag_g: 2, karbonhidrat_g: 15, lif_g: 1 };
+}
+
+/**
+ * Genel terimler.
+ *
+ * Persona kosusunda gorsel model coğu zaman genel ad verdi: "pilav", "ekmek", "misir".
+ * Katalogda o genel adin sade karsiligi baska bir adla duruyor ("Pirinc pilavi",
+ * "Ekmek, beyaz"), yaninda da bilesik yemekler var ("Perde pilav", "Etli ekmek").
+ * Benzerlik skoru ikisini ayirt edemiyordu: her ikisi de terimi iceriyor ve kisa olan
+ * kazaniyordu. Kullaniciya sade pilav yerine Perde pilav, ekmek yerine etli ekmek
+ * yaziliyor — ve makrolar onun makrosu oluyordu.
+ */
+describe('genel terim sözlüğü', () => {
+  const katalog = [
+    { id: '1', ad: 'Perde pilav', per_100g: bilesim(), porsiyonlar: [] },
+    { id: '2', ad: 'Pirinç pilavı', per_100g: bilesim(), porsiyonlar: [] },
+    { id: '3', ad: 'Etli ekmek', per_100g: bilesim(), porsiyonlar: [] },
+    { id: '4', ad: 'Ekmek, beyaz', per_100g: bilesim(), porsiyonlar: [] },
+  ];
+
+  it('"pilav" sade pirinç pilavına eşleşir, Perde pilava değil', () => {
+    const [kalem] = kalemleriEslestir([{ ad: 'pilav', miktar: 1 }], katalog);
+
+    expect(kalem?.besin?.ad).toBe('Pirinç pilavı');
+  });
+
+  it('"ekmek" beyaz ekmeğe eşleşir, etli ekmeğe değil', () => {
+    const [kalem] = kalemleriEslestir([{ ad: 'Ekmek', miktar: 1 }], katalog);
+
+    expect(kalem?.besin?.ad).toBe('Ekmek, beyaz');
+  });
+
+  /** Bileşik ad genel terim değil: sözlük araya girmemeli. */
+  it('bileşik ad sözlüğe takılmaz', () => {
+    const [kalem] = kalemleriEslestir([{ ad: 'perde pilav', miktar: 1 }], katalog);
+
+    expect(kalem?.besin?.ad).toBe('Perde pilav');
+  });
+
+  it('sözlükteki karşılık katalogda yoksa normal eşleşmeye düşer', () => {
+    const [kalem] = kalemleriEslestir(
+      [{ ad: 'pilav', miktar: 1 }],
+      [{ id: '1', ad: 'Perde pilav', per_100g: bilesim(), porsiyonlar: [] }],
+    );
+
+    expect(kalem?.besin?.ad).toBe('Perde pilav');
+  });
+});
+
 describe('eslesmeSkoru', () => {
   it('birebir eşleşme en yüksek skoru alır', () => {
     expect(eslesmeSkoru('köfte', 'köfte')).toBe(1);

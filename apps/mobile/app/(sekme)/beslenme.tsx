@@ -398,6 +398,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
           borderRadius: tema.yaricap.md,
           paddingHorizontal: tema.bosluk.lg,
           fontSize: 16,
+          fontFamily: tema.tipografi.aileler.govde,
           color: tema.renk.metin,
           backgroundColor: tema.renk.zemin,
         }}
@@ -449,6 +450,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
                 borderRadius: tema.yaricap.md,
                 paddingHorizontal: tema.bosluk.md,
                 fontSize: 18,
+                fontFamily: tema.tipografi.aileler.sayisal,
                 fontVariant: ['tabular-nums'],
                 color: tema.renk.metin,
                 textAlign: 'center',

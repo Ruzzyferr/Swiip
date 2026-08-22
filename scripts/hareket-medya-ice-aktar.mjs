@@ -44,17 +44,33 @@ function normalize(metin) {
     .trim();
 }
 
+/**
+ * Basit tekilleştirme.
+ *
+ * "Seated Cable Row" ile "Seated Cable Rows" eşleşmiyordu: üç kelimenin ikisi tutuyor,
+ * skor 0,67 ve eşiğin altında kalıyordu. Aynı hareketin çoğulu yüzünden görselsiz kalan
+ * hareketler vardı. Kural kasten dar: yalnızca sondaki "s", ve "ss" korunuyor.
+ */
+function tekil(kelime) {
+  if (kelime.length > 3 && kelime.endsWith('s') && !kelime.endsWith('ss')) {
+    return kelime.slice(0, -1);
+  }
+  return kelime;
+}
+
 /** Kelime kümesi örtüşmesi (Jaccard). Basit ama bu iş için yeterli ve öngörülebilir. */
 function benzerlik(a, b) {
   const A = new Set(
     normalize(a)
       .split(' ')
-      .filter((k) => k.length > 2),
+      .filter((k) => k.length > 2)
+      .map(tekil),
   );
   const B = new Set(
     normalize(b)
       .split(' ')
-      .filter((k) => k.length > 2),
+      .filter((k) => k.length > 2)
+      .map(tekil),
   );
   if (A.size === 0 || B.size === 0) return 0;
 

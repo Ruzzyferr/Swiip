@@ -211,6 +211,23 @@ describe('sonrakiSoru', () => {
       K5: 'Bugün',
     };
 
+    // K6 (gebelik) erkek beyan edene sorulmuyor; sıradaki soru K7.
+    expect(sonrakiSoru(cevaplar)?.id).toBe('K7');
+  });
+
+  /**
+   * Aynı noktada kadın kullanıcıya K6 soruluyor. İki testi birlikte tutmak, gizleme
+   * kuralının yanlışlıkla herkese uygulanmasını yakalar.
+   */
+  it('kadın kullanıcıda gebelik sorusu sıradaki sorudur', () => {
+    const cevaplar: Cevaplar = {
+      K1: '1990-05-10',
+      K2: 'Kadın',
+      K3: 165,
+      K4: 61,
+      K5: 'Bugün',
+    };
+
     expect(sonrakiSoru(cevaplar)?.id).toBe('K6');
   });
 });

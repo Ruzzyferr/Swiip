@@ -9,6 +9,7 @@ import type { Veritabani } from './db/baglanti';
 import type { Yapilandirma } from './yapilandirma';
 import { loglayanPostaci, type Postaci } from './servisler/postaci';
 import { HataliIstek, UygulamaHatasi } from './hatalar';
+import { istekAnahtari } from './istekSiniri';
 import { kimlikRotalari } from './rotalar/kimlik';
 import { hesapRotalari } from './rotalar/hesap';
 import { degerlendirmeRotalari } from './rotalar/degerlendirme';
@@ -46,6 +47,27 @@ declare module 'fastify' {
 
   interface FastifyRequest {
     kullaniciId: string;
+  }
+}
+
+/**
+ * Istek sinirinin anahtari icin kimlik cozumu.
+ *
+ * Dogrulama basarisizsa (token yok, suresi gecmis, imza tutmuyor) kimlik yok sayilir ve
+ * IP kovasina dusulur. Uydurma token kendine kova acamaz.
+ */
+function kimlikCoz(
+  app: FastifyInstance,
+  istek: { headers: { authorization?: string } },
+): { kullaniciId: string } | undefined {
+  const baslik = istek.headers.authorization;
+  if (!baslik?.startsWith('Bearer ')) return undefined;
+
+  try {
+    const yuk = app.jwt.verify<{ sub?: string }>(baslik.slice(7));
+    return yuk.sub ? { kullaniciId: yuk.sub } : undefined;
+  } catch {
+    return undefined;
   }
 }
 
@@ -93,13 +115,30 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
     origin: yapilandirma.CORS_KAYNAKLAR === '*' ? true : yapilandirma.CORS_KAYNAKLAR.split(','),
     credentials: true,
   });
-  await app.register(rateLimit, {
-    max: yapilandirma.NODE_ENV === 'test' ? 10_000 : 120,
-    timeWindow: '1 minute',
-  });
   await app.register(jwt, {
     secret: yapilandirma.JWT_SECRET,
     sign: { expiresIn: yapilandirma.ERISIM_TOKEN_OMRU },
+  });
+
+  /**
+   * Kova anahtari kullanici, IP degil.
+   *
+   * Varsayilan anahtar kaynak IP'ydi. Turkiye'de mobil operatorlerin buyuk kismi CGNAT
+   * kullaniyor: binlerce abone ayni genel IP'den cikiyor ve ayni hucredeki kullanicilar
+   * siniri BIRLIKTE dolduruyor. Kimse hizli gitmemisken hepsi birden "Cok hizli
+   * gidiyorsun" gorur.
+   *
+   * Token BURADA dogrulaniyor. `keyGenerator` kimlik dogrulama preHandler'indan ONCE
+   * calisiyor; `istek.kullaniciId` o anda hep bos olurdu ve degisiklik hicbir sey
+   * yapmazdi. Dogrulamadan okumak ise daha kotusu olurdu: uydurma bir `sub` yazan
+   * istemci kendine sinirsiz kova acardi.
+   *
+   * Bu yuzden `jwt` eklentisi sinirdan ONCE kaydediliyor.
+   */
+  await app.register(rateLimit, {
+    max: yapilandirma.NODE_ENV === 'test' ? 10_000 : 120,
+    timeWindow: '1 minute',
+    keyGenerator: (istek) => istekAnahtari({ ...(kimlikCoz(app, istek) ?? {}), ip: istek.ip }),
   });
 
   app.decorate('kimlikDogrula', async (istek) => {

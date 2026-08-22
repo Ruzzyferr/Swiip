@@ -139,6 +139,7 @@ export default function Ilerleme() {
                   borderRadius: tema.yaricap.md,
                   paddingHorizontal: tema.bosluk.lg,
                   fontSize: 20,
+                  fontFamily: tema.tipografi.aileler.sayisal,
                   fontVariant: ['tabular-nums'],
                   color: tema.renk.metin,
                   backgroundColor: tema.renk.zemin,

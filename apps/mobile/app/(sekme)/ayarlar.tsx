@@ -394,6 +394,7 @@ export default function Ayarlar() {
                       borderRadius: tema.yaricap.md,
                       paddingHorizontal: tema.bosluk.lg,
                       fontSize: 16,
+                      fontFamily: tema.tipografi.aileler.sayisal,
                       letterSpacing: 6,
                       color: tema.renk.metin,
                       backgroundColor: tema.renk.yuzey,
