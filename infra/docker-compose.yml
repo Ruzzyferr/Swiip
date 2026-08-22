@@ -47,6 +47,31 @@ services:
     command: ['node', '--import', 'tsx', 'packages/api/src/db/goc.ts']
     networks: [ic]
 
+  # Tohumlama: sema kurulduktan sonra katalog doldurulur.
+  #
+  # Bu adim uzun sure YOKTU ve kusuru sessizdi: uretimde 28 tablo vardi, besin ve
+  # tarif tablolari BOSTU. API saglikli, /saglik 200, konteyner "healthy" — ama besin
+  # aramasi bos donuyor, ogun plani kurulamiyor, fotograftan tanima eslesemiyordu.
+  # Uclu de hata vermiyor, "sonuc yok" diyordu. Ancak bir yedek geri yuklenip icine
+  # bakilinca goruldu.
+  #
+  # Tohumlama tekrar calistirilabilir: ayni ad tekrar eklenmez, degerler guncellenir.
+  # Bu yuzden her dagitimda calismasi hem guvenli hem dogru.
+  tohumcu:
+    build:
+      context: ..
+      dockerfile: infra/api.Dockerfile
+    restart: 'no'
+    depends_on:
+      gocmen:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-swiip}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-swiip}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET gerekli, en az 32 karakter}
+    command: ['node', '--import', 'tsx', 'packages/api/src/db/tohum.ts']
+    networks: [ic]
+
   api:
     build:
       context: ..
@@ -55,7 +80,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      # Goc bagimliligi ACIKCA duruyor. Tohumcu zaten gocu bekliyor, yani bu satir
+      # teknik olarak gereksiz — ama tohumlama adimi bir gun kaldirilirsa api yine
+      # gocleri beklemeye devam etsin. Sessiz kusurun tekrarlamasi bu satirin
+      # maliyetinden pahali.
       gocmen:
+        condition: service_completed_successfully
+      # Tohumlama bitmeden acilmiyor: katalog dolmadan istek almak, besin aramasini
+      # sessizce bos donduren o kusurun ta kendisiydi.
+      tohumcu:
         condition: service_completed_successfully
     environment:
       NODE_ENV: production

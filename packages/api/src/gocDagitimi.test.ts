@@ -66,3 +66,58 @@ describe('dağıtımda göç adımı', () => {
     expect(servisler.api?.depends_on?.postgres?.condition).toBe('service_healthy');
   });
 });
+
+/**
+ * Tohumlamanın dağıtımda gerçekten çalıştığı.
+ *
+ * Göç adımı eklendi ama tohumlama unutuldu ve aynı sessizlik bir kez daha yaşandı:
+ * üretimde 28 tablo vardı, **besin ve tarif tabloları boştu.** API sağlıklı, /saglik
+ * 200, konteyner "healthy". Ama:
+ *
+ *  - Besin araması boş dönüyordu — ücretsiz planın teslim ettiği ana özellik.
+ *  - Öğün planı kurulamıyordu — tarif kütüphanesi yok.
+ *  - Fotoğraftan tanıma eşleşemiyordu — Pro'nun tek farkı.
+ *
+ * Hiçbiri hata vermiyordu; hepsi "sonuç yok" diyordu. Kusur ancak bir yedek geri
+ * yüklenip içine bakılınca görüldü.
+ *
+ * Tohumlama tekrar çalıştırılabilir (aynı ad tekrar eklenmez, değerler güncellenir),
+ * bu yüzden her dağıtımda çalışması hem güvenli hem doğru.
+ */
+function tohumServisiAdi(): string | undefined {
+  return Object.keys(servisler).find((ad) => {
+    const s = servisler[ad];
+    return JSON.stringify([s?.command, s?.entrypoint]).includes('tohum.ts');
+  });
+}
+
+describe('dağıtımda tohumlama adımı', () => {
+  it('tohumlamayı çalıştıran bir servis var', () => {
+    expect(
+      tohumServisiAdi(),
+      'infra/docker-compose.yml içinde tohum.ts çalıştıran servis yok: şema kurulur, ' +
+        'katalog boş kalır ve besin araması sessizce hiçbir şey döndürmez',
+    ).toBeDefined();
+  });
+
+  it('tohumlama göçten sonra çalışıyor', () => {
+    const gocmen = gocServisiAdi();
+    const tohumcu = tohumServisiAdi();
+    const bagimlilik = tohumcu ? (servisler[tohumcu]?.depends_on ?? {}) : {};
+
+    expect(
+      gocmen && bagimlilik[gocmen]?.condition,
+      'tohumlama, göç adımını service_completed_successfully ile beklemeli',
+    ).toBe('service_completed_successfully');
+  });
+
+  it('api, tohumlama bitmeden başlamıyor', () => {
+    const tohumcu = tohumServisiAdi();
+    const bagimlilik = servisler.api?.depends_on ?? {};
+
+    expect(
+      tohumcu && bagimlilik[tohumcu]?.condition,
+      'api servisi tohumlamayı beklemeli; aksi hâlde katalog dolmadan istek almaya başlar',
+    ).toBe('service_completed_successfully');
+  });
+});
