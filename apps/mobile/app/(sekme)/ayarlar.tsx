@@ -201,14 +201,23 @@ export default function Ayarlar() {
               <Yazi tur="kucuk">{planAdi(abonelik.plan)}</Yazi>
             </Satir>
 
+            {/*
+              "250 / 250" tek basina belirsizdi: kalan mi, kullanilan mi? Olculen bir
+              hakta bu ayrimi kullaniciya tahmin ettirmek olmaz. Etiket artik soyluyor.
+            */}
             {abonelik.kota.yemek_tanima.toplam > 0 ? (
               <Satir dagit="space-between">
                 <Yazi tur="kucuk" renk="metinYumusak">
                   {a.yemekTanima}
                 </Yazi>
-                <Sayi tur="kucuk" renk="aksan">
-                  {abonelik.kota.yemek_tanima.kalan} / {abonelik.kota.yemek_tanima.toplam}
-                </Sayi>
+                <Satir arasi="xs" hizala="baseline">
+                  <Sayi tur="kucuk" renk="aksan">
+                    {abonelik.kota.yemek_tanima.kalan} / {abonelik.kota.yemek_tanima.toplam}
+                  </Sayi>
+                  <Yazi tur="etiket" renk="metinSilik">
+                    {a.kalanEki}
+                  </Yazi>
+                </Satir>
               </Satir>
             ) : null}
 
@@ -217,9 +226,14 @@ export default function Ayarlar() {
                 <Yazi tur="kucuk" renk="metinYumusak">
                   {a.kocMesaji}
                 </Yazi>
-                <Sayi tur="kucuk" renk="aksan">
-                  {abonelik.kota.koc_sohbeti.kalan} / {abonelik.kota.koc_sohbeti.toplam}
-                </Sayi>
+                <Satir arasi="xs" hizala="baseline">
+                  <Sayi tur="kucuk" renk="aksan">
+                    {abonelik.kota.koc_sohbeti.kalan} / {abonelik.kota.koc_sohbeti.toplam}
+                  </Sayi>
+                  <Yazi tur="etiket" renk="metinSilik">
+                    {a.kalanEki}
+                  </Yazi>
+                </Satir>
               </Satir>
             ) : null}
 

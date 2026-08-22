@@ -124,24 +124,24 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
-- **Arayüz premium değil — tasarım turu gerekiyor.** Üç persona emülatörde
-  gezdirildi, dışarıdan da görüş alındı. Ortak yargı: "şablon / yarım kalmış,
-  geliştirici prototipi". Somut nedenler ve öneri sırası:
-  1. Değerlendirme ekranlarının %80'i boş. 134 soru × tek soru/ekran, 12 dakika.
-     Boşluk odak değil, terk sebebi. Sorular mantıksal adımlara gruplanmalı
-     (15-20 ekran); dikey ortalama çözmez, veri yoğunluğu çözer.
-  2. Renkli kart dolguları (mint/krem) kliniği çağrıştırıyor, salonu değil.
-     Aksan rengi zemine yayılmamalı; yalnız aktif öğede ve kritik sayıda.
-     Ayrım kart yerine 1 px kılavuz çizgisiyle.
-  3. Tipografi varsayılan ölçekte. Sayısal veride tabular monospace zaten var,
-     hiyerarşi yok. Puntolar/ağırlıklar elden geçmeli.
-  4. Sekme ikonları jenerik (beslenme = kronometre). "Ölçü aleti" fikriyle bağı yok.
-  5. Beslenme sekmesinde 6 eş ağırlıklı buton 2×3 ızgarada. Pro'nun tek farkı
-     olan "Fotoğraftan ekle" ile "Alışveriş listesi" aynı görünüyor.
-  6. İlerleme sekmesinde hiç grafik yok — en çok grafiğe ihtiyaç duyan ekran.
-  7. Rıza kutucuklarının işaretsiz hâlinde onay kutusu yok; dokunulabilir
-     olduğu anlaşılmıyor. KVKK açık rızası için fazla belirsiz.
-  8. Koç ekranında kalan kota yazmıyor (Pro 150, Temel 60).
+- **Arayüz tasarım turu yapıldı; kalan işler.** Üç persona emülatörde gezdirildi, iki tur
+  dış görüş alındı. İkinci turun yargısı: *"çizgi belirgin şekilde değişti, artık jenerik
+  bir geliştirici şablonu değil."* Yapılanlar `git log` içinde; kalanlar:
+  1. **K6 erkeklere de soruluyor.** "Hamile misin veya emziriyor musun?" cinsiyetten
+     bağımsız görünüyor. `conditionalOn: {K2: 'Kadın'}` doğru çözüm ama K6 bir güvenlik
+     kapısı: gizlenirse `eksik_tarama` hiç kapanmaz ve program üretilemez. Motor tarafında
+     "cinsiyet erkekse karşılandı say" kuralı gerekiyor — kapıya dokunulacağı için
+     ayrı ve dikkatli bir iş.
+  2. Beyaz kartlar gri zeminde hâlâ ekranı iri bloklara bölüyor. Dış görüşün son
+     önerisi: kutulardan büsbütün çıkıp veriyi 1 px çelik kılavuz çizgileriyle dizmek.
+  3. Boş durumlar (program yok, kayıt yok) hâlâ ekranın yarısını boş bırakıyor.
+  4. Hareketlerin görseli yok. Salon hissi için en büyük eksik: her hareketin yanında
+     bir çizim ya da kare.
+
+  **Taksimat kuralı — bozulmasın:** motif yalnızca kullanıcının değer girdiği ya da bir
+  ölçüm okuduğu yerde kullanılır. Şu an iki yerde: değerlendirme cetveli ve yağ oranı
+  skalası. Navigasyonda, kart kenarında, düz metin altında çentik yok. Ekran başına tek
+  ölçek: ikincisi konduğunda arayüz kumpas değil, bozuk bir ses mikseri gibi görünür.
 
 - **Besin kataloğunda sade karşılıklar eksik.** Fotoğraf tanıma çalışıyor ama
   "pilav" → *Perde pilav*, "ekmek" → *Etli ekmek*, "yeşil biber" → *Pul biber*

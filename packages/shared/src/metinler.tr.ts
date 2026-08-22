@@ -1163,6 +1163,7 @@ export const tr = {
     planEtiketi: 'Plan',
     kotaAdaletNotu:
       'Önbellekten gelen tanıma ve yanlış tanıma sonrası tekrar deneme kotandan düşmez.',
+    kalanEki: 'kalan',
     yemekTanima: 'Fotoğraftan yemek tanıma',
     kocMesaji: 'Koç mesajı',
     kotaYenilenme: (tarih: string) => `${tarih} tarihinde sıfırlanır.`,

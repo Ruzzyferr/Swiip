@@ -1124,6 +1124,7 @@ export const en: Metinler = {
     planEtiketi: 'Plan',
     kotaAdaletNotu:
       'Recognition served from cache, and retries after a wrong recognition, do not count against your quota.',
+    kalanEki: 'left',
     yemekTanima: 'Meal recognition from photos',
     kocMesaji: 'Coach messages',
     kotaYenilenme: (tarih: string) => `Resets on ${tarih}.`,

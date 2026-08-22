@@ -246,8 +246,16 @@ export default function Degerlendirme() {
   }
 
   if (!blokId) {
+    /**
+     * `ustGuvenliAlan` bu dalda da gerekli.
+     *
+     * Ekranın başlığı gizli; üst boşluğu ana dalda dış kap veriyor ama bu erken
+     * dönüşte kap yok ve "Değerlendirme tamam" başlığı durum çubuğunun hizasına
+     * giriyordu. `guvenliAlan.test.ts` dosya düzeyinde baktığı için yakalayamıyor:
+     * dosyada `useSafeAreaInsets()` geçiyor, ama bu dalda kullanılmıyordu.
+     */
     return (
-      <Ekran>
+      <Ekran ustGuvenliAlan>
         <Yazi tur="baslik1">{m.tamamBaslik}</Yazi>
         <Yazi renk="metinYumusak">{m.tamamGovde}</Yazi>
         <Dugme baslik={m.devamEtDugmesi} onPress={() => router.replace('/fotograf/gizlilik')} />
