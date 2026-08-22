@@ -226,14 +226,24 @@ export function Kart({
     );
   }
 
+  /**
+   * Kenarlık kalktı, yüzey kaldı.
+   *
+   * Gri zemin üstündeki beyaz yüzey kartı zaten ayırıyordu; üstüne bir de çizgi
+   * çekmek her kartı iki kez sınırlıyordu. Dışarıdan gelen eleştirinin adı "iç içe
+   * kutulama": ekran, içerikten çok kutu okuyordu.
+   *
+   * Kutuları büsbütün kaldırmak denendi ve doğru bulunmadı: program kartında artık
+   * hareket fotoğrafı var ve fotoğrafın bir kabı olmak zorunda. Kural şu oldu — kart,
+   * sınırı olan bir NESNEYİ tutar (bir hareket, bir öğün); sırf metni gruplamak için
+   * kart açılmaz.
+   */
   return (
     <View
       style={[
         {
           backgroundColor: tema.renk.yuzey,
           borderRadius: tema.yaricap.md,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: tema.renk.cizgi,
           padding: tema.bosluk.lg,
           gap: tema.bosluk.sm,
         },

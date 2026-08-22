@@ -11,7 +11,12 @@
  *
  *   node scripts/marka-uret.mjs
  */
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import opentype from 'opentype.js';
+
+const kokDizin = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 /**
  * Yarıçap ve merkezler birbirine bağlı: merkezler arası mesafe tam 2R olmalı ki iki
@@ -107,12 +112,58 @@ ${govde('swiipIcon')}
 </svg>
 `;
 
+/**
+ * Kelime isareti YOL olarak yaziliyor, <text> olarak degil.
+ *
+ * <text> kullanan bir logo, o fontun kurulu olmadigi her yerde baska bir yazi tipiyle
+ * cizilir: magaza gorseli, PDF, baskiya giden dosya, baska birinin bilgisayari. Logo
+ * o anda logo olmaktan cikar. Isaretin kendisi zaten yol; yazinin da yol olmasi gerek.
+ *
+ * Yuz Inter Bold: uygulamanin baslik fontunun ta kendisi. Onceki `Archivo` bir niyetti,
+ * hicbir yerde kurulu degildi ve pratikte Arial'a dusuyordu.
+ */
+function kelimeIsaretiYolu() {
+  const fontYolu = join(
+    kokDizin,
+    'node_modules',
+    '@expo-google-fonts',
+    'inter',
+    '700Bold',
+    'Inter_700Bold.ttf',
+  );
+  // `loadSync` bu surumde kullanimdan kalkti; dosyayi kendimiz okuyup ayristiriyoruz.
+  const font = opentype.parse(readFileSync(fontYolu).buffer);
+
+  /**
+   * Harfler tek tek yerlestiriliyor, `font.getPath` ile degil.
+   *
+   * `getPath` OpenType bicimlendirme motorunu calistiriyor ve Inter'in gelismis
+   * ozelliklerinde patliyor ("substitutionType 62 ... not yet supported"). "Swiip"
+   * duz Latin harflerden olusuyor; ligatur ya da bicimlendirme gerekmiyor. Harf harf
+   * cizmek hem calisiyor hem de ne cizildigini tam olarak belirliyor.
+   *
+   * Onceki <text> ile ayni olculer: x=112 y=63 font-size=38 letter-spacing=-1.2
+   */
+  const BOYUT = 38;
+  const HARF_ARASI = -1.2;
+  let x = 112;
+  const parcalar = [];
+
+  for (const harf of 'Swiip') {
+    const glif = font.charToGlyph(harf);
+    parcalar.push(glif.getPath(x, 63, BOYUT).toPathData(3));
+    x += (glif.advanceWidth / font.unitsPerEm) * BOYUT + HARF_ARASI;
+  }
+
+  return parcalar.join(' ');
+}
+
 const lockup = `<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Swiip">
   <g transform="translate(0 6) scale(0.88)" color="currentColor">
 ${govde('swiipLockup')}
   </g>
-  <text x="112" y="63" font-family="Archivo, Helvetica Neue, Arial, sans-serif"
-        font-size="38" font-weight="700" letter-spacing="-1.2" fill="currentColor">Swiip</text>
+  <!-- Kelime isareti yol olarak: font kurulu olmayan her yerde ayni cizilsin. -->
+  <path d="${kelimeIsaretiYolu()}" fill="currentColor" />
 </svg>
 `;
 

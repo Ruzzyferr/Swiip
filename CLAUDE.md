@@ -96,6 +96,11 @@ taşındı: S, teğet noktasında birleşen iki yaydan kuruluyor ve dış kavisl
 var. `scripts/marka-uret.mjs` üretiyor — çentik açıları hesapla çıksın, elle kaymasın.
 `brand/mark.svg` · `brand/lockup.svg` · `brand/icon.svg`
 
+Kilitteki "Swiip" yazısı `<text>` değil **yol**: font kurulu olmayan her yerde (mağaza
+görseli, PDF, baskı, başka bir bilgisayar) aynı çiziliyor. Yüz Inter Bold — uygulamanın
+başlık fontunun ta kendisi. Önceki `Archivo` bir niyetti, hiçbir yerde kurulu değildi ve
+pratikte Arial'a düşüyordu. `scripts/marka-uret.mjs` harfleri tek tek yerleştiriyor.
+
 > **Bu işaret bir ilk taslak, onaylanmış değil.** İki tur döndü: ilkinde yaylar
 > birleşmiyordu ve dişli çark okunuyordu; ikincisi doğru bir S ama çentikler hâlâ
 > "taksimat" değil "yırtık kenar" gibi duruyor. Tasarımcı eli değmeden mağazaya gitmesin.
@@ -143,12 +148,24 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   Ama İngiltere'de birebir `swiip` (sınıf 35/42, Hassan Hashmi) ve EUIPO'da `Swiipe`
   (sınıf 9/36, Swiipe ApS) tescilli. AB'de sınıf 9 başvurusunda `Swiipe` karşına çıkar.
   Global açılımdan önce marka vekiline danış.
-- **Veritabanı yedeği yalnızca sunucuda.** `scripts/yedek-al.sh` her gece 03:15'te
-  `/opt/swiip/yedekler` altına dump alıyor ve geri yüklemesi denendi (28 tablo,
-  veriler yerinde). Ama `YEDEK_UZAK_HEDEF` boş: sunucu tümden kaybedilirse dump'lar
-  da gider. DO anlık yedeği açık (haftalık) ve bu riski azaltıyor, tek başına yeterli
-  değil — uzak hedef tanımlanmalı
-- Kilitteki "Swiip" yazısı outline'a çevrilecek
+- **Yedek üç katman da çalışıyor (2026-08-22'de uçtan uca doğrulandı).**
+  1. Sunucuda her gece 03:15'te `scripts/yedek-al.sh` → `/opt/swiip/yedekler`
+  2. Bu makineye çekme: `scripts/yedek-indir.mjs`, Windows görev zamanlayıcıda
+     **Swiip-yedek-indir** adıyla her gün 09:30. Hedef `~/Swiip-yedekler`.
+     Nesne deposu (Spaces) aylık ücretli ve kullanıcı sayısı sıfır; şart yine
+     karşılanıyor, kopya sunucunun **dışında**. Betik her çalıştığında yerelde
+     olmayan **bütün** dump'ları indiriyor — bir hafta kapalı kalan bilgisayar
+     açıldığında haftanın hepsini alır.
+  3. Geri yükleme: `scripts/yedek-geri-yukleme-testi.sh <dosya>` yerel kopyayı da
+     kabul ediyor. Son test: 28 tablo, 439 besin, 1 kullanıcı, 28 yabancı anahtar.
+     **Ayda bir tekrarla.**
+
+  Dürüst sınır: bu makine kapalıysa o gün çekilmez ve makinenin kendisi de tek
+  nokta. Gerçek kullanıcı gelmeye başlayınca uzak hedef tekrar değerlendirilmeli.
+  Hedef bilinçli olarak OneDrive **dışında**: dump şifresiz ve içinde sağlık
+  verisi var; fotoğrafı sunucuya bile yazmayan bir uygulamanın tüm veritabanını
+  kişisel buluta kopyalaması tutarsız olurdu.
+
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
