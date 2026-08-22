@@ -16,6 +16,7 @@ import {
   Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
+import { Skala } from '../../src/tasarim/Skala';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 
@@ -110,11 +111,21 @@ export default function Rapor() {
             <Yazi tur="etiket" renk="aksan">
               {m.yagOraniAraligi}
             </Yazi>
-            <Satir arasi="xs" hizala="baseline">
-              <Sayi tur="dev" renk="aksan">
-                %{rapor.yag_orani.alt}-{rapor.yag_orani.ust}
-              </Sayi>
-            </Satir>
+            {/*
+              Yağ oranı bir kumpas okuması.
+
+              Düz metin olarak "%20-28" yazıyordu: ürünün en çok "ölçüm" olan çıktısı,
+              bir dizeye sıkışmıştı. Bu bir ARALIK — nerede başladığı, nerede bittiği ve
+              ölçeğin neresinde durduğu bilgi taşıyor. Taksimat motifinin ikinci ve son
+              yeri burası; ekranda başka ölçek yok.
+            */}
+            <Skala
+              alt={5}
+              ust={45}
+              isaretAlt={rapor.yag_orani.alt}
+              isaretUst={rapor.yag_orani.ust}
+              birim="%"
+            />
             <Yazi tur="kucuk" renk="metinYumusak">
               {rapor.yag_orani.kaynak === 'capraz'
                 ? m.kaynakIkisi

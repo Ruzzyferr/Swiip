@@ -227,6 +227,7 @@ export default function Ilerleme() {
  */
 function KiloGrafigi({ kayitlar }: { kayitlar: Array<{ gun: string; kilo_kg: number }> }) {
   const tema = useTema();
+  const dil = useDil();
   const son = kayitlar.slice(-30);
   const degerler = son.map((k) => k.kilo_kg);
   const enAz = Math.min(...degerler);
@@ -246,42 +247,67 @@ function KiloGrafigi({ kayitlar }: { kayitlar: Array<{ gun: string; kilo_kg: num
 
   return (
     <View style={{ gap: tema.bosluk.sm }}>
-      <View style={{ height: YUKSEK }}>
-        <Svg width="100%" height={YUKSEK} viewBox={`0 0 100 ${YUKSEK}`} preserveAspectRatio="none">
-          {/* En dusuk ve en yuksek okuma: olcegin iki ucu. */}
-          {[enAz, enCok].map((deger) => (
-            <Line
-              key={deger}
-              x1={0}
-              y1={y(deger)}
-              x2={100}
-              y2={y(deger)}
-              stroke={tema.renk.celikSilik}
-              strokeWidth={1}
+      {/*
+        Eksen degerleri yaziliyor.
+
+        Once yalnizca cizgi vardi: hangi yukseklik hangi kiloya denk geliyor
+        okunamiyordu ve grafik havada duran bir egriye donusuyordu. Olcegin iki ucu
+        artik etiketli; cizim de kendi kabinda, yoksa `width="100%"` etiket sutununun
+        uzerine tasiyor.
+      */}
+      <View style={{ height: YUKSEK, flexDirection: 'row', alignItems: 'stretch' }}>
+        <View style={{ width: 48, justifyContent: 'space-between', paddingVertical: PAY - 7 }}>
+          <Sayi tur="etiket" renk="metinSilik">
+            {kgMetni(enCok)}
+          </Sayi>
+          <Sayi tur="etiket" renk="metinSilik">
+            {kgMetni(enAz)}
+          </Sayi>
+        </View>
+
+        <View style={{ flex: 1 }}>
+          <Svg
+            width="100%"
+            height={YUKSEK}
+            viewBox={`0 0 100 ${YUKSEK}`}
+            preserveAspectRatio="none"
+          >
+            {/* En dusuk ve en yuksek okuma: olcegin iki ucu. */}
+            {[enAz, enCok].map((deger) => (
+              <Line
+                key={deger}
+                x1={0}
+                y1={y(deger)}
+                x2={100}
+                y2={y(deger)}
+                stroke={tema.renk.celikSilik}
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
+            ))}
+            <Path
+              d={yol}
+              stroke={tema.renk.aksan}
+              strokeWidth={2}
+              fill="none"
               vectorEffect="non-scaling-stroke"
             />
-          ))}
-          <Path
-            d={yol}
-            stroke={tema.renk.aksan}
-            strokeWidth={2}
-            fill="none"
-            vectorEffect="non-scaling-stroke"
-          />
-          <Circle cx={x(son.length - 1)} cy={y(sonuncu)} r={2.5} fill={tema.renk.aksan} />
-        </Svg>
+            <Circle cx={x(son.length - 1)} cy={y(sonuncu)} r={2.5} fill={tema.renk.aksan} />
+          </Svg>
+        </View>
       </View>
+      {/* Zaman ekseni: seri nerede basliyor, nerede bitiyor. */}
       <Satir dagit="space-between">
-        <Sayi tur="etiket" renk="metinSilik">
-          {kgMetni(ilk)} kg
-        </Sayi>
+        <Yazi tur="etiket" renk="metinSilik">
+          {kisaTarihMetni(new Date(son[0]?.gun ?? ''), dil)}
+        </Yazi>
         <Sayi tur="etiket" renk={fark === 0 ? 'metinSilik' : 'aksan'}>
           {fark > 0 ? '+' : ''}
           {kgMetni(fark)} kg
         </Sayi>
-        <Sayi tur="etiket" renk="metin">
-          {kgMetni(sonuncu)} kg
-        </Sayi>
+        <Yazi tur="etiket" renk="metinSilik">
+          {kisaTarihMetni(new Date(son[son.length - 1]?.gun ?? ''), dil)}
+        </Yazi>
       </Satir>
     </View>
   );

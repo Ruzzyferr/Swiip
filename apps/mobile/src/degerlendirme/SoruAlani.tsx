@@ -283,43 +283,70 @@ function Olcek({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   );
 }
 
+/**
+ * Sayı girişi.
+ *
+ * Alan sıradan bir metin kutusu gibi duruyordu ve bunun en büyük sebebi yer tutucuydu:
+ * içinde "120-230" yazan bir kutu, bir form alanı okur — okunacak bir değer değil.
+ * Geçerli aralık artık yer tutucu değil, alanın altında duran sessiz bir künye satırı;
+ * kutunun içinde yalnızca kullanıcının kendi sayısı var.
+ *
+ * Sayı monospace ve sağa dayalı: birim tam yanında sabit bir sütunda duruyor, alan bir
+ * gösterge penceresi gibi okunuyor.
+ */
 function SayiGirisi({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
   const [metin, setMetin] = useState(deger === undefined || deger === null ? '' : String(deger));
+  const aralikVar = soru.min !== undefined && soru.max !== undefined;
 
   return (
-    <Satir arasi="sm">
-      <TextInput
-        value={metin}
-        onChangeText={(yeni) => {
-          setMetin(yeni);
-          const temiz = yeni.replace(',', '.');
-          const sayi = Number(temiz);
-          onDegisim(temiz === '' || !Number.isFinite(sayi) ? null : sayi);
-        }}
-        keyboardType="decimal-pad"
-        accessibilityLabel={soru.text}
-        placeholder={soru.min !== undefined ? `${soru.min}-${soru.max}` : ''}
-        placeholderTextColor={tema.renk.metinSilik}
+    <View style={{ gap: tema.bosluk.xs }}>
+      <View
         style={{
-          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
           minHeight: tema.dokunmaHedefi,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: tema.renk.cizgi,
           borderRadius: tema.yaricap.md,
-          paddingHorizontal: tema.bosluk.lg,
-          fontSize: 20,
-          fontVariant: ['tabular-nums'],
-          color: tema.renk.metin,
           backgroundColor: tema.renk.yuzey,
+          paddingHorizontal: tema.bosluk.lg,
+          gap: tema.bosluk.sm,
         }}
-      />
-      {soru.unit ? (
-        <Yazi tur="baslik3" renk="metinSilik">
-          {soru.unit}
-        </Yazi>
+      >
+        <TextInput
+          value={metin}
+          onChangeText={(yeni) => {
+            setMetin(yeni);
+            const temiz = yeni.replace(',', '.');
+            const sayi = Number(temiz);
+            onDegisim(temiz === '' || !Number.isFinite(sayi) ? null : sayi);
+          }}
+          keyboardType="decimal-pad"
+          accessibilityLabel={soru.text}
+          style={{
+            flex: 1,
+            minHeight: tema.dokunmaHedefi,
+            fontSize: 22,
+            fontFamily: tema.tipografi.aileler.sayisal,
+            textAlign: 'right',
+            color: tema.renk.metin,
+          }}
+        />
+        {soru.unit ? (
+          <Yazi tur="baslik3" renk="metinSilik">
+            {soru.unit}
+          </Yazi>
+        ) : null}
+      </View>
+
+      {aralikVar ? (
+        <Sayi tur="etiket" renk="metinSilik">
+          {soru.min}–{soru.max}
+          {soru.unit ? ` ${soru.unit}` : ''}
+        </Sayi>
       ) : null}
-    </Satir>
+    </View>
   );
 }
 
