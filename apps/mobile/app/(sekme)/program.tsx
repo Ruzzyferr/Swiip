@@ -432,12 +432,19 @@ function HareketKarti({
       </View>
 
       {gerekce ? (
+        /**
+         * Gerekçe artık renkli dolgu değil, kenar işareti.
+         *
+         * Mint dolgulu kutu ürünün en iyi ekranını "şablon bileşen" gibi gösteriyordu ve
+         * aksan rengi zemine yayılınca bir şeyi işaret etme gücünü kaybediyordu.
+         */
         <View
           style={{
             gap: tema.bosluk.xs,
-            backgroundColor: tema.renk.aksanZemin,
-            padding: tema.bosluk.md,
-            borderRadius: tema.yaricap.sm,
+            borderLeftWidth: 2,
+            borderLeftColor: tema.renk.aksan,
+            paddingLeft: tema.bosluk.md,
+            paddingVertical: tema.bosluk.xs,
           }}
         >
           <Yazi tur="etiket" renk="aksan">

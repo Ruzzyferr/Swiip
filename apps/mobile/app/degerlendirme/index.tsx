@@ -1,33 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import {
-  ATLANDI,
-  blokIlerlemesi,
-  cevabiDogrula,
-  gorunurSorular,
-  sonrakiSoru,
-  type Cevaplar,
-  type GorunurSoru,
-} from '@swiip/core';
+import { ATLANDI, sonrakiSoru, type Cevaplar, type GorunurSoru } from '@swiip/core';
 import { SORU_BANKASI } from '@swiip/shared';
-import {
-  Dugme,
-  Ekran,
-  IlerlemeCubugu,
-  Satir,
-  Yazi,
-  Yukleniyor,
-} from '../../src/tasarim/bilesenler';
+import { Dugme, Ekran, Yazi, Yukleniyor } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
-import { gosterilecekSoru, ilerlenecekSoruId } from '../../src/degerlendirme/akis';
+import {
+  atlananlariIsaretle,
+  blokBolumleri,
+  blokHatalari,
+  blokSorulari,
+  gosterilecekBlokId,
+} from '../../src/degerlendirme/akis';
+import { Cetvel } from '../../src/tasarim/Cetvel';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { istek } from '../../src/veri/api';
 import { baglantiSorunuMu, yeniCevaplar } from '@swiip/shared';
 import { islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf } from '@swiip/shared';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 
 /**
@@ -86,7 +77,9 @@ export default function Degerlendirme() {
    * Hiçbir cevap sunucuya yazılmıyor, blok sonu geri bildirimi hiç görünmüyor ve
    * güvenlik kapıları sunucuda hiç değerlendirilmiyordu — hepsi sessizce.
    */
-  const [aktifSoruId, setAktifSoruId] = useState<string | undefined>(undefined);
+  const [aktifBlokId, setAktifBlokId] = useState<string | undefined>(undefined);
+  /** Soru kimliği → hata metni. Blok görünümünde her soru kendi hatasını taşır. */
+  const [alanHatalari, setAlanHatalari] = useState<Record<string, string>>({});
 
   // Açılışta: önce cihazdaki taslak, sonra sunucudaki kayıt.
   useEffect(() => {
@@ -105,27 +98,27 @@ export default function Degerlendirme() {
         setCevaplar((mevcut) => {
           const birlesik = { ...sunucuCevaplari, ...taslak, ...mevcut };
           // Açılışta da soru sabitleniyor; yoksa ilk cevap ekranı kendiliğinden atlatır.
-          setAktifSoruId(ilerlenecekSoruId(birlesik));
+          setAktifBlokId(gosterilecekBlokId(birlesik, undefined));
           return birlesik;
         });
       } catch (h) {
         setCevrimdisi(baglantiSorunuMu(h));
         // Sunucuya ulaşılamasa da soru sabitlenmeli; çevrimdışı akış da aynı kuralı izler.
-        setAktifSoruId((mevcut) => mevcut ?? ilerlenecekSoruId(taslak ?? {}));
+        setAktifBlokId((mevcut) => mevcut ?? gosterilecekBlokId(taslak ?? {}, undefined));
       }
       setHazir(true);
     })();
   }, []);
 
-  const soru = useMemo(() => gosterilecekSoru(cevaplar, aktifSoruId), [cevaplar, aktifSoruId]);
-  const ilerleme = useMemo(() => blokIlerlemesi(cevaplar), [cevaplar]);
-  const toplam = useMemo(() => gorunurSorular(cevaplar).length, [cevaplar]);
-  const cevaplanan = useMemo(
-    () => gorunurSorular(cevaplar).filter((s) => doluMu(cevaplar[s.id])).length,
-    [cevaplar],
+  const blokId = useMemo(() => gosterilecekBlokId(cevaplar, aktifBlokId), [cevaplar, aktifBlokId]);
+  const sorular = useMemo(() => (blokId ? blokSorulari(cevaplar, blokId) : []), [cevaplar, blokId]);
+  const bolumler = useMemo(() => blokBolumleri(cevaplar), [cevaplar]);
+  const bolumSirasi = useMemo(
+    () => Math.max(1, bolumler.findIndex((b) => b.id === blokId) + 1),
+    [bolumler, blokId],
   );
-
-  const blok = SORU_BANKASI.blocks.find((b) => b.id === ilerleme.blok_id);
+  // Baslik gosterilen blogun adini yaziyor; ilerleme motorunun sectigi blok degil.
+  const blok = SORU_BANKASI.blocks.find((b) => b.id === blokId);
 
   /**
    * Kayıt sonucu üç ayrı durum: gönderildi, bağlantı yok, sunucu reddetti.
@@ -177,52 +170,54 @@ export default function Degerlendirme() {
     [m.gecersizCevap],
   );
 
+  /**
+   * Blogu kaydeder ve bir sonrakine gecer.
+   *
+   * Bu, cevaplarin sunucuya yazildigi TEK yer. Bir zamanlar ekran cevap verilir
+   * verilmez kendiliginde ilerledigi icin buraya hic gelinmiyordu.
+   */
   const ilerle = useCallback(async () => {
-    if (!soru) return;
+    if (!blokId) return;
 
-    const deger = cevaplar[soru.id];
-    const dogrulama = cevabiDogrula(soru, deger as never);
-    if (!dogrulama.gecerli) {
-      setHata(dogrulama.mesaj ?? m.gecersizCevap);
+    const hatalar = blokHatalari(cevaplar, blokId);
+    if (Object.keys(hatalar).length > 0) {
+      setAlanHatalari(hatalar);
       return;
     }
 
+    setAlanHatalari({});
     setHata(null);
     setKaydediliyor(true);
 
-    const oncekiBlok = soru.blok_id;
-    const sonrasi = sonrakiSoru(cevaplar);
-    const blokBitti = !sonrasi || sonrasi.blok_id !== oncekiBlok;
-    // Ekran ancak kayıt denemesinden sonra ilerler.
-    setAktifSoruId(sonrasi?.id);
+    // Bos birakilan istege bagli sorular atlanmis sayilir; her biri icin ayri bir
+    // "Atla" dokunusu yuzden fazla gereksiz dokunus demekti.
+    const tamamlanmis = atlananlariIsaretle(cevaplar, blokId);
+    setCevaplar(tamamlanmis);
 
-    const kayit = await kaydet(cevaplar, blokBitti ? oncekiBlok : undefined);
+    const kayit = await kaydet(tamamlanmis, blokId);
     setKaydediliyor(false);
 
     /**
      * Sunucu reddettiyse ilerlemiyoruz.
      *
-     * Eskiden hata gösteriliyor ama akış devam ediyordu: kullanıcı değerlendirmeyi
-     * bitirip programa geçiyor, sunucudaki kayıt ise eksik kalıyordu. Bir sonraki
-     * ekranda "önce değerlendirmeyi tamamla" diyen bir hata alıyordu ve nedenini
-     * anlayamıyordu.
+     * Eskiden hata gosteriliyor ama akis devam ediyordu: kullanici degerlendirmeyi
+     * bitirip programa geciyor, sunucudaki kayit ise eksik kaliyordu.
      */
-    if (kayit.durum === 'reddedildi') {
-      // Sunucu reddettiyse aynı soruda kalıyoruz; ilerlemek cevabı kaybetmek olurdu.
-      setAktifSoruId(soru.id);
-      return;
-    }
+    if (kayit.durum === 'reddedildi') return;
 
     const sonuc = kayit.durum === 'gonderildi' ? kayit.cevap : null;
 
-    // Güvenlik kapıları her kayıtta yeniden değerlendirilir; atlanamaz.
+    // Guvenlik kapilari her kayitta yeniden degerlendirilir; atlanamaz.
     const kapi = sonuc?.kapi_durumu.kapilar[0];
     if (kapi && (kapi.eylem === 'kayit_reddet' || kapi.eylem === 'program_uretme')) {
       router.push({ pathname: '/degerlendirme/kapi', params: { tip: kapi.tip } });
       return;
     }
 
-    if (blokBitti && sonuc?.blok_geri_bildirimi) {
+    const sonrasi = sonrakiSoru(tamamlanmis);
+    setAktifBlokId(sonrasi?.blok_id);
+
+    if (sonuc?.blok_geri_bildirimi) {
       router.push({
         pathname: '/degerlendirme/blok-sonu',
         params: { blok: sonuc.blok_geri_bildirimi.blok_id, metin: sonuc.blok_geri_bildirimi.metin },
@@ -234,19 +229,13 @@ export default function Degerlendirme() {
       try {
         await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
       } catch {
-        // Tamamlanmadan ilerlemek, profilsiz bir kullanıcı yaratır: program üretilemez.
+        // Tamamlanmadan ilerlemek, profilsiz bir kullanici yaratir: program uretilemez.
         setHata(islemHatasiMetni('degerlendirme_tamamla', dil));
         return;
       }
       router.replace('/fotograf/gizlilik');
     }
-  }, [cevaplar, dil, kaydet, m.gecersizCevap, soru]);
-
-  const atla = useCallback(() => {
-    if (!soru || soru.required) return;
-    setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: ATLANDI }));
-    setHata(null);
-  }, [soru]);
+  }, [blokId, cevaplar, dil, kaydet]);
 
   if (!hazir) {
     return (
@@ -256,7 +245,7 @@ export default function Degerlendirme() {
     );
   }
 
-  if (!soru) {
+  if (!blokId) {
     return (
       <Ekran>
         <Yazi tur="baslik1">{m.tamamBaslik}</Yazi>
@@ -272,7 +261,7 @@ export default function Degerlendirme() {
       <View style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
         <View
           style={{
-            // Başlık gizli; durum çubuğunun altına girmemek için kenar boşluğu burada.
+            // Baslik gizli; durum cubugunun altina girmemek icin kenar boslugu burada.
             paddingTop: tema.bosluk.lg + kenar.top,
             paddingHorizontal: tema.bosluk.lg,
             paddingBottom: tema.bosluk.md,
@@ -280,15 +269,13 @@ export default function Degerlendirme() {
             backgroundColor: tema.renk.zemin,
           }}
         >
-          <Satir dagit="space-between">
-            <Yazi tur="etiket" renk="aksan">
-              {blok ? buyukHarf(blok.title, dil) : ''}
-            </Yazi>
-            <Yazi tur="etiket" renk="metinSilik">
-              {cevaplanan} / {toplam}
-            </Yazi>
-          </Satir>
-          <IlerlemeCubugu yuzde={ilerleme.yuzde} />
+          {/*
+            Jenerik dolan cubugun yerine taksimat cetveli.
+            O cubuk iki soruyu da cevaplamiyordu: kac bolum var, ben hangisindeyim.
+            Cetvel ikisini de gosteriyor ve tamamlanmis bloga donmeyi sagliyor —
+            dokunulamayan bir cetvel yalnizca cizilmis bir cetveldir.
+          */}
+          <Cetvel bolumler={bolumler} aktifId={blokId} onBolumSec={setAktifBlokId} />
           {cevrimdisi ? (
             <Yazi tur="etiket" renk="uyari">
               {m.cevrimdisiNotu}
@@ -297,50 +284,59 @@ export default function Degerlendirme() {
         </View>
 
         <Ekran>
-          <SoruAlani
-            /**
-             * Soru kimliği anahtar: alan durumu sorular arasında taşınmasın.
-             * Taşındığında sayı alanı önceki metni koruyup "178" + "92" = "17892"
-             * üretiyordu.
-             */
-            key={soru.id}
-            soru={soru}
-            deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
-            onDegisim={(deger) => {
-              setHata(null);
-              setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: deger as never }));
-            }}
-            {...(hata ? { hata } : {})}
-          />
+          <View style={{ gap: tema.bosluk.xxs }}>
+            <Yazi tur="baslik1">{blok ? blok.title : ''}</Yazi>
+            {/*
+              Soru sayısı yerine bölüm sayısı.
+              Görünür soru sayısı dallanmayla değişiyor ve sayaç "0/123" iken bir sonraki
+              cevapta "2/124" oluyordu; ilerlediğini görmek isteyen kullanıcı paydanın
+              da kaydığını görüyordu. Bölüm sayısı sabit ve cetvelle aynı şeyi söylüyor.
+            */}
+            <Yazi tur="etiket" renk="metinSilik">
+              {m.bolumSayaci(bolumSirasi, bolumler.length)}
+            </Yazi>
+          </View>
 
-          <View style={{ gap: tema.bosluk.sm, marginTop: tema.bosluk.lg }}>
+          {sorular.map((soru, sira) => (
+            <View
+              key={soru.id}
+              style={{
+                paddingTop: sira === 0 ? 0 : tema.bosluk.lg,
+                borderTopWidth: sira === 0 ? 0 : StyleSheet.hairlineWidth,
+                borderTopColor: tema.renk.cizgi,
+              }}
+            >
+              <SoruAlani
+                soru={soru}
+                deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
+                onDegisim={(deger) => {
+                  setAlanHatalari((mevcut) => {
+                    if (!mevcut[soru.id]) return mevcut;
+                    const { [soru.id]: _cikar, ...kalan } = mevcut;
+                    return kalan;
+                  });
+                  setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: deger as never }));
+                }}
+                {...(alanHatalari[soru.id] ? { hata: alanHatalari[soru.id]! } : {})}
+              />
+            </View>
+          ))}
+
+          {hata ? (
+            <Yazi tur="kucuk" renk="tehlike">
+              {hata}
+            </Yazi>
+          ) : null}
+
+          <View style={{ marginTop: tema.bosluk.lg }}>
             <Dugme
               baslik={m.devamEtDugmesi}
               onPress={() => void ilerle()}
               yukleniyor={kaydediliyor}
-              pasif={soru.required === true && !doluMu(cevaplar[soru.id])}
             />
-            {soru.required ? null : (
-              <Pressable
-                onPress={atla}
-                accessibilityRole="button"
-                style={{ minHeight: tema.dokunmaHedefi, justifyContent: 'center' }}
-              >
-                <Yazi renk="metinSilik" hizala="center">
-                  {m.soruyuAtla}
-                </Yazi>
-              </Pressable>
-            )}
           </View>
         </Ekran>
       </View>
     </>
   );
-}
-
-function doluMu(deger: unknown): boolean {
-  if (deger === undefined || deger === null || deger === '') return false;
-  if (Array.isArray(deger)) return deger.length > 0;
-  if (typeof deger === 'object') return Object.keys(deger).length > 0;
-  return true;
 }

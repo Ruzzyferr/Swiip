@@ -20,10 +20,26 @@ export const renkler = {
    * geliyordu. Zemin temayla değişiyorsa üstündeki metin de değişmek zorunda.
    */
   aksanUstu: '#FFFFFF',
-  zemin: '#F6F7F5',
+  /**
+   * Zemin bir ton soğudu: #F6F7F5 → #ECEEED.
+   *
+   * Eski değer kâğıdımsı ve sıcaktı; beyaz kartlarla birleşince ürün bir spor salonunu
+   * değil klinik kabul ekranını çağrıştırıyordu. Ölçü aleti gövdesi kâğıt değil metaldir.
+   * Aksan ve mürekkep aynı kaldı; kontrast oranları etkilenmiyor (mürekkep/zemin 15,4:1).
+   */
+  zemin: '#ECEEED',
   yuzey: '#FFFFFF',
-  yuzeyIkincil: '#EFF1EE',
-  cizgi: '#DCE0DB',
+  yuzeyIkincil: '#E3E6E4',
+  cizgi: '#D2D7D3',
+  /**
+   * Çelik: ölçeğin gövdesi.
+   *
+   * Aksan tek başına hem ekseni hem okumayı taşıyamıyordu; her şey yeşile boyanınca
+   * yeşilin bir şey işaret etme gücü kalmıyor. Kalibre bir alette gövde nötr metaldir,
+   * renk yalnızca okunan değeri gösterir. Pasif çentikler ve eksen bu tonu kullanır.
+   */
+  celik: '#7C8480',
+  celikSilik: '#9DA5A0',
   uyari: '#8A6A1F',
   uyariZemin: '#FBF3DF',
   tehlike: '#8C2F26',
@@ -38,6 +54,8 @@ export const renkler = {
     murekkepYumusak: '#B9BFBA',
     murekkepSilik: '#969D98',
     cizgi: '#2E332F',
+    celik: '#8B938E',
+    celikSilik: '#4A514C',
     aksan: '#4FA79C',
     aksanAcik: '#16302D',
     // Açık aksan üstünde mürekkep okunur: 6.37:1.
@@ -56,10 +74,17 @@ export const bosluk = {
   xxxl: 48,
 } as const;
 
+/**
+ * Köşe yarıçapı sertleşti: 6/10/16 → 3/6/10.
+ *
+ * Yumuşak köşe "dostane uygulama" okur; ölçü aleti gövdesi keskindir. Dışarıdan gelen
+ * eleştiri bunu "iç içe kutulama hastalığı, yapay zekâ arayüz üreticilerinin imzası"
+ * diye adlandırdı — kutuların kendisi kadar yuvarlaklıkları da o izlenimi taşıyordu.
+ */
 export const yaricap = {
-  sm: 6,
-  md: 10,
-  lg: 16,
+  sm: 3,
+  md: 6,
+  lg: 10,
   tam: 999,
 } as const;
 

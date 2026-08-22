@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { Dugme, Yazi, Yukleniyor } from '../src/tasarim/bilesenler';
 import { useTema } from '../src/tasarim/tema';
@@ -35,12 +35,11 @@ export default function Karsilama() {
         flex: 1,
         backgroundColor: tema.renk.zemin,
         padding: tema.bosluk.xl,
-        justifyContent: 'space-between',
-        paddingTop: tema.bosluk.xxxl * 2,
+        paddingTop: tema.bosluk.xxl,
         paddingBottom: tema.bosluk.xxl,
       }}
     >
-      <View style={{ gap: tema.bosluk.xl }}>
+      <View style={{ gap: tema.bosluk.lg }}>
         <Isaret renk={tema.renk.aksan} />
 
         <View style={{ gap: tema.bosluk.sm }}>
@@ -49,13 +48,28 @@ export default function Karsilama() {
             {metinler.giris.altSlogan}
           </Yazi>
         </View>
+        {/*
+        Maddeler bir künye satırı olarak duruyor.
 
-        <View style={{ gap: tema.bosluk.md, marginTop: tema.bosluk.lg }}>
-          {metinler.giris.maddeler.map((madde) => (
-            <Madde key={madde} metin={madde} />
+        Dört madde ekranın üst üçte birine sıkışıyor, altında yedi yüz piksel boşluk
+        kalıyordu; o boşluk "odak" değil "yarım kalmış" okuyordu. Künye hem alanı
+        gerçek içerikle dolduruyor hem de ürünün ne olduğunu tek bakışta söylüyor.
+      */}
+        <View style={{ marginTop: tema.bosluk.sm }}>
+          {metinler.giris.maddeler.map((madde, i) => (
+            <Madde key={madde.etiket} etiket={madde.etiket} metin={madde.metin} ilk={i === 0} />
           ))}
         </View>
       </View>
+
+      {/*
+        Boşluk tek yerde: künyeden sonra.
+
+        `space-between` içerik bloklarını iki uca itiyor ve ARADA iki ayrı boşluk
+        bırakıyordu; ekran hem üstten hem ortadan boş görünüyordu. Nefes almasını
+        istediğimiz tek yer eylemin hemen öncesi.
+      */}
+      <View style={{ flex: 1, minHeight: tema.bosluk.xl }} />
 
       <View style={{ gap: tema.bosluk.md }}>
         <Dugme
@@ -72,22 +86,21 @@ export default function Karsilama() {
   );
 }
 
-function Madde({ metin }: { metin: string }) {
+function Madde({ etiket, metin, ilk }: { etiket: string; metin: string; ilk: boolean }) {
   const tema = useTema();
   return (
-    <View style={{ flexDirection: 'row', gap: tema.bosluk.md, alignItems: 'flex-start' }}>
-      <View
-        style={{
-          width: 4,
-          height: 4,
-          borderRadius: 2,
-          backgroundColor: tema.renk.aksan,
-          marginTop: 9,
-        }}
-      />
-      <Yazi renk="metinYumusak" stil={{ flex: 1 }}>
-        {metin}
+    <View
+      style={{
+        paddingVertical: tema.bosluk.md,
+        borderTopWidth: ilk ? 0 : StyleSheet.hairlineWidth,
+        borderTopColor: tema.renk.cizgi,
+        gap: tema.bosluk.xxs,
+      }}
+    >
+      <Yazi tur="etiket" renk="aksan">
+        {etiket}
       </Yazi>
+      <Yazi renk="metinYumusak">{metin}</Yazi>
     </View>
   );
 }

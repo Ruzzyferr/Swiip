@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
+import Svg, { Circle, Line, Path } from 'react-native-svg';
 import { hareketBul, kgMetni } from '@swiip/core';
 import {
   Ayirac,
@@ -213,45 +214,73 @@ export default function Ilerleme() {
 }
 
 /** Basit çizgi grafik — kütüphane yok, bağımlılık yok, hızlı. */
+/**
+ * Kilo seyri.
+ *
+ * Eskiden cubuk grafikti ve kodlamasi dogru degildi: cubuk yuksekligi
+ * `%20 + araliktaki goreli konum` idi, yani sifirdan baslamayan bir cubuk. Cubuk
+ * "sifirdan su kadar" demek; buradaki sayi bunu demiyordu. Iki kullanici ayni
+ * grafikten farkli sey okuyabilirdi.
+ *
+ * Kilo surekli bir olcum; dogru bicimi cizgi. Eksen olcu aletinin govdesi (celik),
+ * aksan yalnizca son okumayi gosteriyor.
+ */
 function KiloGrafigi({ kayitlar }: { kayitlar: Array<{ gun: string; kilo_kg: number }> }) {
   const tema = useTema();
   const son = kayitlar.slice(-30);
   const degerler = son.map((k) => k.kilo_kg);
   const enAz = Math.min(...degerler);
   const enCok = Math.max(...degerler);
+  // Duz bir seride sifira bolunmesin; aralik yoksa yapay bir aralik aciyoruz.
   const aralik = Math.max(0.5, enCok - enAz);
+
+  const YUKSEK = 120;
+  const PAY = 12;
+  const y = (kilo: number) => PAY + (1 - (kilo - enAz) / aralik) * (YUKSEK - PAY * 2);
+  const x = (i: number) => (son.length === 1 ? 50 : (i / (son.length - 1)) * 100);
+
+  const yol = son.map((k, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(k.kilo_kg)}`).join(' ');
+  const ilk = son[0]?.kilo_kg ?? 0;
+  const sonuncu = son[son.length - 1]?.kilo_kg ?? 0;
+  const fark = Math.round((sonuncu - ilk) * 10) / 10;
 
   return (
     <View style={{ gap: tema.bosluk.sm }}>
-      <View
-        style={{
-          height: 120,
-          flexDirection: 'row',
-          alignItems: 'flex-end',
-          gap: 2,
-          paddingVertical: tema.bosluk.sm,
-        }}
-      >
-        {son.map((kayit, i) => (
-          <View
-            key={i}
-            style={{
-              flex: 1,
-              height: `${20 + ((kayit.kilo_kg - enAz) / aralik) * 70}%`,
-              backgroundColor: tema.renk.aksan,
-              opacity: 0.35 + (i / son.length) * 0.65,
-              borderRadius: 2,
-              minHeight: 4,
-            }}
+      <View style={{ height: YUKSEK }}>
+        <Svg width="100%" height={YUKSEK} viewBox={`0 0 100 ${YUKSEK}`} preserveAspectRatio="none">
+          {/* En dusuk ve en yuksek okuma: olcegin iki ucu. */}
+          {[enAz, enCok].map((deger) => (
+            <Line
+              key={deger}
+              x1={0}
+              y1={y(deger)}
+              x2={100}
+              y2={y(deger)}
+              stroke={tema.renk.celikSilik}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+          <Path
+            d={yol}
+            stroke={tema.renk.aksan}
+            strokeWidth={2}
+            fill="none"
+            vectorEffect="non-scaling-stroke"
           />
-        ))}
+          <Circle cx={x(son.length - 1)} cy={y(sonuncu)} r={2.5} fill={tema.renk.aksan} />
+        </Svg>
       </View>
       <Satir dagit="space-between">
         <Sayi tur="etiket" renk="metinSilik">
-          {kgMetni(son[0]?.kilo_kg ?? 0)} kg
+          {kgMetni(ilk)} kg
         </Sayi>
-        <Sayi tur="etiket" renk="aksan">
-          {kgMetni(son[son.length - 1]?.kilo_kg ?? 0)} kg
+        <Sayi tur="etiket" renk={fark === 0 ? 'metinSilik' : 'aksan'}>
+          {fark > 0 ? '+' : ''}
+          {kgMetni(fark)} kg
+        </Sayi>
+        <Sayi tur="etiket" renk="metin">
+          {kgMetni(sonuncu)} kg
         </Sayi>
       </Satir>
     </View>

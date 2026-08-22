@@ -59,7 +59,15 @@ export function Yazi({
           lineHeight: olcek.lineHeight,
           letterSpacing: olcek.letterSpacing,
           color: tema.renk[renk],
-          fontWeight: baslikMi ? '600' : '400',
+          /**
+           * `fontFamily` uzun süre HİÇ yazılmıyordu.
+           *
+           * `tokens.ts` Inter ve JetBrains Mono adlarını taşıyordu ama ne paketler
+           * kuruluydu ne de bir yükleme çağrısı vardı; uygulamanın tamamı Android
+           * sistem fontuyla çalışıyordu. `fontWeight` ile taklit edilen kalınlık,
+           * gerçek bir grotesk kesim değildi.
+           */
+          fontFamily: baslikMi ? tema.tipografi.aileler.baslik : tema.tipografi.aileler.govde,
           ...(hizala ? { textAlign: hizala } : {}),
         },
         stil,
@@ -87,8 +95,15 @@ export function Sayi({
           fontSize: olcek.size,
           lineHeight: olcek.lineHeight,
           color: tema.renk[renk],
-          fontVariant: ['tabular-nums'],
-          fontWeight: '500',
+          /**
+           * Sayısal veri monospace.
+           *
+           * `fontVariant: ['tabular-nums']` yazılıydı ama fontFamily olmadığı için
+           * hiçbir şey yapmıyordu: Roboto'nun orantılı rakamlarında "1" ile "8" farklı
+           * genişlikte ve sayı sütunu satırdan satıra titriyordu. Ürünün "ölçü aleti"
+           * iddiasını taşıyan tek görsel ayrıntı buydu ve hiç var olmamıştı.
+           */
+          fontFamily: tema.tipografi.aileler.sayisal,
         },
         stil,
       ]}
@@ -168,6 +183,17 @@ export function Ekran({
   );
 }
 
+/**
+ * Kart.
+ *
+ * `vurgulu` bir zamanlar kartın tamamını mint yeşiline boyuyordu. İki sorunu vardı:
+ * aksan rengi zemine yayılınca bir şey işaret etme gücünü kaybediyor, ve renkli
+ * dolgulu yuvarlak kutular üst üste binince arayüz bir ölçü aletine değil şablon bir
+ * bileşen kütüphanesine benziyordu.
+ *
+ * Vurgu artık dolgu değil, **kenar işareti**: ölçeğin üstüne konmuş bir imleç gibi
+ * solda 2 px'lik aksan çizgisi. Renk tek bir yerde ve bir şeyi gösteriyor.
+ */
 export function Kart({
   children,
   vurgulu = false,
@@ -178,14 +204,36 @@ export function Kart({
   stil?: StyleProp<ViewStyle>;
 }) {
   const tema = useTema();
+
+  if (vurgulu) {
+    return (
+      <View
+        style={[
+          {
+            backgroundColor: tema.renk.yuzey,
+            borderLeftWidth: 2,
+            borderLeftColor: tema.renk.aksan,
+            paddingVertical: tema.bosluk.lg,
+            paddingLeft: tema.bosluk.lg,
+            paddingRight: tema.bosluk.lg,
+            gap: tema.bosluk.sm,
+          },
+          stil,
+        ]}
+      >
+        {children}
+      </View>
+    );
+  }
+
   return (
     <View
       style={[
         {
-          backgroundColor: vurgulu ? tema.renk.aksanZemin : tema.renk.yuzey,
-          borderRadius: tema.yaricap.lg,
+          backgroundColor: tema.renk.yuzey,
+          borderRadius: tema.yaricap.md,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: vurgulu ? tema.renk.aksan : tema.renk.cizgi,
+          borderColor: tema.renk.cizgi,
           padding: tema.bosluk.lg,
           gap: tema.bosluk.sm,
         },
@@ -355,24 +403,94 @@ export function SecimDugmesi({
         borderRadius: tema.yaricap.md,
         borderWidth: secili ? 2 : StyleSheet.hairlineWidth,
         borderColor: secili ? tema.renk.aksan : tema.renk.cizgi,
-        backgroundColor: secili ? tema.renk.aksanZemin : tema.renk.yuzey,
+        backgroundColor: tema.renk.yuzey,
         opacity: pressed ? 0.9 : 1,
-        gap: 2,
-        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: tema.bosluk.md,
       })}
     >
-      <Text
+      {/*
+        Isaretin kendisi.
+
+        Once yalnizca kenarlik ve zemin rengi degisiyordu: SECILMEMIS hali sade bir
+        metin kutusuydu ve dokunulabilir oldugu hic belli olmuyordu. Bu bilesen KVKK
+        acik rizasini da tasiyor; onayin verilip verilmedigi bakar bakmaz okunmali.
+      */}
+      <View
         style={{
-          color: tema.renk.metin,
-          fontSize: 16,
-          fontWeight: secili ? '600' : '400',
+          width: 20,
+          height: 20,
+          borderRadius: cokluSecim ? tema.yaricap.sm : tema.yaricap.tam,
+          borderWidth: secili ? 0 : 1.5,
+          borderColor: tema.renk.celik,
+          backgroundColor: secili ? tema.renk.aksan : 'transparent',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
-        {baslik}
-      </Text>
-      {aciklama ? (
-        <Text style={{ color: tema.renk.metinSilik, fontSize: 13 }}>{aciklama}</Text>
-      ) : null}
+        {secili ? (
+          <Text style={{ color: tema.renk.aksanUstu, fontSize: 13, lineHeight: 16 }}>✓</Text>
+        ) : null}
+      </View>
+
+      <View style={{ flex: 1, gap: 2 }}>
+        <Yazi renk="metin">{baslik}</Yazi>
+        {aciklama ? (
+          <Yazi tur="kucuk" renk="metinSilik">
+            {aciklama}
+          </Yazi>
+        ) : null}
+      </View>
+    </Pressable>
+  );
+}
+
+/**
+ * Liste satırı — ikincil eylemler için.
+ *
+ * Beslenme sekmesinde altı eylem 2×3'lük eşit ağırlıklı bir düğme ızgarasındaydı:
+ * "Fotoğraftan ekle" (Pro'nun tek farkı, günde birkaç kez) ile "Alışveriş listesi"
+ * (haftada bir) aynı görünüyordu. Kullanım sıklığı gözetilmeyen ızgara, "özellik
+ * listesi" okur; ürünün ne yapmanı beklediğini söylemez.
+ *
+ * Günlük kayıt eylemleri düğme olarak kaldı; haftalık planlama işleri bu satırlara
+ * taşındı. Farklı iş, farklı görsel sınıf.
+ */
+export function BaglantiSatiri({
+  baslik,
+  onPress,
+  kilitli = false,
+  ilk = false,
+}: {
+  baslik: string;
+  onPress: () => void;
+  kilitli?: boolean;
+  ilk?: boolean;
+}) {
+  const tema = useTema();
+  const kilitMetni = useMetinler().genel.temelPlandan;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={kilitli ? `${baslik}. ${kilitMetni}` : baslik}
+      style={({ pressed }) => ({
+        minHeight: tema.dokunmaHedefi,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: tema.bosluk.md,
+        borderTopWidth: ilk ? 0 : StyleSheet.hairlineWidth,
+        borderTopColor: tema.renk.cizgi,
+        opacity: pressed ? 0.6 : 1,
+      })}
+    >
+      <Yazi renk={kilitli ? 'metinSilik' : 'metin'}>{baslik}</Yazi>
+      <Yazi tur="etiket" renk="metinSilik">
+        {kilitli ? kilitMetni : '→'}
+      </Yazi>
     </Pressable>
   );
 }
@@ -391,29 +509,34 @@ export function Uyari({
   tur?: 'bilgi' | 'uyari' | 'tehlike';
 }) {
   const tema = useTema();
-  const zemin = {
-    bilgi: tema.renk.aksanZemin,
-    uyari: tema.renk.uyariZemin,
-    tehlike: tema.renk.tehlikeZemin,
-  }[tur];
   const kenar = { bilgi: tema.renk.aksan, uyari: tema.renk.uyari, tehlike: tema.renk.tehlike }[tur];
 
+  /**
+   * Dolgu kalktı, kenar çizgisi kaldı.
+   *
+   * Krem ve mint dolgulu kutular ekranda üst üste binince ürün bir ölçü aletine değil
+   * şablon bir bileşen kütüphanesine benziyordu. Uyarının işi dikkat çekmek; bunu
+   * zeminini boyayarak değil, kenarına bir işaret koyarak yapıyor.
+   */
   return (
     <View
       accessibilityRole="alert"
       style={{
-        backgroundColor: zemin,
-        borderLeftWidth: 3,
+        borderLeftWidth: 2,
         borderLeftColor: kenar,
-        borderRadius: tema.yaricap.sm,
-        padding: tema.bosluk.lg,
+        paddingLeft: tema.bosluk.lg,
+        paddingVertical: tema.bosluk.sm,
         gap: tema.bosluk.xs,
       }}
     >
       {baslik ? (
-        <Text style={{ color: tema.renk.metin, fontWeight: '600', fontSize: 15 }}>{baslik}</Text>
+        <Yazi tur="baslik3" renk="metin">
+          {baslik}
+        </Yazi>
       ) : null}
-      <Text style={{ color: tema.renk.metinYumusak, fontSize: 14, lineHeight: 20 }}>{govde}</Text>
+      <Yazi tur="kucuk" renk="metinYumusak">
+        {govde}
+      </Yazi>
     </View>
   );
 }
@@ -433,15 +556,18 @@ export function IlerlemeCubugu({ yuzde, etiket }: { yuzde: number; etiket?: stri
     >
       <View
         style={{
-          height: 6,
-          borderRadius: tema.yaricap.tam,
-          backgroundColor: tema.renk.yuzeyIkincil,
+          height: 3,
+          backgroundColor: tema.renk.celikSilik,
           overflow: 'hidden',
         }}
       >
         <View style={{ width: `${guvenli}%`, height: '100%', backgroundColor: tema.renk.aksan }} />
       </View>
-      {etiket ? <Text style={{ color: tema.renk.metinSilik, fontSize: 12 }}>{etiket}</Text> : null}
+      {etiket ? (
+        <Yazi tur="etiket" renk="metinSilik">
+          {etiket}
+        </Yazi>
+      ) : null}
     </View>
   );
 }

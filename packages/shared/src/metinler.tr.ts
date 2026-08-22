@@ -98,6 +98,58 @@ export const tr = {
       kontrendikasyon_uyumlu: 'bildirdiğin kısıtlarla çelişmiyor',
       kalabalik_salon_uyumlu: 'makine beklemeden yapabilirsin',
     },
+    /**
+     * Karar izinde gecen motor kodlarinin insan karsiliklari.
+     *
+     * "Hangi cevaplarindan cikti" listesi ham kod yaziyordu: kullanici
+     * `kablo_makinesi`, `omuz_instabilite` goruyordu. Urunun en guclu ekrani,
+     * icinden bir gelistirici not defteri sizdiriyordu.
+     */
+    ekipmanlar: {
+      barbell: 'Barbell',
+      dumbbell: 'Dumbbell',
+      kettlebell: 'Kettlebell',
+      leg_press: 'Leg press',
+      hack_squat: 'Hack squat',
+      lat_pulldown: 'Lat pulldown',
+      kablo_makinesi: 'Kablo makinesi',
+      smith_makinesi: 'Smith makinesi',
+      barfiks_bari: 'Barfiks barı',
+      dip_bari: 'Dip barı',
+      duz_bench: 'Düz bench',
+      egimli_bench: 'Eğimli bench',
+      ayarlanabilir_bench: 'Ayarlanabilir bench',
+      direnc_bandi: 'Direnç bandı',
+      kosu_bandi: 'Koşu bandı',
+      sabit_bisiklet: 'Sabit bisiklet',
+      kurek_makinesi: 'Kürek makinesi',
+      merdiven: 'Merdiven',
+      trx: 'TRX',
+      squat_rack: 'Squat rack',
+      makine_gogus: 'Göğüs makinesi',
+      makine_hamstring: 'Hamstring makinesi',
+      makine_quadriceps: 'Quadriceps makinesi',
+      makine_sirt: 'Sırt makinesi',
+      makine_omuz: 'Omuz makinesi',
+      makine_baldir: 'Baldır makinesi',
+      makine_abduktor: 'Abduktör makinesi',
+      preacher_bench: 'Preacher bench',
+      roman_chair: 'Roma sandalyesi',
+      plyo_box: 'Plyo box',
+    },
+    kontrendikasyonlar: {
+      bel_fitigi: 'Bel fıtığı',
+      boyun_fitigi: 'Boyun fıtığı',
+      omuz_sikismasi: 'Omuz sıkışması',
+      omuz_instabilite: 'Omuz instabilitesi',
+      diz_menisküs: 'Diz menisküs',
+      diz_patellofemoral: 'Diz ön ağrısı',
+      dirsek_tendinit: 'Dirsek tendiniti',
+      bilek_agrisi: 'Bilek ağrısı',
+      kalca_impingement: 'Kalça sıkışması',
+      ayak_bilegi_kisitli: 'Ayak bileği kısıtlı',
+      tansiyon_kontrolsuz: 'Kontrolsüz tansiyon',
+    },
     gruplar: {
       gogus: 'Göğüs',
       sirt: 'Sırt',
@@ -304,11 +356,24 @@ export const tr = {
     aciliyor: 'Açılıyor',
     slogan: 'Ölçüne göre.',
     altSlogan: 'Programın neden o program olduğunu da söyleriz.',
+    /**
+     * Açılış maddeleri artık künye satırı.
+     *
+     * Dört madde ekranın üst üçte birine sıkışıyor, altında yedi yüz piksel boşluk
+     * kalıyordu. Boşluk "odak" okumuyor, "yarım kalmış" okuyordu. Maddeler ürünün
+     * teknik künyesi; etiketleri de neyin künyesi olduğunu söylüyor.
+     */
     maddeler: [
-      '134 soru soruyoruz. Hepsinin bir karşılığı var.',
-      'Programındaki her hareketin yanında neden orada olduğu yazıyor.',
-      'Fotoğrafın analiz edilir edilmez silinir, sunucumuzda kalmaz.',
-      'Rozet yok, seri yok, konfeti yok.',
+      { etiket: 'SORU', metin: '134 soru soruyoruz. Hepsinin bir karşılığı var.' },
+      {
+        etiket: 'GEREKÇE',
+        metin: 'Programındaki her hareketin yanında neden orada olduğu yazıyor.',
+      },
+      {
+        etiket: 'GİZLİLİK',
+        metin: 'Fotoğrafın analiz edilir edilmez silinir, sunucumuzda kalmaz.',
+      },
+      { etiket: 'TON', metin: 'Rozet yok, seri yok, konfeti yok.' },
     ],
     basla: 'Başla',
     hesabimVar: 'Hesabım var',
@@ -425,6 +490,14 @@ export const tr = {
     devamEtDugmesi: 'Devam et',
     cevrimdisiNotu: 'Bağlantı yok — cevapların cihazında tutuluyor, bağlanınca gönderilecek.',
     soruyuAtla: 'Bu soruyu atla',
+    /**
+     * Sayaç soru değil BÖLÜM sayıyor.
+     *
+     * Görünür soru sayısı dallanmayla değişiyor: sayaç "0/123" iken bir sonraki cevapta
+     * "2/124" oluyordu. İlerlediğini görmek isteyen kullanıcı paydanın da kaydığını
+     * görüyor ve sayaca güvenmiyordu. Bölüm sayısı sabit.
+     */
+    bolumSayaci: (sira: number, toplam: number) => `${sira}. bölüm · ${toplam} bölümden`,
     listeAra: 'Yazarak ara',
     listeSonucYok: 'Eşleşen yok. Yazımı değiştirmeyi dene.',
     istersenAtla: 'İstersen atlayabilirsin',
@@ -968,6 +1041,7 @@ export const tr = {
     haftalikPlan: 'Haftalık plan',
     buzdolabim: 'Buzdolabım',
     ogunDegistir: 'Öğün değiştir',
+    planlamaBasligi: 'HAFTALIK PLANLAMA',
     alisverisListesi: 'Alışveriş listesi',
     bugunYediklerin: 'Bugün yediklerin',
     bosKayitBaslik: 'Bugün henüz kayıt yok',

@@ -228,6 +228,41 @@ export interface RaporIzi {
 type RaporMetinleri = Metinler['rapor']['motor'];
 
 /** Raporun kullanıcının dilindeki metinleri. Çevrilemeyen parça Türkçe ize düşer. */
+/**
+ * Karar izindeki bir girdi değerini okunur hâle getirir.
+ *
+ * "Hangi cevaplarından çıktı" listesi ham motor kodu yazıyordu: kullanıcı
+ * `kablo_makinesi`, `sirt`, `omuz_instabilite` görüyordu. Ürünün en güçlü ekranı —
+ * kararın nereden geldiğini gösteren ekran — içinden bir geliştirici not defteri
+ * sızdırıyordu.
+ *
+ * Karşılığı olmayan kod olduğu gibi bırakılmıyor, en azından alt çizgileri boşluğa
+ * çevriliyor: uydurmadan, ama makine gibi de görünmeden.
+ */
+export function kararGirdisiMetni(deger: string, metinler: GerekceMetinleri): string {
+  const sozlukler: Array<Record<string, string>> = [
+    metinler.ekipmanlar as Record<string, string>,
+    metinler.kontrendikasyonlar as Record<string, string>,
+    metinler.gruplar as Record<string, string>,
+    metinler.paternler as Record<string, string>,
+  ];
+
+  return deger
+    .split(',')
+    .map((ham) => ham.trim())
+    .filter((ham) => ham !== '')
+    .map((ham) => {
+      for (const sozluk of sozlukler) {
+        const karsilik = sozluk[ham];
+        if (karsilik) return karsilik;
+      }
+      // Karşılığı yoksa hiç değilse alt çizgi gitsin.
+      const bosluklu = ham.replace(/_/g, ' ');
+      return bosluklu.charAt(0).toLocaleUpperCase('tr-TR') + bosluklu.slice(1);
+    })
+    .join(', ');
+}
+
 export function raporMetinleri(
   rapor: RaporIzi,
   metinler: RaporMetinleri,

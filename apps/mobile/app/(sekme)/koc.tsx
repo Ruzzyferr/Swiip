@@ -66,6 +66,24 @@ export default function Koc() {
     } catch {
       setMesajlar([]);
     }
+
+    /**
+     * Kalan mesaj hakkı AÇILIŞTA okunuyor.
+     *
+     * Önce yalnızca gönderdikten sonraki cevaptan geliyordu: ödeme yapan kullanıcı
+     * koçu açtığında kaç hakkı kaldığını göremiyordu. Ölçülen bir özellikte sayacın
+     * yeri, ölçüm başlamadan önce.
+     */
+    try {
+      const durum = await istek<{ kota?: { koc_sohbeti?: { kalan?: number } } }>(
+        '/v1/abonelik/durum',
+      );
+      const hak = durum.kota?.koc_sohbeti?.kalan;
+      if (typeof hak === 'number') setKalan(hak);
+    } catch {
+      // Kota okunamazsa sayacı hiç göstermiyoruz; yanlış sayı göstermekten iyidir.
+    }
+
     setHazir(true);
   }, []);
 

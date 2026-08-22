@@ -16,7 +16,8 @@ export function useYiginSecenekleri(): NativeStackNavigationOptions {
   return {
     headerStyle: { backgroundColor: tema.renk.zemin },
     headerTintColor: tema.renk.metin,
-    headerTitleStyle: { fontWeight: '600' },
+    // Baslik cubugu da uygulamanin fontunu kullanir; yoksa tek yerde sistem fontu kalir.
+    headerTitleStyle: { fontFamily: tema.tipografi.aileler.baslik },
     headerShadowVisible: false,
     contentStyle: { backgroundColor: tema.renk.zemin },
     headerBackTitle: metinler.genel.geri,

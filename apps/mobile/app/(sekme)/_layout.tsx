@@ -76,11 +76,22 @@ function ProgramSimgesi({ renk }: { renk: string }) {
   );
 }
 
+/**
+ * Beslenme: mutfak terazisi.
+ *
+ * Önce üstünde sap olan bir daireydi ve kronometre okunuyordu — yemekle hiçbir bağı
+ * yoktu. Terazi hem yiyeceği hem ürünün fikrini taşıyor: burada da ölçülüyor.
+ */
 function BeslenmeSimgesi({ renk }: { renk: string }) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={renk} strokeWidth={1.8}>
-      <Circle cx={12} cy={13} r={7} />
-      <Path d="M12 6V3M9 4l3-1 3 1" />
+      {/* Tabla */}
+      <Path d="M4 8h16" strokeLinecap="round" />
+      {/* Gövde ve kadran */}
+      <Path d="M6 8v9a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8" />
+      <Path d="M9 13h6" strokeLinecap="round" />
+      {/* Tablanın üstündeki ölçülen şey */}
+      <Path d="M10 8c0-1.6.9-2.5 2-2.5s2 .9 2 2.5" />
     </Svg>
   );
 }
@@ -101,11 +112,19 @@ function KocSimgesi({ renk }: { renk: string }) {
   );
 }
 
+/**
+ * Ayarlar: kalibrasyon sürgüleri.
+ *
+ * Önce sekiz ışınlı bir güneş/dişli karışımıydı ve "parlaklık" okunuyordu. Sürgü hem
+ * ayarı doğrudan anlatıyor hem de kalibre edilen bir aletin diliyle konuşuyor.
+ */
 function AyarSimgesi({ renk }: { renk: string }) {
   return (
     <Svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={renk} strokeWidth={1.8}>
-      <Circle cx={12} cy={12} r={3} />
-      <Path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" />
+      <Path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
+      <Circle cx={9} cy={7} r={2} fill="none" />
+      <Circle cx={15} cy={12} r={2} fill="none" />
+      <Circle cx={8} cy={17} r={2} fill="none" />
     </Svg>
   );
 }

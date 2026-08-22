@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { OturumSaglayici } from '../src/durum/Oturum';
 import { useYiginSecenekleri } from '../src/gezinme/yiginSecenekleri';
 import { useTema } from '../src/tasarim/tema';
+import { yaziTipleriHazirMi } from '../src/tasarim/yazitipi';
 /**
  * Yalnızca yan etkisi için: modül yüklenince bildirim sunum işleyicisi kuruluyor.
  *
@@ -15,6 +16,15 @@ import { useTema } from '../src/tasarim/tema';
 import '../src/bildirim/zamanlayici';
 
 export default function KokDuzen() {
+  /**
+   * Yazı tipleri yüklenmeden çizmiyoruz.
+   *
+   * Çizersek ilk kare sistem fontuyla gelir, sonra metin zıplar. Sayısal hizalama
+   * iddiasında olan bir arayüzde bu zıplama tam da görünmemesi gereken şey.
+   */
+  const yaziHazir = yaziTipleriHazirMi();
+  if (!yaziHazir) return null;
+
   return (
     <SafeAreaProvider>
       <OturumSaglayici>

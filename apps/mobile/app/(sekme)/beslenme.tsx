@@ -5,6 +5,7 @@ import type { PorsiyonRehberi } from '@swiip/core';
 import type { BeslenmeHedefi } from '@swiip/shared';
 import {
   Ayirac,
+  BaglantiSatiri,
   BosDurum,
   Dugme,
   Etiket,
@@ -162,14 +163,15 @@ export default function Beslenme() {
 
         {h && gun?.toplam ? (
           <Kart vurgulu>
-            <Satir dagit="space-between" hizala="baseline">
-              <Yazi tur="etiket" renk="aksan">
-                {m.kaloriEtiketi}
-              </Yazi>
-              <Sayi tur="kucuk" renk="metinSilik">
-                {m.hedefEki(h.kalori)}
-              </Sayi>
-            </Satir>
+            {/*
+              Hedef sayisi bir kez yaziliyor.
+              Ust sagda "hedef 2134", hemen altinda "0 / 2134 kcal" vardi; ayni sayi iki
+              kez. Olcum gosteren bir arayuzde tekrar, okuyani sayinin hangisi oldugunu
+              aramaya zorlar.
+            */}
+            <Yazi tur="etiket" renk="aksan">
+              {m.kaloriEtiketi}
+            </Yazi>
             <Satir arasi="xs" hizala="baseline">
               <Sayi tur="dev" renk="aksan">
                 {gun.toplam.kalori}
@@ -248,38 +250,38 @@ export default function Beslenme() {
           </View>
         </Satir>
 
-        <Satir arasi="sm">
-          <View style={{ flex: 1 }}>
-            <Dugme
+        {/*
+          Haftalik planlama isleri artik dugme izgarasinda degil, liste halinde.
+
+          Alti eylem 2x3'luk esit agirlikli bir izgaradaydi: gunde birkac kez kullanilan
+          "Fotograftan ekle" ile haftada bir kullanilan "Alisveris listesi" ayni
+          goruniyordu. Izgara "ozellik listesi" okuyor, urunun ne yapmani bekledigini
+          soylemiyordu.
+        */}
+        <View style={{ gap: tema.bosluk.xs }}>
+          <Yazi tur="etiket" renk="metinSilik">
+            {m.planlamaBasligi}
+          </Yazi>
+          <View>
+            <BaglantiSatiri
+              ilk
               baslik={m.haftalikPlan}
-              tur="ikincil"
               kilitli={hedef?.kilitler?.ogun_plani}
               onPress={() => router.push('/ogun/plan')}
             />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Dugme baslik={m.buzdolabim} tur="ikincil" onPress={() => router.push('/ogun/dolap')} />
-          </View>
-        </Satir>
-
-        <Satir arasi="sm">
-          <View style={{ flex: 1 }}>
-            <Dugme
+            <BaglantiSatiri
               baslik={m.ogunDegistir}
-              tur="ikincil"
               kilitli={hedef?.kilitler?.kaydirmali_ogun}
               onPress={() => router.push('/ogun/deste')}
             />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Dugme
+            <BaglantiSatiri
               baslik={m.alisverisListesi}
-              tur="ikincil"
               kilitli={hedef?.kilitler?.ogun_plani}
               onPress={() => router.push('/ogun/alisveris')}
             />
+            <BaglantiSatiri baslik={m.buzdolabim} onPress={() => router.push('/ogun/dolap')} />
           </View>
-        </Satir>
+        </View>
 
         {aramaAcik ? <BesinArama gun={bugun} onEklendi={() => void yukle()} /> : null}
 

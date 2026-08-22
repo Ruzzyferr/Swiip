@@ -24,6 +24,9 @@ export interface Tema {
     /** Aksan zemini üstündeki metin — temayla değişir. */
     aksanUstu: string;
     cizgi: string;
+    /** Ölçeğin gövdesi: eksen ve pasif çentikler. Aksan yalnızca okumayı gösterir. */
+    celik: string;
+    celikSilik: string;
     uyari: string;
     uyariZemin: string;
     tehlike: string;
@@ -50,6 +53,8 @@ const acikTema: Tema = {
     aksanZemin: renkler.aksanAcik,
     aksanUstu: renkler.aksanUstu,
     cizgi: renkler.cizgi,
+    celik: renkler.celik,
+    celikSilik: renkler.celikSilik,
     uyari: renkler.uyari,
     uyariZemin: renkler.uyariZemin,
     tehlike: renkler.tehlike,
@@ -77,6 +82,8 @@ const koyuTema: Tema = {
     aksanZemin: renkler.koyu.aksanAcik,
     aksanUstu: renkler.koyu.aksanUstu,
     cizgi: renkler.koyu.cizgi,
+    celik: renkler.koyu.celik,
+    celikSilik: renkler.koyu.celikSilik,
     uyari: '#D9B54A',
     uyariZemin: '#2C2612',
     tehlike: '#E0796C',

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Image, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { hareketBul } from '@swiip/core';
-import { hareketAdi, type Hareket } from '@swiip/shared';
+import { hareketAdi, kararGirdisiMetni, type Hareket } from '@swiip/shared';
 import {
   Ayirac,
   Dugme,
@@ -36,7 +36,8 @@ interface GerekceCevabi {
 
 export default function HareketDetayi() {
   const tema = useTema();
-  const m = useMetinler().program;
+  const metinler = useMetinler();
+  const m = metinler.program;
   const dil = useDil();
   const kasAdi = (kod: string) => m.kasAdlari[kod as keyof typeof m.kasAdlari] ?? kod;
   const { id, seans } = useLocalSearchParams<{ id: string; seans?: string }>();
@@ -124,7 +125,7 @@ export default function HareketDetayi() {
                   {girdi.soru_id}
                 </Sayi>
                 <Yazi tur="kucuk" renk="metinYumusak" stil={{ flex: 1 }}>
-                  {girdi.deger}
+                  {kararGirdisiMetni(girdi.deger, metinler.gerekce)}
                 </Yazi>
               </Satir>
             ))}
