@@ -124,32 +124,18 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
-- **Arayüz tasarım turu yapıldı; kalan işler.** Üç persona emülatörde gezdirildi, iki tur
-  dış görüş alındı. İkinci turun yargısı: *"çizgi belirgin şekilde değişti, artık jenerik
-  bir geliştirici şablonu değil."* Yapılanlar `git log` içinde; kalanlar:
-  1. **K6 erkeklere de soruluyor.** "Hamile misin veya emziriyor musun?" cinsiyetten
-     bağımsız görünüyor. `conditionalOn: {K2: 'Kadın'}` doğru çözüm ama K6 bir güvenlik
-     kapısı: gizlenirse `eksik_tarama` hiç kapanmaz ve program üretilemez. Motor tarafında
-     "cinsiyet erkekse karşılandı say" kuralı gerekiyor — kapıya dokunulacağı için
-     ayrı ve dikkatli bir iş.
-  2. Beyaz kartlar gri zeminde hâlâ ekranı iri bloklara bölüyor. Dış görüşün son
-     önerisi: kutulardan büsbütün çıkıp veriyi 1 px çelik kılavuz çizgileriyle dizmek.
-  3. Boş durumlar (program yok, kayıt yok) hâlâ ekranın yarısını boş bırakıyor.
-  4. Hareketlerin görseli yok. Salon hissi için en büyük eksik: her hareketin yanında
-     bir çizim ya da kare.
+- **Arayüz: kalan iki iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
+  1. Beyaz kartlar gri zeminde hâlâ ekranı iri bloklara bölüyor. Dış görüşün önerisi
+     kutulardan büsbütün çıkmak; ama program kartında artık hareket fotoğrafı var ve
+     fotoğrafın bir kabı olmak zorunda. Karar verilmedi.
+  2. 23 hareket görselsiz. Kaynak (free-exercise-db, kamu malı) bunları içermiyor —
+     çoğu mobilite ve ısınma. `data/medya-eslemeleri.json` içinde `null` olarak
+     kayıtlı: "bakıldı, bilinçli olarak boş". Yanlış görsel görselsizden kötüdür.
 
   **Taksimat kuralı — bozulmasın:** motif yalnızca kullanıcının değer girdiği ya da bir
   ölçüm okuduğu yerde kullanılır. Şu an iki yerde: değerlendirme cetveli ve yağ oranı
   skalası. Navigasyonda, kart kenarında, düz metin altında çentik yok. Ekran başına tek
   ölçek: ikincisi konduğunda arayüz kumpas değil, bozuk bir ses mikseri gibi görünür.
-
-- **Besin kataloğunda sade karşılıklar eksik.** Fotoğraf tanıma çalışıyor ama
-  "pilav" → *Perde pilav*, "ekmek" → *Etli ekmek*, "yeşil biber" → *Pul biber*
-  eşleşiyor: sade giriş yoksa eşleştirici en yakın bileşik yemeği seçiyor.
-  Katalogda düz "Pilav", "Ekmek", "Yeşil biber", "Mısır" gibi temel kayıtlar olmalı.
-
-- **Genel istek sınırı IP başına dakikada 120.** Mobil operatörlerde CGNAT
-  yüzünden çok kullanıcı tek IP'den çıkıyor; sınır kullanıcı başına değil.
 
 - TürKomp kullanım koşulları yazılı teyit edilecek
 - **Marka: Türkiye temiz, AB/İngiltere çekişmeli.** TMview taraması (2026-08-21):
@@ -170,8 +156,9 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
   (`revenuecat-connect@swiip-revenuecat`). `scripts/play-*.mjs` bunu
   `PLAY_SERVIS_HESABI` ile bekliyor
-- Play veri güvenliği formunda **kullanıcı kimliği ve satın alma geçmişi eksik**;
-  ikisi de toplanıyor. Ayrıntı `magaza/play/konsol-rehberi.md` bölüm 7.
+- Play veri güvenliği formu tamamlandı (2026-08-22): satın alma geçmişi, fotoğraf
+  (geçici işleniyor) ve uygulama içi eylemler eklendi. **Taslak olarak kaydedildi;
+  incelemeye göndermek ayrı bir adım.** Ayrıntı `magaza/play/konsol-rehberi.md` bölüm 7.
 
 ## Dağıtım ve sunucu
 
