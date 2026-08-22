@@ -136,10 +136,9 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   da gider. DO anlık yedeği açık (haftalık) ve bu riski azaltıyor, tek başına yeterli
   değil — uzak hedef tanımlanmalı
 - Kilitteki "Swiip" yazısı outline'a çevrilecek
-- **Posta sağlayıcısı bağlı değil.** Parola sıfırlama ve doğrulama kodları yalnızca
-  sunucu logunda görünüyor. Resend kuruldu (`send.swiip.app`, eu-west-1) ama son bir
-  DNS kaydı eksik: TXT `send.send` → `v=spf1 include:amazonses.com ~all`.
-  (AI gateway ve RevenueCat iki platformda da bağlı.)
+- Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
+  Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
+  alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
   (`revenuecat-connect@swiip-revenuecat`). `scripts/play-*.mjs` bunu
