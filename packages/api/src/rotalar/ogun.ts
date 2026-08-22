@@ -28,6 +28,7 @@ import {
   users,
 } from '../db/sema';
 import { planHaklari, type Plan } from '../servisler/haklar';
+import { sorguBooleani } from '../sorgu';
 
 /**
  * Öğün planlama, buzdolabı ve kaydırmalı deste (F8).
@@ -244,7 +245,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
 
   app.get('/deste', { preHandler: app.kimlikDogrula }, async (istek) => {
     const { ogun, dolaptan } = z
-      .object({ ogun: z.string().optional(), dolaptan: z.coerce.boolean().default(false) })
+      .object({ ogun: z.string().optional(), dolaptan: sorguBooleani(false) })
       .parse(istek.query);
 
     await ozellikKontrol(istek.kullaniciId, 'kaydirmali_ogun');
@@ -282,6 +283,8 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
         id: t.id,
         ad: t.ad,
         makrolar: t.makrolar,
+        // Kartta '1,5 PORSİYON' rozeti bundan çiziliyor; alan eksikken 'undefined PORSİYON' yazıyordu.
+        porsiyon_katsayisi: t.porsiyon_katsayisi,
         hazirlik_dakika: t.hazirlik_dakika,
         maliyet_kademesi: t.maliyet_kademesi,
         etiketler: t.etiketler,

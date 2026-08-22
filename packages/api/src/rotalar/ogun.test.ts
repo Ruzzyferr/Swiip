@@ -210,6 +210,28 @@ describe('kaydırmalı deste', () => {
     }
   });
 
+  /**
+   * Kart, arayüzün çizdiği her alanı taşımalı.
+   *
+   * `porsiyon_katsayisi` cevaptan düşmüştü ve kartın rozeti `undefined PORSİYON`
+   * yazıyordu. İstemcideki cevap tipi elle yazıldığı için derleyici bunu görmez;
+   * sözleşmeyi tutan tek şey bu test.
+   */
+  it('kartlar porsiyon katsayısını taşır', async () => {
+    const token = await kullaniciKur('porsiyon@swiip.app');
+    const cevap = await app.inject({
+      method: 'GET',
+      url: '/v1/ogun/deste',
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    const kartlar = cevap.json().kartlar as Array<{ porsiyon_katsayisi: number }>;
+    expect(kartlar.length).toBeGreaterThan(0);
+    for (const kart of kartlar) {
+      expect(typeof kart.porsiyon_katsayisi).toBe('number');
+    }
+  });
+
   it('deste AI çağrısı yapmaz', async () => {
     const token = await kullaniciKur('desteai@swiip.app');
     const cevap = await app.inject({
@@ -262,6 +284,38 @@ describe('kaydırmalı deste', () => {
     expect(cevap.json().kartlar).toHaveLength(0);
     expect(cevap.json().eksik_malzeme_onerisi.length).toBeGreaterThan(0);
     expect(cevap.json().mesaj).toContain('eklersen');
+  });
+
+  /**
+   * Süzgeç kapalıyken dolap desteyi daraltmamalı.
+   *
+   * `z.coerce.boolean()` sorgu dizesinde `"false"`u da doğru sayıyordu: kutu işaretsiz
+   * olsa da süzgeç açık çalışıyor, dolabı boş olan herkes her öğünde "deste bitti"
+   * görüyordu. Üstelik gerekçe de yanlıştı — kapalı bir süzgeç için "dolabına şunu
+   * eklersen açılır" deniyordu.
+   */
+  it('dolaptan=false süzgeci kapalı tutar', async () => {
+    const token = await kullaniciKur('dolapkapali@swiip.app');
+    await app.inject({
+      method: 'POST',
+      url: '/v1/ogun/dolap',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { malzemeler: ['tuz'] },
+    });
+
+    const kapali = await app.inject({
+      method: 'GET',
+      url: '/v1/ogun/deste?dolaptan=false',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    const acik = await app.inject({
+      method: 'GET',
+      url: '/v1/ogun/deste?dolaptan=true',
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    expect(kapali.json().kartlar.length).toBeGreaterThan(0);
+    expect(acik.json().kartlar).toHaveLength(0);
   });
 
   it('dolap doluysa yalnızca yapılabilenler gelir', async () => {
