@@ -31,12 +31,41 @@ E-posta : inceleme@swiip.app
 Parola  : mercan-defter-7431-yelken
 ```
 
-Bu hesabın değerlendirmesi **doldurulmuş ve programı üretilmiş** durumda. Böyle olmak
-zorunda: uygulama 134 soruluk değerlendirmeyle başlıyor ve program, beslenme, koç
-ekranları değerlendirme bitmeden görünmüyor. Boş hesap veren bir gönderim, inceleyicinin
-gördüğü tek ekranın anket olması demek.
+Böyle olmak zorunda: uygulama 134 soruluk değerlendirmeyle başlıyor ve program,
+beslenme, koç ekranları değerlendirme bitmeden görünmüyor. Boş hesap veren bir gönderim,
+inceleyicinin gördüğü tek ekranın anket olması demek.
 
-Yeniden doldurmak gerekirse: `node_modules/.swiip-gecici/degerlendirme-doldur.mjs`.
+**Bu satır bir kez yalan söyledi.** Burada "doldurulmuş" yazıyordu ama 2026-08-23'te
+canlıda bakıldığında 134 sorunun yalnızca iki bloğu bitmişti; sıradaki soru K9'du. Yani
+1.0 gönderiminde inceleyici de anket duvarına çarpmış olabilir. **Her gönderimden önce
+yaz değil, sor:**
+
+```
+curl -s https://swiip.app/v1/degerlendirme/durum -H "authorization: Bearer <token>"
+```
+
+`sonraki_soru` null değilse hesap hazır değildir.
+
+Hesabın 2026-08-23'te getirildiği durum:
+
+| Ne | Nasıl |
+|---|---|
+| 134 cevap + program | `node node_modules/.swiip-gecici/degerlendirme-doldur.mjs inceleme@swiip.app <parola>` |
+| Haftalık öğün planı | `POST /v1/ogun/plan` · gövde `{"hafta_basi":"YYYY-MM-DD"}` (pazartesi) |
+| Pro hakkı | `subscriptions` tablosuna elle satır (aşağıda) |
+
+Pro hakkı **elle** açıldı, satın alma ile değil: ücretsiz katmanda öğün planı, kaydırmalı
+deste, koç ve fotoğraftan tanıma kapalı — yani Apple'ın "ücretli özellikleri göster"
+dediği ekranların hepsi. `platform` bilerek `NULL`: bu satır bir mağaza satın alması
+değil ve öyle görünmemeli.
+
+```sql
+INSERT INTO subscriptions (user_id, plan, product_id, status, renews_at, platform, updated_at)
+SELECT id, 'pro', 'swiip_pro_yillik', 'aktif', now() + interval '1 year', NULL, now()
+FROM users WHERE email = 'inceleme@swiip.app'
+ON CONFLICT (user_id) DO UPDATE SET plan = 'pro', status = 'aktif',
+  renews_at = now() + interval '1 year', updated_at = now();
+```
 
 ---
 
