@@ -130,7 +130,11 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   Ama İngiltere'de birebir `swiip` (sınıf 35/42, Hassan Hashmi) ve EUIPO'da `Swiipe`
   (sınıf 9/36, Swiipe ApS) tescilli. AB'de sınıf 9 başvurusunda `Swiipe` karşına çıkar.
   Global açılımdan önce marka vekiline danış.
-- Sunucu yedekleri: DO anlık yedeği açık, ama **geri yüklemesi denenmedi**
+- **Veritabanı yedeği yalnızca sunucuda.** `scripts/yedek-al.sh` her gece 03:15'te
+  `/opt/swiip/yedekler` altına dump alıyor ve geri yüklemesi denendi (28 tablo,
+  veriler yerinde). Ama `YEDEK_UZAK_HEDEF` boş: sunucu tümden kaybedilirse dump'lar
+  da gider. DO anlık yedeği açık (haftalık) ve bu riski azaltıyor, tek başına yeterli
+  değil — uzak hedef tanımlanmalı
 - Kilitteki "Swiip" yazısı outline'a çevrilecek
 - **AI gateway ve posta sağlayıcısı** yapılandırılmadı; sunucu bunlarsız çalışıyor ve
   açılışta uyarı basıyor. (RevenueCat iki platformda da kuruldu.)
