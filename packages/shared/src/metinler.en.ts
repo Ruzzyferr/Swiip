@@ -1491,6 +1491,11 @@ export const en: Metinler = {
     iptalBasligi: 'Cancelling takes two taps',
     iptalGovde:
       '1. Open the Settings tab. 2. Press the "Cancel subscription" button at the top. That is all. No phone call, no email, no reason required.',
+    kosullarBasligi: 'Subscription terms',
+    kosullarGovde:
+      'The subscription renews automatically at the end of the period you choose. Unless you cancel at least 24 hours before renewal, the same amount is charged again. You can also manage and cancel it from your App Store account.',
+    kullanimKosullari: 'Terms of use',
+    gizlilikPolitikasi: 'Privacy policy',
     durusEtiketi: 'NO COUNTDOWN - NO FAKE SCARCITY - NO PRESELECTED PLAN',
   },
 

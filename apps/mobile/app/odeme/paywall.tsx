@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
   Ayirac,
+  BaglantiSatiri,
   Dugme,
   Ekran,
   Etiket,
@@ -18,6 +19,7 @@ import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { fiyatMetni, tarihMetni } from '@swiip/shared';
 import { istek } from '../../src/veri/api';
 import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/odeme/magaza';
+import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '../../src/baglantilar';
 
 /**
  * Paywall — spec bölüm 13.
@@ -291,6 +293,28 @@ export default function Paywall() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {m.iptalGovde}
           </Yazi>
+        </Kart>
+
+        {/*
+          Kural 3.1.2: kendiliğinden yenilenen abonelik sunan uygulama, kullanım
+          koşullarına ve gizlilik politikasına bağlantı vermek zorunda. Bağlantılar
+          yoktu; sürüm 1.0 zaten incelemeden döndü ve bu, dönmesi için ikinci bir
+          sebepti. Lisans metni App Store Connect'te Apple'ın standart sözleşmesi
+          seçili, bağlantı da oraya gidiyor — kendi metnimizi yazmış gibi yapmıyoruz.
+        */}
+        <Kart>
+          <Yazi tur="baslik3">{m.kosullarBasligi}</Yazi>
+          <Yazi tur="kucuk" renk="metinYumusak">
+            {m.kosullarGovde}
+          </Yazi>
+          <BaglantiSatiri
+            baslik={m.kullanimKosullari}
+            onPress={() => void Linking.openURL(KULLANIM_KOSULLARI_URL)}
+          />
+          <BaglantiSatiri
+            baslik={m.gizlilikPolitikasi}
+            onPress={() => void Linking.openURL(GIZLILIK_URL)}
+          />
         </Kart>
 
         <Etiket metin={m.durusEtiketi} />

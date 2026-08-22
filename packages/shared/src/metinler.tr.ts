@@ -1533,6 +1533,11 @@ export const tr = {
     iptalBasligi: 'İptal etmek 2 dokunuş sürer',
     iptalGovde:
       '1. Ayarlar sekmesini aç. 2. En üstteki "Aboneliği iptal et" düğmesine bas. Hepsi bu. Aramana, e-posta yazmana veya sebep açıklamana gerek yok.',
+    kosullarBasligi: 'Abonelik koşulları',
+    kosullarGovde:
+      'Abonelik seçtiğin dönemin sonunda kendiliğinden yenilenir. Yenilemeden en az 24 saat önce iptal etmezsen aynı tutar tekrar tahsil edilir. Yönetim ve iptal App Store hesabından da yapılabilir.',
+    kullanimKosullari: 'Kullanım koşulları',
+    gizlilikPolitikasi: 'Gizlilik politikası',
     durusEtiketi: 'GERİ SAYIM YOK · SAHTE KITLIK YOK · ÖN SEÇİM YOK',
   },
 
