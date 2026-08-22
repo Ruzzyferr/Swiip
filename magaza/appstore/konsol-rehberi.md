@@ -69,6 +69,43 @@ ON CONFLICT (user_id) DO UPDATE SET plan = 'pro', status = 'aktif',
 
 ---
 
+## TestFlight — dağıtım kurulumu
+
+Derlemenin yüklenmesi onu kurulabilir yapmıyor. 1.0'da grup hiç yoktu: build 4 App
+Store Connect'te duruyordu ama TestFlight'ta kimseye görünmüyordu.
+
+Swiip'in grubu: **"Ic test"**, iç grup, `hasAccessToAllBuilds: true`.
+
+**`hasAccessToAllBuilds` mutlaka true olsun.** Kapalıyken her yeni derlemeyi gruba elle
+eklemek gerekir; "derleme yüklendi ama TestFlight'ta yok" bunun görüntüsüdür.
+
+**İç grup Beta App Review'dan geçmez, dış grup geçer.** Sadece kendi telefonunuza kurup
+video çekecekseniz iç grup yeterli ve beklemesiz.
+
+### API ile uğraşırken kaybedilen zaman
+
+Üçü de hata mesajından anlaşılmıyor, hepsi `409 STATE_ERROR: Tester(s) cannot be
+assigned` diyor:
+
+1. **İç testçi olmak App Store Connect kullanıcısı olmayı gerektirir.** Rastgele bir
+   Gmail adresi iç gruba eklenemez. En düşük yeten rol `MARKETING`.
+2. **Kullanıcının o uygulamayı görüyor olması şart.** `allAppsVisible: false` olan bir
+   kullanıcı, göremediği uygulamanın iç grubuna eklenemez.
+3. **Davet kabul edilmeden eklenemez.** `userInvitations` gönderildikten sonra kişi
+   daveti kabul edip `users` listesine düşene kadar gruba giremez.
+
+Ayrıca: **`betaTesters` kaydı grup başına ayrıdır.** Var olan bir testçi kaydını başka
+bir grubun ilişkisine eklemek `409` döner; doğrusu aynı e-postayla `POST /betaTesters`
+edip `betaGroups` ilişkisini yeni grupla kurmak. Aynı adresin birden çok kaydı olur,
+normal budur.
+
+Son tuzak: `userInvitations` **oluştururken** `allAppsVisible: true` verilse bile,
+davet kaydında alan `null` görünür ve Apple bunu o anki uygulamaların açık listesine
+çevirir. Kişi daveti kabul ettikten sonra `users` kaydında `allAppsVisible: true`
+yapılmazsa **sonradan açılan uygulamalar ona görünmez.**
+
+---
+
 ## Gönderimi kilitleyen dört şey
 
 İlk gönderimde `reviewSubmissionItems` API'si ısrarla
