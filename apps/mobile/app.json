@@ -20,7 +20,7 @@
         "NSPhotoLibraryUsageDescription": "Vücut analizi için galeriden fotoğraf seçebilirsin. Fotoğraf sunucumuzda saklanmaz.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "6"
+      "buildNumber": "7"
     },
     "android": {
       "package": "app.swiip",
