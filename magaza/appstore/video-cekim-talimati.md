@@ -11,7 +11,8 @@ Bu dosya Arda'ya olduğu gibi gönderilebilir.
 ## Çekimden önce
 
 - **TestFlight**'ı App Store'dan kur, `ardaerenbulut2121@gmail.com` Apple ID'siyle gir.
-  Swiip görünecek (build 5). Görünmüyorsa gelen kutusundaki TestFlight davetini kabul et.
+  Swiip görünecek. **Build 6'yı kur** — daha eskisi yüklüyse TestFlight'ta "Güncelle"
+  yazar, güncelle. Görünmüyorsa gelen kutusundaki TestFlight davetini kabul et.
 - Telefon **güncel iOS**'ta olsun. Apple bunu şart koşuyor.
 - Kaydı **dikey** al, telefonu döndürme.
 - Kayıt: Kontrol Merkezi → ekran kaydı düğmesi. Ses gerekmiyor.
@@ -67,7 +68,9 @@ Bu hesabın değerlendirmesi dolu, programı ve öğün planı hazır — bütü
 
 9. **Giriş yap.** Giriş akışını da göstermiş oluyorsun.
 10. **Program sekmesi.** Haftanın programı görünecek.
-    - Bir **hareketin üstüne bas**, detay sayfasını aç
+    - **Listenin ikinci hareketine bas** (Romanian deadlift). Birincinin — dizden şınav —
+      fotoğrafı yok; kaynağımız kamu malı ve bazı hareketleri içermiyor, yanlış fotoğraf
+      koymaktansa boş bırakıyoruz. Videoda fotoğraflı olan görünsün.
     - **"Neden bu hareket"** kutusunu göster — uygulamanın asıl farkı bu, kararın hangi
       cevaplardan çıktığını yazıyor
     - Aşağı in: Türkçe talimat, çalışan kaslar, hareket fotoğrafı

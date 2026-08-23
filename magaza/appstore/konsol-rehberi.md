@@ -35,10 +35,20 @@ Böyle olmak zorunda: uygulama 134 soruluk değerlendirmeyle başlıyor ve progr
 beslenme, koç ekranları değerlendirme bitmeden görünmüyor. Boş hesap veren bir gönderim,
 inceleyicinin gördüğü tek ekranın anket olması demek.
 
-**Bu satır bir kez yalan söyledi.** Burada "doldurulmuş" yazıyordu ama 2026-08-23'te
-canlıda bakıldığında 134 sorunun yalnızca iki bloğu bitmişti; sıradaki soru K9'du. Yani
-1.0 gönderiminde inceleyici de anket duvarına çarpmış olabilir. **Her gönderimden önce
-yaz değil, sor:**
+**Bu satır iki kez yalan söyledi.** İlkinde burada "doldurulmuş" yazıyordu ama canlıda
+134 sorunun yalnızca iki bloğu bitmişti; sıradaki soru K9'du. İkincisinde doldurma betiği
+çalıştırıldı, 134 cevap yazıldı ve yine bitmedi: betik `dataSource`'tan açılan K9'u ve
+`bodymap`/`multi`/`photo` gibi tipleri atlıyordu, `tamamlandi` hâlâ `false`'tu. **134
+cevap "bitti" demek değil** — soru bankası dallanıyor ve toplam sayı cevap verdikçe
+değişiyor. Tek ölçüt `sonraki_soru`.
+
+Doğru yol: sıradaki soruyu sunucudan al, tipine göre cevapla, `sonraki_soru` null olana
+kadar döngüde kal. Zorunlu olmayan her soruya `"__atlandi__"` göndermek yeterli; zorunlu
+olanlarda `gate.if` içindeki şıklar **seçilmemeli** (18 yaş, gebelik, kardiyak, yeme
+bozukluğu kapıları oradan tetikleniyor). Hesap 2026-08-23'te bu yolla 10 bloğun onunda
+`tamamlandi: true` durumuna getirildi.
+
+**Her gönderimden önce yaz değil, sor:**
 
 ```
 curl -s https://swiip.app/v1/degerlendirme/durum -H "authorization: Bearer <token>"
@@ -50,7 +60,7 @@ Hesabın 2026-08-23'te getirildiği durum:
 
 | Ne | Nasıl |
 |---|---|
-| 134 cevap + program | `node node_modules/.swiip-gecici/degerlendirme-doldur.mjs inceleme@swiip.app <parola>` |
+| Değerlendirme + program | `sonraki_soru` null olana kadar `POST /v1/degerlendirme/cevap`, sonra `POST /v1/degerlendirme/tamamla` |
 | Haftalık öğün planı | `POST /v1/ogun/plan` · gövde `{"hafta_basi":"YYYY-MM-DD"}` (pazartesi) |
 | Pro hakkı | `subscriptions` tablosuna elle satır (aşağıda) |
 
