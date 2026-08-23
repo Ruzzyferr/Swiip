@@ -476,6 +476,9 @@ export const en: Metinler = {
     listeAra: 'Type to search',
     listeSonucYok: 'No match. Try a different spelling.',
     zorunluSoru: 'Required',
+    sonraCevaplarim: "I'll answer the optional questions later",
+    sonraCevaplarimNotu:
+      'Every optional question is skipped. You can come back any time from Settings → Update assessment.',
     zorunluNotu: (adet: number) =>
       adet === 0
         ? 'Nothing is required in this section; you can leave it all blank.'

@@ -112,6 +112,41 @@ export function zorunluSayisi(cevaplar: Cevaplar, blokId: string): number {
   return blokSorulari(cevaplar, blokId).filter((soru) => soru.required).length;
 }
 
+/**
+ * Bloğun zorunlu sorularının hepsi cevaplandı mı?
+ *
+ * "İsteğe bağlıları sonra cevaplayacağım" seçeneği bunun doğru olduğu anda çıkıyor.
+ * Daha erken çıksa, zorunlu soruyu da atlatıyormuş gibi okunurdu; atlatmıyor.
+ */
+export function zorunlulariBitti(cevaplar: Cevaplar, blokId: string): boolean {
+  return blokSorulari(cevaplar, blokId)
+    .filter((soru) => soru.required)
+    .every((soru) => cevaplandiMi(cevaplar, soru));
+}
+
+/**
+ * İsteğe bağlı soruların TAMAMINI atlanmış işaretler — açık blokla sınırlı değil.
+ *
+ * `atlananlariIsaretle` tek bloğa bakıyor ve "Devam et"in yaptığı şeyin aynısı; tek
+ * başına bir düğmeye değmez. Değeri olan şey angaryanın tamamını bitirmek: 136 sorunun
+ * 110'u isteğe bağlı ve kullanıcı bunu bir dokunuşla arkada bırakabilmeli. Zorunlu
+ * sorular etkilenmiyor — kalan bloklarda hâlâ sorulurlar.
+ *
+ * Atlanmış cevap boş cevap değil, `ATLANDI`. Yani sonradan Ayarlar → "Değerlendirmeyi
+ * güncelle" ile dönen kullanıcı bu soruları boş bulur ve doldurabilir; söz tutuluyor.
+ */
+export function istegeBaglilariAtla(cevaplar: Cevaplar): Cevaplar {
+  const sonuc: Cevaplar = { ...cevaplar };
+
+  for (const soru of gorunurSorular(cevaplar)) {
+    if (soru.required) continue;
+    const deger = sonuc[soru.id];
+    if (deger === undefined || deger === null || deger === '') sonuc[soru.id] = ATLANDI as never;
+  }
+
+  return sonuc;
+}
+
 /** Boş bırakılan isteğe bağlı soruları atlanmış olarak işaretler. */
 export function atlananlariIsaretle(cevaplar: Cevaplar, blokId: string): Cevaplar {
   const sonuc: Cevaplar = { ...cevaplar };

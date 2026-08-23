@@ -507,6 +507,16 @@ export const tr = {
      * Bunu söyleyen tek satır yoktu ve kullanıcı hepsini cevaplamak zorunda sanıyordu.
      */
     zorunluSoru: 'Zorunlu',
+    /**
+     * Angaryayı bir dokunuşta bitiren çıkış.
+     *
+     * Zorunlular bitince çıkıyor ve yalnızca isteğe bağlıları atlıyor; kalan
+     * bloklardaki zorunlu sorular yine sorulur. Söz tutulabilir olduğu için
+     * kuruluyor: atlanan soru boş kalıyor, Ayarlar'dan dönüp doldurulabiliyor.
+     */
+    sonraCevaplarim: 'İsteğe bağlı soruları sonra cevaplayacağım',
+    sonraCevaplarimNotu:
+      'Zorunlu olmayan soruların hepsi atlanır. Ayarlar → Değerlendirmeyi güncelle ile istediğin zaman dönüp doldurabilirsin.',
     zorunluNotu: (adet: number) =>
       adet === 0
         ? 'Bu bölümde zorunlu soru yok; hepsini boş bırakıp geçebilirsin.'

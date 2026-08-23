@@ -13,11 +13,11 @@ bunu açıkça istiyor.
 
 | Ne | Durum |
 |---|---|
-| TestFlight derlemesi | **build 5**, `VALID` · `IN_BETA_TESTING` |
+| TestFlight derlemesi | **build 6** |
 | TestFlight grubu | "Ic test", iç grup, **tüm derlemelere otomatik erişim** |
-| Testçi | `info@swiip.app` |
-| Sunucu | commit `3547544`, sağlık ucu 200 |
-| İnceleme hesabı | 134 cevap, hafta 1 programı, 7 günlük öğün planı, Pro hakkı |
+| Testçi | `info@swiip.app` · `ardaerenbulut2121@gmail.com` · `caglajaa13@gmail.com` |
+| Sunucu | commit `13ca461`, sağlık ucu 200 |
+| İnceleme hesabı | değerlendirme **10/10 blok tamam**, hafta 1 programı, iki haftalık öğün planı, 5 kilo kaydı, Pro hakkı |
 | App Review → Notes | 3.986 karakter, altı başlık dolu |
 | Paywall | kullanım koşulları + gizlilik bağlantısı eklendi (kural 3.1.2) |
 | RevenueCat anahtarı | EAS `production` ortamında; satın alma artık derlemede çalışıyor |
@@ -33,7 +33,7 @@ simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp sırayla:
 1. Uygulamayı açış (soğuk başlangıç)
 2. Kayıt olma, çıkış, tekrar giriş — kayıtta e-posta doğrulama adımı yok; kod yalnızca
    parola sıfırlamada gidiyor, istersen onu da göster
-3. Değerlendirmenin ilk bloğu (birkaç soru yeter, 134'ünün hepsi değil)
+3. Değerlendirmenin ilk bloğu (zorunlu sorular işaretli; hepsini doldurmak gerekmiyor)
 4. Kamera izni istemi ve vücut fotoğrafı çekimi; ardından fotoğrafın silindiğini
    söyleyen ekran
 5. Program sekmesi: bir hareketin detayı ve "neden bu hareket" gerekçesi

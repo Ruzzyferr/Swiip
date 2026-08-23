@@ -6,7 +6,10 @@ import {
   blokBolumleri,
   blokHatalari,
   blokSorulari,
+  cevaplandiMi,
   gosterilecekBlokId,
+  istegeBaglilariAtla,
+  zorunlulariBitti,
   zorunluSayisi,
 } from './akis';
 
@@ -110,6 +113,70 @@ describe('zorunluSayisi', () => {
 
     expect(hepsi.length).toBeGreaterThan(100);
     for (const soru of hepsi) expect(soru).not.toHaveProperty('optional');
+  });
+});
+
+/**
+ * "İsteğe bağlı soruları sonra cevaplayacağım".
+ *
+ * Değeri olan tek davranış: angaryanın TAMAMINI bitirmek. Yalnızca açık bloğu atlasaydı
+ * "Devam et"in aynısı olurdu ve düğmeye değmezdi. Ama zorunlu soruyu atlatmamalı — dört
+ * güvenlik kapısı (18 yaş, gebelik, kardiyak, yeme bozukluğu) oradan geçiyor.
+ */
+describe('istegeBaglilariAtla', () => {
+  it('bütün blokların isteğe bağlı sorularını atlanmış yapar', () => {
+    const sonuc = istegeBaglilariAtla(K);
+    const bloklar = ['K', 'H', 'A', 'S', 'E', 'Z', 'Y', 'B', 'T', 'F'];
+    let sayac = 0;
+
+    for (const blok of bloklar)
+      for (const soru of blokSorulari(K, blok)) {
+        if (soru.required) continue;
+        if (K[soru.id] !== undefined) continue;
+        expect(sonuc[soru.id]).toBe(ATLANDI);
+        sayac += 1;
+      }
+
+    expect(sayac).toBeGreaterThan(50);
+  });
+
+  it('zorunlu soruya dokunmaz — kapılar bir dokunuşla aşılamaz', () => {
+    const sonuc = istegeBaglilariAtla({});
+
+    for (const soru of blokSorulari({}, 'K').filter((s) => s.required))
+      expect(sonuc[soru.id]).toBeUndefined();
+  });
+
+  it('cevaplanmış soruyu ezmez', () => {
+    expect(istegeBaglilariAtla(K).K1).toBe('1992-03-14');
+  });
+
+  /** Atlandıktan sonra geriye YALNIZCA zorunlu sorular kalır. */
+  it('kalan tek iş zorunlu sorulardır', () => {
+    const sonuc = istegeBaglilariAtla(K);
+    const kalan = ['K', 'H', 'A', 'S', 'E', 'Z', 'Y', 'B', 'T', 'F'].flatMap((blok) =>
+      blokSorulari(sonuc, blok).filter((soru) => !cevaplandiMi(sonuc, soru)),
+    );
+
+    expect(kalan.length).toBeGreaterThan(0);
+    expect(kalan.every((soru) => soru.required)).toBe(true);
+  });
+});
+
+describe('zorunlulariBitti', () => {
+  it('boş cevapta false', () => {
+    expect(zorunlulariBitti({}, 'K')).toBe(false);
+  });
+
+  it('bloğun zorunluları dolunca true', () => {
+    const dolu = { ...K, K6: 'Hayır', K7: 'Evet' } as Cevaplar;
+
+    expect(zorunlulariBitti(dolu, 'K')).toBe(true);
+  });
+
+  /** Zorunlusu olmayan blok baştan geçilebilir. */
+  it('zorunlusu olmayan blokta true', () => {
+    expect(zorunlulariBitti({}, 'T')).toBe(true);
   });
 });
 

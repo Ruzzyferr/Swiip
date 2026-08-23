@@ -108,6 +108,16 @@ function acilanSorulariTopla(cevaplar: Cevaplar): AcilanSorular {
 
 function branchTetiklendi(anahtar: string, cevap: CevapDegeri | undefined): boolean {
   if (cevap === undefined || cevap === null || cevap === '') return false;
+  /**
+   * Atlanmış cevap dal açmaz.
+   *
+   * Boşluk kontrolü vardı ama `ATLANDI` kontrolü yoktu ve `_notYok` "Yok" dışındaki
+   * her şeyi tetikliyor. H4 ("belirli bir tarihe yetiştirmen gereken bir şey var mı?")
+   * boş bırakılıp geçildiğinde H4 atlanmış işaretleniyor, `'__atlandi__' !== 'Yok'`
+   * doğru çıkıyor ve H4a ("Hangi tarihe?") açılıyordu: cevaplamayı reddettiğin sorunun
+   * devamı soruluyordu. Atlamak "bilmiyorum"dur, bir şık değil.
+   */
+  if (atlandiMi(cevap)) return false;
 
   if (anahtar === '_notYok') {
     if (Array.isArray(cevap)) return cevap.some((c) => c !== 'Yok');

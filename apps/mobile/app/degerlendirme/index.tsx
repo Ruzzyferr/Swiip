@@ -17,7 +17,10 @@ import {
   blokBolumleri,
   blokHatalari,
   blokSorulari,
+  cevaplandiMi,
   gosterilecekBlokId,
+  istegeBaglilariAtla,
+  zorunlulariBitti,
   zorunluSayisi,
 } from '../../src/degerlendirme/akis';
 import { Cetvel } from '../../src/tasarim/Cetvel';
@@ -121,6 +124,18 @@ export default function Degerlendirme() {
   const sorular = useMemo(() => (blokId ? blokSorulari(cevaplar, blokId) : []), [cevaplar, blokId]);
   const bolumler = useMemo(() => blokBolumleri(cevaplar), [cevaplar]);
   const zorunlu = useMemo(() => (blokId ? zorunluSayisi(cevaplar, blokId) : 0), [cevaplar, blokId]);
+  /**
+   * "İsteğe bağlıları sonra cevaplayacağım" satırının yeri.
+   *
+   * Bloğun zorunluları bitmeden çıkmıyor — daha erken çıksa zorunlu soruyu da
+   * atlatıyormuş gibi okunurdu. Yeri de rastgele değil: cevapsız kalan İLK isteğe
+   * bağlı sorunun hemen üstü, yani kullanıcının "bunların hepsini mi dolduracağım"
+   * dediği an. Sayfanın dibindeki bir düğmeyi o an göremiyor.
+   */
+  const atlamaSirasi = useMemo(() => {
+    if (!blokId || !zorunlulariBitti(cevaplar, blokId)) return -1;
+    return sorular.findIndex((soru) => !soru.required && !cevaplandiMi(cevaplar, soru));
+  }, [blokId, cevaplar, sorular]);
   const bolumSirasi = useMemo(
     () => Math.max(1, bolumler.findIndex((b) => b.id === blokId) + 1),
     [bolumler, blokId],
@@ -184,74 +199,90 @@ export default function Degerlendirme() {
    * Bu, cevaplarin sunucuya yazildigi TEK yer. Bir zamanlar ekran cevap verilir
    * verilmez kendiliginde ilerledigi icin buraya hic gelinmiyordu.
    */
-  const ilerle = useCallback(async () => {
-    if (!blokId) return;
+  const ilerle = useCallback(
+    async (hepsiniAtla = false) => {
+      if (!blokId) return;
 
-    const hatalar = blokHatalari(cevaplar, blokId);
-    if (Object.keys(hatalar).length > 0) {
-      setAlanHatalari(hatalar);
       /**
-       * Sebep düğmenin YANINDA da yazılır.
+       * Zorunlu soru atlanmıyor — "hepsini atla" da atlatmıyor.
        *
-       * Hata yalnızca ilgili sorunun altına konuyordu. Beslenme bloğunda 25 soru var:
-       * boş kalan zorunlu soru ekranın dışında kalınca "Devam et" hiçbir şey yapmıyor
-       * gibi görünüyor ve kullanıcı bloğun tamamını cevaplamaya çalışıyordu.
+       * O düğme zaten yalnızca bloğun zorunluları bitince çıkıyor; yine de kapı
+       * burada. Atlama yolunun doğrulamayı baypas etmesi, dört güvenlik kapısının
+       * (18 yaş, gebelik, kardiyak, yeme bozukluğu) tek dokunuşla aşılması demekti.
        */
-      setHata(m.eksikZorunlu(Object.keys(hatalar).length));
-      return;
-    }
-
-    setAlanHatalari({});
-    setHata(null);
-    setKaydediliyor(true);
-
-    // Bos birakilan istege bagli sorular atlanmis sayilir; her biri icin ayri bir
-    // "Atla" dokunusu yuzden fazla gereksiz dokunus demekti.
-    const tamamlanmis = atlananlariIsaretle(cevaplar, blokId);
-    setCevaplar(tamamlanmis);
-
-    const kayit = await kaydet(tamamlanmis, blokId);
-    setKaydediliyor(false);
-
-    /**
-     * Sunucu reddettiyse ilerlemiyoruz.
-     *
-     * Eskiden hata gosteriliyor ama akis devam ediyordu: kullanici degerlendirmeyi
-     * bitirip programa geciyor, sunucudaki kayit ise eksik kaliyordu.
-     */
-    if (kayit.durum === 'reddedildi') return;
-
-    const sonuc = kayit.durum === 'gonderildi' ? kayit.cevap : null;
-
-    // Guvenlik kapilari her kayitta yeniden degerlendirilir; atlanamaz.
-    const kapi = sonuc?.kapi_durumu.kapilar[0];
-    if (kapi && (kapi.eylem === 'kayit_reddet' || kapi.eylem === 'program_uretme')) {
-      router.push({ pathname: '/degerlendirme/kapi', params: { tip: kapi.tip } });
-      return;
-    }
-
-    const sonrasi = sonrakiSoru(tamamlanmis);
-    setAktifBlokId(sonrasi?.blok_id);
-
-    if (sonuc?.blok_geri_bildirimi) {
-      router.push({
-        pathname: '/degerlendirme/blok-sonu',
-        params: { blok: sonuc.blok_geri_bildirimi.blok_id, metin: sonuc.blok_geri_bildirimi.metin },
-      });
-      return;
-    }
-
-    if (!sonrasi) {
-      try {
-        await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
-      } catch {
-        // Tamamlanmadan ilerlemek, profilsiz bir kullanici yaratir: program uretilemez.
-        setHata(islemHatasiMetni('degerlendirme_tamamla', dil));
+      const hatalar = blokHatalari(cevaplar, blokId);
+      if (Object.keys(hatalar).length > 0) {
+        setAlanHatalari(hatalar);
+        /**
+         * Sebep düğmenin YANINDA da yazılır.
+         *
+         * Hata yalnızca ilgili sorunun altına konuyordu. Beslenme bloğunda 25 soru var:
+         * boş kalan zorunlu soru ekranın dışında kalınca "Devam et" hiçbir şey yapmıyor
+         * gibi görünüyor ve kullanıcı bloğun tamamını cevaplamaya çalışıyordu.
+         */
+        setHata(m.eksikZorunlu(Object.keys(hatalar).length));
         return;
       }
-      router.replace('/fotograf/gizlilik');
-    }
-  }, [blokId, cevaplar, dil, kaydet, m.eksikZorunlu]);
+
+      setAlanHatalari({});
+      setHata(null);
+      setKaydediliyor(true);
+
+      // Bos birakilan istege bagli sorular atlanmis sayilir; her biri icin ayri bir
+      // "Atla" dokunusu yuzden fazla gereksiz dokunus demekti. `hepsiniAtla` ayni
+      // kurali butun bloklara birden uyguluyor.
+      const tamamlanmis = hepsiniAtla
+        ? istegeBaglilariAtla(cevaplar)
+        : atlananlariIsaretle(cevaplar, blokId);
+      setCevaplar(tamamlanmis);
+
+      const kayit = await kaydet(tamamlanmis, blokId);
+      setKaydediliyor(false);
+
+      /**
+       * Sunucu reddettiyse ilerlemiyoruz.
+       *
+       * Eskiden hata gosteriliyor ama akis devam ediyordu: kullanici degerlendirmeyi
+       * bitirip programa geciyor, sunucudaki kayit ise eksik kaliyordu.
+       */
+      if (kayit.durum === 'reddedildi') return;
+
+      const sonuc = kayit.durum === 'gonderildi' ? kayit.cevap : null;
+
+      // Guvenlik kapilari her kayitta yeniden degerlendirilir; atlanamaz.
+      const kapi = sonuc?.kapi_durumu.kapilar[0];
+      if (kapi && (kapi.eylem === 'kayit_reddet' || kapi.eylem === 'program_uretme')) {
+        router.push({ pathname: '/degerlendirme/kapi', params: { tip: kapi.tip } });
+        return;
+      }
+
+      const sonrasi = sonrakiSoru(tamamlanmis);
+      setAktifBlokId(sonrasi?.blok_id);
+
+      if (sonuc?.blok_geri_bildirimi) {
+        router.push({
+          pathname: '/degerlendirme/blok-sonu',
+          params: {
+            blok: sonuc.blok_geri_bildirimi.blok_id,
+            metin: sonuc.blok_geri_bildirimi.metin,
+          },
+        });
+        return;
+      }
+
+      if (!sonrasi) {
+        try {
+          await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
+        } catch {
+          // Tamamlanmadan ilerlemek, profilsiz bir kullanici yaratir: program uretilemez.
+          setHata(islemHatasiMetni('degerlendirme_tamamla', dil));
+          return;
+        }
+        router.replace('/fotograf/gizlilik');
+      }
+    },
+    [blokId, cevaplar, dil, kaydet, m.eksikZorunlu],
+  );
 
   if (!hazir) {
     return (
@@ -330,27 +361,50 @@ export default function Degerlendirme() {
           </View>
 
           {sorular.map((soru, sira) => (
-            <View
-              key={soru.id}
-              style={{
-                paddingTop: sira === 0 ? 0 : tema.bosluk.lg,
-                borderTopWidth: sira === 0 ? 0 : StyleSheet.hairlineWidth,
-                borderTopColor: tema.renk.cizgi,
-              }}
-            >
-              <SoruAlani
-                soru={soru}
-                deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
-                onDegisim={(deger) => {
-                  setAlanHatalari((mevcut) => {
-                    if (!mevcut[soru.id]) return mevcut;
-                    const { [soru.id]: _cikar, ...kalan } = mevcut;
-                    return kalan;
-                  });
-                  setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: deger as never }));
+            <View key={soru.id}>
+              {sira === atlamaSirasi ? (
+                <View
+                  style={{
+                    paddingTop: sira === 0 ? 0 : tema.bosluk.lg,
+                    paddingBottom: tema.bosluk.lg,
+                    borderTopWidth: sira === 0 ? 0 : StyleSheet.hairlineWidth,
+                    borderTopColor: tema.renk.cizgi,
+                    gap: tema.bosluk.xs,
+                  }}
+                >
+                  <Dugme
+                    baslik={m.sonraCevaplarim}
+                    tur="sessiz"
+                    onPress={() => void ilerle(true)}
+                    yukleniyor={kaydediliyor}
+                  />
+                  <Yazi tur="kucuk" renk="metinSilik">
+                    {m.sonraCevaplarimNotu}
+                  </Yazi>
+                </View>
+              ) : null}
+              <View
+                style={{
+                  paddingTop: sira === 0 || sira === atlamaSirasi ? 0 : tema.bosluk.lg,
+                  borderTopWidth:
+                    sira === 0 || sira === atlamaSirasi ? 0 : StyleSheet.hairlineWidth,
+                  borderTopColor: tema.renk.cizgi,
                 }}
-                {...(alanHatalari[soru.id] ? { hata: alanHatalari[soru.id]! } : {})}
-              />
+              >
+                <SoruAlani
+                  soru={soru}
+                  deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
+                  onDegisim={(deger) => {
+                    setAlanHatalari((mevcut) => {
+                      if (!mevcut[soru.id]) return mevcut;
+                      const { [soru.id]: _cikar, ...kalan } = mevcut;
+                      return kalan;
+                    });
+                    setCevaplar((mevcut) => ({ ...mevcut, [soru.id]: deger as never }));
+                  }}
+                  {...(alanHatalari[soru.id] ? { hata: alanHatalari[soru.id]! } : {})}
+                />
+              </View>
             </View>
           ))}
 
@@ -363,7 +417,7 @@ export default function Degerlendirme() {
           <View style={{ marginTop: tema.bosluk.lg }}>
             <Dugme
               baslik={m.devamEtDugmesi}
-              onPress={() => void ilerle()}
+              onPress={() => void ilerle(false)}
               yukleniyor={kaydediliyor}
             />
           </View>

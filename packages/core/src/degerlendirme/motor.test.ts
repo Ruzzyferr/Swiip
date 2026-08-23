@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SORU_BANKASI } from '@swiip/shared';
-import type { Cevaplar } from '../cevaplar';
+import { ATLANDI, type Cevaplar } from '../cevaplar';
 import {
   blokIlerlemesi,
   cevabiDogrula,
@@ -98,6 +98,18 @@ describe('gorunurSorular — dallanma', () => {
   it('_notYok anahtarı "Yok" dışındaki her cevapta tetiklenir', () => {
     expect(gorunurSorular({ H4: 'Düğün' }).map((s) => s.id)).toContain('H4a');
     expect(gorunurSorular({ H4: 'Yok' }).map((s) => s.id)).not.toContain('H4a');
+  });
+
+  /**
+   * Atlamak bir şık değil.
+   *
+   * `_notYok` "Yok" dışındaki her şeyi tetikliyordu ve `ATLANDI` de "Yok" değil: H4 boş
+   * bırakılıp geçildiğinde H4a ("Hangi tarihe?") açılıyor, yani cevaplamayı reddettiğin
+   * sorunun devamı soruluyordu. Aynı şey her `branch` anahtarı için geçerli.
+   */
+  it('atlanmış cevap dal açmaz', () => {
+    expect(gorunurSorular({ H4: ATLANDI }).map((s) => s.id)).not.toContain('H4a');
+    expect(gorunurSorular({ K8: ATLANDI }).map((s) => s.id)).not.toContain('K8a');
   });
 
   it('çoklu seçimde her seçim kendi dalını açar', () => {
