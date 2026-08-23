@@ -43,9 +43,17 @@ export function SoruAlani({ soru, deger, onDegisim, hata }: SoruAlaniProps) {
     <View style={{ gap: tema.bosluk.md }}>
       <View style={{ gap: tema.bosluk.xs }}>
         <Yazi tur="baslik2">{soru.text}</Yazi>
-        {soru.optional ? (
+        {/*
+          İşaret ZORUNLU olanda; isteğe bağlı olanda değil.
+
+          Eskiden not `soru.optional` ile çiziliyordu ve o bayrak soru bankasında
+          yalnızca 12 soruda vardı. Oysa doğrulama `required` bakıyor ve 110 soru
+          boş bırakılabiliyor: 98 soru hiçbir işaret taşımadan zorunlu görünüyordu.
+          Azınlığı işaretlemek hem doğru hem daha az mürekkep — 136 sorunun 26'sı.
+        */}
+        {soru.required ? (
           <Yazi tur="kucuk" renk="metinSilik">
-            {m.istersenAtla}
+            {m.zorunluSoru}
           </Yazi>
         ) : null}
       </View>

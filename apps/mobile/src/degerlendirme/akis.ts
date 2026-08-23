@@ -100,6 +100,18 @@ export function blokHatalari(cevaplar: Cevaplar, blokId: string): Record<string,
   return hatalar;
 }
 
+/**
+ * Blokta kaç görünür soru zorunlu.
+ *
+ * Bölüm başlığındaki not bunu yazıyor. Sayı `blokHatalari` ile AYNI alandan
+ * (`soru.required`) okunuyor; başka bir bayrağa bakan bir not, doğrulamadan ayrışır —
+ * bir kez ayrıştı: arayüz `optional` bakıyordu, doğrulama `required`, ve işaretsiz 98
+ * soru zorunlu görünüyordu.
+ */
+export function zorunluSayisi(cevaplar: Cevaplar, blokId: string): number {
+  return blokSorulari(cevaplar, blokId).filter((soru) => soru.required).length;
+}
+
 /** Boş bırakılan isteğe bağlı soruları atlanmış olarak işaretler. */
 export function atlananlariIsaretle(cevaplar: Cevaplar, blokId: string): Cevaplar {
   const sonuc: Cevaplar = { ...cevaplar };

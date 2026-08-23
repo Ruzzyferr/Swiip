@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { ATLANDI, type Cevaplar } from '@swiip/core';
+import { SORU_BANKASI } from '@swiip/shared';
 import {
   atlananlariIsaretle,
   blokBolumleri,
   blokHatalari,
   blokSorulari,
   gosterilecekBlokId,
+  zorunluSayisi,
 } from './akis';
 
 /**
@@ -81,6 +83,33 @@ describe('blokHatalari', () => {
 
   it('geçerli cevap hata üretmez', () => {
     expect(blokHatalari({ ...K, K3: 178 } as Cevaplar, 'K').K3).toBeUndefined();
+  });
+});
+
+/**
+ * Bölüm notundaki sayı ile doğrulamanın engellediği soru sayısı AYNI olmalı.
+ *
+ * Bir kez ayrıştılar: arayüz notu `soru.optional` bayrağıyla çiziyordu ve o bayrak soru
+ * bankasında yalnızca 12 soruda vardı; doğrulama ise `required` bakıyordu. Kalan 98
+ * soru hiçbir işaret taşımadan zorunlu görünüyor, kullanıcı 136 sorunun hepsini
+ * cevaplamak zorunda sanıyordu. Bu test o ayrışmayı bir daha derlemeden geçirmez.
+ */
+describe('zorunluSayisi', () => {
+  it('boş cevapta blokHatalari ile aynı sayıyı verir', () => {
+    for (const blok of ['K', 'H', 'A', 'S', 'E', 'Z', 'Y', 'B', 'T', 'F']) {
+      expect(zorunluSayisi({}, blok)).toBe(Object.keys(blokHatalari({}, blok)).length);
+    }
+  });
+
+  it('zorunlu soru bloğun küçük bir azınlığı', () => {
+    expect(zorunluSayisi({}, 'B')).toBeLessThan(blokSorulari({}, 'B').length / 2);
+  });
+
+  it('soru bankasında artık optional bayrağı yok — tek doğruluk kaynağı required', () => {
+    const hepsi = SORU_BANKASI.blocks.flatMap((b) => b.questions);
+
+    expect(hepsi.length).toBeGreaterThan(100);
+    for (const soru of hepsi) expect(soru).not.toHaveProperty('optional');
   });
 });
 

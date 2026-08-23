@@ -223,7 +223,6 @@
             "en_yuksek_kg",
             "en_dusuk_kg"
           ],
-          "optional": true,
           "drives": [
             "ayar_noktasi_tahmini",
             "gercekci_hedef_araligi"
@@ -262,7 +261,6 @@
           "id": "H2",
           "text": "İkincil hedefin var mı?",
           "type": "single",
-          "optional": true,
           "options": [
             "Yok",
             "Yağ kaybı",
@@ -282,7 +280,6 @@
           "text": "Hedef kilon",
           "type": "number",
           "unit": "kg",
-          "optional": true,
           "drives": [
             "acik_fazla_buyuklugu",
             "sure_hesabi"
@@ -360,7 +357,6 @@
           "text": "Halinden memnun olduğun bölge?",
           "type": "bodymap",
           "maxSelect": 2,
-          "optional": true,
           "drives": [
             "koruma_hacmi"
           ]
@@ -492,7 +488,6 @@
             "Deadlift",
             "Omuz presi"
           ],
-          "optional": true,
           "drives": [
             "1rm_tahmini_epley",
             "guc_standartlari",
@@ -509,7 +504,6 @@
             "Deadlift",
             "Omuz presi"
           ],
-          "optional": true,
           "drives": [
             "yuk_tahmini_alternatif"
           ],
@@ -1056,7 +1050,6 @@
           "id": "S19",
           "text": "Tanı konmuş bir ruh sağlığı durumun var mı?",
           "type": "multi",
-          "optional": true,
           "options": [
             "Yok",
             "Depresyon",
@@ -1336,7 +1329,6 @@
           "text": "Salon üyeliğin ne zaman bitiyor?",
           "type": "date",
           "conditional": true,
-          "optional": true,
           "drives": [
             "program_ufku",
             "ev_programina_gecis"
@@ -1432,7 +1424,6 @@
           "id": "Z6",
           "text": "Önümüzdeki 12 haftada tatil, seyahat veya çok yoğun bir dönem var mı?",
           "type": "daterange",
-          "optional": true,
           "multiple": true,
           "drives": [
             "deload_yerlesimi",
@@ -2239,7 +2230,6 @@
           "id": "F1",
           "text": "Çevre ölçülerin",
           "type": "measure",
-          "optional": true,
           "fields": [
             "bel_cm",
             "kalca_cm",
@@ -2259,7 +2249,6 @@
           "text": "Vücut yağ oranını biliyor musun?",
           "type": "number",
           "unit": "%",
-          "optional": true,
           "drives": [
             "katch_mcardle_bmr"
           ],
@@ -2299,7 +2288,6 @@
           "text": "Duruş değerlendirmesi için ek yan profil",
           "type": "photo",
           "count": 1,
-          "optional": true,
           "drives": [
             "kifoz_lordoz_egilimi",
             "omuz_protraksiyonu",

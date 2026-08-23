@@ -310,7 +310,6 @@ export const SORU_BANKASI: SoruBankasi = {
             "en_yuksek_kg",
             "en_dusuk_kg"
           ],
-          "optional": true,
           "drives": [
             "ayar_noktasi_tahmini",
             "gercekci_hedef_araligi"
@@ -349,7 +348,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "id": "H2",
           "text": "İkincil hedefin var mı?",
           "type": "single",
-          "optional": true,
           "options": [
             "Yok",
             "Yağ kaybı",
@@ -369,7 +367,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "text": "Hedef kilon",
           "type": "number",
           "unit": "kg",
-          "optional": true,
           "drives": [
             "acik_fazla_buyuklugu",
             "sure_hesabi"
@@ -447,7 +444,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "text": "Halinden memnun olduğun bölge?",
           "type": "bodymap",
           "maxSelect": 2,
-          "optional": true,
           "drives": [
             "koruma_hacmi"
           ]
@@ -579,7 +575,6 @@ export const SORU_BANKASI: SoruBankasi = {
             "Deadlift",
             "Omuz presi"
           ],
-          "optional": true,
           "drives": [
             "1rm_tahmini_epley",
             "guc_standartlari",
@@ -596,7 +591,6 @@ export const SORU_BANKASI: SoruBankasi = {
             "Deadlift",
             "Omuz presi"
           ],
-          "optional": true,
           "drives": [
             "yuk_tahmini_alternatif"
           ],
@@ -1143,7 +1137,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "id": "S19",
           "text": "Tanı konmuş bir ruh sağlığı durumun var mı?",
           "type": "multi",
-          "optional": true,
           "options": [
             "Yok",
             "Depresyon",
@@ -1423,7 +1416,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "text": "Salon üyeliğin ne zaman bitiyor?",
           "type": "date",
           "conditional": true,
-          "optional": true,
           "drives": [
             "program_ufku",
             "ev_programina_gecis"
@@ -1519,7 +1511,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "id": "Z6",
           "text": "Önümüzdeki 12 haftada tatil, seyahat veya çok yoğun bir dönem var mı?",
           "type": "daterange",
-          "optional": true,
           "multiple": true,
           "drives": [
             "deload_yerlesimi",
@@ -2326,7 +2317,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "id": "F1",
           "text": "Çevre ölçülerin",
           "type": "measure",
-          "optional": true,
           "fields": [
             "bel_cm",
             "kalca_cm",
@@ -2346,7 +2336,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "text": "Vücut yağ oranını biliyor musun?",
           "type": "number",
           "unit": "%",
-          "optional": true,
           "drives": [
             "katch_mcardle_bmr"
           ],
@@ -2386,7 +2375,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "text": "Duruş değerlendirmesi için ek yan profil",
           "type": "photo",
           "count": 1,
-          "optional": true,
           "drives": [
             "kifoz_lordoz_egilimi",
             "omuz_protraksiyonu",

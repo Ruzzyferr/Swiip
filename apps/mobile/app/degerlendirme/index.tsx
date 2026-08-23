@@ -18,6 +18,7 @@ import {
   blokHatalari,
   blokSorulari,
   gosterilecekBlokId,
+  zorunluSayisi,
 } from '../../src/degerlendirme/akis';
 import { Cetvel } from '../../src/tasarim/Cetvel';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -119,6 +120,7 @@ export default function Degerlendirme() {
   const blokId = useMemo(() => gosterilecekBlokId(cevaplar, aktifBlokId), [cevaplar, aktifBlokId]);
   const sorular = useMemo(() => (blokId ? blokSorulari(cevaplar, blokId) : []), [cevaplar, blokId]);
   const bolumler = useMemo(() => blokBolumleri(cevaplar), [cevaplar]);
+  const zorunlu = useMemo(() => (blokId ? zorunluSayisi(cevaplar, blokId) : 0), [cevaplar, blokId]);
   const bolumSirasi = useMemo(
     () => Math.max(1, bolumler.findIndex((b) => b.id === blokId) + 1),
     [bolumler, blokId],
@@ -188,6 +190,14 @@ export default function Degerlendirme() {
     const hatalar = blokHatalari(cevaplar, blokId);
     if (Object.keys(hatalar).length > 0) {
       setAlanHatalari(hatalar);
+      /**
+       * Sebep düğmenin YANINDA da yazılır.
+       *
+       * Hata yalnızca ilgili sorunun altına konuyordu. Beslenme bloğunda 25 soru var:
+       * boş kalan zorunlu soru ekranın dışında kalınca "Devam et" hiçbir şey yapmıyor
+       * gibi görünüyor ve kullanıcı bloğun tamamını cevaplamaya çalışıyordu.
+       */
+      setHata(m.eksikZorunlu(Object.keys(hatalar).length));
       return;
     }
 
@@ -241,7 +251,7 @@ export default function Degerlendirme() {
       }
       router.replace('/fotograf/gizlilik');
     }
-  }, [blokId, cevaplar, dil, kaydet]);
+  }, [blokId, cevaplar, dil, kaydet, m.eksikZorunlu]);
 
   if (!hazir) {
     return (
@@ -308,6 +318,14 @@ export default function Degerlendirme() {
             */}
             <Yazi tur="etiket" renk="metinSilik">
               {m.bolumSayaci(bolumSirasi, bolumler.length)}
+            </Yazi>
+            {/*
+              Hangi soruların zorunlu olduğunu söyleyen tek satır.
+              136 sorunun 26'sı zorunlu, gerisi boş bırakılınca atlanmış sayılıyor —
+              ama bunu söyleyen hiçbir şey yoktu ve kullanıcı hepsini dolduruyordu.
+            */}
+            <Yazi tur="kucuk" renk="metinSilik">
+              {m.zorunluNotu(zorunlu)}
             </Yazi>
           </View>
 

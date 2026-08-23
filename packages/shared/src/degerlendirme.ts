@@ -35,8 +35,16 @@ export interface Soru {
   id: string;
   text: string;
   type: SoruTipi;
+  /**
+   * Zorunlu mu?
+   *
+   * Tek bayrak: yanında bir de `optional` vardı ve ikisi ayrışmıştı. Doğrulama
+   * (`cevabiDogrula`, `blokHatalari`) yalnızca `required` bakıyordu — yani 110 soru
+   * boş bırakılabiliyordu — ama arayüz "istersen atla" notunu `optional` ile
+   * çiziyordu ve o bayrak yalnızca 12 soruda vardı. Kalan 98 soru zorunlu görünüyor,
+   * kullanıcı 136 sorunun hepsini cevaplamak zorunda sanıyordu.
+   */
   required?: boolean;
-  optional?: boolean;
   /** Varsayılan olarak gizli; bir branch tarafından açılır. */
   conditional?: boolean;
   /** Başka bir sorunun cevabına bağlı görünürlük: { K2: 'Kadın' }. */

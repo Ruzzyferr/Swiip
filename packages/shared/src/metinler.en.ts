@@ -475,7 +475,13 @@ export const en: Metinler = {
     bolumSayaci: (sira: number, toplam: number) => `Section ${sira} of ${toplam}`,
     listeAra: 'Type to search',
     listeSonucYok: 'No match. Try a different spelling.',
-    istersenAtla: 'You can skip this one',
+    zorunluSoru: 'Required',
+    zorunluNotu: (adet: number) =>
+      adet === 0
+        ? 'Nothing is required in this section; you can leave it all blank.'
+        : `${adet} question${adet === 1 ? ' is' : 's are'} required here; leave the unmarked ones blank if you like.`,
+    eksikZorunlu: (adet: number) =>
+      `${adet} required question${adet === 1 ? ' is' : 's are'} blank. Fill in the ones marked "Required" to continue.`,
     gecersizCevap: 'That answer is not valid.',
     okudumRizaVeriyorum: 'I have read this and give my explicit consent',
     gun: 'Day',

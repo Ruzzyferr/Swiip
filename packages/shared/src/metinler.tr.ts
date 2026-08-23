@@ -500,7 +500,20 @@ export const tr = {
     bolumSayaci: (sira: number, toplam: number) => `${sira}. bölüm · ${toplam} bölümden`,
     listeAra: 'Yazarak ara',
     listeSonucYok: 'Eşleşen yok. Yazımı değiştirmeyi dene.',
-    istersenAtla: 'İstersen atlayabilirsin',
+    /**
+     * Soru başına işaret ve bölüm başına özet.
+     *
+     * 136 sorunun yalnızca 26'sı zorunlu; gerisi boş bırakılınca atlanmış sayılıyor.
+     * Bunu söyleyen tek satır yoktu ve kullanıcı hepsini cevaplamak zorunda sanıyordu.
+     */
+    zorunluSoru: 'Zorunlu',
+    zorunluNotu: (adet: number) =>
+      adet === 0
+        ? 'Bu bölümde zorunlu soru yok; hepsini boş bırakıp geçebilirsin.'
+        : `Bu bölümde ${adet} soru zorunlu; işaretsizleri boş bırakıp geçebilirsin.`,
+    /** "Devam et" ilerletmediğinde sebebi düğmenin yanında yazsın. */
+    eksikZorunlu: (adet: number) =>
+      `${adet} zorunlu soru boş. Yukarıda "Zorunlu" yazanları doldurunca geçebilirsin.`,
     gecersizCevap: 'Bu cevap geçerli değil.',
     okudumRizaVeriyorum: 'Okudum, açık rıza veriyorum',
     gun: 'Gün',

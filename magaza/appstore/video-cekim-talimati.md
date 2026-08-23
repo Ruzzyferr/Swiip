@@ -32,8 +32,14 @@ Bu bölümü **yeni açacağın** bir hesapla çek. Deneme hesabı; sonunda sili
 2. Açılış / "nasıl çalışır" ekranını geç.
 3. **Kayıt ol.** E-posta ve parola gir. Sağlık verisi onay kutusunu işaretle — bu ekran
    önemli, Apple veri toplama iznini görmek istiyor.
-4. **Değerlendirme başlıyor.** İlk soru doğum tarihi. **5-6 soru cevapla, hepsini değil.**
-   134 soru var, tamamını çekmene gerek yok.
+4. **Değerlendirme başlıyor.** 10 bölüm var ve her bölümde onlarca soru görürsün — ama
+   **yalnızca altında "Zorunlu" yazanları doldurman gerekiyor.** Toplam 25 tane; gerisini
+   boş bırakıp "Devam et"e bas, atlanmış sayılıyorlar. Bölüm başında kaç tanesinin
+   zorunlu olduğu yazıyor. Bölüm sonlarında çıkan "senin cevaplarından şunu hesapladık"
+   ekranlarını **kadraja al** — ürünün ayırt edici yeri orası.
+   Bölüm başına zorunlu sayısı: K 5 · H 3 · A 1 · S 6 · E 2 · Z 2 · Y 2 · B 3 · T 0 · F 1.
+   (Bir bölümde "Devam et" ilerletmiyorsa düğmenin hemen üstünde kaç zorunlu sorunun boş
+   kaldığı yazar; yukarı kaydırıp "Zorunlu" yazanları doldur.)
 5. **Vücut fotoğrafı adımına gel.** Kamera izni istemi çıkacak — **izin istemini kadraja
    al**, Apple bunu özellikle istiyor. Fotoğrafı çek ve **fotoğrafın silindiğini söyleyen
    ekranı göster.**
@@ -81,5 +87,5 @@ Bu hesabın değerlendirmesi dolu, programı ve öğün planı hazır — bütü
 
 - **İnceleme hesabını (`inceleme@swiip.app`) SİLME.** Silinecek olan Bölüm 1'de kendi
   açtığın deneme hesabı. İnceleme hesabı silinirse Apple'ın gireceği hesap kalmaz.
-- Değerlendirmenin 134 sorusunu baştan sona çekme, gereksiz.
+- Değerlendirmedeki 136 sorunun hepsini doldurma; 25'i zorunlu, gerisi isteğe bağlı.
 - Koç sohbetinde uzun uzun yazışma.
