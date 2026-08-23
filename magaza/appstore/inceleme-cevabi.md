@@ -13,10 +13,10 @@ bunu açıkça istiyor.
 
 | Ne | Durum |
 |---|---|
-| TestFlight derlemesi | **build 6** |
+| TestFlight derlemesi | **build 7** |
 | TestFlight grubu | "Ic test", iç grup, **tüm derlemelere otomatik erişim** |
 | Testçi | `info@swiip.app` · `ardaerenbulut2121@gmail.com` · `caglajaa13@gmail.com` |
-| Sunucu | commit `13ca461`, sağlık ucu 200 |
+| Sunucu | commit `3056927`, sağlık ucu 200 |
 | İnceleme hesabı | değerlendirme **10/10 blok tamam**, hafta 1 programı, iki haftalık öğün planı, 5 kilo kaydı, Pro hakkı |
 | App Review → Notes | 3.986 karakter, altı başlık dolu |
 | Paywall | kullanım koşulları + gizlilik bağlantısı eklendi (kural 3.1.2) |

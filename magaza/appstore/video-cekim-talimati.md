@@ -11,7 +11,7 @@ Bu dosya Arda'ya olduğu gibi gönderilebilir.
 ## Çekimden önce
 
 - **TestFlight**'ı App Store'dan kur, `ardaerenbulut2121@gmail.com` Apple ID'siyle gir.
-  Swiip görünecek. **Build 6'yı kur** — daha eskisi yüklüyse TestFlight'ta "Güncelle"
+  Swiip görünecek. **Build 7'yi kur** — daha eskisi yüklüyse TestFlight'ta "Güncelle"
   yazar, güncelle. Görünmüyorsa gelen kutusundaki TestFlight davetini kabul et.
 - Telefon **güncel iOS**'ta olsun. Apple bunu şart koşuyor.
 - Kaydı **dikey** al, telefonu döndürme.
@@ -33,14 +33,18 @@ Bu bölümü **yeni açacağın** bir hesapla çek. Deneme hesabı; sonunda sili
 2. Açılış / "nasıl çalışır" ekranını geç.
 3. **Kayıt ol.** E-posta ve parola gir. Sağlık verisi onay kutusunu işaretle — bu ekran
    önemli, Apple veri toplama iznini görmek istiyor.
-4. **Değerlendirme başlıyor.** 10 bölüm var ve her bölümde onlarca soru görürsün — ama
-   **yalnızca altında "Zorunlu" yazanları doldurman gerekiyor.** Toplam 25 tane; gerisini
-   boş bırakıp "Devam et"e bas, atlanmış sayılıyorlar. Bölüm başında kaç tanesinin
-   zorunlu olduğu yazıyor. Bölüm sonlarında çıkan "senin cevaplarından şunu hesapladık"
-   ekranlarını **kadraja al** — ürünün ayırt edici yeri orası.
-   Bölüm başına zorunlu sayısı: K 5 · H 3 · A 1 · S 6 · E 2 · Z 2 · Y 2 · B 3 · T 0 · F 1.
-   (Bir bölümde "Devam et" ilerletmiyorsa düğmenin hemen üstünde kaç zorunlu sorunun boş
-   kaldığı yazar; yukarı kaydırıp "Zorunlu" yazanları doldur.)
+4. **Değerlendirme başlıyor.** 10 bölüm, toplam 136 soru — ama **yalnızca altında
+   "Zorunlu" yazanları doldurman gerekiyor**, o da 25 tane. Bölüm başında kaç tanesinin
+   zorunlu olduğu yazıyor.
+   - İlk bölümde zorunluları doldur, **bölüm sonu geri bildirim ekranını kadraja al** —
+     "senin cevaplarından şunu hesapladık" diyen ekran, ürünün ayırt edici yeri orası.
+   - Zorunlular bitince araya **"İsteğe bağlı soruları sonra cevaplayacağım"** satırı
+     çıkar. **Buna bir kez bas** — kalan bütün isteğe bağlı sorular atlanır, geriye
+     yalnızca zorunlular kalır. Videoyu kısaltan şey bu, kadrajda dursun.
+   - Sonraki bölümlerde yalnızca "Zorunlu" yazanlar çıkacak; doldur ve geç.
+   - Bölüm başına zorunlu: K 5 · H 3 · A 1 · S 6 · E 2 · Z 2 · Y 2 · B 3 · T 0 · F 1.
+   - "Devam et" ilerletmiyorsa düğmenin hemen üstünde kaç zorunlu sorunun boş kaldığı
+     yazar; yukarı kaydırıp doldur.
 5. **Vücut fotoğrafı adımına gel.** Kamera izni istemi çıkacak — **izin istemini kadraja
    al**, Apple bunu özellikle istiyor. Fotoğrafı çek ve **fotoğrafın silindiğini söyleyen
    ekranı göster.**
