@@ -620,3 +620,28 @@ export const kanca_olaylari = pgTable('kanca_olaylari', {
   olay_at: timestamp('olay_at', { withTimezone: true }),
   islendi_at: timestamp('islendi_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Tanıma düzeltmesini KİM onayladı.
+ *
+ * `tanima_eslemeleri.onay_sayisi` çağrı sayıyordu, kullanıcı değil: tek bir ücretsiz
+ * hesap aynı isteği iki kez göndererek bir kelimeyi istediği besine bağlayabiliyor ve
+ * bu eşleme HERKES için bağlayıcı oluyordu. Sağlık ürününde yanlış besin değeri.
+ *
+ * Birincil anahtar dörtlüsü aynı kullanıcının tekrarını sayıya katmıyor.
+ */
+export const tanima_onaylari = pgTable(
+  'tanima_onaylari',
+  {
+    user_id: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    locale: text('locale').notNull().default('tr-TR'),
+    taninan_ad: text('taninan_ad').notNull(),
+    food_id: uuid('food_id')
+      .notNull()
+      .references(() => foods.id, { onDelete: 'cascade' }),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.user_id, t.locale, t.taninan_ad, t.food_id] })],
+);

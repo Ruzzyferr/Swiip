@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, count, desc, eq, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -24,6 +24,7 @@ import {
   quotas,
   subscriptions,
   tanima_eslemeleri,
+  tanima_onaylari,
   tanima_onbellegi,
   users,
 } from '../db/sema';
@@ -312,7 +313,11 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     }
 
     // --- 3. Veritabanı eşleme: global düzeltme tablosu önce ---
-    const kalemler = await eslemeleriUygula(cikti.kalemler, katalog);
+    const kalemler = await eslemeleriUygula(
+      cikti.kalemler,
+      katalog,
+      veriYereli(await kullaniciDili(istek.kullaniciId)),
+    );
 
     // --- Önbelleğe yaz: aynı tabak ikinci kez AI çağrısı yapmaz ---
     await db
@@ -346,7 +351,8 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     const govde = duzeltmeSemasi.parse(istek.body);
     const gun = govde.gun ?? new Date().toISOString().slice(0, 10);
 
-    const katalog = await besinKataloguGetir(veriYereli(await kullaniciDili(istek.kullaniciId)));
+    const dil = veriYereli(await kullaniciDili(istek.kullaniciId));
+    const katalog = await besinKataloguGetir(dil);
     const kayitlar = [];
 
     for (const kalem of govde.kalemler) {
@@ -372,17 +378,53 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
 
       kayitlar.push(kayit);
 
-      // Geri besleme: düzeltme global eşleme tablosuna yazılır.
+      /**
+       * Geri besleme: düzeltme global eşleme tablosuna yazılır.
+       *
+       * Onay FARKLI KULLANICI sayısıdır, çağrı sayısı değil. Eskiden her çağrıda
+       * `onay_sayisi + 1` yapılıyordu ve eşik 2'ydi: tek bir ücretsiz hesap aynı
+       * isteği iki kez göndererek bir kelimeyi istediği besine bağlayabiliyor, o
+       * eşleme de TÜM kullanıcılar için bağlayıcı oluyordu. Kodun kendi yorumu
+       * "iki kullanıcı aynı düzeltmeyi yaptıysa" diyordu; kod bunu yapmıyordu.
+       */
+      const normalAd = turkceNormalize(kalem.ad);
+
+      await db
+        .insert(tanima_onaylari)
+        .values({
+          user_id: istek.kullaniciId,
+          locale: dil,
+          taninan_ad: normalAd,
+          food_id: kalem.food_id,
+        })
+        .onConflictDoNothing();
+
+      const [sayim] = await db
+        .select({ adet: count() })
+        .from(tanima_onaylari)
+        .where(
+          and(
+            eq(tanima_onaylari.locale, dil),
+            eq(tanima_onaylari.taninan_ad, normalAd),
+            eq(tanima_onaylari.food_id, kalem.food_id),
+          ),
+        );
+
       await db
         .insert(tanima_eslemeleri)
-        .values({ taninan_ad: turkceNormalize(kalem.ad), food_id: kalem.food_id })
+        .values({
+          taninan_ad: normalAd,
+          food_id: kalem.food_id,
+          locale: dil,
+          onay_sayisi: sayim?.adet ?? 1,
+        })
         .onConflictDoUpdate({
           target: [
             tanima_eslemeleri.locale,
             tanima_eslemeleri.taninan_ad,
             tanima_eslemeleri.food_id,
           ],
-          set: { onay_sayisi: sql`${tanima_eslemeleri.onay_sayisi} + 1`, updated_at: new Date() },
+          set: { onay_sayisi: sayim?.adet ?? 1, updated_at: new Date() },
         });
     }
 
@@ -501,23 +543,44 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
       .where(and(eq(quotas.user_id, kullaniciId), eq(quotas.period, donem)));
   }
 
+  /**
+   * Bir düzeltmenin herkes için bağlayıcı olması için kaç FARKLI kullanıcı gerekiyor.
+   *
+   * İki iken tek bir kişi iki hesapla eşiği geçebiliyordu; artık sayım kullanıcı bazlı
+   * olduğu için bu maliyet iki hesaba çıkıyor — bir sağlık ürününde hâlâ ucuz. Üç,
+   * kasıtlı bozmayı anlamlı ölçüde zorlaştırırken gerçek bir düzeltmenin yayılmasını
+   * engellemiyor. `CLAUDE.md`: "Sağlıkta muhafazakâr ol."
+   */
+  const ESLEME_ESIGI = 3;
+
   /** Global düzeltme tablosu, model çıktısındaki adı doğrudan bir besine bağlayabilir. */
   async function eslemeleriUygula(
     kalemler: TanimaKalemi[],
     katalog: BesinKaydi[],
+    dil: string,
   ): Promise<EslesmisKalem[]> {
     const sonuc = kalemleriEslestir(kalemler, katalog);
 
     for (const [i, kalem] of sonuc.entries()) {
+      /**
+       * `locale` filtresi eklendi.
+       *
+       * Yoktu: Türkçe bir düzeltme İngilizce kullanıcıya da uygulanıyordu ve sorgu
+       * `(locale, taninan_ad, food_id)` indeksini kullanamıyordu.
+       */
       const [esleme] = await db
         .select({ food_id: tanima_eslemeleri.food_id, onay: tanima_eslemeleri.onay_sayisi })
         .from(tanima_eslemeleri)
-        .where(eq(tanima_eslemeleri.taninan_ad, turkceNormalize(kalem.ad)))
+        .where(
+          and(
+            eq(tanima_eslemeleri.locale, dil),
+            eq(tanima_eslemeleri.taninan_ad, turkceNormalize(kalem.ad)),
+          ),
+        )
         .orderBy(desc(tanima_eslemeleri.onay_sayisi))
         .limit(1);
 
-      // İki kullanıcı aynı düzeltmeyi yaptıysa artık kural odur.
-      if (esleme && esleme.onay >= 2) {
+      if (esleme && esleme.onay >= ESLEME_ESIGI) {
         const besin = katalog.find((b) => b.id === esleme.food_id);
         if (besin) sonuc[i] = { ...kalem, besin, eslesti: true, skor: 1 };
       }

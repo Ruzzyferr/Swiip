@@ -252,7 +252,42 @@ describe('POST /v1/beslenme/tani/onayla', () => {
     expect(gun.json().kayitlar[0].entry_method).toBe('foto');
   });
 
-  it('düzeltme global eşleme tablosuna yazılır', async () => {
+  /** Ek bir Pro hesabı açar ve tokenını döner. */
+  async function yeniPro(eposta: string): Promise<string> {
+    const kayit = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/kayit',
+      payload: { email: eposta, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    });
+    const t = kayit.json().erisim_token;
+    await app.inject({
+      method: 'POST',
+      url: '/v1/abonelik/guncelle',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { plan: 'pro' },
+    });
+    return t;
+  }
+
+  async function onayla(t: string, foodId: string, gun: string) {
+    return app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/tani/onayla',
+      headers: { authorization: `Bearer ${t}` },
+      payload: {
+        photo_hash: `hash-${gun}`,
+        gun,
+        kalemler: [{ ad: 'köfte', food_id: foodId, gram: 200, miktar: 1 }],
+      },
+    });
+  }
+
+  /**
+   * Eski test tam da sömürüyü DOĞRU davranış diye koruyordu: tek kullanıcı aynı
+   * düzeltmeyi iki kez gönderiyor, eşleme herkes için bağlayıcı oluyordu. `onay_sayisi`
+   * çağrı sayıyordu, kullanıcı değil — oysa kodun yorumu "iki kullanıcı" diyordu.
+   */
+  it('tek kullanıcı kaç kez onaylarsa onaylasın global eşleme kuralı olmaz', async () => {
     const besin = await app.inject({
       method: 'GET',
       url: '/v1/beslenme/besin/ara?q=İzmir',
@@ -260,21 +295,33 @@ describe('POST /v1/beslenme/tani/onayla', () => {
     });
     const izmirKofte = besin.json().sonuclar[0];
 
-    // Aynı düzeltme iki kez: eşik iki onayda dolar.
-    for (const gun of ['2026-08-21', '2026-08-22']) {
-      await app.inject({
-        method: 'POST',
-        url: '/v1/beslenme/tani/onayla',
-        headers: yetkili(),
-        payload: {
-          photo_hash: 'sabit-hash',
-          gun,
-          kalemler: [{ ad: 'köfte', food_id: izmirKofte.id, gram: 200, miktar: 1 }],
-        },
-      });
+    for (const gun of ['2026-08-21', '2026-08-22', '2026-08-23', '2026-08-24']) {
+      await onayla(token, izmirKofte.id, gun);
     }
 
-    const yeni = await tani({ fotograf: foto('f', 500) });
+    const yeni = await tani({ fotograf: foto('tekkisi', 500) });
+    const kofte = yeni.json().kalemler.find((k: { ad: string }) => k.ad === 'köfte');
+
+    expect(kofte.besin?.id, 'tek hesap global besin eşlemesini değiştirememeli').not.toBe(
+      izmirKofte.id,
+    );
+  });
+
+  it('yeterli sayıda FARKLI kullanıcı onaylayınca eşleme kural olur', async () => {
+    const besin = await app.inject({
+      method: 'GET',
+      url: '/v1/beslenme/besin/ara?q=İzmir',
+      headers: yetkili(),
+    });
+    const izmirKofte = besin.json().sonuclar[0];
+
+    // İlk kullanıcı yukarıdaki testte zaten onayladı; iki farklı kullanıcı daha.
+    for (const e of ['esleme-b@swiip.app', 'esleme-c@swiip.app']) {
+      const t = await yeniPro(e);
+      await onayla(t, izmirKofte.id, '2026-08-25');
+    }
+
+    const yeni = await tani({ fotograf: foto('ucfarkli', 500) });
     const kofte = yeni.json().kalemler.find((k: { ad: string }) => k.ad === 'köfte');
 
     expect(kofte.besin.id).toBe(izmirKofte.id);
