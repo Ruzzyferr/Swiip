@@ -1365,6 +1365,8 @@ export const tr = {
       hata: 'Deste açılamadı.',
       yukleniyor: 'Seçenekler hazırlanıyor',
       bosBaslik: 'Deste açılamadı',
+      /** Plan yetmediğinde: bu bir hata değil, kilit. Başlık da öyle demeli. */
+      kilitBaslik: 'Öğün destesi Temel plandan itibaren açık',
       sadeceDolaptan: 'Sadece dolabımdakilerle yapılabilenler',
       menuDayatmiyoruz: 'Menü dayatmıyoruz',
       makroKilidi: 'BU ÖĞÜNÜN MAKRO KİLİDİ',
@@ -1563,6 +1565,7 @@ export const tr = {
     planSecUyarisi: 'Devam etmek için bir plan seç. Senin yerine seçmiyoruz.',
     planiBaslat: (ad: string) => `${ad} planını başlat`,
     planSec: 'Plan seç',
+    planlarYuklenemedi: 'Planları getiremedim. Bağlantını kontrol edip tekrar dene.',
     planlarBasligi: 'Planlar',
     kapat: 'Kapat',
     geriYukle: 'Satın almalarımı geri yükle',

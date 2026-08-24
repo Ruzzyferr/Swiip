@@ -73,6 +73,15 @@ export default function OgunDestesi() {
   const [deste, setDeste] = useState<DesteCevabi | null>(null);
   const [indeks, setIndeks] = useState(0);
   const [hata, setHata] = useState<string | null>(null);
+  /**
+   * Hatanın CİNSİ.
+   *
+   * Tek bir `hata` dizesi vardı ve aşağıdaki dal her hata için paywall'a götüren bir
+   * düğme çiziyordu: çevrimdışı olmak, sunucunun 500 vermesi ve planın yetmemesi aynı
+   * ekrana çıkıyordu. Yani **parasını ödemiş** bir kullanıcı sunucu hatası aldığında
+   * "Planlara bak" görüyordu. CLAUDE.md: "Ödeyene reklam ve upsell gösterilmez."
+   */
+  const [hataTuru, setHataTuru] = useState<'kilit' | 'baglanti' | 'sunucu' | null>(null);
   const [islemHatasi, setIslemHatasi] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(true);
 
@@ -83,8 +92,16 @@ export default function OgunDestesi() {
       const sorgu = ogun === null ? '' : `ogun=${ogun}&`;
       setDeste(await istek<DesteCevabi>(`/v1/ogun/deste?${sorgu}dolaptan=${dolaptan}`));
       setHata(null);
+      setHataTuru(null);
     } catch (h) {
       setHata(h instanceof ApiHatasi ? h.mesaj : m.hata);
+      if (h instanceof ApiHatasi) {
+        setHataTuru(
+          h.durum === 402 || h.durum === 403 ? 'kilit' : h.durum === 0 ? 'baglanti' : 'sunucu',
+        );
+      } else {
+        setHataTuru('sunucu');
+      }
     } finally {
       setYukleniyor(false);
     }
@@ -152,8 +169,12 @@ export default function OgunDestesi() {
   if (hata) {
     return (
       <Ekran>
-        <BosDurum baslik={m.bosBaslik} govde={hata} />
-        <Dugme baslik={genel.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
+        <BosDurum baslik={hataTuru === 'kilit' ? m.kilitBaslik : m.bosBaslik} govde={hata} />
+        {hataTuru === 'kilit' ? (
+          <Dugme baslik={genel.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
+        ) : (
+          <Dugme baslik={genel.yeniden} onPress={() => void yukle()} />
+        )}
       </Ekran>
     );
   }

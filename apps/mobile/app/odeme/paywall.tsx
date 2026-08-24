@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Linking, Pressable, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
@@ -17,7 +17,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { fiyatMetni, tarihMetni } from '@swiip/shared';
-import { istek } from '../../src/veri/api';
+import { ApiHatasi, istek } from '../../src/veri/api';
 import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/odeme/magaza';
 import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '../../src/baglantilar';
 
@@ -68,11 +68,24 @@ export default function Paywall() {
    */
   const [magazaFiyatlari, setMagazaFiyatlari] = useState<Record<string, string>>({});
 
-  useEffect(() => {
+  const [yuklemeHatasi, setYuklemeHatasi] = useState<string | null>(null);
+
+  /**
+   * Planları yükle.
+   *
+   * `catch` eskiden sessizce `setPlanlar([])` yapıyordu ve aşağıdaki
+   * `if (planlar.length === 0)` dalı koşulsuz `<Yukleniyor/>` çiziyordu: ağ bir kez
+   * aksadığında **gelir ekranı kalıcı bir spinner** oluyordu. Hata metni yok, tekrar
+   * dene yok, hatta kapatma düğmesi bile yok — çünkü başlık o dalda hiç kurulmuyor.
+   */
+  const planlariYukle = useCallback(() => {
+    setYuklemeHatasi(null);
     void istek<{ planlar: Plan[] }>('/v1/abonelik/planlar')
       .then((c) => setPlanlar(c.planlar.filter((p) => p.kod !== 'ucretsiz')))
-      .catch(() => setPlanlar([]));
-  }, []);
+      .catch((h) => setYuklemeHatasi(h instanceof ApiHatasi ? h.mesaj : m.planlarYuklenemedi));
+  }, [m.planlarYuklenemedi]);
+
+  useEffect(() => planlariYukle(), [planlariYukle]);
 
   // Mağaza ulaşılamazsa boş döner ve liste fiyatına düşülür; ekran yine açılır.
   useEffect(() => {
@@ -140,6 +153,39 @@ export default function Paywall() {
     if (sonuc.durum === 'basarili') router.back();
     else setSatinAlmaHatasi(m.geriYuklemeYok);
   };
+
+  /**
+   * Yüklenemedi ≠ yükleniyor.
+   *
+   * Kapatma düğmesi burada da var: kullanıcıyı kapatamadığı bir ödeme ekranında
+   * bırakmak, mağaza kurallarından önce basit bir nezaket sorunu.
+   */
+  if (yuklemeHatasi !== null) {
+    return (
+      <>
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            title: m.planlarBasligi,
+            headerLeft: () => (
+              <Pressable
+                onPress={() => router.back()}
+                accessibilityRole="button"
+                accessibilityLabel={m.kapat}
+                style={{ minWidth: 44, minHeight: 44, justifyContent: 'center' }}
+              >
+                <Yazi tur="baslik3">✕</Yazi>
+              </Pressable>
+            ),
+          }}
+        />
+        <Ekran>
+          <Uyari tur="tehlike" govde={yuklemeHatasi} />
+          <Dugme baslik={genel.yeniden} onPress={planlariYukle} />
+        </Ekran>
+      </>
+    );
+  }
 
   if (planlar.length === 0) {
     return (
