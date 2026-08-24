@@ -1043,6 +1043,7 @@ export const tr = {
 
   beslenme: {
     yuklenemedi: 'Yüklenemedi.',
+    hedefAlinamadi: 'Hedefini getiremedim',
     hedefYokBaslik: 'Beslenme hedefi yok',
     degerlendirmeyeGit: 'Değerlendirmeye git',
     edBaslik: 'Bugünkü tabağın',

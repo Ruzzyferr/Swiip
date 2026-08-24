@@ -74,6 +74,7 @@ export default function Beslenme() {
   const [gun, setGun] = useState<GunCevabi | null>(null);
   const [hazir, setHazir] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
+  const [hataKodu, setHataKodu] = useState<string | null>(null);
   const [aramaAcik, setAramaAcik] = useState(false);
 
   const yukle = useCallback(async () => {
@@ -85,8 +86,10 @@ export default function Beslenme() {
       setHedef(h);
       setGun(g);
       setHata(null);
+      setHataKodu(null);
     } catch (h) {
       setHata(h instanceof ApiHatasi ? h.mesaj : m.yuklenemedi);
+      setHataKodu(h instanceof ApiHatasi ? h.kod : null);
     } finally {
       setHazir(true);
     }
@@ -136,11 +139,23 @@ export default function Beslenme() {
   }
 
   if (hata && !hedef) {
+    /*
+      "Hedef yok" ile "getiremedim" ayni sey degil.
+      Her hata "Beslenme hedefi yok — Degerlendirmeye git" ekranina cikiyordu:
+      cevrimdisi olmak da, sunucu hatasi da, oturumun dusmesi de. Degerlendirmesini
+      coktan tamamlamis bir kullanici, ag aksadigi icin bastan doldurmaya
+      yonlendiriliyordu.
+    */
+    const profilEksik = hataKodu === 'profil_yok' || hataKodu === 'degerlendirme_yok';
     return (
       <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
         <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
-          <BosDurum baslik={m.hedefYokBaslik} govde={hata} />
-          <Dugme baslik={m.degerlendirmeyeGit} onPress={() => router.push('/degerlendirme')} />
+          <BosDurum baslik={profilEksik ? m.hedefYokBaslik : m.hedefAlinamadi} govde={hata} />
+          {profilEksik ? (
+            <Dugme baslik={m.degerlendirmeyeGit} onPress={() => router.push('/degerlendirme')} />
+          ) : (
+            <Dugme baslik={genel.yeniden} onPress={() => void yukle()} />
+          )}
         </View>
       </ScrollView>
     );

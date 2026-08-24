@@ -132,7 +132,22 @@ export function oturumDustugundeCalistir(geriCagri: (() => void) | null): void {
  */
 const tokenYenile = tekUcus(async (): Promise<boolean> => {
   const yenileme = await SecureStore.getItemAsync(YENILEME_ANAHTARI);
-  if (!yenileme) return false;
+
+  /**
+   * Yenileme tokeni yoksa oturum bitmiştir ve bu SÖYLENMELİ.
+   *
+   * Burada sessizce `false` dönülüyordu ve `oturumDustuDinleyici` hiç çağrılmıyordu.
+   * Sonuç: 401 alan istek düz bir hata olarak yukarı çıkıyor, ekran onu kendi genel
+   * hata dalında gösteriyordu. Beslenme sekmesinde bu, "Beslenme hedefi yok —
+   * Değerlendirmeye git" demek: kullanıcı oturumu düştüğü için giriş ekranına
+   * gitmesi gerekirken, zaten tamamladığı değerlendirmeye yönlendiriliyordu.
+   * Korumalı ekranlarda hiçbir yönlendirme muhafızı olmadığı için orada kalıyordu.
+   */
+  if (!yenileme) {
+    await tokenlariSil();
+    oturumDustuDinleyici?.();
+    return false;
+  }
 
   const yanit = await fetch(`${tabanUrl()}/v1/kimlik/yenile`, {
     method: 'POST',

@@ -989,6 +989,7 @@ export const en: Metinler = {
 
   beslenme: {
     yuklenemedi: 'Could not load.',
+    hedefAlinamadi: "Couldn't load your target",
     hedefYokBaslik: 'No nutrition target yet',
     degerlendirmeyeGit: 'Go to the assessment',
     edBaslik: 'Your plate today',
