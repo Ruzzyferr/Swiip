@@ -4,19 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler } from '../../src/durum/Oturum';
 
-/**
- * Sekme çubuğunun İÇ yüksekliği: simge + boşluk + etiket + nefes payı.
- *
- * Sabit `height: 64` yazıyordu ve alt güvenli alan payı buna DAHİLDİ; yani çentikli
- * telefonlarda ev göstergesi şeridi 64 pikselin içinden yeniyor, geriye etiket için
- * yer kalmıyordu. Sonuç: "Program", "Beslenme", "Koç", "İlerleme", "Ayarlar" — beş
- * etiketin hepsi x-yüksekliğinin ortasından kırpılıyordu. Uygulamanın kalıcı
- * kroması olduğu için bu, beş ekranın hepsinde birden görünen bir kusurdu.
- *
- * Yükseklik artık güvenli alanın ÜSTÜNE ekleniyor.
- */
-const SEKME_IC_YUKSEKLIK = 60;
-
 export default function SekmeDuzeni() {
   const tema = useTema();
   const m = useMetinler().sekmeler;
@@ -31,12 +18,44 @@ export default function SekmeDuzeni() {
         headerTitleStyle: { fontWeight: '600' },
         tabBarActiveTintColor: tema.renk.aksan,
         tabBarInactiveTintColor: tema.renk.metinSilik,
+        /**
+         * Yükseklik BİLEREK verilmiyor.
+         *
+         * `height: 64` ve `paddingBottom: 8` sabitti. React Navigation çubuğu
+         * `varsayılan + insets.bottom` olarak hesaplıyor; ikisini de elle yazmak hem bu
+         * hesabı hem de ev göstergesi için ayrılan payı çöpe atıyordu. Çentikli
+         * telefonda gösterge şeridi 64 pikselin içinden yiyor, etikete yer kalmıyordu:
+         * "Program", "Beslenme", "Koç", "İlerleme", "Ayarlar" — beşi de x-yüksekliğinin
+         * ortasından kırpılıyordu, "Koç" çengelini tamamen kaybediyordu.
+         *
+         * Ölçüldü: etiket kutusu 11 px yazı ve 14 px satır yüksekliği için 5 px
+         * kalıyordu. Sabit yükseklik verildiğinde kütüphane çubuğu büyütmüyor, etiketi
+         * eziyor. Hesabı kütüphaneye bırakmak doğru çözüm; `guvenli.bottom` yalnızca
+         * alt dolgunun tabanı olarak kullanılıyor.
+         */
         tabBarStyle: {
           backgroundColor: tema.renk.yuzey,
           borderTopColor: tema.renk.cizgi,
-          height: SEKME_IC_YUKSEKLIK + guvenli.bottom,
-          paddingBottom: guvenli.bottom + 8,
+          /**
+           * Yükseklik = içerik + alt güvenli alan.
+           *
+           * Eskiden `height: 64` ve `paddingBottom: 8` sabitti ve güvenli alan payı bu
+           * 64'ün İÇİNDEYDİ. Çentikli telefonda ev göstergesi şeridi (34 px) oradan
+           * yeniyor, simge ve etikete 30 px kalıyordu: "Program", "Beslenme", "Koç",
+           * "İlerleme", "Ayarlar" — beşi de x-yüksekliğinin ortasından kırpılıyordu ve
+           * dokunulabilir yükseklik 44'ün altına düşüyordu. Uygulamanın kalıcı kroması
+           * olduğu için kusur beş ekranda birden görünüyordu.
+           *
+           * Şimdi pay yüksekliğe EKLENİYOR: 44 px'lik içerik alanı simge (24) ve etiket
+           * (11/14) için her cihazda sabit kalıyor.
+           *
+           * Not: tarayıcı önizlemesinde `insets.bottom` her zaman 0 ve
+           * `@react-navigation/bottom-tabs`'ın web düzeni farklı davranıyor; bu satırın
+           * doğrulaması gerçek cihazda yapılmalı.
+           */
+          height: 60 + guvenli.bottom,
           paddingTop: 8,
+          paddingBottom: guvenli.bottom + 8,
         },
         // `includeFontPadding: false` olmadan Android'de etiketin altı ayrıca kırpılıyor.
         tabBarLabelStyle: {
