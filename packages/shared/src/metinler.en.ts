@@ -1012,6 +1012,12 @@ export const en: Metinler = {
     ogunDegistir: 'Swap a meal',
     planlamaBasligi: 'WEEKLY PLANNING',
     alisverisListesi: 'Shopping list',
+    adsizKalem: 'Unnamed item',
+    sil: 'Delete',
+    kaydiSilErisim: (ad: string) => `Delete the ${ad} entry`,
+    silOnayBaslik: 'Delete entry',
+    silOnayGovde: "This item will be removed from today's log. The daily total is recalculated.",
+    silinemedi: "Couldn't delete the entry. Try again?",
     bugunYediklerin: 'What you ate today',
     bosKayitBaslik: 'Nothing logged today',
     bosKayitGovde:

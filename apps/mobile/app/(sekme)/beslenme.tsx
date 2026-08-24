@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import type { PorsiyonRehberi } from '@swiip/core';
 import type { BeslenmeHedefi } from '@swiip/shared';
@@ -44,6 +44,10 @@ interface GunCevabi {
   gun: string;
   kayitlar: Array<{
     id: string;
+    /** Besin adı. Sunucu `foods` ile birleştirip gönderiyor; serbest kalemde boş olabilir. */
+    ad: string | null;
+    /** Çözülmüş porsiyon adı ("kase", "dilim"). Yoksa gram gösterilir. */
+    porsiyon_adi: string | null;
     ogun: string | null;
     quantity: string;
     portion_id: string | null;
@@ -63,6 +67,7 @@ interface BesinSonucu {
 export default function Beslenme() {
   const tema = useTema();
   const m = useMetinler().beslenme;
+  const genel = useMetinler().genel;
   const bugun = new Date().toISOString().slice(0, 10);
 
   const [hedef, setHedef] = useState<HedefCevabi | null>(null);
@@ -90,6 +95,37 @@ export default function Beslenme() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+
+  /**
+   * Yanlış girilen kalem silinebilir.
+   *
+   * Sunucudaki `DELETE /v1/beslenme/kayit/:id` yazılmıştı ama arayüzde hiçbir yerden
+   * çağrılmıyordu: bir kez yanlış girilen kalori kalıcıydı. Kalori takibinde bu, günün
+   * tamamını çöpe atmak demek — ve kullanıcının yapabileceği tek şey o günü boş bırakmak.
+   */
+  const kaydiSil = (id: string) => {
+    Alert.alert(m.silOnayBaslik, m.silOnayGovde, [
+      { text: genel.iptal, style: 'cancel' },
+      {
+        text: m.sil,
+        style: 'destructive',
+        onPress: () => {
+          void istek(`/v1/beslenme/kayit/${id}`, { yontem: 'DELETE' })
+            .then(() => yukle())
+            .catch((h) => setHata(h instanceof ApiHatasi ? h.mesaj : m.silinemedi));
+        },
+      },
+    ]);
+  };
+
+  /**
+   * "2 kase" mi "150 g" mı.
+   *
+   * `portion_id` ham bir katalog anahtarı; doğrudan basılınca kullanıcı `kase-orta`
+   * gibi bir dize görüyordu. Karşılığı yoksa gram varsayılıyor.
+   */
+  const miktarMetni = (miktar: string, porsiyonAdi: string | null) =>
+    porsiyonAdi ? `${miktar} ${porsiyonAdi}` : `${miktar} g`;
 
   if (!hazir) {
     return (
@@ -288,12 +324,43 @@ export default function Beslenme() {
         {gun && gun.kayitlar.length > 0 ? (
           <Kart>
             <Yazi tur="baslik3">{m.bugunYediklerin}</Yazi>
+            {/*
+              Satırda ÖNCE yemek adı var.
+              Eskiden yalnızca `{quantity} {portion_id ?? 'g'}` yazıyordu; sunucu adı hiç
+              göndermiyordu. Kullanıcı gününe baktığında "100 g · 155 kcal" gibi satırlar
+              görüyor, NE YEDİĞİNİ göremiyordu — üstelik `portion_id` ham bir katalog
+              anahtarı, kullanıcıya gösterilecek bir metin değil.
+
+              Silme de buradaydı eksik: sunucuda `DELETE /v1/beslenme/kayit/:id` vardı ama
+              arayüzde hiçbir yerden çağrılmıyordu. Yanlış girilen bir kalori kalıcıydı.
+            */}
             {gun.kayitlar.map((kayit) => (
               <Satir key={kayit.id} dagit="space-between">
-                <Yazi tur="kucuk" renk="metinYumusak" stil={{ flex: 1 }}>
-                  {kayit.quantity} {kayit.portion_id ?? 'g'}
-                </Yazi>
-                <Sayi tur="kucuk">{kayit.hesaplanan.kalori} kcal</Sayi>
+                <View style={{ flex: 1 }}>
+                  <Yazi tur="kucuk">{kayit.ad ?? m.adsizKalem}</Yazi>
+                  <Yazi tur="etiket" renk="metinSilik">
+                    {miktarMetni(kayit.quantity, kayit.porsiyon_adi)}
+                  </Yazi>
+                </View>
+                <Satir>
+                  <Sayi tur="kucuk">{kayit.hesaplanan.kalori} kcal</Sayi>
+                  <Pressable
+                    onPress={() => kaydiSil(kayit.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={m.kaydiSilErisim(kayit.ad ?? m.adsizKalem)}
+                    hitSlop={12}
+                    style={{
+                      minWidth: tema.dokunmaHedefi,
+                      minHeight: tema.dokunmaHedefi,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Yazi tur="kucuk" renk="metinSilik">
+                      {m.sil}
+                    </Yazi>
+                  </Pressable>
+                </Satir>
               </Satir>
             ))}
           </Kart>

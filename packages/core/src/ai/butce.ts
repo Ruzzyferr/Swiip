@@ -55,8 +55,15 @@ export function butceDurumu(girdi: ButceGirdisi): ButceDurumu {
   const harcananUsd = Math.max(0, girdi.harcananUsd);
   const kalanUsd = Math.max(0, Math.round((butceUsd - harcananUsd) * 1e6) / 1e6);
 
+  /**
+   * Bütçesi olmayan planda (ücretsiz) yüzde ne demek?
+   *
+   * `harcananUsd > 0 ? 100 : 100` yazıyordu; iki dal da 100 döndürdüğü için hiç
+   * harcama yapmamış ücretsiz kullanıcı da "%100 kullanıldı" görüyordu. Doğrusu:
+   * harcama varsa tavan aşılmış demektir (100), hiç harcama yoksa sıfır.
+   */
   const kullanimYuzdesi =
-    butceUsd > 0 ? Math.round((harcananUsd / butceUsd) * 100) : harcananUsd > 0 ? 100 : 100;
+    butceUsd > 0 ? Math.round((harcananUsd / butceUsd) * 100) : harcananUsd > 0 ? 100 : 0;
 
   return {
     butceUsd,

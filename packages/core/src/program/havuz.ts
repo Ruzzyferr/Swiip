@@ -79,7 +79,18 @@ export function teknikZorlukTavani(
   teknikGuveni: number,
   antrenmanYasi: Profil['antrenman_yasi'],
 ): number {
-  if (teknikGuveni <= DUSUK_GUVEN_ESIGI) return antrenmanYasi === 'yeni' ? 3 : 3;
+  /**
+   * Burada `antrenmanYasi === 'yeni' ? 3 : 3` yazıyordu — iki dal da aynı değeri
+   * döndürüyor, yani parametre okunuyor ama HİÇBİR ETKİSİ yok. Fonksiyonun kendi
+   * yorumu "güven arttıkça tavan yükselir" diyor ve imzaya antrenman yaşı bilerek
+   * eklenmiş; niyet yolda kaybolmuş.
+   *
+   * Tekniğine güvenmeyen bir kullanıcı ile tekniğine güvenmeyen ve hiç ağırlık
+   * kaldırmamış bir kullanıcı aynı değil. İkincisinde tavan bir kademe daha iniyor.
+   * CLAUDE.md "Sağlıkta muhafazakâr ol" diyor: bilinmeyeni kolay tarafa değil,
+   * güvenli tarafa yorumluyoruz.
+   */
+  if (teknikGuveni <= DUSUK_GUVEN_ESIGI) return antrenmanYasi === 'yeni' ? 2 : 3;
   if (teknikGuveni < 4) return 4;
   return 5;
 }

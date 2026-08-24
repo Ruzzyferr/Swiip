@@ -280,10 +280,26 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
   app.get('/gun/:gun', { preHandler: app.kimlikDogrula }, async (istek) => {
     const { gun } = z.object({ gun: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).parse(istek.params);
 
+    /**
+     * Besin ADI da dönüyor.
+     *
+     * Dönmüyordu. Arayüz "Bugün yediklerin" listesinde `{kayit.quantity}
+     * {kayit.portion_id ?? 'g'}` basıyor ve elinde başka bir şey yoktu; kullanıcı
+     * gününe baktığında "100 g", "2 kase" gibi satırlar görüyor, NE YEDİĞİNİ
+     * göremiyordu. Ücretsiz katmanın teslim ettiği üç şeyden biri manuel kalori
+     * girişi; okunamayan bir günlük o özelliği yok hükmünde bırakıyor.
+     *
+     * `leftJoin`: `food_id` boş olabilen bir kayıt (elle girilen serbest kalem)
+     * listeden düşmemeli.
+     */
     const kayitlar = await db
       .select({
         id: food_logs.id,
         food_id: food_logs.food_id,
+        ad: foods.name_tr,
+        ad_en: foods.name_en,
+        marka: foods.brand,
+        porsiyonlar: foods.portions_jsonb,
         quantity: food_logs.quantity,
         portion_id: food_logs.portion_id,
         ogun: food_logs.ogun,
@@ -292,6 +308,7 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
         logged_at: food_logs.logged_at,
       })
       .from(food_logs)
+      .leftJoin(foods, eq(foods.id, food_logs.food_id))
       .where(and(eq(food_logs.user_id, istek.kullaniciId), eq(food_logs.gun, gun)))
       .orderBy(food_logs.logged_at);
 
@@ -311,9 +328,21 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
 
     const sayilarGizli = await sayilarGizliMi(istek.kullaniciId);
 
+    /**
+     * `portion_id` bir katalog anahtarı; kullanıcıya gösterilecek metin değil.
+     *
+     * Arayüz onu doğrudan basıyordu ve kullanıcı "2 kase-orta" gibi satırlar
+     * görüyordu. Görünen adı burada çözüyoruz — istemcinin katalog bilmesi gerekmesin.
+     */
+    const gorunurKayitlar = kayitlar.map(({ porsiyonlar, ...kayit }) => {
+      const liste = (porsiyonlar ?? []) as Porsiyon[];
+      const secilen = kayit.portion_id ? liste.find((x) => x.id === kayit.portion_id) : undefined;
+      return { ...kayit, porsiyon_adi: secilen?.ad ?? null };
+    });
+
     return {
       gun,
-      kayitlar,
+      kayitlar: gorunurKayitlar,
       toplam: sayilarGizli ? null : yuvarlaBesin(toplam),
       sayilar_gizli: sayilarGizli,
       ogun_sayisi: kayitlar.length,

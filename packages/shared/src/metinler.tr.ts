@@ -1066,6 +1066,12 @@ export const tr = {
     ogunDegistir: 'Öğün değiştir',
     planlamaBasligi: 'HAFTALIK PLANLAMA',
     alisverisListesi: 'Alışveriş listesi',
+    adsizKalem: 'Adsız kalem',
+    sil: 'Sil',
+    kaydiSilErisim: (ad: string) => `${ad} kaydını sil`,
+    silOnayBaslik: 'Kaydı sil',
+    silOnayGovde: 'Bu kalem günlükten çıkarılacak. Günün toplamı yeniden hesaplanır.',
+    silinemedi: 'Kayıt silinemedi. Tekrar dener misin?',
     bugunYediklerin: 'Bugün yediklerin',
     bosKayitBaslik: 'Bugün henüz kayıt yok',
     bosKayitGovde:
