@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { uygulamaOlustur } from '../uygulama';
+import { sandboxYokSayilsinMi } from './abonelik';
 import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
 
 /**
@@ -179,7 +180,15 @@ describe('bozuk ve bilinmeyen olaylar', () => {
     expect(await planOku()).toBe('ucretsiz');
   });
 
-  it('gövdesi bozuk istek 400 döner', async () => {
+  /**
+   * Artık 400 değil 200.
+   *
+   * 400 dönmek RevenueCat için "teslim edilemedi" demek: olayı saatlerce yeniden
+   * deniyor, sonra bırakıyor. Bizim çözemediğimiz bir gövde onların kuyruğunu
+   * tıkamamalı — ama sessizce de kaybolmamalı, o yüzden log'a düşüyor ve cevapta
+   * neden işlenmediği yazıyor.
+   */
+  it('gövdesi çözümlenemeyen istek 200 döner ama hiçbir şey yapmaz', async () => {
     const cevap = await app.inject({
       method: 'POST',
       url: '/v1/abonelik/kanca',
@@ -187,6 +196,229 @@ describe('bozuk ve bilinmeyen olaylar', () => {
       payload: { yanlis: 'sekil' },
     });
 
-    expect(cevap.statusCode).toBe(400);
+    expect(cevap.statusCode).toBe(200);
+    expect(cevap.json().islenmedi).toBe('govde_cozumlenemedi');
+    expect(await planOku()).toBe('ucretsiz');
+  });
+});
+
+/**
+ * Bu blok, kancanın "sırrı doğrulanıyor ama gerisi savunmasız" hâlini kapatıyor.
+ * Hepsi gerçek RevenueCat olay biçimleri.
+ */
+describe('kanca dayanıklılığı', () => {
+  /**
+   * Monoton test saati.
+   *
+   * Testler tek kullanıcıyı paylaşıyor ve `planYaz` artık daha eski damgalı olayı
+   * yok sayıyor. `Date.now()` kullanmak, önceki testin ileri attığı damganın
+   * arkasında kalıp sıradaki testin ilk olayını sessizce düşürüyordu.
+   */
+  let saat = Date.now();
+  const t = () => (saat += 60_000);
+
+  it('aynı olay iki kez gelirse ikincisi işlenmez', async () => {
+    await olay({
+      id: 'evt-tekrar-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+    expect(await planOku()).toBe('pro');
+
+    // Arada süresi dolmuş sayılsın.
+    await olay({
+      id: 'evt-tekrar-2',
+      type: 'EXPIRATION',
+      app_user_id: kullaniciId,
+      event_timestamp_ms: t(),
+    });
+    expect(await planOku()).toBe('ucretsiz');
+
+    // İlk olay yeniden teslim edilirse Pro GERİ GELMEMELİ.
+    const tekrar = await olay({
+      id: 'evt-tekrar-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    expect(tekrar.json().islenmedi).toBe('tekrar');
+    expect(await planOku()).toBe('ucretsiz');
+  });
+
+  it('daha eski damgalı olay yenisinin üstüne yazmaz', async () => {
+    const simdi = t();
+
+    await olay({
+      id: 'evt-sira-yeni',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: simdi,
+    });
+    expect(await planOku()).toBe('pro');
+
+    // Bir saat önceye ait, gecikmiş bir EXPIRATION.
+    await olay({
+      id: 'evt-sira-eski',
+      type: 'EXPIRATION',
+      app_user_id: kullaniciId,
+      event_timestamp_ms: simdi - 3_600_000,
+    });
+
+    expect(await planOku(), 'gecikmiş eski olay planı düşürmemeli').toBe('pro');
+  });
+
+  it('PRODUCT_CHANGE yeni ürüne geçirir', async () => {
+    await olay({
+      id: 'evt-pd-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+    expect(await planOku()).toBe('pro');
+
+    // Gerçek biçim: `product_id` ESKİ ürün, `new_product_id` yenisi.
+    await olay({
+      id: 'evt-pd-2',
+      type: 'PRODUCT_CHANGE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      new_product_id: 'swiip_temel_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    expect(await planOku(), 'Pro→Temel düşüşü uygulanmalı').toBe('temel');
+  });
+
+  it('iade hakkı hemen kapatır, sıradan iptal kapatmaz', async () => {
+    await olay({
+      id: 'evt-iade-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    await olay({
+      id: 'evt-iade-2',
+      type: 'CANCELLATION',
+      cancel_reason: 'UNSUBSCRIBE',
+      app_user_id: kullaniciId,
+      event_timestamp_ms: t(),
+    });
+    expect(await planOku(), 'sıradan iptalde dönem sonuna kadar açık kalır').toBe('pro');
+
+    await olay({
+      id: 'evt-iade-3',
+      type: 'CANCELLATION',
+      cancel_reason: 'CUSTOMER_SUPPORT',
+      app_user_id: kullaniciId,
+      event_timestamp_ms: t(),
+    });
+    expect(await planOku(), 'iade hakkı hemen kapatmalı').toBe('ucretsiz');
+  });
+
+  it('ödeme sorunu hakkı hemen almaz', async () => {
+    await olay({
+      id: 'evt-odeme-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    await olay({
+      id: 'evt-odeme-2',
+      type: 'BILLING_ISSUE',
+      app_user_id: kullaniciId,
+      event_timestamp_ms: t(),
+    });
+
+    expect(await planOku(), 'grace period süren müşteri Pro kalmalı').toBe('pro');
+  });
+
+  it('duraklatılan abonelik Pro kalmaz', async () => {
+    await olay({
+      id: 'evt-durdur-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    await olay({
+      id: 'evt-durdur-2',
+      type: 'SUBSCRIPTION_PAUSED',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    expect(await planOku()).toBe('ucretsiz');
+  });
+
+  it('TRANSFER eski hesabın hakkını kapatır', async () => {
+    await olay({
+      id: 'evt-tasi-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: kullaniciId,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+    expect(await planOku()).toBe('pro');
+
+    // TRANSFER `app_user_id` göndermez; şema onu zorunlu tuttuğu için bu olay
+    // eskiden 400 alıyor ve hiç işlenmiyordu — iki hesap tek abonelikle Pro kalıyordu.
+    const cevap = await olay({
+      id: 'evt-tasi-2',
+      type: 'TRANSFER',
+      transferred_from: [kullaniciId],
+      transferred_to: ['baska-hesap'],
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t(),
+    });
+
+    expect(cevap.statusCode).toBe(200);
+    expect(await planOku(), 'devreden hesap Pro kalmamalı').toBe('ucretsiz');
+  });
+});
+
+/**
+ * Sandbox ayrımı ve UUID olmayan kimlik.
+ *
+ * İkisi de kancanın "sır doğrulanıyor, gerisi güvende" varsayımındaki delikti.
+ */
+describe('kanca ortam ve kimlik ayrımı', () => {
+  it('üretimde sandbox olayı hak açmaz', () => {
+    expect(sandboxYokSayilsinMi('production', 'SANDBOX')).toBe(true);
+    expect(sandboxYokSayilsinMi('production', 'sandbox')).toBe(true);
+    expect(sandboxYokSayilsinMi('production', 'PRODUCTION')).toBe(false);
+  });
+
+  it('üretim dışında sandbox olayı normal işlenir — test ortamı çalışmaya devam etsin', () => {
+    expect(sandboxYokSayilsinMi('test', 'SANDBOX')).toBe(false);
+    expect(sandboxYokSayilsinMi('development', 'SANDBOX')).toBe(false);
+  });
+
+  it('ortam alanı yoksa olay işlenir — eski gövdeler kırılmasın', () => {
+    expect(sandboxYokSayilsinMi('production', undefined)).toBe(false);
+  });
+
+  it('anonim RevenueCat kimliği 500 üretmez', async () => {
+    const cevap = await olay({
+      id: 'evt-anonim-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: '$RCAnonymousID:9f2c1b7a4e5d4f0',
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: Date.now() + 9_000_000,
+    });
+
+    // 500 dönseydi RevenueCat olayı sonsuza kadar yeniden denerdi.
+    expect(cevap.statusCode).toBe(200);
   });
 });

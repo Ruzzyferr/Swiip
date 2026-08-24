@@ -597,3 +597,26 @@ export const ilgi_kayitlari = pgTable('ilgi_kayitlari', {
   /** Haber gönderildiğinde damgalanır; gönderim sonrası kayıt silinir. */
   bildirildi_at: timestamp('bildirildi_at', { withTimezone: true }),
 });
+
+/**
+ * İşlenmiş mağaza kancası olayları — tekrar oynatma ve sıra koruması.
+ *
+ * RevenueCat 2xx almadığı teslimatı saatlerce yeniden dener; ayrıca olaylar sırayla
+ * gelmek zorunda değil. Kanca gövdesi tek yazar olduğu için iki somut sonuç doğuyordu:
+ *
+ *  1. Gecikmiş bir `RENEWAL`, işlenmiş bir `EXPIRATION`'ın üstüne yazıyor ve süresi
+ *     dolmuş aboneye Pro'yu geri veriyordu.
+ *  2. `Authorization` sırrını ele geçiren biri aynı gövdeyi sınırsız tekrar oynatıp
+ *     istediği `app_user_id`'ye hak açabiliyordu.
+ *
+ * `event_id` benzersiz: aynı olay iki kez işlenmez. `olay_at` de saklanıyor; daha eski
+ * damgalı bir olay, daha yenisi zaten uygulanmışken plan yazamaz.
+ */
+export const kanca_olaylari = pgTable('kanca_olaylari', {
+  event_id: text('event_id').primaryKey(),
+  tip: text('tip').notNull(),
+  app_user_id: text('app_user_id'),
+  /** Olayın RevenueCat'teki damgası; sıra kontrolü buna göre. */
+  olay_at: timestamp('olay_at', { withTimezone: true }),
+  islendi_at: timestamp('islendi_at', { withTimezone: true }).notNull().defaultNow(),
+});
