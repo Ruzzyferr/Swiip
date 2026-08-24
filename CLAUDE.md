@@ -129,10 +129,21 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ## Açık işler
 
-- **Arayüz: kalan iki iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
-  1. Beyaz kartlar gri zeminde hâlâ ekranı iri bloklara bölüyor. Dış görüşün önerisi
-     kutulardan büsbütün çıkmak; ama program kartında artık hareket fotoğrafı var ve
-     fotoğrafın bir kabı olmak zorunda. Karar verilmedi.
+- **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
+  1. Beyaz kartlar gri zeminde hâlâ ekranı iri bloklara bölüyor. 2026-08-25'te iki
+     bağımsız inceleme daha aynı sonuca vardı ve ikisi de somut bir çıkış önerdi:
+     kutuları büsbütün bırak, ayraç olarak gutter'dan gutter'a 1 px çizgi kullan,
+     bölüm başlığı olarak zaten var olan "NEDEN BU PROGRAM" tarzı 12 px versal
+     etiketi kullan — ve **tek kap fotoğraf olsun.** Fotoğraf sayfadaki tek yarıçaplı
+     dolu nesne olduğunda kutu içinde içerik olmaktan çıkıp sayfanın çapası oluyor;
+     yani fotoğraf itirazı aslında çözümün kendisi. Görselsiz hareketler aynı 1:1
+     karoyu düz renkle alıyor, böylece listenin ritmi bozulmuyor. Karar hâlâ senin.
+  1b. **`₺` işareti sayısal fontta YOK.** Ölçüldü: `JetBrainsMono_500Medium`
+     cmap'inde U+20BA yok, `Inter` içinde var. Yani her fiyat, para biriminde sistem
+     serif yedeğine düşüyor — paywall'da rakamla çakışıyor ve "Ł99" gibi okunuyor.
+     Türkiye önce bir üründe ödeme ekranının en büyük puntosu bu. İki yol: sembolü
+     başlık fontunda ayrı basmak, ya da sayısal fontu ₺ içeren birine çevirmek
+     (IBM Plex Mono, Roboto Mono).
   2. 23 hareket görselsiz. Kaynak (free-exercise-db, kamu malı) bunları içermiyor —
      çoğu mobilite ve ısınma. `data/medya-eslemeleri.json` içinde `null` olarak
      kayıtlı: "bakıldı, bilinçli olarak boş". Yanlış görsel görselsizden kötüdür.
@@ -166,6 +177,20 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   verisi var; fotoğrafı sunucuya bile yazmayan bir uygulamanın tüm veritabanını
   kişisel buluta kopyalaması tutarsız olurdu.
 
+- **Gerçek zamanlı mağaza bildirimleri BAĞLANDI (2026-08-25).** Üçü de eksikti:
+  - Apple: `subscriptionStatusUrl` boştu; ASC API ile yazıldı (üretim + sandbox, V2).
+  - Play RTDN: Monetization setup'ta konu adı boştu. `projects/swiip-revenuecat/
+    topics/Play-Store-Notifications` yazıldı ve etkinleştirildi.
+  - RevenueCat > Swiip Android: "Connect to Google" yapıldı.
+  Uçtan uca doğrulandı: Play'den test bildirimi gönderildi, RevenueCat panelinde
+  "Last received" göründü. Öncesinde "No notifications received" yazıyordu.
+  Bunlar bağlı değilken iade, iptal ve yenileme yalnızca yoklamayla öğreniliyordu;
+  **parasını geri alan kullanıcı Pro kalıyordu.**
+- **GCP'de üç servis hesabı anahtarı var** (`revenuecat-connect@swiip-revenuecat`):
+  4 Ocak (yerel betiklerin kullandığı), 8 Temmuz ve 25 Ağustos. RevenueCat hangisini
+  tuttuğunu panelde göstermiyor, o yüzden körlemesine silinmedi — silinen anahtar
+  canlı fatura doğrulamasını durdurabilir. Sıra: yeni anahtar yükle → test olayıyla
+  doğrula → kalan ikisini sil.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
@@ -179,6 +204,20 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   Gerekçe App Store Connect API ile **okunamıyor** — Resolution Center yalnızca
   konsolda. `scripts/apple-api.mjs` sadece durumu veriyor. Build 3 yüklemede
   ITMS-90725 almıştı (iOS 18.2 SDK; iOS 26 şart), build 4 sorunsuz ve `VALID`.
+  **1.0 hâlâ build 4'e bağlı.** Build 5, 6, 7 yüklendi ve hepsi `VALID`, ama sürüm
+  kaydı build 4'ü gösteriyor. Build 7'yi bağlamak da doğru değil: 2026-08-25
+  denetimindeki düzeltmelerin hiçbiri hiçbir derlemede yok. Sıra: **build 8 üret →
+  yükle → 1.0'a bağla → Health beyanını bitir → cevabı yaz → yeniden gönder.**
+
+  `App Review Information → Notes` içindeki "Cancelling takes two taps from the top
+  of Settings" cümlesi düzeltilmeli: iptal artık mağazanın abonelik sayfasını açıyor.
+  Apple bu maddeyi birebir deniyor.
+- **Play Health beyanı: 11'de 10.** Eksik adım `ACTIVITY_RECOGNITION` izni için
+  gerekçe istiyor. O izni uygulama kullanmıyor — `expo-sensors` manifest birleşmesiyle
+  ekliyor, biz yalnızca `Accelerometer` kullanıyoruz. `app.json`'a `blockedPermissions`
+  eklendi; **yeni AAB yüklendikten sonra bu adım kendiliğinden kayboluyor.**
+  Kullanılmayan bir izne gerekçe yazmak yanlış beyan olur.
+- Play iç testi: "Select testers" seçilmemiş (3'te 2). Kapalı testten önce bitmeli.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
   (`revenuecat-connect@swiip-revenuecat`). `scripts/play-*.mjs` bunu
