@@ -10,6 +10,7 @@ import {
 import { dilCozumle, metinleriAl, type Dil, type Metinler } from '@swiip/shared';
 import {
   agDiliniAyarla,
+  ApiHatasi,
   istek,
   oturumDustugundeCalistir,
   oturumVar,
@@ -71,18 +72,41 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
       agDiliniAyarla(null);
       return;
     }
+    let kayit: Kullanici;
     try {
-      const kayit = await istek<Kullanici>('/v1/kimlik/ben');
-      setKullanici(kayit);
-      // Ağ katmanı bir bileşen değil; dili kancayla okuyamıyor. Hata metinleri de
-      // kullanıcının dilinde çıksın diye burada bildiriliyor.
-      agDiliniAyarla(kayit.locale);
-      // Mağaza kullanıcı kimliğiyle hazırlanır; satın alma bu kimliğe bağlanır.
-      await magaza.hazirla(kayit.id);
-    } catch {
-      setKullanici(null);
-      agDiliniAyarla(null);
+      kayit = await istek<Kullanici>('/v1/kimlik/ben');
+    } catch (hata) {
+      /**
+       * Ağ hatası oturumu DÜŞÜRMEZ.
+       *
+       * Buradaki `catch` her hatayı `setKullanici(null)` yapıyordu; yani uçakta ya da
+       * metroda uygulamayı açan, tokenı tamamen geçerli bir kullanıcı karşılama
+       * ekranına düşüyordu. `api.ts` tam da bu durum için "İnternet yok. Son programın
+       * cihazında kayıtlı, açabilirsin." diyor — ama o ekrana ulaşmanın yolu yoktu.
+       *
+       * Yalnızca sunucunun "bu oturum geçersiz" dediği durumda çıkış yapılır.
+       */
+      const baglantiSorunu = hata instanceof ApiHatasi && hata.durum === 0;
+      if (!baglantiSorunu) {
+        setKullanici(null);
+        agDiliniAyarla(null);
+      }
+      return;
     }
+
+    setKullanici(kayit);
+    // Ağ katmanı bir bileşen değil; dili kancayla okuyamıyor. Hata metinleri de
+    // kullanıcının dilinde çıksın diye burada bildiriliyor.
+    agDiliniAyarla(kayit.locale);
+
+    /**
+     * Mağaza hazırlığı oturumun DIŞINDA.
+     *
+     * Aynı `try` içindeyken `Purchases.configure` bir nedenle patladığında (bozuk
+     * anahtar, yerel modül sorunu) `/ben` başarılı olmasına rağmen kullanıcı çıkış
+     * yapmış sayılıyordu. Satın alma katmanının arızası oturumu düşürmemeli.
+     */
+    await magaza.hazirla(kayit.id).catch(() => null);
   }, []);
 
   useEffect(() => {
@@ -127,6 +151,17 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
     await disaAktarmaArtiklariniSil();
     // Bir sonraki kullanıcıya öncekinin antrenman hatırlatmaları gitmesin.
     await bildirimleriKapat();
+
+    /**
+     * Mağaza kimliği de bırakılır.
+     *
+     * Bırakılmazsa RevenueCat SDK'sı hâlâ ÖNCEKİ kullanıcının `appUserID`'siyle
+     * yapılandırılmış kalıyordu (`magaza.hazirla` içindeki `if (hazirlandi) return`
+     * hiç sıfırlanmıyordu). Aynı telefonda A çıkıp B girdiğinde B'nin satın alması
+     * kancaya `app_user_id = A` olarak düşüyordu: **A Pro oluyor, parayı B ödüyor.**
+     */
+    await magaza.oturumuBirak();
+
     setKullanici(null);
   }, []);
 

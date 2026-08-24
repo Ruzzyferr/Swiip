@@ -15,6 +15,7 @@ import {
 import { fotografiAnalizEt } from '../servisler/gorselAnaliz';
 import { fotografBoyutuUygunMu } from '@swiip/core';
 import { vucutAnaliziHakki, type Plan } from '../servisler/haklar';
+import { planGecerliMi } from '../servisler/planOku';
 
 /**
  * Vücut analizi (F4).
@@ -65,13 +66,20 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     kullaniciId: string,
   ): Promise<{ plan: Plan; baslangic: Date | null }> {
     const [kayit] = await db
-      .select({ plan: subscriptions.plan, guncellendi: subscriptions.updated_at })
+      .select({
+        plan: subscriptions.plan,
+        guncellendi: subscriptions.updated_at,
+        yenilenme: subscriptions.renews_at,
+      })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
 
+    // Süresi geçmiş abonelik ücretsize düşer; gerekçesi `servisler/planOku.ts`'de.
+    const gecerli = kayit ? planGecerliMi(kayit.yenilenme) : false;
+
     return {
-      plan: (kayit?.plan as Plan) ?? 'ucretsiz',
+      plan: gecerli ? ((kayit!.plan as Plan) ?? 'ucretsiz') : 'ucretsiz',
       baslangic: kayit?.guncellendi ?? null,
     };
   }

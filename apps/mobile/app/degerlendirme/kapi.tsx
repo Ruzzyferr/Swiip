@@ -17,9 +17,29 @@ export default function Kapi() {
   const tema = useTema();
   const metinler = useMetinler();
   const k = metinler.kapiEkrani;
-  const { tip } = useLocalSearchParams<{ tip: KapiTipi }>();
+  const { tip, kalan } = useLocalSearchParams<{ tip: KapiTipi; kalan?: string }>();
 
-  const icerik = {
+  /**
+   * Sirada bekleyen kapilar.
+   *
+   * Birden fazla kapi tetiklenebiliyor (ornegin kardiyak bayrak + yeme bozuklugu).
+   * Yalnizca en agirini gostermek digerini sessizce yutmak olurdu; kullanici hem
+   * "doktoruna danis" hem "sayilari gizliyorum" bilgisini hak ediyor.
+   */
+  const sirada = (kalan ?? '').split(',').filter(Boolean) as KapiTipi[];
+
+  const ilerle = () => {
+    if (sirada.length > 0) {
+      router.replace({
+        pathname: '/degerlendirme/kapi',
+        params: { tip: sirada[0]!, kalan: sirada.slice(1).join(',') },
+      });
+      return true;
+    }
+    return false;
+  };
+
+  const secenekler = {
     yas: {
       ...metinler.kapilar.yas,
       eylem: null,
@@ -44,7 +64,17 @@ export default function Kapi() {
       geriDon: k.devamEt,
       devamEdilebilir: true,
     },
-  }[tip ?? 'kardiyak'];
+  };
+
+  /**
+   * Tanimsiz tip patlatmiyor.
+   *
+   * Eskiden dogrudan `{...}[tip ?? 'kardiyak']` yaziliyordu ve tabloda karsiligi olmayan
+   * bir `tip` icin `undefined` donuyordu; hemen ardindaki `icerik.baslik` firlatiyordu.
+   * `swiip://degerlendirme/kapi?tip=x` ile ulasilabilir bir cokme yoluydu ve uygulamada
+   * hicbir ErrorBoundary yok — sonuc beyaz ekran olurdu.
+   */
+  const icerik = secenekler[tip as KapiTipi] ?? secenekler.kardiyak;
 
   return (
     <>
@@ -68,6 +98,7 @@ export default function Kapi() {
             baslik={icerik.geriDon}
             tur={icerik.eylem ? 'sessiz' : 'birincil'}
             onPress={() => {
+              if (ilerle()) return;
               if (icerik.devamEdilebilir) router.back();
               else router.replace('/');
             }}

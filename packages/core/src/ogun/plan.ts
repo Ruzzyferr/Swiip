@@ -77,23 +77,225 @@ const ETIKET_KISITLARI: Record<string, { gerekli?: string; yasak?: string }> = {
   fodmap: { yasak: 'yuksek_fodmap' },
 };
 
-/** Gıda güvenliği: bu malzemeleri içeren tarif elle kontrol edilmeden gösterilmez. */
-const RISKLI_MALZEMELER = ['tavuk', 'et', 'kiyma', 'yumurta', 'balik', 'somon', 'hamsi', 'kofte'];
+/**
+ * Gıda güvenliği: bu malzemeleri içeren tarif elle kontrol edilmeden gösterilmez.
+ *
+ * Kelime bazlı eşleşiyor, alt dize değil. "et" alt dize olarak arandığında `kereviz`,
+ * `pekmez`, `tereyağı` gibi masum malzemeleri de yakalıyordu; ama asıl sorun ters
+ * yöndeydi: `kuzu incik`, `hindi göğsü`, `dana kuşbaşı`, `sucuk`, `karides` listedeki
+ * hiçbir dizeyi içermediği için elle kontrol kapısını **hiç görmüyordu.**
+ */
+const RISKLI_MALZEMELER = [
+  'tavuk',
+  'et',
+  'kiyma',
+  'kusbasi',
+  'bonfile',
+  'pirzola',
+  'incik',
+  'kuzu',
+  'dana',
+  'hindi',
+  'sucuk',
+  'sosis',
+  'pastirma',
+  'jambon',
+  'fume',
+  'yumurta',
+  'balik',
+  'baligi',
+  'somon',
+  'hamsi',
+  'istavrit',
+  'levrek',
+  'palamut',
+  'sardalya',
+  'cupra',
+  'karides',
+  'midye',
+  'kofte',
+];
+
+/**
+ * B9 alerjen etiketi → malzeme sözlüğü.
+ *
+ * **Bu tablonun varlık sebebi:** B9 cevabı, B10 ve B11'in aksine hiçbir kod eşlemesinden
+ * geçmiyordu; arayüzdeki Türkçe etiket doğrudan `malzeme.ad.includes(alerjen)` içine
+ * giriyordu. Sonuç sessiz ve tehlikeliydi:
+ *
+ *   - "Süt" seçen kullanıcıya `yoğurt`, `peynir`, `tereyağı`, `kefir` geçiyordu.
+ *     "Cevizli yoğurt" tarifi süt alerjisi olan kullanıcıya öneriliyordu.
+ *   - "Ağaç kuruyemişleri" hiçbir malzeme adında geçmediği için `ceviz içi`, `badem`,
+ *     `fındık`, `kaju` **hepsi** geçiyordu.
+ *   - "Buğday" → `un`, `ekmek`, `makarna`, `bulgur` geçiyordu.
+ *   - "Kabuklu deniz ürünleri" → `karides` geçiyordu.
+ *
+ * `data/sorular.json` B9'u `filtreTipi: "sert"` diye işaretliyor. Kodun geri kalanında
+ * sessiz bir kaçak yanlış makro demek; burada anafilaksi demek. Bu yüzden eşleşme
+ * **kelime bazlı** ve tablo malzeme kataloğundaki gerçek adlardan türetildi.
+ *
+ * `haric` alanı ters yönü koruyor: bitkisel sütler süt alerjisinde **güvenli
+ * alternatiftir**, onları elemek kullanıcıya kalan seçenekleri de kapatırdı.
+ */
+interface AlerjenKurali {
+  /** Malzeme adında tam kelime olarak aranır. */
+  kelimeler: string[];
+  /** Kelime eşleşse bile bu tam adlar alerjen sayılmaz. */
+  haric?: string[];
+}
+
+const ALERJEN_MALZEMELERI: Record<string, AlerjenKurali> = {
+  fistik: { kelimeler: ['fistik', 'fistigi'], haric: ['antep fistigi'] },
+
+  /**
+   * Antep fıstığı botanik olarak ağaç kuruyemişi; "Fıstık" seçeneği yer fıstığını
+   * kastediyor. Ayrım `haric` ile korunuyor, ikisi de kapsanıyor.
+   */
+  'agac kuruyemisleri': {
+    kelimeler: [
+      'badem',
+      'ceviz',
+      'cevizi',
+      'findik',
+      'kaju',
+      'antep',
+      'fistigi',
+      'kuruyemis',
+      'granola',
+      'kestane',
+    ],
+  },
+
+  sut: {
+    kelimeler: [
+      'sut',
+      'sutu',
+      'yogurt',
+      'peynir',
+      'peyniri',
+      'kefir',
+      'tereyagi',
+      'krema',
+      'kaymak',
+      'lor',
+      'cokelek',
+      'labne',
+      'kasar',
+      'ayran',
+      'whey',
+      'sutlu',
+      'muhallebi',
+    ],
+    haric: ['badem sutu', 'soya sutu', 'yulaf sutu', 'pirinc sutu', 'hindistan cevizi sutu'],
+  },
+
+  yumurta: { kelimeler: ['yumurta', 'mayonez'] },
+
+  balik: {
+    kelimeler: [
+      'balik',
+      'baligi',
+      'hamsi',
+      'istavrit',
+      'levrek',
+      'palamut',
+      'sardalya',
+      'somon',
+      'cupra',
+      'ton',
+      'uskumru',
+      'alabalik',
+      'ancuez',
+      'havyar',
+    ],
+  },
+
+  'kabuklu deniz urunleri': {
+    kelimeler: ['karides', 'midye', 'yengec', 'istakoz', 'kalamar', 'ahtapot', 'istiridye'],
+  },
+
+  soya: { kelimeler: ['soya', 'tofu', 'edamame', 'miso'] },
+
+  /**
+   * `karabuğday` ve `mısır unu` buğday DEĞİL; kelime eşleşmesi ikisini de dışarıda
+   * bırakıyor (`karabugday` tek kelime, `misir unu`'nda `un` değil `unu` var).
+   */
+  bugday: {
+    kelimeler: [
+      'bugday',
+      'un',
+      'unu',
+      'bulgur',
+      'makarna',
+      'eriste',
+      'manti',
+      'simit',
+      'yufka',
+      'sehriye',
+      'kuskus',
+      'irmik',
+      'tarhana',
+      'galeta',
+      'ekmek',
+      'ekmegi',
+      'kepek',
+      'kepekli',
+      'granola',
+      'gevregi',
+    ],
+    haric: ['misir unu', 'karabugday', 'misir gevregi', 'cavdar ekmegi'],
+  },
+
+  susam: { kelimeler: ['susam', 'tahin', 'humus'] },
+};
+
+/** Normalize edilmiş adı kelimelere böler. */
+function kelimeler(ad: string): string[] {
+  return turkceNormalize(ad).split(' ').filter(Boolean);
+}
+
+/**
+ * Bu malzeme, bu alerjen için riskli mi?
+ *
+ * Tabloda karşılığı olmayan alerjen ("Diğer" ya da serbest metin) için eski davranışa
+ * dönülüyor: alt dize araması. Tam koruma değil ama hiç bakmamaktan iyi — ve
+ * `bilinmeyenAlerjenler` çağıranı bu belirsizlikten haberdar ediyor.
+ */
+export function malzemeAlerjenMi(malzemeAdi: string, alerjen: string): boolean {
+  const kural = ALERJEN_MALZEMELERI[turkceNormalize(alerjen)];
+  const normalAd = turkceNormalize(malzemeAdi);
+
+  if (!kural) return normalAd.includes(turkceNormalize(alerjen));
+  if (kural.haric?.includes(normalAd)) return false;
+
+  const parcalar = kelimeler(malzemeAdi);
+  return kural.kelimeler.some((k) => parcalar.includes(k));
+}
+
+/**
+ * Otomatik olarak filtrelenemeyen alerjenler.
+ *
+ * "Diğer" seçildiğinde kullanıcının ne demek istediğini bilmiyoruz. Sessizce her tarifi
+ * geçirmek, alerjisi olduğunu SÖYLEMİŞ bir kullanıcıya hiçbir şey yapmamak demek.
+ * Filtre elinden geleni yapar, çağıran da kullanıcıyı uyarır.
+ */
+export function bilinmeyenAlerjenler(alerjiler: readonly string[]): string[] {
+  return alerjiler.filter((a) => !ALERJEN_MALZEMELERI[turkceNormalize(a)]);
+}
 
 export function tarifleriFiltrele(tarifler: readonly Tarif[], kisitlar: OgunKisitlari): Tarif[] {
   return tarifler.filter((tarif) => {
     // --- Gıda güvenliği: en sert kapı ---
-    const riskli = tarif.malzemeler.some((m) =>
-      RISKLI_MALZEMELER.some((r) => turkceNormalize(m.ad).includes(r)),
-    );
+    const riskli = tarif.malzemeler.some((m) => {
+      const parcalar = kelimeler(m.ad);
+      return RISKLI_MALZEMELER.some((r) => parcalar.includes(r));
+    });
     if (riskli && !tarif.insan_kontrollu) return false;
 
     // --- B9 alerji: malzeme kesinlikle geçemez ---
     for (const alerjen of kisitlar.alerjiler) {
-      const normal = turkceNormalize(alerjen);
-      const malzemede = tarif.malzemeler.some((m) => turkceNormalize(m.ad).includes(normal));
-      const etikette = tarif.etiketler.some((e) => turkceNormalize(e).includes(normal));
-      if (malzemede || etikette) return false;
+      const malzemede = tarif.malzemeler.some((m) => malzemeAlerjenMi(m.ad, alerjen));
+      if (malzemede) return false;
     }
 
     // --- B11 dini/etik ve B10 intolerans ---

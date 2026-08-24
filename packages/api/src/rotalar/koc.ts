@@ -32,6 +32,7 @@ import { planHaklari, type Plan } from '../servisler/haklar';
 import { donemBitisi, donemKodu } from './abonelik';
 import { kotaIadeEt, kotaRezerveEt } from '../servisler/kotaRezerve';
 import { butceDurumu, ucuzaDusur } from '@swiip/core';
+import { planGecerliMi } from '../servisler/planOku';
 
 /**
  * AI koç sohbeti (F9).
@@ -51,11 +52,12 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
 
   async function planGetir(kullaniciId: string): Promise<Plan> {
     const [kayit] = await db
-      .select({ plan: subscriptions.plan })
+      .select({ plan: subscriptions.plan, yenilenme: subscriptions.renews_at })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
-    return (kayit?.plan as Plan) ?? 'ucretsiz';
+    if (!kayit || !planGecerliMi(kayit.yenilenme)) return 'ucretsiz';
+    return (kayit.plan as Plan) ?? 'ucretsiz';
   }
 
   app.get('/araclar', { preHandler: app.kimlikDogrula }, async () => ({ araclar: ARAC_TANIMLARI }));

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import {
   BosDurum,
   Dugme,
@@ -68,6 +69,10 @@ export default function Tanima() {
   const [tekrarDeneme, setTekrarDeneme] = useState(false);
   const [duzeltilen, setDuzeltilen] = useState<number | null>(null);
 
+  const kamera = useRef<CameraView>(null);
+  const [izin, izinIste] = useCameraPermissions();
+  const [cekiliyor, setCekiliyor] = useState(false);
+
   /**
    * Kamera modülü cihazda bağlanınca base64 buradan gelir. Fotoğraf yalnızca bu
    * fonksiyonun ömrü boyunca bellekte kalır; hiçbir yere yazılmaz.
@@ -93,6 +98,38 @@ export default function Tanima() {
       setTekrarDeneme(true);
     } finally {
       setYukleniyor(false);
+    }
+  };
+
+  /**
+   * Kareyi çeker ve tanımaya gönderir.
+   *
+   * Burada bir zamanlar `void tani('m2f-ornek-fotograf-' + 'x'.repeat(400));` yazıyordu:
+   * "Fotoğraf çek" düğmesi kamerayı **hiç açmıyordu.** O dolgu dize sunucunun
+   * `z.string().min(100)` kontrolünü geçtiği için istek kabul ediliyor, parmak izi
+   * alınıyor ve görsel modele gönderiliyordu. Yani Pro'yu Temel'den ayıran tek özellik,
+   * kullanıcının aylık kotasını ve gerçek AI parasını harcayıp garantili boş sonuç
+   * döndürüyordu.
+   *
+   * Vücut çekimindeki (`app/fotograf/cekim.tsx`) akışın aynısı: `base64` bellekte kalır,
+   * istekle gider, diske hiç yazılmaz.
+   */
+  const kareCek = async () => {
+    if (!kamera.current || cekiliyor) return;
+
+    setCekiliyor(true);
+    setHata(null);
+    try {
+      const kare = await kamera.current.takePictureAsync({ base64: true, quality: 0.6 });
+      if (!kare?.base64) {
+        setHata(m.kareAlinamadi);
+        return;
+      }
+      await tani(kare.base64);
+    } catch {
+      setHata(m.kareAlinamadi);
+    } finally {
+      setCekiliyor(false);
     }
   };
 
@@ -313,11 +350,36 @@ export default function Tanima() {
         {tekrarDeneme ? <Uyari govde={m.tekrarDenemeNotu} /> : null}
         {hata ? <Uyari tur="tehlike" govde={hata} /> : null}
 
+        {izin?.granted === false ? (
+          <View style={{ gap: tema.bosluk.sm }}>
+            <Uyari tur="uyari" govde={m.kameraIzniYok} />
+            {izin.canAskAgain ? (
+              <Dugme baslik={m.kameraIzniVer} tur="ikincil" onPress={() => void izinIste()} />
+            ) : null}
+          </View>
+        ) : null}
+
+        {izin?.granted ? (
+          <CameraView
+            ref={kamera}
+            style={{
+              width: '100%',
+              aspectRatio: 3 / 4,
+              borderRadius: tema.yaricap.md,
+              overflow: 'hidden',
+            }}
+          />
+        ) : null}
+
         <Dugme
-          baslik={m.fotografCek}
+          baslik={cekiliyor ? m.cekiliyor : m.fotografCek}
+          pasif={cekiliyor || !izin?.granted}
           onPress={() => {
-            // Kamera modülü bağlandığında base64 buradan gelecek.
-            void tani('m2f-ornek-fotograf-' + 'x'.repeat(400));
+            if (!izin?.granted) {
+              void izinIste();
+              return;
+            }
+            void kareCek();
           }}
         />
         <Dugme

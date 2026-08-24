@@ -23,6 +23,7 @@ import {
   splitGerekcesi,
 } from '@swiip/shared';
 import { Bulunamadi, HataliIstek, PlanYetersiz, Yasak } from '../hatalar';
+import { planGecerliMi } from '../servisler/planOku';
 import {
   ai_usage,
   decisions,
@@ -74,11 +75,12 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
 
   async function planGetir(kullaniciId: string): Promise<string> {
     const [abonelik] = await db
-      .select({ plan: subscriptions.plan })
+      .select({ plan: subscriptions.plan, yenilenme: subscriptions.renews_at })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
-    return abonelik?.plan ?? 'ucretsiz';
+    if (!abonelik || !planGecerliMi(abonelik.yenilenme)) return 'ucretsiz';
+    return abonelik.plan ?? 'ucretsiz';
   }
 
   /**

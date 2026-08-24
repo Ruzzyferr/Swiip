@@ -1124,7 +1124,9 @@ export const en: Metinler = {
     iptalTekAdim: 'One step. We do not hide it and we do not make it hard.',
     iptalOnayBaslik: 'Cancel subscription',
     iptalOnayGovde:
-      'Everything stays open until the end of the period, then you return to the free plan. Your data is not deleted.',
+      'Cancelling happens in the store — Apple and Google allow no other way. I will take you straight there. Everything stays open until the end of the period, then you return to the free plan. Your data is not deleted.',
+    iptalMagazaAcilamadi:
+      "Couldn't open the store page. You can cancel from your phone's subscription settings.",
     iptalEt: 'Cancel it',
     silOnayBaslik: 'Delete your account',
     silOnayGovde: 'All your data is permanently deleted. This cannot be undone.',
@@ -1459,6 +1461,11 @@ export const en: Metinler = {
     fotografCek: 'Take a photo',
     silmeNotu:
       'Your photo is erased from memory after the analysis and is never written to our servers.',
+    kareAlinamadi: "Couldn't capture the frame. Try again?",
+    cekiliyor: 'Capturing',
+    kameraIzniYok:
+      'Adding from a photo needs camera access. The photo is dropped from memory right after analysis.',
+    kameraIzniVer: 'Allow camera',
     dogruYemegiAra: 'Search for the right food',
   },
 

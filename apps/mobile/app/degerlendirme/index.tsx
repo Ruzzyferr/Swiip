@@ -249,10 +249,42 @@ export default function Degerlendirme() {
 
       const sonuc = kayit.durum === 'gonderildi' ? kayit.cevap : null;
 
-      // Guvenlik kapilari her kayitta yeniden degerlendirilir; atlanamaz.
-      const kapi = sonuc?.kapi_durumu.kapilar[0];
-      if (kapi && (kapi.eylem === 'kayit_reddet' || kapi.eylem === 'program_uretme')) {
-        router.push({ pathname: '/degerlendirme/kapi', params: { tip: kapi.tip } });
+      /**
+       * Guvenlik kapilari her kayitta yeniden degerlendirilir; atlanamaz.
+       *
+       * Burada bir zamanlar yalnizca `kayit_reddet` ve `program_uretme` kontrol
+       * ediliyordu. Cekirdek DORT eylem uretiyor (`packages/core/src/kapilar/kapilar.ts`):
+       * kalan ikisi `doktor_onayi_bekle` (KARDIYAK kirmizi bayrak) ve `sayilari_gizle`
+       * (YEME BOZUKLUGU). Yani dort sert kapinin ikisi ekrani hic acmiyordu — kullanici
+       * kardiyak bir bayraga "Evet" dedikten sonra dogruca bir sonraki bloga geciyordu.
+       * `kapi.tsx` iki metni de hazir tutuyordu; ekran ulasilamaz durumdaydi.
+       * CLAUDE.md bu dordu "atlanamaz" diye kilitliyor.
+       *
+       * Ikinci kusur `kapilar[0]` idi: birden fazla kapi tetiklendiginde yalnizca ilkine
+       * bakiliyordu. Artik en agirindan baslanarak siralaniyor ve **her kapi** ekrani
+       * aciyor; hicbiri eylem listesine bagli degil.
+       */
+      const AGIRLIK: Record<string, number> = {
+        kayit_reddet: 0,
+        program_uretme: 1,
+        doktor_onayi_bekle: 2,
+        sayilari_gizle: 3,
+      };
+      const kapilar = [...(sonuc?.kapi_durumu.kapilar ?? [])].sort(
+        (a, b) => (AGIRLIK[a.eylem] ?? 9) - (AGIRLIK[b.eylem] ?? 9),
+      );
+
+      if (kapilar.length > 0) {
+        router.push({
+          pathname: '/degerlendirme/kapi',
+          params: {
+            tip: kapilar[0]!.tip,
+            kalan: kapilar
+              .slice(1)
+              .map((k) => k.tip)
+              .join(','),
+          },
+        });
         return;
       }
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { TARIF_TOHUMU } from './tarifler';
-import { bilesimHesapla } from '@swiip/core';
+import {
+  bilesimHesapla,
+  bilinmeyenAlerjenler,
+  malzemeAlerjenMi,
+  tarifleriFiltrele,
+} from '@swiip/core';
 import { besinAra } from './malzemeEslemesi';
 
 /**
@@ -401,5 +406,136 @@ describe('tarif kütüphanesi — pişirme yeterliliği', () => {
 
   it('denetim gerçekten bir şey tarıyor — riskli tarif kümesi boş değil', () => {
     expect(TARIF_TOHUMU.filter(riskliMi).length).toBeGreaterThan(20);
+  });
+});
+
+/**
+ * B9 alerji filtresi, GERÇEK katalog ve GERÇEK arayüz etiketleriyle.
+ *
+ * Bu blok, alt dize eşleşmesinin sessizce kaçırdığı sınıfı kapatıyor. Eski kodda
+ * `malzeme.ad.includes(alerjen)` yapılıyordu ve `data/sorular.json` B9 seçenekleri
+ * arayüz metniydi: "Süt" hiçbir zaman `yoğurt` ile, "Ağaç kuruyemişleri" hiçbir zaman
+ * `ceviz içi` ile eşleşmiyordu. Süt alerjisi olan kullanıcıya "Cevizli yoğurt"
+ * öneriliyordu.
+ *
+ * Testin küçük bir örnek yerine tüm kataloğu taraması bilinçli: kütüphaneye yeni bir
+ * malzeme eklendiğinde sözlükte karşılığı yoksa burada düşsün. Alerji filtresinde
+ * "yeni veri sessizce kapsam dışı kaldı" kabul edilebilir bir sonuç değil.
+ */
+describe('B9 alerji filtresi — arayüzdeki etiketlerle', () => {
+  /** `data/sorular.json` B9 seçenekleri, birebir. */
+  const B9 = [
+    'Fıstık',
+    'Ağaç kuruyemişleri',
+    'Süt',
+    'Yumurta',
+    'Balık',
+    'Kabuklu deniz ürünleri',
+    'Soya',
+    'Buğday',
+    'Susam',
+  ];
+
+  /** Bu malzeme adı geçen tarif, o alerjene sahip kullanıcıya ASLA çıkmamalı. */
+  const YASAK: Record<string, string[]> = {
+    Fıstık: ['fıstık ezmesi'],
+    'Ağaç kuruyemişleri': ['ceviz içi', 'badem', 'fındık', 'kaju', 'antep fıstığı', 'badem sütü'],
+    Süt: [
+      'süt',
+      'yoğurt',
+      'süzme yoğurt',
+      'kefir',
+      'beyaz peynir',
+      'kaşar peyniri',
+      'lor peyniri',
+      'labne peyniri',
+      'tulum peyniri',
+      'tereyağı',
+      'çökelek',
+      'whey protein tozu',
+    ],
+    Yumurta: ['yumurta', 'yumurta akı'],
+    Balık: ['somon', 'hamsi', 'istavrit', 'levrek', 'palamut', 'sardalya', 'çupra', 'ton balığı'],
+    'Kabuklu deniz ürünleri': ['karides'],
+    Soya: ['soya sütü'],
+    Buğday: [
+      'un',
+      'galeta unu',
+      'bulgur',
+      'ince bulgur',
+      'makarna',
+      'tam buğday makarna',
+      'tam buğday ekmek',
+      'kepekli ekmek',
+      'erişte',
+      'mantı',
+      'simit',
+      'yufka',
+      'yufka ekmek',
+      'şehriye',
+      'kuskus',
+      'tarhana',
+    ],
+    Susam: ['tahin', 'humus'],
+  };
+
+  /**
+   * Ters yön: bunlar o alerjen için GÜVENLİ ve elenmemeli.
+   * Bitkisel sütü süt alerjisinde elemek, kullanıcıya kalan alternatifi de kapatır.
+   */
+  const GUVENLI: Record<string, string[]> = {
+    Süt: ['badem sütü', 'soya sütü', 'yulaf sütü'],
+    Buğday: ['mısır unu', 'karabuğday', 'pirinç', 'kinoa'],
+    Fıstık: ['antep fıstığı'],
+  };
+
+  const temelKisit = {
+    alerjiler: [] as string[],
+    intoleranslar: [],
+    dini_etik: [],
+    sevmedikleri: [],
+    vazgecemedikleri: [],
+    butce_kademesi: 4,
+    maks_hazirlik_dakika: 999,
+    kim_pisiriyor: 'kendim' as const,
+    ramazan: false,
+  };
+
+  for (const alerjen of B9) {
+    it(`"${alerjen}" seçen kullanıcıya o malzeme hiçbir tarifte çıkmaz`, () => {
+      const kalanlar = tarifleriFiltrele(TARIF_TOHUMU, { ...temelKisit, alerjiler: [alerjen] });
+      const yasakli = YASAK[alerjen]!;
+
+      const sizanlar = kalanlar
+        .filter((t) => t.malzemeler.some((m) => yasakli.includes(m.ad)))
+        .map((t) => `${t.ad} (${t.malzemeler.map((m) => m.ad).join(', ')})`);
+
+      expect(sizanlar, `"${alerjen}" alerjisine rağmen geçen tarifler`).toEqual([]);
+    });
+  }
+
+  for (const [alerjen, guvenliler] of Object.entries(GUVENLI)) {
+    it(`"${alerjen}" güvenli alternatifleri elemiyor`, () => {
+      for (const ad of guvenliler) {
+        expect(malzemeAlerjenMi(ad, alerjen), `${ad} "${alerjen}" sayılmamalı`).toBe(false);
+      }
+    });
+  }
+
+  it('katalogdaki her riskli malzeme elle kontrol kapısını görüyor', () => {
+    const etli = TARIF_TOHUMU.filter((t) =>
+      t.malzemeler.some((m) =>
+        /kuzu|dana|hindi|tavuk|kıyma|kuşbaşı|bonfile|pirzola|sucuk|köfte|balığı|somon|hamsi|istavrit|levrek|palamut|sardalya|çupra|karides|yumurta/i.test(
+          m.ad,
+        ),
+      ),
+    );
+    const kontrolsuz = etli.filter((t) => !t.insan_kontrollu).map((t) => t.ad);
+    expect(kontrolsuz, 'elle kontrolden geçmemiş riskli tarif').toEqual([]);
+  });
+
+  it('"Diğer" otomatik filtrelenemiyor ve bu çağırana bildiriliyor', () => {
+    expect(bilinmeyenAlerjenler(['Süt', 'Diğer'])).toEqual(['Diğer']);
+    expect(bilinmeyenAlerjenler(['Süt', 'Buğday'])).toEqual([]);
   });
 });

@@ -104,6 +104,26 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
     // Vücut fotoğrafı üç poz olarak gelebilir; sınır yine de dar tutulur.
     bodyLimit: 12 * 1024 * 1024,
     disableRequestLogging: yapilandirma.NODE_ENV === 'test',
+
+    /**
+     * `istek.ip` gerçek istemciyi göstersin.
+     *
+     * Bu satır olmadan Fastify `socket.remoteAddress`'i döndürüyor. Üretimde tek giriş
+     * Caddy ve o da `dis` köprü ağından bağlanıyor — yani her isteğin IP'si **aynı sabit
+     * adres.** Sonuç, sınır koymak değil, sınırı tek kovaya indirmekti:
+     *
+     *   - `KIMLIK_ISTEK_SINIRI=10` "IP başına dakikada 10 giriş denemesi" değil,
+     *     **tüm servis için** dakikada 10 deneme anlamına geliyordu. Tek bir döngü
+     *     herkesin giriş yapmasını engelliyordu.
+     *   - Genel 120/dk kovası da bütün kimliksiz trafik için ortaktı.
+     *
+     * `kimlikSinir.test.ts` bunu göremezdi: `app.inject` her isteğe aynı sentetik
+     * adresi verir, yani testte zaten "tek IP" durumu vardır.
+     *
+     * Güvenli çünkü tek giriş Caddy: `reverse_proxy` `X-Forwarded-For`'u kendisi
+     * yazıyor, istemcinin gönderdiği başlığı taşımıyor.
+     */
+    trustProxy: true,
   });
 
   app.decorate('db', db);

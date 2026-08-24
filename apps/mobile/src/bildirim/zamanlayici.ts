@@ -145,10 +145,21 @@ export async function bildirimleriKur(
       content: {
         title: bildirim.baslik,
         body: bildirim.govde,
-        ...(Platform.OS === 'android' ? { channelId: kanalKimligi(bildirim.tur) } : {}),
       },
+      /**
+       * `channelId` TETİKLEYİCİDE, içerikte değil.
+       *
+       * İçeriğe konmuştu ve TypeScript yakalamadı: `...(kosul ? {...} : {})` yayılması
+       * fazla-alan kontrolünü atlatıyor. `NotificationContentInput` böyle bir alan
+       * tanımlamıyor; `WeeklyTriggerInput` tanımlıyor
+       * (`expo-notifications/build/Notifications.types.d.ts`). Sonuç: `kanallariKur()`
+       * beş kanalı düzgünce oluşturuyor, sonra hepsi kullanılmadan duruyor ve her
+       * bildirim `expo_notifications_fallback_notification_channel` içine düşüyordu —
+       * yani kullanıcı sistem ayarlarından "antrenman hatırlatması"nı ayrı kapatamıyordu.
+       */
       trigger: {
         type: Bildirimler.SchedulableTriggerInputTypes.WEEKLY,
+        ...(Platform.OS === 'android' ? { channelId: kanalKimligi(bildirim.tur) } : {}),
         weekday: haftaGunuSdk(bildirim.haftaGunu),
         hour: bildirim.saat,
         minute: bildirim.dakika,

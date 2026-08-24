@@ -6,6 +6,7 @@ import { Yasak } from '../hatalar';
 import { quotas, subscriptions, users } from '../db/sema';
 import { HAK_TABLOSU, planHaklari, type Plan } from '../servisler/haklar';
 import { dilCozumle, metinleriAl } from '@swiip/shared';
+import { planGecerliMi } from '../servisler/planOku';
 
 /**
  * Abonelik, hak ve kota (F6).
@@ -62,11 +63,12 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
 
   async function planGetir(kullaniciId: string): Promise<Plan> {
     const [kayit] = await db
-      .select({ plan: subscriptions.plan })
+      .select({ plan: subscriptions.plan, yenilenme: subscriptions.renews_at })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
-    return (kayit?.plan as Plan) ?? 'ucretsiz';
+    if (!kayit || !planGecerliMi(kayit.yenilenme)) return 'ucretsiz';
+    return (kayit.plan as Plan) ?? 'ucretsiz';
   }
 
   async function kotaGetir(kullaniciId: string) {

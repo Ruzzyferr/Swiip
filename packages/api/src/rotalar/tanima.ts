@@ -32,6 +32,7 @@ import { planHaklari, type Plan } from '../servisler/haklar';
 import { donemBitisi, donemKodu } from './abonelik';
 import { kotaIadeEt, kotaRezerveEt } from '../servisler/kotaRezerve';
 import { butceDurumu, fotografBoyutuUygunMu } from '@swiip/core';
+import { planGecerliMi } from '../servisler/planOku';
 
 /**
  * Fotoğraftan yemek tanıma (F7).
@@ -57,8 +58,6 @@ const tanimaSemasi = z.object({
     message:
       'Fotoğraf çok büyük. Uygulamanın kendi çektiği kare bu sınırın altında kalıyor; galeriden seçtiysen küçültüp tekrar dene.',
   }),
-  /** Yanlış tanıma sonrası tekrar deneme — kotadan düşmez. */
-  tekrar_deneme: z.boolean().default(false),
   gun: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -86,11 +85,12 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
 
   async function planGetir(kullaniciId: string): Promise<Plan> {
     const [kayit] = await db
-      .select({ plan: subscriptions.plan })
+      .select({ plan: subscriptions.plan, yenilenme: subscriptions.renews_at })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
-    return (kayit?.plan as Plan) ?? 'ucretsiz';
+    if (!kayit || !planGecerliMi(kayit.yenilenme)) return 'ucretsiz';
+    return (kayit.plan as Plan) ?? 'ucretsiz';
   }
 
   /** Kullanıcının kayıtlı dili; besin veri kümesi buradan seçiliyor. */
@@ -172,11 +172,24 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
       });
     }
 
-    // --- Kota kontrolü: yalnızca gerçek AI çağrısı öncesi ---
-    const kotaDusecek = kotaDusulmeliMi({
-      onbellekten: false,
-      hataliTanimaTekrari: govde.tekrar_deneme,
-    });
+    /**
+     * Kota kontrolü: yalnızca gerçek AI çağrısı öncesi.
+     *
+     * Burada bir zamanlar `hataliTanimaTekrari: govde.tekrar_deneme` yazıyordu — yani
+     * "bu istek kotadan düşmesin" kararını **istemci veriyordu.** Sunucuda o
+     * kullanıcının önceki tanımasının başarısız olduğuna dair hiçbir kayıt yoktu.
+     * `{"fotograf": ..., "tekrar_deneme": true}` göndermek 250/ay tavanını tamamen
+     * atlatıyordu; `:214` altındaki not da bütçenin bu uçta uygulanmadığını söylediği
+     * için ikinci bir savunma da yoktu. Belgelenmiş en büyük riskimiz olan birim
+     * ekonomisine doğrudan açılan bir kapıydı.
+     *
+     * Alan kaldırıldı, kural KAYBOLMADI: "yanlış tanıma sonrası tekrar deneme kotadan
+     * düşmez" zaten rezerve-et/iade-et ile sağlanıyor. Başarısız denemenin hakkı üç
+     * yolun hepsinde geri veriliyor (okunamayan görsel, model hatası, boş sonuç), yani
+     * bir sonraki deneme zaten bedava. İstemcinin beyanı fazlalıktı; tek yaptığı
+     * atlatmaya kapı açmaktı.
+     */
+    const kotaDusecek = kotaDusulmeliMi({ onbellekten: false, hataliTanimaTekrari: false });
 
     /**
      * Hak model çağrılmadan **önce** rezerve edilir.
@@ -238,6 +251,7 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
           donem: donemKodu(),
           alan: 'food_photos_used',
         });
+        await kotaIsaretle(istek.kullaniciId, { hatali: true });
       }
       throw HataliIstek(
         'Bu dosyayı okuyamadım. JPEG, PNG veya WebP bir fotoğraf gönderebilir misin? ' +
@@ -256,13 +270,21 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
         max_cikti_token: secim.max_cikti_token,
       });
     } catch (hata) {
-      // Model çağrısı başarısızsa hak geri verilir: kullanıcı bizim hatamızı ödemez.
+      /**
+       * Model çağrısı başarısızsa hak geri verilir: kullanıcı bizim hatamızı ödemez.
+       *
+       * Sayaç da burada artıyor. "Kotadan düşmeyen deneme" üç yoldan geliyor
+       * (okunamayan görsel, model hatası, boş sonuç) ama yalnızca sonuncusu
+       * sayılıyordu; `abonelik/durum` altındaki adalet sayacı bu yüzden gerçekte
+       * bağışladığımız hakların bir kısmını hiç göstermiyordu.
+       */
       if (kotaDusecek) {
         await kotaIadeEt(db, {
           kullaniciId: istek.kullaniciId,
           donem: donemKodu(),
           alan: 'food_photos_used',
         });
+        await kotaIsaretle(istek.kullaniciId, { hatali: true });
       }
       throw hata;
     }

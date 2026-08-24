@@ -29,6 +29,7 @@ import {
 } from '../db/sema';
 import { planHaklari, type Plan } from '../servisler/haklar';
 import { sorguBooleani } from '../sorgu';
+import { planGecerliMi } from '../servisler/planOku';
 
 /**
  * Öğün planlama, buzdolabı ve kaydırmalı deste (F8).
@@ -42,11 +43,12 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
 
   async function planGetir(kullaniciId: string): Promise<Plan> {
     const [kayit] = await db
-      .select({ plan: subscriptions.plan })
+      .select({ plan: subscriptions.plan, yenilenme: subscriptions.renews_at })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
-    return (kayit?.plan as Plan) ?? 'ucretsiz';
+    if (!kayit || !planGecerliMi(kayit.yenilenme)) return 'ucretsiz';
+    return (kayit.plan as Plan) ?? 'ucretsiz';
   }
 
   /**

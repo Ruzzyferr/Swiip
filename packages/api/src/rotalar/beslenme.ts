@@ -7,6 +7,7 @@ import type { Profil } from '@swiip/shared';
 import { Bulunamadi, HataliIstek } from '../hatalar';
 import { food_logs, foods, profiles, subscriptions, users, weight_logs } from '../db/sema';
 import { planHaklari, type Plan } from '../servisler/haklar';
+import { planGecerliMi } from '../servisler/planOku';
 
 /**
  * Beslenme çekirdeği (F5).
@@ -90,12 +91,12 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
   /** Kullanıcının planı; kaydı yoksa ücretsiz. */
   async function planGetir(kullaniciId: string): Promise<Plan> {
     const [kayit] = await db
-      .select({ plan: subscriptions.plan })
+      .select({ plan: subscriptions.plan, yenilenme: subscriptions.renews_at })
       .from(subscriptions)
       .where(eq(subscriptions.user_id, kullaniciId))
       .limit(1);
-
-    return (kayit?.plan as Plan) ?? 'ucretsiz';
+    if (!kayit || !planGecerliMi(kayit.yenilenme)) return 'ucretsiz';
+    return (kayit.plan as Plan) ?? 'ucretsiz';
   }
 
   app.get('/hedef', { preHandler: app.kimlikDogrula }, async (istek) => {

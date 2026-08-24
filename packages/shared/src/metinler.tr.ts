@@ -1177,7 +1177,9 @@ export const tr = {
     iptalTekAdim: 'Tek adım. Gizlemiyoruz, zorlaştırmıyoruz.',
     iptalOnayBaslik: 'Aboneliği iptal et',
     iptalOnayGovde:
-      'Dönem sonuna kadar tüm özellikler açık kalır, sonra ücretsiz plana döner. Verilerin silinmez.',
+      'İptal mağaza üzerinden tamamlanır — Apple ve Google başka yolla izin vermiyor. Seni doğrudan oraya götürüyorum. Dönem sonuna kadar tüm özellikler açık kalır, sonra ücretsiz plana döner. Verilerin silinmez.',
+    iptalMagazaAcilamadi:
+      'Mağaza sayfası açılamadı. Telefonun ayarlarından abonelikler bölümüne girip oradan iptal edebilirsin.',
     iptalEt: 'İptal et',
     silOnayBaslik: 'Hesabını sil',
     silOnayGovde: 'Tüm verilerin kalıcı olarak silinir. Bu işlem geri alınamaz.',
@@ -1513,6 +1515,11 @@ export const tr = {
     tekrarDenemeNotu: 'Bu tekrar deneme kotandan düşmeyecek.',
     fotografCek: 'Fotoğraf çek',
     silmeNotu: 'Fotoğrafın analiz edildikten sonra bellekten silinir, sunucumuza yazılmaz.',
+    kareAlinamadi: 'Kareyi alamadım. Bir daha dener misin?',
+    cekiliyor: 'Çekiliyor',
+    kameraIzniYok:
+      'Fotoğraftan eklemek için kamera izni gerekiyor. Fotoğraf analiz edildikten sonra bellekten silinir.',
+    kameraIzniVer: 'Kamera iznini ver',
     dogruYemegiAra: 'Doğru yemeği ara',
   },
 

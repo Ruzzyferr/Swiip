@@ -48,6 +48,7 @@ interface MagazaSaglayicisi {
   fiyatlariGetir(): Promise<Record<string, string>>;
   satinAl(urunId: string): Promise<SatinAlmaSonucu>;
   geriYukle(): Promise<SatinAlmaSonucu>;
+  oturumuBirak(): Promise<void>;
 }
 
 /**
@@ -72,6 +73,9 @@ const sdksizSaglayici: MagazaSaglayicisi = {
   },
   async geriYukle() {
     return { durum: 'sdk_yok' };
+  },
+  async oturumuBirak() {
+    /* SDK yok. */
   },
 };
 
@@ -112,6 +116,10 @@ const revenueCatSaglayicisi: MagazaSaglayicisi = {
       return satinAlmaHatasi(hata);
     }
   },
+
+  async oturumuBirak() {
+    await Purchases.logOut().catch(() => null);
+  },
 };
 
 /**
@@ -145,7 +153,17 @@ function apiAnahtari(): string | undefined {
 }
 
 let saglayici: MagazaSaglayicisi = sdksizSaglayici;
-let hazirlandi = false;
+
+/**
+ * Hangi kullanıcı kimliğiyle yapılandırıldık.
+ *
+ * Burada bir zamanlar `let hazirlandi = false;` vardı ve `hazirla` içinde
+ * `if (hazirlandi) return;` yazıyordu — bayrak hiçbir zaman sıfırlanmıyordu. Aynı
+ * uygulama ömründe A çıkıp B girdiğinde SDK hâlâ A'nın `appUserID`'siyle
+ * yapılandırılmış kalıyor, B'nin satın alması kancaya `app_user_id = A` olarak
+ * düşüyordu: A Pro oluyor, parayı B ödüyordu. Kimliği saklamak bunu imkânsız kılıyor.
+ */
+let yapilandirilanKimlik: string | null = null;
 
 /** Anahtar varsa gerçek SDK, yoksa SDK'sız mod. Karar tek yerde. */
 function saglayiciSec(): MagazaSaglayicisi {
@@ -154,10 +172,17 @@ function saglayiciSec(): MagazaSaglayicisi {
 
 export const magaza = {
   async hazirla(kullaniciId: string): Promise<void> {
-    if (hazirlandi) return;
+    if (yapilandirilanKimlik === kullaniciId) return;
     saglayici = saglayiciSec();
     await saglayici.hazirla(kullaniciId);
-    hazirlandi = true;
+    yapilandirilanKimlik = kullaniciId;
+  },
+
+  /** Çıkışta çağrılır: bir sonraki kullanıcı öncekinin kimliğini devralmasın. */
+  async oturumuBirak(): Promise<void> {
+    if (yapilandirilanKimlik === null) return;
+    await saglayici.oturumuBirak();
+    yapilandirilanKimlik = null;
   },
 
   /** Mağazadan yerelleştirilmiş fiyatlar. Boşsa arayüz sunucudaki liste fiyatını gösterir. */

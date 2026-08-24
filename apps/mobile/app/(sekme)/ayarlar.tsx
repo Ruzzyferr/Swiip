@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import {
+  Alert,
+  Linking,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  TextInput,
+  View,
+} from 'react-native';
 import { router } from 'expo-router';
 import { DILLER, islemHatasiMetni, kendiVerisiMi, type Dil } from '@swiip/shared';
 import {
@@ -17,6 +27,7 @@ import { ApiHatasi, istek } from '../../src/veri/api';
 import { veriyiPaylas } from '../../src/veri/disaAktar';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
 import { tarihMetni } from '@swiip/shared';
+import { magaza } from '../../src/odeme/magaza';
 
 /**
  * Ayarlar.
@@ -65,6 +76,20 @@ export default function Ayarlar() {
     void yukle();
   }, [yukle]);
 
+  /**
+   * Iptal, kullaniciyi MAGAZANIN abonelik sayfasina goturur.
+   *
+   * Burada bir zamanlar yalnizca `POST /v1/abonelik/iptal` cagriliyordu. O uc kendi
+   * tablomuzda `status = 'iptal_edildi'` yaziyor — ve o kolon hicbir yerde okunmuyor.
+   * Apple ve Google tahsilata devam ediyordu. Yani kullaniciya "Aboneligin iptal edildi"
+   * deniyor, karti her ay cekilmeye devam ediyordu. Ne Apple ne Google, sunucudan gelen
+   * bir cagriyla aboneligi iptal ettirmeye izin veriyor; tek yol magazanin kendi sayfasi
+   * (Apple 3.1.2 de bunu sart kosuyor).
+   *
+   * `magaza.iptalBaglantisi()` bu is icin ZATEN yazilmisti ve hicbir yerden
+   * cagrilmiyordu. Sunucu cagrisi niyet kaydi olarak duruyor ama artik basari mesaji
+   * ona bagli degil.
+   */
   const iptalEt = () => {
     Alert.alert(a.iptalOnayBaslik, a.iptalOnayGovde, [
       { text: metinler.genel.iptal, style: 'cancel' },
@@ -72,7 +97,11 @@ export default function Ayarlar() {
         text: a.iptalEt,
         style: 'destructive',
         onPress: () => {
-          void istek('/v1/abonelik/iptal', { yontem: 'POST', govde: {} }).then(() => void yukle());
+          // Niyet kaydi; basarisiz olsa da kullaniciyi magazaya goturmeyi engellemez.
+          void istek('/v1/abonelik/iptal', { yontem: 'POST', govde: {} }).catch(() => null);
+
+          const adres = magaza.iptalBaglantisi(Platform.OS === 'ios' ? 'ios' : 'android');
+          Linking.openURL(adres).catch(() => setIslemHatasi(a.iptalMagazaAcilamadi));
         },
       },
     ]);

@@ -166,15 +166,37 @@ describe('POST /v1/beslenme/tani', () => {
     expect(sonrasi.kullanilan).toBe(oncesi.kullanilan);
   });
 
-  it('yanlış tanıma sonrası tekrar deneme kotadan düşmez', async () => {
+  /**
+   * Bu iki test, kaldırılan `tekrar_deneme` alanının yerini alıyor.
+   *
+   * Eski test "yeni bir fotoğrafla `tekrar_deneme: true` gönder, kota düşmesin" diyordu
+   * ve geçiyordu — çünkü kararı istemci veriyordu. Yani test, sınırsız bedava AI'a açılan
+   * kapıyı DOĞRU davranış olarak koruyordu. Kuralın kendisi geçerli; uygulanma yeri yanlıştı.
+   */
+  it('istemci gönderdiği alanla kotayı atlatamaz', async () => {
     const oncesi = await kotaOku();
 
+    // Şema artık bu alanı tanımıyor; gönderilse de yok sayılır ve kota normal düşer.
     const cevap = await tani({ fotograf: foto('c', 500), tekrar_deneme: true });
     const sonrasi = await kotaOku();
 
-    expect(cevap.json().kota.dusuldu).toBe(false);
-    expect(sonrasi.kullanilan).toBe(oncesi.kullanilan);
-    expect(cevap.json().kota.not).toContain('düşmedi');
+    expect(cevap.statusCode).toBe(200);
+    expect(cevap.json().kota.dusuldu).toBe(true);
+    expect(sonrasi.kullanilan).toBe(oncesi.kullanilan + 1);
+  });
+
+  it('başarısız tanıma kotadan düşmez — hak geri veriliyor', async () => {
+    const oncesi = await kotaOku();
+
+    sahteIstemci.metinUret.mockImplementationOnce(async () => {
+      throw new Error('model şu an cevap vermiyor');
+    });
+
+    const cevap = await tani({ fotograf: foto('e', 500) });
+    expect(cevap.statusCode).toBeGreaterThanOrEqual(400);
+
+    const sonrasi = await kotaOku();
+    expect(sonrasi.kullanilan, 'başarısız deneme kotadan düşmemeli').toBe(oncesi.kullanilan);
   });
 
   it('normal tanıma kotadan düşer', async () => {
