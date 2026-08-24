@@ -1,11 +1,26 @@
 import { Tabs } from 'expo-router';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler } from '../../src/durum/Oturum';
+
+/**
+ * Sekme çubuğunun İÇ yüksekliği: simge + boşluk + etiket + nefes payı.
+ *
+ * Sabit `height: 64` yazıyordu ve alt güvenli alan payı buna DAHİLDİ; yani çentikli
+ * telefonlarda ev göstergesi şeridi 64 pikselin içinden yeniyor, geriye etiket için
+ * yer kalmıyordu. Sonuç: "Program", "Beslenme", "Koç", "İlerleme", "Ayarlar" — beş
+ * etiketin hepsi x-yüksekliğinin ortasından kırpılıyordu. Uygulamanın kalıcı
+ * kroması olduğu için bu, beş ekranın hepsinde birden görünen bir kusurdu.
+ *
+ * Yükseklik artık güvenli alanın ÜSTÜNE ekleniyor.
+ */
+const SEKME_IC_YUKSEKLIK = 60;
 
 export default function SekmeDuzeni() {
   const tema = useTema();
   const m = useMetinler().sekmeler;
+  const guvenli = useSafeAreaInsets();
 
   return (
     <Tabs
@@ -19,11 +34,17 @@ export default function SekmeDuzeni() {
         tabBarStyle: {
           backgroundColor: tema.renk.yuzey,
           borderTopColor: tema.renk.cizgi,
-          height: 64,
-          paddingBottom: 8,
+          height: SEKME_IC_YUKSEKLIK + guvenli.bottom,
+          paddingBottom: guvenli.bottom + 8,
           paddingTop: 8,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
+        // `includeFontPadding: false` olmadan Android'de etiketin altı ayrıca kırpılıyor.
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
+          lineHeight: 14,
+          includeFontPadding: false,
+        },
         sceneStyle: { backgroundColor: tema.renk.zemin },
       }}
     >

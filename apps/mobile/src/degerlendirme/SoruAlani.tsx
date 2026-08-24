@@ -170,7 +170,7 @@ function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) 
         style={{
           minHeight: tema.dokunmaHedefi,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: tema.renk.cizgi,
+          borderColor: tema.renk.kenar,
           borderRadius: tema.yaricap.md,
           paddingHorizontal: tema.bosluk.lg,
           fontSize: 16,
@@ -252,7 +252,14 @@ function Olcek({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
 
   return (
     <View style={{ gap: tema.bosluk.sm }}>
-      <Satir arasi="xs" dagit="space-between">
+      {/*
+        On kutu tek satıra sığmıyor.
+        `flex: 1` ile 390 px'lik ekranda her hücre ~32 px kalıyordu: `minHeight` 44'tü
+        ama GENİŞLİK için hiçbir alt sınır yoktu. Bu satır 134 soruluk akıştaki her
+        `scale` sorusunda çıkıyor, yani üründeki en sık yanlış dokunma yüzeyi.
+        `flexWrap` ile dar ekranda ikinci satıra iniyor; kutular 44'ün altına düşmüyor.
+      */}
+      <Satir arasi="xs" dagit="space-between" sar>
         {degerler.map((d) => (
           <Pressable
             key={d}
@@ -261,7 +268,9 @@ function Olcek({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
             accessibilityLabel={`${d}`}
             accessibilityState={{ checked: secili === d }}
             style={{
-              flex: 1,
+              flexGrow: 1,
+              flexBasis: tema.dokunmaHedefi,
+              minWidth: tema.dokunmaHedefi,
               minHeight: tema.dokunmaHedefi,
               borderRadius: tema.yaricap.sm,
               borderWidth: secili === d ? 2 : StyleSheet.hairlineWidth,
@@ -316,7 +325,7 @@ function SayiGirisi({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
           alignItems: 'center',
           minHeight: tema.dokunmaHedefi,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: tema.renk.cizgi,
+          borderColor: tema.renk.kenar,
           borderRadius: tema.yaricap.md,
           backgroundColor: tema.renk.yuzey,
           paddingHorizontal: tema.bosluk.lg,
@@ -379,7 +388,7 @@ function MetinGirisi({
       style={{
         minHeight: cokSatir ? 120 : tema.dokunmaHedefi,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: tema.renk.cizgi,
+        borderColor: tema.renk.kenar,
         borderRadius: tema.yaricap.md,
         padding: tema.bosluk.lg,
         fontSize: 16,
@@ -425,7 +434,7 @@ function TarihGirisi({
   const alanStili = {
     minHeight: tema.dokunmaHedefi,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: tema.renk.cizgi,
+    borderColor: tema.renk.kenar,
     borderRadius: tema.yaricap.md,
     paddingHorizontal: tema.bosluk.md,
     fontSize: 18,
@@ -492,7 +501,7 @@ function SaatGirisi({
       style={{
         minHeight: tema.dokunmaHedefi,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: tema.renk.cizgi,
+        borderColor: tema.renk.kenar,
         borderRadius: tema.yaricap.md,
         paddingHorizontal: tema.bosluk.lg,
         fontSize: 18,
@@ -562,7 +571,7 @@ function OlcuGrubu({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
             style={{
               minHeight: tema.dokunmaHedefi,
               borderWidth: StyleSheet.hairlineWidth,
-              borderColor: tema.renk.cizgi,
+              borderColor: tema.renk.kenar,
               borderRadius: tema.yaricap.md,
               paddingHorizontal: tema.bosluk.lg,
               fontSize: 18,
@@ -628,7 +637,7 @@ function girisStili(tema: ReturnType<typeof useTema>) {
   return {
     minHeight: tema.dokunmaHedefi,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: tema.renk.cizgi,
+    borderColor: tema.renk.kenar,
     borderRadius: tema.yaricap.md,
     paddingHorizontal: tema.bosluk.md,
     fontSize: 18,

@@ -461,7 +461,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
         style={{
           minHeight: tema.dokunmaHedefi,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: tema.renk.cizgi,
+          borderColor: tema.renk.kenar,
           borderRadius: tema.yaricap.md,
           paddingHorizontal: tema.bosluk.lg,
           fontSize: 16,
@@ -513,7 +513,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
                 width: 80,
                 minHeight: tema.dokunmaHedefi,
                 borderWidth: StyleSheet.hairlineWidth,
-                borderColor: tema.renk.cizgi,
+                borderColor: tema.renk.kenar,
                 borderRadius: tema.yaricap.md,
                 paddingHorizontal: tema.bosluk.md,
                 fontSize: 18,

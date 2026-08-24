@@ -24,6 +24,8 @@ export interface Tema {
     /** Aksan zemini üstündeki metin — temayla değişir. */
     aksanUstu: string;
     cizgi: string;
+    /** Kontrol kenari (giris alani, ikincil dugme, onay kutusu). Dekoratif ayrac icin . */
+    kenar: string;
     /** Ölçeğin gövdesi: eksen ve pasif çentikler. Aksan yalnızca okumayı gösterir. */
     celik: string;
     celikSilik: string;
@@ -53,6 +55,7 @@ const acikTema: Tema = {
     aksanZemin: renkler.aksanAcik,
     aksanUstu: renkler.aksanUstu,
     cizgi: renkler.cizgi,
+    kenar: renkler.kenar,
     celik: renkler.celik,
     celikSilik: renkler.celikSilik,
     uyari: renkler.uyari,
@@ -82,10 +85,11 @@ const koyuTema: Tema = {
     aksanZemin: renkler.koyu.aksanAcik,
     aksanUstu: renkler.koyu.aksanUstu,
     cizgi: renkler.koyu.cizgi,
+    kenar: renkler.koyu.kenar,
     celik: renkler.koyu.celik,
     celikSilik: renkler.koyu.celikSilik,
-    uyari: '#D9B54A',
-    uyariZemin: '#2C2612',
+    uyari: renkler.koyu.uyari,
+    uyariZemin: renkler.koyu.uyariZemin,
     tehlike: '#E0796C',
     tehlikeZemin: '#311A17',
     basari: '#5FB287',

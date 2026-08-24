@@ -103,7 +103,13 @@ export default function Ilerleme() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
       <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
-        <Satir arasi="sm">
+        {/*
+          `hizala="stretch"`: iki dugme esit yukseklikte.
+          Varsayilan `center` ile "Fotograf karsilastir" iki satira sarip digerinden
+          uzun oluyor ve yan yana duran iki ayni tur dugmenin ust/alt kenarlari
+          tutmuyordu.
+        */}
+        <Satir arasi="sm" hizala="stretch">
           <View style={{ flex: 1 }}>
             <Dugme
               baslik={m.fotografKarsilastir}
@@ -123,28 +129,35 @@ export default function Ilerleme() {
         {!sayilarGizli ? (
           <Kart>
             <Yazi tur="baslik3">{m.bugunkuKilon}</Yazi>
+            {/*
+              `minWidth: 0`: esnek bir satirda icerigi olan cocuk, varsayilan
+              `min-width: auto` yuzunden icerik genisliginin altina inmeyi reddediyor
+              ve yanindaki dugmeyi ekranin disina itiyordu.
+            */}
             <Satir arasi="sm">
-              <TextInput
-                value={kilo}
-                onChangeText={setKilo}
-                keyboardType="decimal-pad"
-                placeholder="82,4"
-                placeholderTextColor={tema.renk.metinSilik}
-                accessibilityLabel={m.kiloErisim}
-                style={{
-                  flex: 1,
-                  minHeight: tema.dokunmaHedefi,
-                  borderWidth: StyleSheet.hairlineWidth,
-                  borderColor: tema.renk.cizgi,
-                  borderRadius: tema.yaricap.md,
-                  paddingHorizontal: tema.bosluk.lg,
-                  fontSize: 20,
-                  fontFamily: tema.tipografi.aileler.sayisal,
-                  fontVariant: ['tabular-nums'],
-                  color: tema.renk.metin,
-                  backgroundColor: tema.renk.zemin,
-                }}
-              />
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <TextInput
+                  value={kilo}
+                  onChangeText={setKilo}
+                  keyboardType="decimal-pad"
+                  placeholder="82,4"
+                  placeholderTextColor={tema.renk.metinSilik}
+                  accessibilityLabel={m.kiloErisim}
+                  style={{
+                    flex: 1,
+                    minHeight: tema.dokunmaHedefi,
+                    borderWidth: StyleSheet.hairlineWidth,
+                    borderColor: tema.renk.kenar,
+                    borderRadius: tema.yaricap.md,
+                    paddingHorizontal: tema.bosluk.lg,
+                    fontSize: 20,
+                    fontFamily: tema.tipografi.aileler.sayisal,
+                    fontVariant: ['tabular-nums'],
+                    color: tema.renk.metin,
+                    backgroundColor: tema.renk.zemin,
+                  }}
+                />
+              </View>
               <Dugme baslik={genel.kaydet} onPress={() => void kiloKaydet()} tamGenislik={false} />
             </Satir>
             <Yazi tur="etiket" renk="metinSilik">
@@ -194,13 +207,20 @@ export default function Ilerleme() {
               {hareketler.slice(0, 12).map((h, i) => (
                 <View key={h.exercise_id} style={{ gap: tema.bosluk.xs }}>
                   {i > 0 ? <Ayirac /> : null}
+                  {/*
+                    Uzun hareket adi sayiyi ekran disina itiyordu. Kirpilacak olan ad,
+                    sayi degil: "Kabloda oturarak cekis" yarim gorunse anlasilir,
+                    "45 kg x 10" yarim gorunurse veri kaybolur.
+                  */}
                   <Satir dagit="space-between">
-                    <Yazi tur="kucuk" stil={{ flex: 1 }}>
+                    <Yazi tur="kucuk" stil={{ flex: 1, minWidth: 0 }} numberOfLines={1}>
                       {hareketAdi(hareketBul(h.exercise_id), dil, h.exercise_id)}
                     </Yazi>
-                    <Sayi tur="kucuk" renk="aksan">
-                      {kgMetni(h.current_weight)} kg × {h.current_reps}
-                    </Sayi>
+                    <View style={{ flexShrink: 0 }}>
+                      <Sayi tur="kucuk" renk="aksan">
+                        {kgMetni(h.current_weight)} kg × {h.current_reps}
+                      </Sayi>
+                    </View>
                   </Satir>
                 </View>
               ))}

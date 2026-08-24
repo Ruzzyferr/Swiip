@@ -265,7 +265,7 @@ export default function Koc() {
               minHeight: tema.dokunmaHedefi,
               maxHeight: 120,
               borderWidth: StyleSheet.hairlineWidth,
-              borderColor: tema.renk.cizgi,
+              borderColor: tema.renk.kenar,
               borderRadius: tema.yaricap.md,
               paddingHorizontal: tema.bosluk.md,
               paddingTop: tema.bosluk.sm,

@@ -47,7 +47,7 @@ export default function Kayit() {
   const girisStili = {
     minHeight: tema.dokunmaHedefi,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: tema.renk.cizgi,
+    borderColor: tema.renk.kenar,
     borderRadius: tema.yaricap.md,
     paddingHorizontal: tema.bosluk.lg,
     fontSize: 16,

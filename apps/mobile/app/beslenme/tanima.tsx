@@ -234,7 +234,7 @@ export default function Tanima() {
                     style={{
                       minHeight: tema.dokunmaHedefi,
                       borderWidth: StyleSheet.hairlineWidth,
-                      borderColor: tema.renk.cizgi,
+                      borderColor: tema.renk.kenar,
                       borderRadius: tema.yaricap.md,
                       paddingHorizontal: tema.bosluk.md,
                       fontSize: 18,
@@ -445,7 +445,7 @@ function BesinDegistir({ onSec }: { onSec: (besin: BesinSonucu) => void }) {
         style={{
           minHeight: tema.dokunmaHedefi,
           borderWidth: StyleSheet.hairlineWidth,
-          borderColor: tema.renk.cizgi,
+          borderColor: tema.renk.kenar,
           borderRadius: tema.yaricap.md,
           paddingHorizontal: tema.bosluk.md,
           fontSize: 16,

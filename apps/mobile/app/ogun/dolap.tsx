@@ -134,7 +134,7 @@ export default function Dolap() {
               flex: 1,
               minHeight: tema.dokunmaHedefi,
               borderWidth: StyleSheet.hairlineWidth,
-              borderColor: tema.renk.cizgi,
+              borderColor: tema.renk.kenar,
               borderRadius: tema.yaricap.md,
               paddingHorizontal: tema.bosluk.lg,
               fontSize: 16,
@@ -193,7 +193,7 @@ export default function Dolap() {
                   paddingHorizontal: tema.bosluk.lg,
                   borderRadius: tema.yaricap.tam,
                   borderWidth: 1,
-                  borderColor: tema.renk.cizgi,
+                  borderColor: tema.renk.kenar,
                 }}
               >
                 <Yazi tur="kucuk" renk="metinYumusak">

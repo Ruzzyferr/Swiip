@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Image,
+  PixelRatio,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -40,6 +41,21 @@ interface BaslikProps {
   numberOfLines?: number;
 }
 
+/**
+ * Sistem yazı tipi ölçeği.
+ *
+ * `fontSize` işletim sistemi tarafından ölçekleniyor ama `lineHeight` sabit dp olarak
+ * kalıyor. %200 büyütmede `dev` 34 px'lik yazıyı 40 px'lik satıra sığdırmaya çalışıyor:
+ * başlıklar üst satıra biniyor ve alt uzantıları kırpılıyor. Satır yüksekliği de aynı
+ * oranda büyümeli.
+ *
+ * Üst sınır 1.6: bunun ötesinde satır yüksekliği ekranı tek başlığa çeviriyor ve
+ * `fontSize` zaten büyümeye devam ettiği için okunabilirlik kaybolmuyor.
+ */
+function yaziOlcegi(): number {
+  return Math.min(PixelRatio.getFontScale(), 1.6);
+}
+
 export function Yazi({
   children,
   tur = 'govde',
@@ -55,10 +71,17 @@ export function Yazi({
   return (
     <Text
       numberOfLines={numberOfLines}
+      /*
+        Başlıklar ekran okuyucuda BAŞLIK olarak duyuruluyor.
+        Depoda tek bir `accessibilityRole="header"` yoktu: görsel hiyerarşi vardı ama
+        rotor boştu, yani uzun ekranlarda (karar izi, paywall, rapor) ekran okuyucu
+        kullanıcısı her şeyi tek tek geçmek zorundaydı.
+      */
+      accessibilityRole={baslikMi ? 'header' : undefined}
       style={[
         {
           fontSize: olcek.size,
-          lineHeight: olcek.lineHeight,
+          lineHeight: olcek.lineHeight * yaziOlcegi(),
           letterSpacing: olcek.letterSpacing,
           color: tema.renk[renk],
           /**
@@ -95,7 +118,8 @@ export function Sayi({
       style={[
         {
           fontSize: olcek.size,
-          lineHeight: olcek.lineHeight,
+          // Satır yüksekliği de sistem ölçeğiyle büyümeli; gerekçe `yaziOlcegi`'nde.
+          lineHeight: olcek.lineHeight * yaziOlcegi(),
           color: tema.renk[renk],
           /**
            * Sayısal veri monospace.
@@ -272,11 +296,14 @@ export function Satir({
   arasi = 'sm',
   hizala = 'center',
   dagit,
+  sar,
 }: {
   children: ReactNode;
   arasi?: keyof Tema['bosluk'];
   hizala?: ViewStyle['alignItems'];
   dagit?: ViewStyle['justifyContent'];
+  /** Dar ekranda alt satira insin. Cok ogeli satirlarda ezilmeyi onler. */
+  sar?: boolean;
 }) {
   const tema = useTema();
   return (
@@ -285,6 +312,7 @@ export function Satir({
         flexDirection: 'row',
         alignItems: hizala,
         gap: tema.bosluk[arasi],
+        ...(sar ? { flexWrap: 'wrap' } : {}),
         ...(dagit ? { justifyContent: dagit } : {}),
       }}
     >
@@ -425,7 +453,9 @@ export function Dugme({
         borderRadius: tema.yaricap.md,
         backgroundColor: zeminler[tur],
         borderWidth: tur === 'sessiz' ? 0 : StyleSheet.hairlineWidth,
-        borderColor: tur === 'birincil' ? tema.renk.aksan : tema.renk.cizgi,
+        // Kontrol kenarı `kenar`, dekoratif ayraç `cizgi`: ikincil düğmenin sınırı
+        // "buraya dokunulur" bilgisinin tek taşıyıcısı ve 1,25:1'de görünmüyordu.
+        borderColor: tur === 'birincil' ? tema.renk.aksan : tema.renk.kenar,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: tamGenislik ? 'stretch' : 'flex-start',
@@ -450,9 +480,20 @@ export function Dugme({
             {baslik}
           </Text>
           {kilitli ? (
+            /*
+              Kilit alt metni düğmenin KENDİ dolgusunun üstünde duruyor, zeminin değil.
+              `metinSilik` orada okunmuyordu: açık temada `#5B625E` / `#14615A` = 1.16:1,
+              koyu temada 1.03:1 — yani iki rengin parlaklığı neredeyse aynı. Bileşenin
+              kendi açıklaması "dokunmadan önce ne olacağını bilmek" diyor; alt metin
+              görünmediği için özellik hiç çalışmıyordu.
+
+              `aksanUstu` tam bu iş için var: aksan dolgusunun üstünde okunan renk.
+              Yarı saydamlık, başlıktan ayrışsın ama okunur kalsın diye.
+            */
             <Text
               style={{
-                color: tema.renk.metinSilik,
+                color: metinler[tur],
+                opacity: 0.85,
                 fontSize: 11,
                 letterSpacing: 0.3,
                 marginTop: 2,
@@ -495,7 +536,8 @@ export function SecimDugmesi({
         paddingHorizontal: tema.bosluk.lg,
         borderRadius: tema.yaricap.md,
         borderWidth: secili ? 2 : StyleSheet.hairlineWidth,
-        borderColor: secili ? tema.renk.aksan : tema.renk.cizgi,
+        // Seçilmemiş onay kutusu 1,46:1'de fiilen yoktu.
+        borderColor: secili ? tema.renk.aksan : tema.renk.kenar,
         backgroundColor: tema.renk.yuzey,
         opacity: pressed ? 0.9 : 1,
         flexDirection: 'row',

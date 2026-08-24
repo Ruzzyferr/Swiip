@@ -77,3 +77,47 @@ describe('mobil palet kontrastı', () => {
     });
   }
 });
+
+/**
+ * Metin DIŞI kontrast — WCAG 1.4.11.
+ *
+ * Metin oranları baştan beri iyiydi; kaçan şey sınırlardı. Bir metin alanının ya da
+ * ikincil düğmenin çevresindeki çizgi "buraya yazılır / buraya dokunulur" bilgisinin
+ * TEK taşıyıcısı ve `cizgi` bunu 1,25:1 ile yapıyordu. Düşük görmede ikincil düğme
+ * bir paragraftan ayırt edilemiyordu; kullanıcı neyin dokunulabilir olduğunu göremiyor.
+ *
+ * `cizgi` bilerek bu testin dışında: o dekoratif bir ayraç (kart kenarı, satır arası).
+ * Orada kaybolan şey bir süs, bir işlev değil. Ayrım da zaten bu yüzden yapıldı.
+ */
+describe('metin dışı kontrast — kontrol kenarları', () => {
+  const ZEMINLER_ACIK: Array<[string, string]> = [
+    ['zemin', renkler.zemin],
+    ['yüzey', renkler.yuzey],
+  ];
+  const ZEMINLER_KOYU: Array<[string, string]> = [
+    ['zemin', renkler.koyu.zemin],
+    ['yüzey', renkler.koyu.yuzey],
+  ];
+
+  for (const [ad, arka] of ZEMINLER_ACIK) {
+    it(`açık tema: kontrol kenarı ${ad} üstünde 3:1 geçiyor`, () => {
+      expect(kontrast(renkler.kenar, arka)).toBeGreaterThanOrEqual(AA_BUYUK);
+    });
+  }
+
+  for (const [ad, arka] of ZEMINLER_KOYU) {
+    it(`koyu tema: kontrol kenarı ${ad} üstünde 3:1 geçiyor`, () => {
+      expect(kontrast(renkler.koyu.kenar, arka)).toBeGreaterThanOrEqual(AA_BUYUK);
+    });
+  }
+
+  /**
+   * Uyarı metni 12 px'te kullanılıyor, yani "büyük metin" muafiyeti yok.
+   * `#8A6A1F` 4,33:1 ile eşiğin hemen altındaydı ve düştüğü yer değerlendirme
+   * cevaplarının kaydedilmediğini söyleyen çevrimdışı notuydu.
+   */
+  it('uyarı metni zemin üstünde AA geçiyor', () => {
+    expect(kontrast(renkler.uyari, renkler.zemin)).toBeGreaterThanOrEqual(AA_NORMAL);
+    expect(kontrast(renkler.koyu.uyari, renkler.koyu.zemin)).toBeGreaterThanOrEqual(AA_NORMAL);
+  });
+});

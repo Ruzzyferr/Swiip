@@ -73,9 +73,30 @@ export function Cetvel({ bolumler, aktifId, onBolumSec }: CetvelProps) {
               key={bolum.id}
               disabled={!donulebilir}
               onPress={() => onBolumSec?.(bolum.id)}
-              accessibilityRole={donulebilir ? 'button' : 'none'}
+              /**
+               * Dönülemeyen bölüm ekran okuyucudan TAMAMEN gizleniyor.
+               *
+               * `accessibilityRole="none"` ögeyi kaldırmıyor: etiketi olan bir görünüm
+               * hâlâ odaklanabilir. Sonuç, her soru ekranında ilk soruya varmadan önce
+               * on tane "Beslenme: 0/25" duyurusunu geçmekti — 134 soru boyunca çok
+               * fazla kaydırma. Aktif ve dönülebilir bölümler duyurulmaya devam ediyor;
+               * taşıdıkları bilgi gerçek.
+               */
+              accessible={donulebilir || aktif}
+              importantForAccessibility={donulebilir || aktif ? 'yes' : 'no-hide-descendants'}
+              accessibilityElementsHidden={!donulebilir && !aktif}
+              accessibilityRole={donulebilir ? 'button' : undefined}
               accessibilityLabel={`${bolum.ad}: ${bolum.cevaplanan}/${bolum.toplam}`}
               accessibilityState={{ selected: aktif }}
+              /**
+               * Dokunma alanı çentiğin boyu değil.
+               *
+               * Çentik 16 px yüksekliğinde ve bölüm ~35 px genişliğinde; dokunma hedefi
+               * bu kadardı ve `hitSlop` yoktu. Tamamlanmış bir bölüme dönmenin TEK yolu
+               * burası ve bileşenin kendi açıklaması "Dokunulamayan bir cetvel yalnızca
+               * çizilmiş bir cetveldir" diyor — pratikte çizilmiş bir cetveldi.
+               */
+              hitSlop={{ top: 16, bottom: 16, left: 4, right: 4 }}
               /**
                * Bölümler EŞİT genişlikte.
                *
@@ -112,8 +133,15 @@ export function Cetvel({ bolumler, aktifId, onBolumSec }: CetvelProps) {
       <View style={{ flexDirection: 'row' }}>
         {bolumler.map((bolum) => (
           <View key={bolum.id} style={{ flex: 1 }}>
+            {/*
+              Etiket bölüm harfi — ama ham blok anahtarı DEĞİL.
+              `bolum.id` doğrudan basılıyordu ve kullanıcı `K H A S E Z Y B T F`
+              görüyordu: on harf, hiçbirinin karşılığı ekranda yok. Harf artık bölüm
+              adının baş harfinden geliyor, yani altındaki başlıkla aynı kelimeye
+              bağlanıyor.
+            */}
             <Yazi tur="etiket" renk={bolum.id === aktifId ? 'aksan' : 'metinSilik'}>
-              {bolum.id}
+              {bolum.ad.slice(0, 1).toLocaleUpperCase('tr')}
             </Yazi>
           </View>
         ))}

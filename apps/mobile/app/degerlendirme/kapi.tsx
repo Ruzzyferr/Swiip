@@ -80,7 +80,13 @@ export default function Kapi() {
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={{ flex: 1, backgroundColor: tema.renk.zemin, justifyContent: 'center' }}>
-        <Ekran kaydirilabilir={false} ustGuvenliAlan>
+        {/*
+          Kaydırılabilir: bu ekran bir SERT KAPI ve üzerindeki tek çıkış düğmesi her
+          zaman ulaşılabilir olmalı. `kaydirilabilir={false}` bir `View` çiziyordu;
+          büyük yazı tipinde ya da küçük ekranda uzun sağlık metni taşınca "Anladım"
+          düğmesi ekranın dışında kalıyordu — kullanıcı kapının önünde kilitleniyordu.
+        */}
+        <Ekran ustGuvenliAlan>
           <Yazi tur="baslik1">{icerik.baslik}</Yazi>
           <Yazi renk="metinYumusak">{icerik.govde}</Yazi>
 

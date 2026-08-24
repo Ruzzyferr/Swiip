@@ -141,7 +141,22 @@ export function EkipmanEnvanteri({ soru, deger, onDegisim, salon }: EkipmanEnvan
           {m.secili(secili.length)}
         </Yazi>
         {secili.length > 0 ? (
-          <Pressable onPress={() => onDegisim([])} accessibilityRole="button">
+          /*
+            Hiç stili yoktu: dokunma alanı 14 px'lik metnin sınırları kadardı ve bu
+            düğme tüm ekipman seçimini siliyor. Küçük hedef + geri alınamayan işlem
+            kötü bir ikili.
+          */
+          <Pressable
+            onPress={() => onDegisim([])}
+            accessibilityRole="button"
+            accessibilityLabel={m.temizle}
+            hitSlop={12}
+            style={{
+              minHeight: tema.dokunmaHedefi,
+              justifyContent: 'center',
+              paddingHorizontal: tema.bosluk.sm,
+            }}
+          >
             <Yazi tur="kucuk" renk="aksan">
               {m.temizle}
             </Yazi>

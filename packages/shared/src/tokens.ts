@@ -32,6 +32,23 @@ export const renkler = {
   yuzeyIkincil: '#E3E6E4',
   cizgi: '#D2D7D3',
   /**
+   * Kontrol kenarı — `cizgi`'den AYRI bir belirteç.
+   *
+   * `cizgi` dekoratif bir ayraç: kart kenarı, satır arası çizgi. Zemine karşı 1,25:1
+   * olması bir sorun değil, çünkü orada kaybolan şey yalnızca bir süs.
+   *
+   * Ama aynı belirteç METIN ALANLARINDA ve İKİNCİL DÜĞMELERDE de kullanılıyordu ve
+   * orada sınır tek başına "buraya dokunulur / buraya yazılır" bilgisini taşıyor.
+   * İkincil düğmenin dolgusu zemine karşı 1,08:1, sınırı 1,25:1 — yani düşük görme
+   * için düğme bir paragraftan ayırt edilemiyor. Kullanıcı neyin dokunulabilir
+   * olduğunu göremiyor (WCAG 1.4.11 metin dışı kontrast, 3:1 istiyor).
+   *
+   * Değer `celik` ile aynı ve bu bilinçli: palete yeni bir ton eklemiyoruz, zaten
+   * "ölçeğin gövdesi" olan nötr metali kontrolün kenarında da kullanıyoruz.
+   * Zemine karşı 3,29:1, kart yüzeyine karşı 3,84:1.
+   */
+  kenar: '#7C8480',
+  /**
    * Çelik: ölçeğin gövdesi.
    *
    * Aksan tek başına hem ekseni hem okumayı taşıyamıyordu; her şey yeşile boyanınca
@@ -40,7 +57,14 @@ export const renkler = {
    */
   celik: '#7C8480',
   celikSilik: '#9DA5A0',
-  uyari: '#8A6A1F',
+  /**
+   * Uyarı metni.
+   *
+   * `#8A6A1F` zemine karşı 4,33:1 idi ve 12 px'te kullanılıyordu — AA'nın 4,5 eşiğinin
+   * hemen altı. Üstelik düştüğü yer, değerlendirme cevaplarının kaydedilmediğini
+   * söyleyen çevrimdışı notuydu: okunmaması gereken en son metin.
+   */
+  uyari: '#7A5D18',
   uyariZemin: '#FBF3DF',
   tehlike: '#8C2F26',
   tehlikeZemin: '#FAEBE9',
@@ -54,6 +78,16 @@ export const renkler = {
     murekkepYumusak: '#B9BFBA',
     murekkepSilik: '#969D98',
     cizgi: '#2E332F',
+    /** Koyu temada zemine karşı 3,53:1, kart yüzeyine karşı 3,21:1. */
+    kenar: '#646C66',
+    /**
+     * Uyarı — koyu tema.
+     *
+     * Bu iki değer `tema.ts` içinde elle yazılıydı; palet dosyası tek doğruluk kaynağı
+     * olmaktan çıkıyor ve kontrast testi göremiyordu. Buraya taşındı.
+     */
+    uyari: '#D9B54A',
+    uyariZemin: '#2C2612',
     celik: '#8B938E',
     celikSilik: '#4A514C',
     aksan: '#4FA79C',
