@@ -68,11 +68,47 @@ export function modelSec(is: AiIsi): ModelSecimi {
  * Model adını değiştirdiğinde fiyatı da aynı satırda değiştir.
  */
 const MODELLER: Record<ModelSeviyesi, { ad: string; girdi: number; cikti: number }> = {
+  /**
+   * Pahalı seviye BİLEREK Opus'ta kalıyor.
+   *
+   * Buradan yalnızca iki iş geçiyor: değerlendirme yorumlama (kullanıcı başına ömür
+   * boyu 1-2 kez) ve vücut fotoğrafı analizi (ayda ~1). Aylık maliyete katkısı Pro
+   * kullanıcıda birkaç kuruş. Buna karşılık ikisi de ürünün en pahalı anları:
+   * biri kullanıcının gördüğü ilk cümle, diğeri ölçüm üreten görsel yol. Kuruş
+   * kazanmak için oradan taviz vermek yanlış yerden tasarruf olurdu.
+   */
   guclu: { ad: 'anthropic/claude-opus-5', girdi: 5, cikti: 25 },
   guclu_gorsel: { ad: 'anthropic/claude-opus-5', girdi: 5, cikti: 25 },
+
+  /**
+   * `orta` seviyeyi kullanan tek iş `ogun_plani` ve o iş HİÇ ÇAĞRILMIYOR: öğün
+   * planlama baştan sona deterministik bir kısıt çözücü (`ogun/plan.ts`), model
+   * görmüyor. Satır tabloyu eksiksiz tutmak için duruyor.
+   */
   orta: { ad: 'anthropic/claude-sonnet-5', girdi: 3, cikti: 15 },
-  ucuz: { ad: 'anthropic/claude-haiku-4.5', girdi: 1, cikti: 5 },
-  ucuz_gorsel: { ad: 'anthropic/claude-haiku-4.5', girdi: 1, cikti: 5 },
+
+  /**
+   * Ucuz seviye maliyetin belini tutuyor: koç sohbeti + yemek tanıma birlikte aylık
+   * harcamanın neredeyse tamamı. Burada 1 kuruş, toplamda 1 lira.
+   *
+   * Haiku 4.5'ten ($1/$5) Gemini 3.1 Flash Lite'a ($0,25/$1,50) geçildi — **dört kat
+   * ucuz.** Karar tahminle değil ölçümle verildi: her iki model de ürünün gerçek
+   * sistem mesajlarıyla, Türkçe, aynı sorularla denendi (2026-08-25):
+   *
+   *   - Koç kuralı (tanı koyma, sayı uydurma): ikisi de temiz geçti.
+   *   - Tanıma kuralı (yalnızca JSON, besin değeri yazma): ikisi de temiz.
+   *     Haiku çıktıyı ``` çitiyle sarıyor; `jsonCikar` bunu zaten açıyor, yani
+   *     üretimde sorun değil — sadece fazladan token.
+   *   - Gecikme: Flash Lite ~1,0 sn, Haiku ~2,5 sn. Koç sohbetinde hissedilir fark.
+   *
+   * Daha ucuzu da denendi (`alibaba/qwen3.7-flash`, $0,03/$0,13) ve kuralları geçti
+   * ama ~14 saniyede cevap verdi. İstemcinin zaman aşımı 20 sn; koç o hızda
+   * bozuk hissettirir. Ucuzluk tek başına ölçüt değil.
+   *
+   * Fiyat ve ad aynı satırda: dosyanın başındaki kural.
+   */
+  ucuz: { ad: 'google/gemini-3.1-flash-lite', girdi: 0.25, cikti: 1.5 },
+  ucuz_gorsel: { ad: 'google/gemini-3.1-flash-lite', girdi: 0.25, cikti: 1.5 },
 };
 
 /** Gateway'e gönderilecek model adı. */
@@ -227,7 +263,26 @@ export async function gerekceAnlat(
   const metinler: Record<string, string> = {};
   for (const karar of kararlar) metinler[karar.entity_id] = karar.aciklama_tr;
 
-  if (!istemci || kararlar.length === 0) {
+  /**
+   * Sonucu KULLANAMAYACAKSAK model çağrılmaz.
+   *
+   * Aşağıda çıktı yalnızca `kararlar.length === 1` iken uygulanıyor; çoklu kararda
+   * modelin bölümlemesine güvenmek yerine deterministik metin korunuyor. Ama çağrı
+   * yine de yapılıyordu. Tek çağıran (`rotalar/program.ts`) her program üretiminde
+   * o haftanın BÜTÜN hareket kararlarını gönderiyor — 15-25 karar — yani çıktı
+   * **%100 çöpe gidiyordu.** Üstelik `ai_kullanildi: true` dönüyor ve maliyet
+   * `ai_usage`'a yazılıyordu: hem para harcanıyor hem de maliyet muhasebesi
+   * yapılmayan bir işi yapılmış gösteriyordu.
+   *
+   * Testler bunu göremezdi: hepsi tek kararlık bir demet kullanıyor, yani
+   * üretimin hiç girmediği dalı sınıyordu.
+   *
+   * `CLAUDE.md` zaten AI'ı dört yerle sınırlıyor (değerlendirme yorumlama, vücut
+   * fotoğrafı, yemek tanıma, koç sohbeti) ve gerekçe anlatımı bunlardan biri değil.
+   * Kullanıcıya gösterilen gerekçe "AI'ın uydurduğu cümle değil, çözücünün karar
+   * izi" — yani deterministik metin zaten doğru çıktı.
+   */
+  if (!istemci || kararlar.length !== 1) {
     return {
       metinler,
       ai_kullanildi: false,
@@ -255,11 +310,8 @@ export async function gerekceAnlat(
     let dusulen = 0;
 
     if (dogrulama.gecerli) {
-      // Tek karar için tek cümle; çoklu kararda modelin bölümlemesine güvenmek yerine
-      // deterministik metni korur, yalnızca tek kararlı çağrılarda değiştiririz.
-      if (kararlar.length === 1) {
-        metinler[kararlar[0]!.entity_id] = cevap.metin.trim();
-      }
+      // Buraya yalnızca tek kararla gelinir; yukarıdaki kapı çoklu çağrıyı zaten eliyor.
+      metinler[kararlar[0]!.entity_id] = cevap.metin.trim();
     } else {
       dusulen = 1;
     }

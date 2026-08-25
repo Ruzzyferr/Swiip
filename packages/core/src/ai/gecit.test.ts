@@ -121,6 +121,30 @@ describe('gerekceAnlat', () => {
     expect(sonuc.cikti_token).toBe(40);
   });
 
+  /**
+   * Üretimdeki gerçek şekil bu: `rotalar/program.ts` haftanın bütün hareket
+   * kararlarını tek seferde gönderiyor. Çıktı yalnızca tek kararda uygulandığı için
+   * bu çağrının sonucu %100 çöpe gidiyordu — ama para harcanıyor ve `ai_usage`'a
+   * maliyet yazılıyordu. Diğer testlerin hepsi tek kararlık demet kullandığı için
+   * üretimin hiç girmediği dalı sınıyor ve bunu göremiyordu.
+   */
+  it('çoklu kararda AI çağrılmaz — sonucu kullanamıyoruz', async () => {
+    const istemci = { metinUret: vi.fn() };
+    const coklu = [
+      kararlar[0]!,
+      { ...kararlar[0]!, entity_id: 'goblet-squat' },
+      { ...kararlar[0]!, entity_id: 'face-pull' },
+    ];
+
+    const sonuc = await gerekceAnlat(coklu, istemci);
+
+    expect(istemci.metinUret).not.toHaveBeenCalled();
+    expect(sonuc.maliyet_usd).toBe(0);
+    expect(sonuc.ai_kullanildi).toBe(false);
+    // Deterministik metin her karar için yerinde duruyor.
+    expect(sonuc.metinler['goblet-squat']).toBe(kararlar[0]!.aciklama_tr);
+  });
+
   it('boş karar listesinde AI çağrılmaz', async () => {
     const istemci = { metinUret: vi.fn() };
 
