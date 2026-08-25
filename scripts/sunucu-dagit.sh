@@ -52,7 +52,19 @@ tar -xzf /tmp/swiip.tar.gz -C "$UZAK_DIZIN"
 cp /tmp/.env.koruma infra/.env
 rm -f /tmp/swiip.tar.gz /tmp/.env.koruma
 
-docker compose -f infra/docker-compose.yml build api
+# TUM servisler derleniyor, yalnizca api degil.
+#
+# Burada 'build api' yaziyordu. gocmen ve tohumcu ayni Dockerfile'i kullaniyor ama
+# ayri servisler, yani ayri imajlari var: api her dagitimda yeniden derlenirken
+# otekiler ilk derlendikleri halde kaliyordu. gocmen goc dosyalarini IMAJDAN okuduugu
+# icin sonuc suydu: o imaj derlendikten sonra eklenen hicbir goc veritabanina
+# uygulanmadi.
+#
+# Sessiz oldugu icin fark edilmiyordu: gocmen basariyla cikiyor (uygulayacak yeni
+# dosya gormuyor), api ayaga kalkiyor, saglik ucu 200 donuyor. Kusur ancak yeni tablo
+# ilk kez sorgulandiginda 500 olarak goruunuyor. Uretimde tam bu oldu: kanca_olaylari
+# tablosu yoktu ve abonelik kancasi 42P01 ile patliyordu.
+docker compose -f infra/docker-compose.yml build
 docker compose -f infra/docker-compose.yml up -d
 
 # SURUM en sonda yazılıyor. Önce yazılıyordu ve derleme yarıda kaldığında dosya yeni

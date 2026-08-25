@@ -78,3 +78,52 @@ describe('üretim imajı', () => {
     expect(gelistirmeBagimliliklariAtiliyor()).toBe(true);
   });
 });
+
+/**
+ * Göçler sunucuya GERÇEKTEN ulaşıyor mu?
+ *
+ * Dağıtım betiği `docker compose build api` yazıyordu. `gocmen` ve `tohumcu` aynı
+ * Dockerfile'ı kullanıyor ama ayrı servisler, yani ayrı imajları var: `api` her
+ * dağıtımda yeniden derlenirken ötekiler ilk derlendikleri hâlde kalıyordu. `gocmen`
+ * göç dosyalarını **imajdan** okuduğu için sonuç şuydu — o imaj derlendikten sonra
+ * eklenen hiçbir göç veritabanına uygulanmadı.
+ *
+ * Kusur sessizdi: `gocmen` başarıyla çıkıyor (uygulayacak yeni dosya görmüyor), `api`
+ * ayağa kalkıyor, sağlık ucu 200 dönüyor, dağıtım "başarılı" diyor. Ancak yeni tablo
+ * ilk kez sorgulandığında 500 olarak görünüyor. Üretimde tam bu oldu: `kanca_olaylari`
+ * tablosu yoktu ve abonelik kancası 42P01 ile patlıyordu — yani satın alma kancası,
+ * hakkı açan tek yol, çalışmıyordu.
+ */
+describe('dağıtım: göçler imaja giriyor ve uygulanıyor', () => {
+  const dagitim = readFileSync(resolve(kok, 'scripts/sunucu-dagit.sh'), 'utf8');
+  const compose = readFileSync(resolve(kok, 'infra/docker-compose.yml'), 'utf8');
+
+  it('dağıtım tek servisi değil TÜM servisleri derliyor', () => {
+    const buildSatirlari = dagitim
+      .split('\n')
+      .filter((s) => s.includes('docker compose') && s.includes(' build'));
+
+    expect(buildSatirlari.length, 'derleme satırı bulunamadı').toBeGreaterThan(0);
+    for (const satir of buildSatirlari) {
+      expect(
+        satir.trim().endsWith('build'),
+        `"build" tek bir servisle sınırlanmış: ${satir.trim()} — gocmen eski imajla kalır`,
+      ).toBe(true);
+    }
+  });
+
+  it('göç klasörü imaja kopyalanıyor', () => {
+    expect(dockerfile).toMatch(/COPY .*packages\/api\/gocler packages\/api\/gocler/);
+  });
+
+  it('gocmen servisi api ile aynı Dockerfile’dan derleniyor', () => {
+    // Aynı dosyadan derlendikleri için ikisinin de her dağıtımda tazelenmesi şart.
+    const gocmenBlogu = compose.slice(compose.indexOf('gocmen:'));
+    expect(gocmenBlogu).toContain('dockerfile: infra/api.Dockerfile');
+  });
+
+  it('api gocmen tamamlanmadan başlamıyor', () => {
+    const apiBlogu = compose.slice(compose.indexOf('\n  api:'));
+    expect(apiBlogu).toContain('service_completed_successfully');
+  });
+});
