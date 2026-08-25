@@ -154,6 +154,12 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   ölçek: ikincisi konduğunda arayüz kumpas değil, bozuk bir ses mikseri gibi görünür.
 
 - TürKomp kullanım koşulları yazılı teyit edilecek
+- **AI geçidi ÇALIŞIYOR (2026-08-25).** Eski not "anahtar şu an çalışmıyor" diyordu;
+  artık doğru değil. Vercel'de $9,18 kredi var, `swiip-api` anahtarının aylık $5
+  tavanı kurulu ve `scripts/ai-gecit-dogrula.mjs` üç modelin üçünde de yeşil.
+  Sunucudaki anahtar bu anahtarla aynı (doğrulandı). Panelde tek uyarı kalıyor:
+  "billing address is missing or incomplete" — çağrıları engellemiyor ama adres
+  senin girmen gereken bir şey.
 - **Marka: Türkiye temiz, AB/İngiltere çekişmeli.** TMview taraması (2026-08-21):
   Türkiye'de "swiip" içeren **sıfır** kayıt — TÜRKPATENT'te 9/41/44 başvurusu yapılmalı.
   Ama İngiltere'de birebir `swiip` (sınıf 35/42, Hassan Hashmi) ve EUIPO'da `Swiipe`
@@ -242,6 +248,28 @@ o dosyayı kaybetme.
 
 ## Bilinen en büyük risk
 
-**Birim ekonomisi.** Pro kullanıcının aylık AI maliyeti ~50₺, geliri 169₺. Marj var ama
-dar. Kotalar gevşetilirse veya AI her yere serpiştirilirse ürün ne kadar çok kullanılırsa
-o kadar çok kaybettirir. Yeni bir yere AI koymadan önce maliyetini hesapla.
+**Birim ekonomisi.** Marj artık düşünüldüğünden geniş — ama kural aynı: yeni bir yere
+AI koymadan önce maliyetini hesapla.
+
+2026-08-25'te ölçüldü. Ucuz seviye `anthropic/claude-haiku-4.5` ($1/$5) yerine
+`google/gemini-3.1-flash-lite` ($0,25/$1,50) — dört kat ucuz, iki kat hızlı. Karar
+tahminle değil dört adayın ürünün **gerçek sistem mesajlarıyla**, Türkçe, aynı
+sorularla denenmesiyle verildi (koç tanı koyuyor mu, sayı uyduruyor mu; tanıma
+yalnızca JSON dönüyor mu, besin değeri yazıyor mu). `alibaba/qwen3.7-flash` daha da
+ucuzdu ama ~14 saniyede cevap veriyor; istemcinin zaman aşımı 20 sn ve koç o hızda
+bozuk hissettirir. **Ucuzluk tek başına ölçüt değil.**
+
+Ölçülen sonuç: tam kota kullanan bir Pro kullanıcı ayda **$0,093** (bütçe hedefi
+$1,20). Vercel'deki $9,18 kredi ~98 Pro-kullanıcı-ayı ediyor; Haiku ile aynı para
+23 ay ederdi.
+
+Pahalı seviye bilerek Opus'ta kaldı: oradan yalnızca değerlendirme yorumlama (ömür
+boyu 1-2 kez) ve vücut analizi (ayda ~1) geçiyor. Aylık katkısı birkaç kuruş ama
+ikisi de kullanıcının gördüğü ilk cümle ve ölçüm üreten görsel yol.
+
+`orta` seviyeyi kullanan tek iş `ogun_plani` ve o iş **hiç çağrılmıyor** — öğün
+planlama baştan sona deterministik bir kısıt çözücü.
+
+Ayrıca her program üretiminde bir AI çağrısı yapılıp **çıktısı %100 çöpe gidiyordu**
+(`gerekceAnlat` sonucu yalnızca tek kararda uyguluyor, çağıran ise haftanın bütün
+hareket kararlarını gönderiyor). Kaldırıldı; gerekçe zaten çözücünün karar izi.
