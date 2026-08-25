@@ -320,6 +320,25 @@ Gereken sırlar (hepsi kurulu): `EXPO_TOKEN`, `ASC_API_KEY_P8` (base64), `ASC_KE
 `ASC_ISSUER_ID`, `PLAY_SERVIS_HESABI_JSON`, `CREDENTIALS_JSON`, `ANDROID_KEYSTORE_B64`,
 `IOS_DIST_P12_B64`, `IOS_PROVISION_B64`.
 
+**Bildirim.** Her koşunun sonucu — başarı, başarısızlık ve "atlandı" dahil — e-posta
+olarak `info@swiip.app`'e gidiyor (`scripts/bildirim-gonder.mjs`). Yol ürünün zaten
+kullandığı Resend; yeni servis yok. GitHub'ın kendi e-postası yeterli değil: yalnız
+başarısızlıkta, yalnız commit'i atana ve kişinin bildirim ayarına bağlı olarak gidiyor.
+
+İş `always()` ile koşuyor. Yalnız başarıda koşan bir bildirim sessizliği "her şey
+yolunda" diye okutur; oysa sessizlik hem başarı hem çöküş anlamına gelir.
+
+**Telegram isteğe bağlı ve kurulu değil.** Bot token'ı BotFather'dan alınıyor, o yüzden
+bende üretilemedi. İstenirse iki sır yeter, betik kendiliğinden devreye giriyor:
+
+1. Telegram'da **@BotFather**'a `/newbot` yaz, adı ver, sana bir token verir.
+2. Bota bir mesaj at, sonra
+   `https://api.telegram.org/bot<TOKEN>/getUpdates` adresini aç ve `chat.id`'yi al.
+3. `gh secret set TELEGRAM_BOT_TOKEN` ve `gh secret set TELEGRAM_SOHBET_ID`.
+
+Hiçbir kanal kurulu değilse betik **hata veriyor** — "bildirim kurdum" deyip hiçbir
+yere göndermemek, bildirimin hiç olmamasından kötü.
+
 Sürüm notu `scripts/surum-notlari.mjs` ile commit konularından üretiliyor. Hedef kitle
 kapalı test ve TestFlight **testçileri**, halka açık mağaza metni değil — o zaten elle
 yazılıyor. Bir commit'e başka bir cümle gerekiyorsa gövdeye `not: ...` satırı eklenir.

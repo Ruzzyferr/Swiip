@@ -14,7 +14,15 @@
 import { apple } from './apple-api.mjs';
 
 const APP = '6803979374';
-const DIL = 'tr-TR';
+
+/**
+ * TestFlight'ın dil kodu App Store'unkinden FARKLI.
+ *
+ * Mağaza metinleri `tr-TR` kullanıyor ama `betaBuildLocalizations` bunu reddediyor:
+ * 409 ENTITY_ERROR.ATTRIBUTE.INVALID — "The 'locale' value is invalid". Doğru kod
+ * `tr`. Aynı yanlış iki kez yapılmasın diye burada duruyor.
+ */
+const DIL = 'tr';
 const SINIR = 4000;
 const TUR_SAYISI = 40;
 const BEKLEME_MS = 30_000;

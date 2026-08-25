@@ -6,6 +6,11 @@ name: Yayın
 # CI'nin ardından çalışıyor, paralel değil. `workflow_run` seçilmesinin sebebi:
 # aynı dosyada iki iş yazılsaydı `needs` ile sıralanırdı ama derleme adımı, testler
 # kırmızıyken de kuyruğa girmiş olurdu. Burada kırmızı CI hiç tetiklemiyor.
+#
+# DERLEME GITHUB KOŞUCULARINDA, EAS bulutunda değil (`eas build --local`).
+# EAS'in ücretsiz planında aylık derleme kotası var ve iOS tarafı 2026-08-25'te
+# doldu: hattın kendisi doğruyken günlerce hiçbir şey çıkmıyordu. Yerel derlemede
+# o kota hiç devreye girmiyor; EAS yalnızca kimlik çözümü ve sürüm sayacı için.
 on:
   workflow_run:
     workflows: ['CI']
@@ -57,9 +62,13 @@ jobs:
 
       - id: karar
         name: Son yayından beri ürün değişti mi
-        # EAS ücretsiz planında aylık derleme kotası var ve iOS tarafı bu ay bir kez
-        # zaten doldu. Yalnızca belge veya betik değiştiren bir commit'e derleme
-        # harcamak, ay sonunda gerçekten lazım olduğunda kotasız kalmak demek.
+        # Derleme artık GitHub dakikası harcıyor ve özel depoda macOS çarpanı 10.
+        # Yalnızca belge veya betik değiştiren bir commit'e iOS derlemesi harcamak,
+        # ayın kalanını dakikasız bırakmak demek.
+        #
+        # `packages/api` bilerek listede YOK: sunucu kodu mobil pakete girmiyor.
+        # Yalnız API'yi düzelten bir commit iki derleme birden yakardı ve
+        # kullanıcının telefonundaki hiçbir şey değişmezdi.
         run: |
           set -euo pipefail
           if [ "${{ inputs.zorla }}" = "true" ]; then
@@ -87,8 +96,7 @@ jobs:
         if: steps.karar.outputs.derle == 'evet'
         run: |
           set -euo pipefail
-          node scripts/surum-notlari.mjs > notlar.txt
-          cat notlar.txt
+          node scripts/surum-notlari.mjs
           json="$(node scripts/surum-notlari.mjs --json)"
           {
             echo "kisa<<SWIIP_EOF"
@@ -116,6 +124,8 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.ref }}
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
       - run: npm ci
 
       - name: İmzalama malzemesi
@@ -148,7 +158,7 @@ jobs:
 
       - name: Play servis hesabı anahtarı
         # `eas.json`'un `ci` gönderim profili `./play.json` diyor — yol apps/mobile'a
-        # göreli. Depodaki `uretim` profili mutlak Windows yolu tutuyor ve koşucuda yok.
+        # göreli. Depodaki `uretim` profili mutlak Windows yolu tutuyor, koşucuda yok.
         env:
           PLAY_JSON: ${{ secrets.PLAY_SERVIS_HESABI_JSON }}
         run: |
@@ -162,31 +172,32 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Derle
+      - name: Derle (koşucuda, EAS bulutunda değil)
         working-directory: apps/mobile
-        run: eas build --platform android --profile uretim --non-interactive --wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas build --platform android --profile uretim --local --non-interactive \
+            --output "$RUNNER_TEMP/swiip.aab"
+          ls -la "$RUNNER_TEMP/swiip.aab"
 
       - name: Play kapalı test izine yükle
         working-directory: apps/mobile
-        run: eas submit --platform android --profile ci --latest --non-interactive
+        run: eas submit --platform android --profile ci --path "$RUNNER_TEMP/swiip.aab" --non-interactive
 
       - name: Yayına al ve notu yaz
         # `eas submit` sürümü TASLAK bırakıyor ve taslak sürüm test cihazlarına
         # inmiyor: konsolda "yüklendi" görünürken kimse kuramıyor. Yayına almak
         # ayrı bir adım ve betik taahhütten sonra izi geri okuyup doğruluyor.
+        #
+        # versionCode `en-yeni`: yerel derlemede `eas build:list` bu paketi
+        # görmüyor, tek doğru kaynak izin kendisi.
         env:
           PLAY_SERVIS_HESABI: apps/mobile/play.json
           IZ: ${{ inputs.iz || 'alpha' }}
           NOTLAR: ${{ needs.kapi.outputs.notlar_kisa }}
-        run: |
-          set -euo pipefail
-          kod="$(node -e "
-            const {execFileSync}=require('child_process');
-            const j=JSON.parse(execFileSync('npx',['eas-cli','build:list','--platform','android','--limit','1','--non-interactive','--json'],{cwd:'apps/mobile',encoding:'utf8'}));
-            process.stdout.write(String(j[0].appBuildVersion));
-          ")"
-          echo "versionCode: $kod · iz: $IZ"
-          node scripts/play-yayinla.mjs "$IZ" "$kod" "$NOTLAR"
+        run: node scripts/play-yayinla.mjs "$IZ" en-yeni "$NOTLAR"
 
   ios:
     name: TestFlight
@@ -194,7 +205,9 @@ jobs:
     if: >-
       needs.kapi.outputs.derle == 'evet' &&
       (github.event_name != 'workflow_dispatch' || inputs.platform != 'android')
-    runs-on: ubuntu-latest
+    # macOS koşucusu şart: iOS paketi Xcode olmadan derlenemez. Özel depoda macOS
+    # dakikası 10 kat sayılıyor — kapı bu yüzden var.
+    runs-on: macos-15
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
@@ -206,9 +219,6 @@ jobs:
       - run: npm ci
 
       - name: İmzalama malzemesi
-        # `credentialsSource: local` — anahtarlar depoda DEĞİL (gitignore) ve olmamalı.
-        # Koşucuda `credentials.json`'ın beklediği göreli yollara yazılıyorlar;
-        # böylece CI ile yerel derleme birebir aynı kimlikle imzalıyor.
         env:
           CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_JSON }}
           ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
@@ -247,17 +257,24 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Derle
+      - name: Derle (koşucuda, EAS bulutunda değil)
         working-directory: apps/mobile
-        run: eas build --platform ios --profile uretim --non-interactive --wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas build --platform ios --profile uretim --local --non-interactive \
+            --output "$RUNNER_TEMP/swiip.ipa"
+          ls -la "$RUNNER_TEMP/swiip.ipa"
 
       - name: TestFlight'a yükle
         working-directory: apps/mobile
-        run: eas submit --platform ios --profile ci --latest --non-interactive
+        run: eas submit --platform ios --profile ci --path "$RUNNER_TEMP/swiip.ipa" --non-interactive
 
       - name: TestFlight sürüm notu
         # Apple derlemeyi birkaç dakika işliyor; betik VALID olana kadar bekliyor ve
-        # yazdıktan sonra alanı geri okuyor.
+        # yazdıktan sonra alanı geri okuyor. Dil kodu `tr` — TestFlight `tr-TR`'yi
+        # reddediyor, mağaza metinlerinden farklı.
         env:
           EXPO_ASC_API_KEY_PATH: apps/mobile/asc.p8
           EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}

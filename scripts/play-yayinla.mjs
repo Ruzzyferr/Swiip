@@ -6,7 +6,7 @@
  * uygulamayı kuramıyor. Aradaki farkı yalnızca izin kendisini okumak gösteriyor,
  * o yüzden bu betik hem yayına alıyor hem de sonucu geri okuyup doğruluyor.
  *
- *   PLAY_SERVIS_HESABI=<json yolu> node scripts/play-yayinla.mjs <iz> <versionCode> [notlar]
+ *   PLAY_SERVIS_HESABI=<json yolu> node scripts/play-yayinla.mjs <iz> <versionCode|en-yeni> [notlar]
  *
  * `notlar` verilmezse sürüm notu YAZILMIYOR. Uydurma bir cümle koymaktansa boş
  * bırakmak doğru; notu `scripts/surum-notlari.mjs` üretiyor.
@@ -17,7 +17,7 @@ import { createSign } from 'node:crypto';
 const PAKET = process.env.PLAY_PAKET_ADI ?? 'app.swiip';
 const [IZ, SURUM_KODU, NOTLAR] = process.argv.slice(2);
 if (!IZ || !SURUM_KODU) {
-  console.error('kullanım: play-yayinla.mjs <iz> <versionCode>');
+  console.error('kullanım: play-yayinla.mjs <iz> <versionCode|en-yeni> [notlar]');
   process.exit(2);
 }
 if (!process.env.PLAY_SERVIS_HESABI) {
@@ -69,15 +69,33 @@ const cagir = async (yol, secenek = {}) => {
   return govde ? JSON.parse(govde) : {};
 };
 
+/** `en-yeni` cozuldukten sonraki gercek numara; dogrulama da bunu okuyor. */
+let surumKodu = SURUM_KODU;
+
 const { id } = await cagir('/edits', { method: 'POST' });
 try {
   const once = await cagir(`/edits/${id}/tracks/${IZ}`);
+
+  /**
+   * `en-yeni`: izdeki en büyük versionCode'u seç.
+   *
+   * CI koşucuda derliyor (`eas build --local`), o yüzden `eas build:list` bu paketi
+   * hiç görmüyor ve numarayı oradan okumak boş dönüyordu. İzin kendisi zaten tek
+   * doğru kaynak: yükleme başarılıysa numara oradadır, değilse zaten durmalıyız.
+   */
+  if (SURUM_KODU === 'en-yeni') {
+    const hepsi = (once.releases ?? []).flatMap((s) => (s.versionCodes ?? []).map(Number));
+    if (!hepsi.length) throw new Error(`${IZ} izinde hiç sürüm yok; yükleme başarısız mı?`);
+    surumKodu = String(Math.max(...hepsi));
+    console.log(`en yeni versionCode: ${surumKodu}`);
+  }
+
   const hedef = (once.releases ?? []).find((s) =>
-    (s.versionCodes ?? []).map(String).includes(SURUM_KODU),
+    (s.versionCodes ?? []).map(String).includes(surumKodu),
   );
   if (!hedef) {
     throw new Error(
-      `${IZ} izinde versionCode ${SURUM_KODU} yok. Olanlar: ` +
+      `${IZ} izinde versionCode ${surumKodu} yok. Olanlar: ` +
         JSON.stringify((once.releases ?? []).map((s) => [s.versionCodes, s.status])),
     );
   }
@@ -91,8 +109,8 @@ try {
         track: IZ,
         releases: [
           {
-            name: hedef.name ?? SURUM_KODU,
-            versionCodes: [SURUM_KODU],
+            name: hedef.name ?? surumKodu,
+            versionCodes: [surumKodu],
             status: 'completed',
             ...(NOTLAR ? { releaseNotes: [{ language: 'tr-TR', text: NOTLAR }] } : {}),
           },
@@ -114,10 +132,10 @@ for (const s of sonra.releases ?? []) {
   console.log(`${IZ}: versionCode ${s.versionCodes} → ${s.status}`);
 }
 const yayinda = (sonra.releases ?? []).some(
-  (s) => s.status === 'completed' && (s.versionCodes ?? []).map(String).includes(SURUM_KODU),
+  (s) => s.status === 'completed' && (s.versionCodes ?? []).map(String).includes(surumKodu),
 );
 if (!yayinda) {
-  console.error(`DOĞRULAMA BAŞARISIZ: ${SURUM_KODU} hâlâ yayında değil.`);
+  console.error(`DOĞRULAMA BAŞARISIZ: ${surumKodu} hâlâ yayında değil.`);
   process.exit(1);
 }
 console.log('doğrulandı: yayında.');
