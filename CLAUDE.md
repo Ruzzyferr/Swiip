@@ -305,9 +305,27 @@ Bilinmesi gerekenler:
   `packages/shared` değişmediyse derleme atlanıyor. `packages/api` bilerek listede
   yok: sunucu kodu mobil pakete girmiyor, yalnız API'yi düzelten bir commit iki
   derleme birden yakardı.
-- **EAS ücretsiz planında aylık derleme kotası var** ve iOS tarafı 2026-08-25'te
-  doldu (1 Eylül'de sıfırlanıyor). O tarihe kadar iOS işi kotadan düşecek. Kapı bu
-  yüzden var; yine de sık yayın gerekiyorsa plan yükseltilmeli.
+- **Derleme GitHub koşucularında, EAS bulutunda DEĞİL** (`eas build --local`).
+  iOS `macos-15`, Android `ubuntu-latest` + JDK 17. EAS yalnızca kimlik çözümü ve
+  sürüm sayacı için kullanılıyor.
+
+  Sebep ölçüldü: EAS ücretsiz planının aylık iOS derleme kotası 2026-08-25'te doldu
+  (1 Eylül'de sıfırlanıyor) ve hat doğruyken günlerce hiçbir şey çıkmayacaktı.
+  Yerel derlemede o kota hiç devreye girmiyor. Bulut kuyruğu da ücretsiz planda
+  uzun; aynı gün bir Android derlemesi 15 dakikadan fazla kuyrukta bekledi.
+
+  **Bunun bedeli GitHub dakikası.** Depo özel, macOS çarpanı **10**. Bir iOS
+  derlemesi ~25-35 dakika, yani ~250-350 dakika olarak sayılıyor; Free planın 2.000
+  dakikasıyla ayda kabaca 6-8 iOS derlemesi. Kapı bu yüzden var.
+
+- **iOS işinde SDK kapısı var.** Apple, paketin iOS 26 SDK'sıyla derlenmiş olmasını
+  şart koşuyor; build 3 bu yüzden ITMS-90725 ile geri döndü. Koşucu imajı eskiyse
+  derleme sorunsuz biter ve iş yalnızca YÜKLEMEDE patlar — 30 dakika macOS dakikası
+  harcandıktan sonra. Kontrol derlemeden önce, en başta.
+
+- **`eas submit` yerel dosyayı `--path` ile alıyor**, `--latest` ile değil: yerel
+  derleme EAS'in derleme listesinde görünmüyor. Aynı sebeple Play'de yayına alınacak
+  versionCode `en-yeni` ile izin kendisinden okunuyor.
 - **İmzalama malzemesi depoda değil** (`credentialsSource: local`, `kimlik/` ve
   `credentials.json` gitignore'da). Koşucu bunları sırlardan `credentials.json`'ın
   beklediği göreli yollara yazıyor, yani CI ile yerel derleme aynı kimlikle imzalıyor.
