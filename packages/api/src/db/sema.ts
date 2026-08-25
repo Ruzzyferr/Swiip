@@ -170,8 +170,28 @@ export const body_analyses = pgTable(
     posture_flags: jsonb('posture_flags').notNull().default([]),
     measurements_jsonb: jsonb('measurements_jsonb').notNull().default({}),
     rapor_jsonb: jsonb('rapor_jsonb').notNull().default({}),
+
+    /**
+     * Satir gercek bir analiz mi, yoksa surmekte olan bir cagrinin rezervasyonu mu?
+     *
+     * Hak kontrolu ile kayit arasinda gorsel AI cagrisi var ve saniyeler suruyor. O
+     * aralikta gelen ikinci istek de kontrolu geciyordu: ucretsiz kullanici cift
+     * dokunusla omur boyu BIR olan hakkini IKI analize ceviriyordu.
+     *
+     * Cozum satiri cagridan ONCE acmak. Rezervasyon sayima girer (hak korunur), rapor
+     * okumalarina girmez (yarim analiz gosterilmez), cagri basarisiz olursa silinir.
+     *
+     * `quotas` bu kurali tasiyamiyor: satir `YYYY-MM` ile anahtarli, oysa ay ortasinda
+     * odemeye gecen kullanicinin penceresi abonelik aninda basliyor.
+     */
+    tamamlandi: boolean('tamamlandi').notNull().default(true),
   },
-  (t) => [index('body_user_idx').on(t.user_id, t.taken_at)],
+  (t) => [
+    index('body_user_idx').on(t.user_id, t.taken_at),
+    index('body_user_tamam_idx')
+      .on(t.user_id, t.taken_at)
+      .where(sql`tamamlandi`),
+  ],
 );
 
 // ---------------------------------------------------------------------------

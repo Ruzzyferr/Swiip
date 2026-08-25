@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { vucutRaporuUret, type GorselAnalizCiktisi, type VucutRaporu } from '@swiip/core';
@@ -16,6 +16,12 @@ import { fotografiAnalizEt } from '../servisler/gorselAnaliz';
 import { fotografBoyutuUygunMu } from '@swiip/core';
 import { vucutAnaliziHakki, type Plan } from '../servisler/haklar';
 import { planGecerliMi } from '../servisler/planOku';
+import {
+  oluRezervasyonlariSil,
+  vucutRezerveEt,
+  vucutRezervasyonuBirak,
+  vucutSayimi,
+} from '../servisler/vucutRezerve';
 
 /**
  * Vücut analizi (F4).
@@ -173,19 +179,8 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
      */
     const abonelik = await abonelikGetir(istek.kullaniciId);
     const plan = abonelik.plan;
-    const [toplam] = await db
-      .select({ adet: count() })
-      .from(body_analyses)
-      .where(eq(body_analyses.user_id, istek.kullaniciId));
-    const [buAy] = await db
-      .select({ adet: count() })
-      .from(body_analyses)
-      .where(
-        and(
-          eq(body_analyses.user_id, istek.kullaniciId),
-          gte(body_analyses.taken_at, hakDonemininBasi(abonelik.baslangic)),
-        ),
-      );
+    await oluRezervasyonlariSil(db, istek.kullaniciId);
+    const sayim = await vucutSayimi(db, istek.kullaniciId, hakDonemininBasi(abonelik.baslangic));
 
     /**
      * Hak kontrolü `body_analyses` DEFTERİNDEN okunuyor — `quotas`'tan değil.
@@ -201,15 +196,15 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
      *    kolonundan besleniyordu ve ömür boyu hakkını kullanmış kullanıcıya "1 kalan"
      *    diyordu. Artık aynı defterden okuyor.
      *
-     * KALAN AÇIK: kontrol ile kayıt arasında görsel AI çağrısı var (birkaç saniye) ve
-     * o aralıkta gelen ikinci istek de kontrolü geçer. Bir zaman penceresiyle kapatmak
-     * denendi ve geri alındı: pencere, plan yükseltip hemen yeniden analiz eden
-     * meşru kullanıcıyı da engelliyordu (`vucutHakki.test.ts` bunu yakaladı). Gerçek
-     * çözüm rezervasyonu deftere yazmak — şema değişikliği gerektiriyor. Bedeli çift
-     * dokunmada bir fazladan görsel çağrısı; hakkın kendisi yine tek kalıyor çünkü
-     * ikinci kayıt yazıldığında sayım artıyor.
+     *  - Kontrol ile kayıt arasındaki yarış: aradaki görsel AI çağrısı saniyeler
+     *    sürüyordu ve o aralıkta gelen ikinci istek de kontrolü geçiyordu; ücretsiz
+     *    kullanıcı çift dokunuşla ömür boyu bir olan hakkını ikiye çıkarıyordu. Artık
+     *    satır çağrıdan ÖNCE `tamamlandi = false` ile açılıyor (`vucutRezerve.ts`),
+     *    ikinci istek onu sayıp reddediliyor. Bir zaman penceresiyle kapatmak önce
+     *    denenmiş ve geri alınmıştı: pencere, plan yükseltip hemen yeniden analiz eden
+     *    meşru kullanıcıyı da engelliyordu (`vucutHakki.test.ts` bunu yakaladı).
      */
-    if (!vucutAnaliziHakki(plan, toplam?.adet ?? 0, buAy?.adet ?? 0)) {
+    if (!vucutAnaliziHakki(plan, sayim.toplam, sayim.donem)) {
       // Mesaj önce hesaplanıyor: `throw` içindeki koşullu ifade, hata kodu tarayıcısının
       // ikinci argümanı bulmasını zorlaştırıyor.
       const mesaj =
@@ -231,40 +226,63 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     /** Gizlilik notu bu bayrağa bakıyor: söylediğimiz şey yaptığımız şey olmalı. */
     const gorselGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
 
-    let gorsel: GorselAnalizCiktisi | undefined;
-    if (gorselGeldi) {
-      // Fotoğraf yalnızca bu çağrının ömrü boyunca bellekte. Dönüş değeri sayılardır.
-      gorsel = await fotografiAnalizEt({
-        fotograflar: govde.fotograflar!,
-        aiIstemcisi: app.aiIstemcisi,
+    /**
+     * Hak burada REZERVE ediliyor — görsel çağrısından önce.
+     *
+     * Kontrolü geçmek yetmiyor: kontrol ile kaydın yazılması arasında saniyeler var ve
+     * o boşluktan ikinci bir istek geçiyordu. Satır şimdi baştan açılıyor, ikinci istek
+     * onu sayıp reddediliyor.
+     */
+    const rezervasyonId = await vucutRezerveEt(db, istek.kullaniciId);
+
+    let kayit: { id: string; taken_at: Date } | undefined;
+    let rapor: VucutRaporu;
+    try {
+      let gorsel: GorselAnalizCiktisi | undefined;
+      if (gorselGeldi) {
+        // Fotoğraf yalnızca bu çağrının ömrü boyunca bellekte. Dönüş değeri sayılardır.
+        gorsel = await fotografiAnalizEt({
+          fotograflar: govde.fotograflar!,
+          aiIstemcisi: app.aiIstemcisi,
+        });
+      }
+
+      const kiloKg = await guncelKilo(istek.kullaniciId);
+      rapor = vucutRaporuUret({
+        cinsiyet: kullanici.cinsiyet === 'Kadın' ? 'kadin' : 'erkek',
+        yas: yasHesapla(kullanici.dogum),
+        boyCm: kullanici.boy,
+        kiloKg: kiloKg > 0 ? kiloKg : 0,
+        ...(govde.olculer ? { olculer: govde.olculer } : {}),
+        ...(gorsel ? { gorsel } : {}),
       });
+
+      [kayit] = await db
+        .update(body_analyses)
+        .set({
+          yontem: rapor.yontem,
+          // Gizlilik notu sonradan da dogru cumleyi secebilsin diye KAYDEDILIYOR.
+          gorselden_uretildi: gorselGeldi,
+          bodyfat_low: rapor.yag_orani?.alt ?? null,
+          bodyfat_high: rapor.yag_orani?.ust ?? null,
+          muscle_map_jsonb: Object.fromEntries(rapor.kas_dagilimi.map((k) => [k.bolge, k.skor])),
+          posture_flags: gorsel?.durusBayraklari ?? [],
+          measurements_jsonb: govde.olculer ?? {},
+          rapor_jsonb: rapor,
+          tamamlandi: true,
+        })
+        .where(eq(body_analyses.id, rezervasyonId))
+        .returning({ id: body_analyses.id, taken_at: body_analyses.taken_at });
+    } catch (hata) {
+      /**
+       * Çağrı başarısızsa rezervasyon geri veriliyor.
+       *
+       * Kota adaleti kuralı: bizim hatamızın bedelini kullanıcı ödemez. Görsel model
+       * 500 döndüğünde ücretsiz kullanıcının ömür boyu hakkı yanmamalı.
+       */
+      await vucutRezervasyonuBirak(db, rezervasyonId);
+      throw hata;
     }
-
-    const kiloKg = await guncelKilo(istek.kullaniciId);
-    const rapor = vucutRaporuUret({
-      cinsiyet: kullanici.cinsiyet === 'Kadın' ? 'kadin' : 'erkek',
-      yas: yasHesapla(kullanici.dogum),
-      boyCm: kullanici.boy,
-      kiloKg: kiloKg > 0 ? kiloKg : 0,
-      ...(govde.olculer ? { olculer: govde.olculer } : {}),
-      ...(gorsel ? { gorsel } : {}),
-    });
-
-    const [kayit] = await db
-      .insert(body_analyses)
-      .values({
-        user_id: istek.kullaniciId,
-        yontem: rapor.yontem,
-        // Gizlilik notu sonradan da dogru cumleyi secebilsin diye KAYDEDILIYOR.
-        gorselden_uretildi: gorselGeldi,
-        bodyfat_low: rapor.yag_orani?.alt ?? null,
-        bodyfat_high: rapor.yag_orani?.ust ?? null,
-        muscle_map_jsonb: Object.fromEntries(rapor.kas_dagilimi.map((k) => [k.bolge, k.skor])),
-        posture_flags: gorsel?.durusBayraklari ?? [],
-        measurements_jsonb: govde.olculer ?? {},
-        rapor_jsonb: rapor,
-      })
-      .returning({ id: body_analyses.id, taken_at: body_analyses.taken_at });
 
     /**
      * Rapor kullanıcının dilinde anlatılıyor.
@@ -316,10 +334,12 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
    * Yazma ile okuma ayrıldı. Üretim hâlâ `POST /analiz`; görüntüleme buradan.
    */
   app.get('/analiz/son', { preHandler: app.kimlikDogrula }, async (istek) => {
+    // `tamamlandi` süzgeci şart: sürmekte olan bir analizin rezervasyon satırı da bu
+    // sorguya düşer ve kullanıcıya boş bir rapor gösterirdi.
     const [kayit] = await db
       .select()
       .from(body_analyses)
-      .where(eq(body_analyses.user_id, istek.kullaniciId))
+      .where(and(eq(body_analyses.user_id, istek.kullaniciId), eq(body_analyses.tamamlandi, true)))
       .orderBy(desc(body_analyses.taken_at))
       .limit(1);
 
@@ -382,7 +402,7 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     const kayitlar = await db
       .select()
       .from(body_analyses)
-      .where(eq(body_analyses.user_id, istek.kullaniciId))
+      .where(and(eq(body_analyses.user_id, istek.kullaniciId), eq(body_analyses.tamamlandi, true)))
       .orderBy(desc(body_analyses.taken_at))
       .limit(24);
 

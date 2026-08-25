@@ -1,12 +1,13 @@
-import { and, count, eq, gte, max, ne } from 'drizzle-orm';
+import { and, eq, max, ne } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { Yasak } from '../hatalar';
-import { body_analyses, kanca_olaylari, quotas, subscriptions, users } from '../db/sema';
+import { kanca_olaylari, quotas, subscriptions, users } from '../db/sema';
 import { HAK_TABLOSU, planHaklari, type Haklar, type Plan } from '../servisler/haklar';
 import { dilCozumle, metinleriAl } from '@swiip/shared';
 import { planGecerliMi } from '../servisler/planOku';
+import { vucutSayimi } from '../servisler/vucutRezerve';
 
 /**
  * Abonelik, hak ve kota (F6).
@@ -134,17 +135,12 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
     ayBasi.setUTCDate(1);
     ayBasi.setUTCHours(0, 0, 0, 0);
 
-    const [toplam] = await db
-      .select({ adet: count() })
-      .from(body_analyses)
-      .where(eq(body_analyses.user_id, kullaniciId));
+    // Sayım `vucutRezerve.ts` üzerinden: hak kontrolüyle AYNI kuralı kullanmak zorunda.
+    // Ayrı yazılsaydı sürmekte olan bir analiz sırasında ekran "1 kalan" derken uç 403
+    // dönerdi — kullanıcının gördüğü sayı ile ürünün davrandığı sayı ayrışamaz.
+    const sayim = await vucutSayimi(db, kullaniciId, ayBasi);
 
-    const [buAy] = await db
-      .select({ adet: count() })
-      .from(body_analyses)
-      .where(and(eq(body_analyses.user_id, kullaniciId), gte(body_analyses.taken_at, ayBasi)));
-
-    const kullanilan = plan === 'ucretsiz' ? (toplam?.adet ?? 0) : (buAy?.adet ?? 0);
+    const kullanilan = plan === 'ucretsiz' ? sayim.toplam : sayim.donem;
     const tavan = plan === 'ucretsiz' ? 1 : haklar.vucut_analizi_aylik;
 
     return { kullanilan, toplam: tavan, kalan: Math.max(0, tavan - kullanilan) };
