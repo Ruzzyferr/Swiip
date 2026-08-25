@@ -31,9 +31,13 @@ hesabı da sen açacaksın çünkü Apple kayıt akışını ve izin istemlerini
 
 ## Çekimden önce
 
-- **TestFlight**'ı App Store'dan kur ve davet aldığın Apple ID'yle gir. Swiip görünecek;
-  **build 12**'yi kur. Daha eskisi yüklüyse "Güncelle" yazar. Görünmüyorsa gelen
-  kutundaki TestFlight davetini kabul et.
+- **TestFlight**'ı App Store'dan kur ve davet aldığın Apple ID'yle gir. Swiip
+  görünecek; **en yeni derlemeyi** kur ("Güncelle" yazıyorsa güncelle). Görünmüyorsa
+  gelen kutundaki TestFlight davetini kabul et.
+
+  > Bu belge bilerek bir derleme numarası vermiyor: main'e her güncelleme
+  > girdiğinde yeni bir derleme otomatik olarak TestFlight'a çıkıyor. Sabit bir
+  > numara yazsaydık belge bir hafta içinde yanlış olurdu.
 - Telefon **güncel iOS**'ta olsun — Apple bunu şart koşuyor.
 - Kaydı **dikey** al, telefonu döndürme.
 - Kayıt: Kontrol Merkezi → ekran kaydı düğmesi. Ses gerekmiyor.
