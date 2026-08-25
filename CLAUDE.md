@@ -220,7 +220,17 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 - **App Store: 1.0 reddedildi — Guideline 2.1, Information Needed (2026-08-22).**
   Hata bulunmuş değil; yeni uygulamadan istenen sekiz bilgi. Cevap taslağı
   `magaza/appstore/inceleme-cevabi.md`. Altı maddesi `App Review Information → Notes`
-  alanında hazır (3.992/4.000 karakter — yer yok, ekleme yapmadan önce kırp).
+  alanında hazır.
+
+  **Notes alanı artık depodan yönetiliyor:** kaynak `magaza/appstore/inceleme-notlari.md`
+  içindeki ```notlar bloğu, yükleyici `scripts/apple-notlar.mjs`. Betik 4.000 karakter
+  sınırını yazmadan ÖNCE kontrol ediyor ve yazdıktan sonra alanı geri okuyup doğruluyor —
+  konsol sınırı aşan metni sessizce kırpıyor. Gövde 3.762 karakter; kalan 238 karakter
+  bilerek boş: Apple'ın 1. (ekran kaydı) ve 2. (denenen cihazlar) soruları oraya giriyor.
+
+  ```bash
+  node scripts/apple-notlar.mjs --dene --kayit "<url>" --cihazlar "iPhone 15 Pro (iOS 26.0)"
+  ```
 
   **Bende yapılabilecek her şey bitti (2026-08-25):** build 12 `VALID` ve 1.0'a
   **bağlı**; dört abonelik de aynı gönderime ekli ve `READY_FOR_REVIEW`; inceleme

@@ -21,7 +21,7 @@ bunu açıkça istiyor.
 | Testçi | `info@swiip.app` · `ardaerenbulut2121@gmail.com` · `caglajaa13@gmail.com` |
 | Sunucu | sağlık ucu 200 |
 | İnceleme hesabı | **uçtan uca doğrulandı** — giriş 200, değerlendirme tamam, hafta 1 programı, bu haftanın öğün planı, Pro hakkı |
-| App Review → Notes | 3.992 karakter, altı başlık dolu (Apple'ın 3–8. soruları) |
+| App Review → Notes | **depodan yönetiliyor**: `inceleme-notlari.md` → `scripts/apple-notlar.mjs`. 3.762 karakter; 1. ve 2. cevap için 238 karakter yer bırakıldı |
 | Paywall | kullanım koşulları + gizlilik bağlantısı eklendi (kural 3.1.2) |
 | RevenueCat anahtarı | EAS `production` ortamında; satın alma derlemede çalışıyor |
 
@@ -66,6 +66,23 @@ da tam olarak Apple'ın sorduğu şeyi yanlış cevaplamak olur.
 
 Bu ikisi girilmeden gönderim tekrarlanmadı. Eksik cevapla resubmit etmek yeni bir
 2.1 reddi ve bir inceleme turu daha demek; kazancı yok.
+
+**İkisi hazır olunca tek komut:**
+
+```bash
+node scripts/apple-notlar.mjs --dene   --kayit "<videonun bağlantısı>"   --cihazlar "iPhone 15 Pro (iOS 26.0)"
+```
+
+`--dene` yalnızca ölçüp yazacağı metni gösteriyor. Doğru görünüyorsa `--dene`'yi
+kaldır; betik yazdıktan sonra alanı geri okuyup doğruluyor.
+
+Notlar alanı 4.000 karakterle sınırlı ve konsol sınırı aşan metni **sessizce**
+kırpıyor. Gövde bu yüzden 3.762'ye indirildi; iki cevabın sığdığı `--dene` ile
+ölçüldü (3.930/4.000).
+
+Bir yanlış da bu turda düzeldi: notlar hâlâ modeller için "Haiku 4.5" diyordu,
+oysa ucuz seviye Gemini'ye geçmişti. Artık "Anthropic and Google models" yazıyor —
+inceleyene yanlış beyan vermek istemeyiz.
 
 ---
 
