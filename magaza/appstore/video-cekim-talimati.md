@@ -142,10 +142,10 @@ Bu hesabın değerlendirmesi dolu, programı ve öğün planı hazır.
 
 ## Bittiğinde
 
-Videoyu ve **iPhone modeli + iOS sürümünü** gönder. Sonrası bende:
+İki şeyi gönder:
 
-```bash
-node scripts/apple-notlar.mjs --dene \
-  --kayit "<videonun bağlantısı>" \
-  --cihazlar "iPhone 15 Pro (iOS 26.0)"
-```
+1. **Videoyu** (tek parça, dikey).
+2. **iPhone modelini ve iOS sürümünü.** `Ayarlar → Genel → Hakkında` ekranında
+   yazıyor. Apple'ın sekiz sorusundan biri bu; videosuz kadar önemli, unutma.
+
+Gerisi bizde — Apple'a cevabı biz yazıyoruz.
