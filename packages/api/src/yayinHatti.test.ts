@@ -17,7 +17,14 @@ import { describe, expect, it } from 'vitest';
 const buradan = dirname(fileURLToPath(import.meta.url));
 const kok = resolve(buradan, '../../..');
 
-const oku = (yol: string) => readFileSync(resolve(kok, yol), 'utf8');
+/**
+ * Satır sonları normalleştiriliyor.
+ *
+ * Dosyalar Windows'ta düzenleniyor ve CRLF'le kaydedilebiliyor; desenler `\n`'e
+ * bakınca eşleşme sessizce boşa düşüyor ve test "iş bulunamadı" diyordu. Testin
+ * ölçtüğü şey satır sonu değil, içerik.
+ */
+const oku = (yol: string) => readFileSync(resolve(kok, yol), 'utf8').replace(/\r\n/g, '\n');
 
 const isAkisi = oku('.github/workflows/yayin.yml');
 const easJson = oku('apps/mobile/eas.json');
@@ -113,6 +120,40 @@ describe('yayın iş akışı', () => {
    */
   it('Play izi değişkenden geliyor', () => {
     expect(isAkisi).toMatch(/vars\.PLAY_IZ/);
+  });
+
+  /**
+   * iOS OTOMATİK KOŞMAMALI.
+   *
+   * Ölçüldü: bir iOS derlemesi ~25-30 dakika macOS koşucusu ve özel depoda macOS
+   * dakikası **10 kat** sayılıyor — derleme başına ~250-300 faturalanan dakika.
+   * 2026-08-25'te iki derleme 528 dakika yedi, Free planın aylığının dörtte biri,
+   * tek öğleden sonrada. Hesabı başka projeler de paylaşıyor.
+   *
+   * Android ubuntu'da ve çarpanı 1; o otomatik kalabilir. TestFlight'a her commit'te
+   * yeni derleme çıkmasına zaten gerek yok.
+   */
+  /** Bir işin tanımını `runs-on` satırına kadar kesip verir. */
+  const isTanimi = (ad: string) => {
+    const bas = isAkisi.indexOf(`\n  ${ad}:\n`);
+    if (bas < 0) return '';
+    const son = isAkisi.indexOf('runs-on:', bas);
+    return son < 0 ? '' : isAkisi.slice(bas, son);
+  };
+
+  it('iOS yalnızca elle tetiklendiğinde koşuyor', () => {
+    const ios = isTanimi('ios');
+    expect(ios, 'ios işi bulunamadı').not.toBe('');
+    expect(ios, 'iOS otomatik koşuyor — macOS dakikası aylık bütçeyi yakar').toMatch(
+      /github\.event_name == 'workflow_dispatch'/,
+    );
+  });
+
+  /** Android otomatik KALMALI: ubuntu, çarpan 1, ve "push et sürüm çıksın" akışı buna dayanıyor. */
+  it('Android otomatik koşmaya devam ediyor', () => {
+    const android = isTanimi('android');
+    expect(android, 'android işi bulunamadı').not.toBe('');
+    expect(android).not.toMatch(/github\.event_name == 'workflow_dispatch'/);
   });
 
   /** Derleme öncesi SDK kapısı: eski Xcode'la 30 dakika macOS dakikası yakılmasın. */

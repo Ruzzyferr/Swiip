@@ -338,9 +338,19 @@ Bilinmesi gerekenler:
   Yerel derlemede o kota hiç devreye girmiyor. Bulut kuyruğu da ücretsiz planda
   uzun; aynı gün bir Android derlemesi 15 dakikadan fazla kuyrukta bekledi.
 
-  **Bunun bedeli GitHub dakikası.** Depo özel, macOS çarpanı **10**. Bir iOS
-  derlemesi ~25-35 dakika, yani ~250-350 dakika olarak sayılıyor; Free planın 2.000
-  dakikasıyla ayda kabaca 6-8 iOS derlemesi. Kapı bu yüzden var.
+  **Bunun bedeli GitHub dakikası ve ölçüldü.** Depo özel, macOS çarpanı **10**.
+  2026-08-25'te iki iOS derlemesi (29 ve 24 dakika) **528 faturalanan dakika** yedi —
+  Free planın aylık 2.000 dakikasının dörtte biri, tek öğleden sonrada. Hesabı bu
+  depo tek başına kullanmıyor.
+
+  Bu yüzden **iOS otomatik koşmuyor**, yalnızca elle:
+
+      gh workflow run yayin.yml -f platform=ios
+
+  Android ubuntu'da ve çarpanı 1, o otomatik kalıyor — "push et, test sürümü çıksın"
+  akışı orada bozulmadan duruyor. TestFlight'a her commit'te yeni derleme çıkmasına
+  zaten gerek yok: testçiye derleme lazım olduğunda çıkılır.
+  `yayinHatti.test.ts` ikisini de kilitliyor.
 
 - **iOS işinde SDK kapısı var.** Apple, paketin iOS 26 SDK'sıyla derlenmiş olmasını
   şart koşuyor; build 3 bu yüzden ITMS-90725 ile geri döndü. Koşucu imajı eskiyse

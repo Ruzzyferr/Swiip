@@ -34,11 +34,18 @@ npm -w @swiip/mobile run start
 
 ```
 push → CI (biçim/lint/tip/test) → yeşilse Yayın
-                                    ├─ Play test izi
-                                    ├─ TestFlight
+                                    ├─ Play test izi      ← otomatik
                                     ├─ sürüm etiketi
                                     └─ sonuç e-postası
+
+TestFlight                                                ← ELLE
+  gh workflow run yayin.yml -f platform=ios
 ```
+
+**iOS neden otomatik değil:** macOS koşucusu dakikası özel depoda **10 kat**
+sayılıyor. Ölçüldü: iki derleme 528 faturalanan dakika, yani Free planın aylık
+2.000 dakikasının dörtte biri. Android ubuntu'da ve çarpanı 1; o otomatik.
+TestFlight'a her commit'te derleme çıkmasına da gerek yok.
 
 Bilinmesi gerekenler:
 
