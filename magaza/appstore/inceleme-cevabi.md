@@ -9,21 +9,34 @@ Cevap Resolution Center'dan yazılıyor:
 Review`. Aynı metin ileride `App Review Information → Notes` alanına da konmalı; Apple
 bunu açıkça istiyor.
 
-## Hazır olan her şey (2026-08-23)
+## Hazır olan her şey (2026-08-25)
 
 | Ne | Durum |
 |---|---|
-| TestFlight derlemesi | **build 7** |
-| TestFlight grubu | "Ic test", iç grup, **tüm derlemelere otomatik erişim** |
+| TestFlight derlemesi | **build 12** — `VALID`, 1.0 sürümüne **bağlı** |
+| Sürüm durumu | `PREPARE_FOR_SUBMISSION`, cihaz ailesi yalnızca iPhone |
+| Ekran görüntüleri | 6.7" seti yüklü; iPad istenmiyor (`supportsTablet: false`) |
+| Abonelikler | Dört ürün de aynı gönderime **ekli**, `READY_FOR_REVIEW` |
+| TestFlight grubu | "Ic test", iç grup, tüm derlemelere otomatik erişim |
 | Testçi | `info@swiip.app` · `ardaerenbulut2121@gmail.com` · `caglajaa13@gmail.com` |
-| Sunucu | commit `3056927`, sağlık ucu 200 |
-| İnceleme hesabı | değerlendirme **10/10 blok tamam**, hafta 1 programı, iki haftalık öğün planı, 5 kilo kaydı, Pro hakkı |
-| App Review → Notes | 3.986 karakter, altı başlık dolu |
+| Sunucu | sağlık ucu 200 |
+| İnceleme hesabı | **uçtan uca doğrulandı** — giriş 200, değerlendirme tamam, hafta 1 programı, bu haftanın öğün planı, Pro hakkı |
+| App Review → Notes | 3.992 karakter, altı başlık dolu (Apple'ın 3–8. soruları) |
 | Paywall | kullanım koşulları + gizlilik bağlantısı eklendi (kural 3.1.2) |
-| RevenueCat anahtarı | EAS `production` ortamında; satın alma artık derlemede çalışıyor |
+| RevenueCat anahtarı | EAS `production` ortamında; satın alma derlemede çalışıyor |
 
 İç grup Beta App Review'dan geçmez, yani derleme **şu anda** kurulabilir durumda.
 TestFlight'ta `info@swiip.app` ile giriş yap, uygulamayı arkadaşının telefonuna kur.
+
+### Gönderimin API'den okunan gerçek durumu
+
+Reddedilen gönderim (`897eade5…`) hâlâ **açık**: durumu `UNRESOLVED_ISSUES`,
+gönderim tarihi 2026-08-21. İçinde altı öge var — sürüm ögesi `REJECTED`, dört
+abonelik ve abonelik grubu `READY_FOR_REVIEW`.
+
+Bunun pratik anlamı: **eklenecek bir şey kalmadı.** Abonelikler zaten gönderime
+bağlı; ilk sürümde bu atlanırsa uygulama satın alması çalışmayan halde yayınlanır,
+o tuzağa düşülmemiş. Kalan tek şey Resolution Center cevabı.
 
 ## Kaydın göstermesi gerekenler
 
@@ -43,10 +56,16 @@ simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp sırayla:
    dokunarak paywall'a düşmez; Ayarlar'dan gir.
 8. Ayarlar: bildirim izni istemi, "Aboneliği iptal et", "Hesabımı sil" akışı sonuna kadar
 
-## Tek eksik: cihaz listesi
+## Kalan iki madde — ikisi de bende üretilemez
 
-Aşağıdaki 2. maddeyi hangi iPhone modelinde ve hangi iOS sürümünde denediğinle doldur.
-Bilmediğim için uydurmadım.
+**1. Ekran kaydı.** Apple fiziksel cihaz istiyor; simülatör kaydı kabul edilmiyor.
+Bu makinede iPhone yok.
+
+**2. Denenen cihaz ve iOS sürümü.** Hangi modelde denendiğini bilmiyorum, uydurmak
+da tam olarak Apple'ın sorduğu şeyi yanlış cevaplamak olur.
+
+Bu ikisi girilmeden gönderim tekrarlanmadı. Eksik cevapla resubmit etmek yeni bir
+2.1 reddi ve bir inceleme turu daha demek; kazancı yok.
 
 ---
 

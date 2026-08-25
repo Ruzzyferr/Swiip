@@ -202,27 +202,45 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
 - **App Store: 1.0 reddedildi — Guideline 2.1, Information Needed (2026-08-22).**
   Hata bulunmuş değil; yeni uygulamadan istenen sekiz bilgi. Cevap taslağı
-  `magaza/appstore/inceleme-cevabi.md`. **Eksik iki şey var ve uydurulamaz:**
-  fiziksel cihazda çekilmiş ekran kaydı (simülatör kabul edilmiyor) ve test edilen
-  iPhone modeli + iOS sürümü listesi. Cevap Resolution Center'dan yazılıyor,
-  aynı metin `App Review Information → Notes` alanına da konmalı.
+  `magaza/appstore/inceleme-cevabi.md`. Altı maddesi `App Review Information → Notes`
+  alanında hazır (3.992/4.000 karakter — yer yok, ekleme yapmadan önce kırp).
 
-  Gerekçe App Store Connect API ile **okunamıyor** — Resolution Center yalnızca
-  konsolda. `scripts/apple-api.mjs` sadece durumu veriyor. Build 3 yüklemede
-  ITMS-90725 almıştı (iOS 18.2 SDK; iOS 26 şart), build 4 sorunsuz ve `VALID`.
-  **1.0 hâlâ build 4'e bağlı.** Build 5, 6, 7 yüklendi ve hepsi `VALID`, ama sürüm
-  kaydı build 4'ü gösteriyor. Build 7'yi bağlamak da doğru değil: 2026-08-25
-  denetimindeki düzeltmelerin hiçbiri hiçbir derlemede yok. Sıra: **build 8 üret →
-  yükle → 1.0'a bağla → Health beyanını bitir → cevabı yaz → yeniden gönder.**
+  **Bende yapılabilecek her şey bitti (2026-08-25):** build 12 `VALID` ve 1.0'a
+  **bağlı**; dört abonelik de aynı gönderime ekli ve `READY_FOR_REVIEW`; inceleme
+  hesabı uçtan uca denendi (giriş 200, değerlendirme tamam, hafta 1 programı, bu
+  haftanın öğün planı, Pro hakkı). Sürüm `PREPARE_FOR_SUBMISSION`, cihaz ailesi
+  yalnızca iPhone, 6.7" ekran görüntüsü seti yüklü — iPad istenmiyor.
 
-  `App Review Information → Notes` içindeki "Cancelling takes two taps from the top
-  of Settings" cümlesi düzeltilmeli: iptal artık mağazanın abonelik sayfasını açıyor.
-  Apple bu maddeyi birebir deniyor.
+  **Kalan iki şey uydurulamaz:** fiziksel cihazda çekilmiş ekran kaydı (simülatör
+  kabul edilmiyor) ve test edilen iPhone modeli + iOS sürümü. Bunlar girilmeden
+  gönderim tekrarlanmadı — 2.1'e yarım cevap vermek bir inceleme turu daha harcar.
+
+  **Build'i sürüme bağlamak ayrı bir adım.** Sürüm kaydı hangi build'i gösteriyorsa
+  Apple onu inceliyor. Build 5-9 yüklenip hiçbiri bağlanmadığı için sürüm uzun süre
+  build 4'ü gösterdi. Yükleme bağlama demek değil.
+
+  Reddedilen gönderim (`897eade5…`) hâlâ açık: `UNRESOLVED_ISSUES`, sürüm ögesi
+  `REJECTED`, diğer beş öge `READY_FOR_REVIEW`. Gerekçe metni App Store Connect API
+  ile **okunamıyor** — Resolution Center yalnızca konsolda; `scripts/apple-api.mjs`
+  sadece durumu veriyor.
+
+  **EAS ücretsiz iOS derleme kotası bu ay doldu, 1 Eylül'de sıfırlanıyor.** Masaüstündeki
+  simülatör `.app`'i bu yüzden build 11'de kaldı (build 12'den tek farkı izin metinleri).
+- **Play: versionCode 6 iç testte YAYINDA (2026-08-25).** `eas submit` paketi yüklüyor
+  ama sürümü **taslak** bırakıyor — taslak sürüm test cihazlarına inmiyor, yani konsolda
+  "yüklendi" görünürken kimse kuramıyor. Yayına almak ayrı bir adım:
+  `PLAY_SERVIS_HESABI=… node scripts/play-yayinla.mjs internal <versionCode>`.
+  Betik taahhütten sonra izi geri okuyup doğruluyor.
 - **Play Health beyanı: 11'de 10.** Eksik adım `ACTIVITY_RECOGNITION` izni için
   gerekçe istiyor. O izni uygulama kullanmıyor — `expo-sensors` manifest birleşmesiyle
   ekliyor, biz yalnızca `Accelerometer` kullanıyoruz. `app.json`'a `blockedPermissions`
   eklendi; **yeni AAB yüklendikten sonra bu adım kendiliğinden kayboluyor.**
   Kullanılmayan bir izne gerekçe yazmak yanlış beyan olur.
+
+  Aynı yerde bir kez yanlış yapıldı: üretilen AAB'de `android.permission.DUMP` görülüp
+  engellenmeye çalışıldı. O bir `uses-permission` değil, AndroidX'in
+  `ProfileInstallReceiver`'ı üzerindeki `android:permission` **koruması**. Paketi
+  `grep`lemek yetmiyor, bağlamına bakmak gerekiyor.
 - Play iç testi: "Select testers" seçilmemiş (3'te 2). Kapalı testten önce bitmeli.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
