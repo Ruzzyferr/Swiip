@@ -276,6 +276,23 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   engellenmeye çalışıldı. O bir `uses-permission` değil, AndroidX'in
   `ProfileInstallReceiver`'ı üzerindeki `android:permission` **koruması**. Paketi
   `grep`lemek yetmiyor, bağlamına bakmak gerekiyor.
+- **Play kapalı testi API'den YAYINA ALINAMIYOR — uygulama hâlâ "taslak".**
+  2026-08-25'te ölçüldü: paket alpha izine yükleniyor ama `completed`e almak
+  reddediliyor.
+
+      "Only releases with status draft may be created on draft app."
+
+  İç test izi bu durumda `completed` kabul ediyor (versionCode 6 yayında), kapalı
+  test etmiyor. Taslak sürüm test cihazlarına inmiyor, yani yüklemek tek başına
+  hiçbir şey teslim etmiyor.
+
+  Uygulamanın taslaktan çıkması Console'daki kalan maddelere bağlı (App content
+  beyanları, veri güvenliği formunun incelemeye gönderilmesi) ve **API ile
+  yapılamıyor.** O bitene kadar yayın hattının izi `internal`; bitince:
+
+      gh variable set PLAY_IZ --body alpha
+
+  İz bilerek `vars.PLAY_IZ` değişkeninde, kodda gömülü değil.
 - Play iç testi: "Select testers" seçilmemiş (3'te 2). Kapalı testten önce bitmeli.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
