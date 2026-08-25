@@ -1278,12 +1278,12 @@ export const en: Metinler = {
       'The range shifted up. One measurement says nothing; look at the direction across three.',
     aralikAyni: 'The range stayed the same.',
     fotografNotu:
-      'These photos live only on your phone. If you change phones they are gone — we want you to know that now.',
+      'Your photos are not stored anywhere: they are deleted the moment analysis finishes. That is why the comparison uses MEASUREMENTS, not photos — the circumference figures and body-fat range below are the real evidence.',
     yeniOlcum: 'Take a new measurement',
     cevreOlculeri: 'Tape measurements',
     belNotu:
       'Waist is one of the fastest-responding measurements, even when the scale does not move.',
-    fotografYok: 'NO PHOTOS\nON THIS DEVICE',
+    fotografYok: 'PHOTOS ARE\nNOT STORED',
   },
 
   ogun: {

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { Stack } from 'expo-router';
-import Svg, { Circle, Rect } from 'react-native-svg';
+import { Stack, router } from 'expo-router';
 import {
   BosDurum,
   Dugme,
@@ -16,7 +15,6 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 import { gunAyMetni } from '@swiip/shared';
 
@@ -37,12 +35,6 @@ interface Analiz {
   measurements_jsonb: Record<string, number>;
 }
 
-interface CihazFotografi {
-  analiz_id: string;
-  poz: 'on' | 'yan' | 'arka';
-  tarih: string;
-}
-
 export default function Karsilastirma() {
   const tema = useTema();
   const m = useMetinler().karsilastirma;
@@ -50,7 +42,6 @@ export default function Karsilastirma() {
   const sayilarGizli = useSayilarGizli();
 
   const [analizler, setAnalizler] = useState<Analiz[]>([]);
-  const [cihazFotograflari, setCihazFotograflari] = useState<CihazFotografi[]>([]);
   const [sol, setSol] = useState(0);
   const [sag, setSag] = useState(0);
   const [hazir, setHazir] = useState(false);
@@ -62,8 +53,19 @@ export default function Karsilastirma() {
     setSol(liste.length - 1);
     setSag(0);
 
-    // Fotoğraf listesi yalnızca cihazda; sunucudan gelmez.
-    setCihazFotograflari((await oku<CihazFotografi[]>(ANAHTARLAR.profilOzeti)) ?? []);
+    /*
+      Cihazda fotoğraf SAKLANMIYOR.
+      Burada `ANAHTARLAR.profilOzeti` okunuyordu ama o anahtarı hiçbir şey yazmıyor:
+      `fotograf/cekim.tsx` kareleri sunucuya gönderdikten sonra bilerek bellekten
+      düşürüyor (gizlilik sözü). Yani `varMi` her zaman false'tu, iki yuva da hep boş
+      görünüyordu ve ekranın altındaki not "bu fotoğraflar yalnızca senin telefonunda"
+      diyerek tutulmayan bir söz veriyordu.
+
+      Karşılaştırma ÖLÇÜLERLE yapılıyor ve o kısım gerçekten çalışıyor: çevre ölçüleri
+      ve yağ oranı aralığı sunucudan geliyor. Cihazda fotoğraf saklamak ayrı bir ürün
+      kararı (ayrı rıza, çıkışta ve hesap silmede temizlik) — kararı verilene kadar
+      ekran olmayan bir şeyi varmış gibi göstermiyor.
+    */
     setHazir(true);
   }, []);
 
@@ -115,7 +117,6 @@ export default function Karsilastirma() {
             </Yazi>
             <FotografYeri
               tarih={solAnaliz ? gunAyMetni(new Date(solAnaliz.taken_at), dil) : ''}
-              varMi={cihazFotograflari.some((f) => f.analiz_id === solAnaliz?.id)}
               tema={tema}
             />
           </View>
@@ -125,7 +126,6 @@ export default function Karsilastirma() {
             </Yazi>
             <FotografYeri
               tarih={sagAnaliz ? gunAyMetni(new Date(sagAnaliz.taken_at), dil) : ''}
-              varMi={cihazFotograflari.some((f) => f.analiz_id === sagAnaliz?.id)}
               tema={tema}
             />
           </View>
@@ -187,12 +187,12 @@ export default function Karsilastirma() {
 
         <Uyari tur="uyari" govde={m.fotografNotu} />
 
-        <Dugme
-          baslik={m.yeniOlcum}
-          onPress={() => {
-            void yaz(ANAHTARLAR.profilOzeti, cihazFotograflari);
-          }}
-        />
+        {/*
+          Düğme ÇEKİM ekranına gidiyor.
+          Eskiden değişmemiş bir diziyi önbelleğe geri yazıyordu: görünür hiçbir şey
+          yapmıyordu, kullanıcı basıyor ve hiçbir şey olmuyordu.
+        */}
+        <Dugme baslik={m.yeniOlcum} onPress={() => router.push('/fotograf/cekim')} />
       </Ekran>
     </>
   );
@@ -246,15 +246,7 @@ function OlcuKarsilastirma({
   );
 }
 
-function FotografYeri({
-  tarih,
-  varMi,
-  tema,
-}: {
-  tarih: string;
-  varMi: boolean;
-  tema: ReturnType<typeof useTema>;
-}) {
+function FotografYeri({ tarih, tema }: { tarih: string; tema: ReturnType<typeof useTema> }) {
   const m = useMetinler().karsilastirma;
 
   return (
@@ -270,45 +262,14 @@ function FotografYeri({
         gap: tema.bosluk.sm,
       }}
     >
-      {varMi ? (
-        <Svg width={60} height={90} viewBox="0 0 60 90">
-          <Circle cx={30} cy={16} r={9} fill={tema.renk.metinSilik} opacity={0.3} />
-          <Rect
-            x={20}
-            y={28}
-            width={20}
-            height={34}
-            rx={6}
-            fill={tema.renk.metinSilik}
-            opacity={0.3}
-          />
-          <Rect
-            x={23}
-            y={62}
-            width={6}
-            height={24}
-            rx={3}
-            fill={tema.renk.metinSilik}
-            opacity={0.3}
-          />
-          <Rect
-            x={31}
-            y={62}
-            width={6}
-            height={24}
-            rx={3}
-            fill={tema.renk.metinSilik}
-            opacity={0.3}
-          />
-        </Svg>
-      ) : (
-        <Yazi tur="etiket" renk="metinSilik" hizala="center">
-          {m.fotografYok}
-        </Yazi>
-      )}
-      <Yazi tur="etiket" renk="metinSilik">
-        {tarih}
+      <Yazi tur="etiket" renk="metinSilik" hizala="center">
+        {m.fotografYok}
       </Yazi>
+      {tarih ? (
+        <Yazi tur="etiket" renk="metinSilik">
+          {tarih}
+        </Yazi>
+      ) : null}
     </View>
   );
 }

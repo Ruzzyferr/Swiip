@@ -1328,11 +1328,11 @@ export const tr = {
     aralikYukari: 'Aralık yukarı kaydı. Tek ölçüm bir şey söylemez; üç ölçümün yönüne bak.',
     aralikAyni: 'Aralık aynı kaldı.',
     fotografNotu:
-      'Bu fotoğraflar yalnızca senin telefonunda. Telefon değiştirirsen giderler — bunu şimdiden bilmeni istiyoruz.',
+      'Fotoğrafların hiçbir yerde saklanmıyor: analiz edilir edilmez siliniyor. Bu yüzden karşılaştırma fotoğrafla değil ÖLÇÜLERLE yapılıyor — aşağıdaki çevre ölçüleri ve yağ oranı aralığı gerçek kanıt.',
     yeniOlcum: 'Yeni ölçüm al',
     cevreOlculeri: 'Çevre ölçüleri',
     belNotu: 'Bel ölçüsü kilo düşmese bile en hızlı yanıt veren ölçülerden biri.',
-    fotografYok: 'BU CİHAZDA\nFOTOĞRAF YOK',
+    fotografYok: 'FOTOĞRAF\nSAKLANMIYOR',
   },
 
   ogun: {
