@@ -52,9 +52,20 @@ const ENGELLENMESI_GEREKENLER = [
    * görünmesi, hiç kullanılmayan bir yetenek için ödenecek en kötü bedel.
    */
   'android.permission.RECORD_AUDIO',
-  /** İmza düzeyinde sistem izni; uygulamaya zaten verilmiyor, listeyi şişiriyor. */
-  'android.permission.DUMP',
 ];
+
+/**
+ * `android.permission.DUMP` BİLEREK bu listede değil.
+ *
+ * Üretilen AAB'de göründüğü için önce engellenmişti — yanlış okumaydı. Manifestte
+ * `uses-permission` olarak DEĞİL, `androidx.profileinstaller.ProfileInstallReceiver`
+ * üzerindeki `android:permission` özniteliği olarak duruyor. Yani uygulamanın
+ * İSTEDİĞİ bir izin değil; o alıcıyı yalnızca DUMP yetkisi olanın (sistem/adb)
+ * çağırabilmesini sağlayan bir KORUMA. Play izin listesinde de görünmüyor.
+ *
+ * Engellemek en iyi ihtimalle etkisiz; birleştirici bir gün dikkate alsaydı alıcıyı
+ * korumasız bırakırdı — yani düzeltmek istediğimizin tersi.
+ */
 
 /** Gerçekten kullandığımız izinler. Listeye ekleme yapmadan önce nedenini yaz. */
 const BEKLENEN_IZINLER = ['android.permission.CAMERA', 'android.permission.POST_NOTIFICATIONS'];
