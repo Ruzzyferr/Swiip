@@ -9,11 +9,15 @@
  * Değerlendirmenin tamamlanmış olması da şart: program, beslenme ve koç sekmeleri
  * bitene kadar kilitli, ve kilitli özelliğe dokunmak paywall'a düşmenin ikinci yolu.
  *
- *   node scripts/inceleme-hesabi-kur.mjs [taban-url]
+ *   node scripts/inceleme-hesabi-kur.mjs [eposta] [parola] [taban-url]
+ *
+ * E-posta verilmezse ücretsiz inceleme hesabı kurulur. Başka bir adres verilirse
+ * aynı akış o hesap için işletilir; Pro hakkı AYRICA verilir (bkz. pro-hakki-ver.mjs),
+ * çünkü hak vermek satın alma defterine dokunmak demek ve ayrı bir karar.
  */
-const TABAN = process.argv[2] ?? 'https://swiip.app';
-const EPOSTA = 'inceleme-ucretsiz@swiip.app';
-const PAROLA = 'kumsal-terazi-5820-fener';
+const EPOSTA = process.argv[2] ?? 'inceleme-ucretsiz@swiip.app';
+const PAROLA = process.argv[3] ?? 'kumsal-terazi-5820-fener';
+const TABAN = process.argv[4] ?? 'https://swiip.app';
 
 async function cagir(yol, { yontem = 'GET', govde, token } = {}) {
   const y = await fetch(`${TABAN}${yol}`, {
