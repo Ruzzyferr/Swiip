@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -422,23 +422,34 @@ function BesinDegistir({ onSec }: { onSec: (besin: BesinSonucu) => void }) {
   const [sorgu, setSorgu] = useState('');
   const [sonuclar, setSonuclar] = useState<BesinSonucu[]>([]);
 
-  const ara = async (metin: string) => {
-    setSorgu(metin);
-    if (metin.length < 2) {
+  /**
+   * Arama GECİKMELİ.
+   *
+   * Her tuş vuruşunda bir ağ isteği gidiyordu: "tavuk göğsü" yazmak on iki istek eder
+   * ve cevaplar sırasız döndüğü için liste titriyor, bazen eski sorgunun sonucu
+   * ekranda kalıyordu. Beslenme sekmesindeki aynı arama zaten 250 ms gecikmeyle
+   * çalışıyor (`(sekme)/beslenme.tsx`); iki kopya iki farklı davranış demekti.
+   */
+  useEffect(() => {
+    if (sorgu.length < 2) {
       setSonuclar([]);
       return;
     }
-    const cevap = await istek<{ sonuclar: BesinSonucu[] }>(
-      `/v1/beslenme/besin/ara?q=${encodeURIComponent(metin)}`,
-    ).catch(() => null);
-    setSonuclar(cevap?.sonuclar ?? []);
-  };
+    const zamanlayici = setTimeout(() => {
+      void istek<{ sonuclar: BesinSonucu[] }>(
+        `/v1/beslenme/besin/ara?q=${encodeURIComponent(sorgu)}`,
+      )
+        .then((c) => setSonuclar(c.sonuclar))
+        .catch(() => setSonuclar([]));
+    }, 250);
+    return () => clearTimeout(zamanlayici);
+  }, [sorgu]);
 
   return (
     <View style={{ gap: tema.bosluk.sm }}>
       <TextInput
         value={sorgu}
-        onChangeText={(v) => void ara(v)}
+        onChangeText={setSorgu}
         placeholder={m.dogruYemegiAra}
         placeholderTextColor={tema.renk.metinSilik}
         accessibilityLabel={m.dogruYemegiAra}

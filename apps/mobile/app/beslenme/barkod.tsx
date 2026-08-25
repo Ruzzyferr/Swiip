@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -54,6 +54,8 @@ export default function Barkod() {
 
   const [izin, izinIste] = useCameraPermissions();
   const [tarariyor, setTarariyor] = useState(false);
+  /** Kamera saniyede onlarca kez okuyor; mandal senkron olmali. */
+  const kilitli = useRef(false);
   const [girdi, setGirdi] = useState('');
   const [besin, setBesin] = useState<BesinCevabi | null>(null);
   const [miktar, setMiktar] = useState('100');
@@ -97,13 +99,26 @@ export default function Barkod() {
    * Kamera aynı barkodu saniyede onlarca kez okur; ilk okumada tarayıcıyı kapatıyoruz.
    */
   const tarandi = (deger: string) => {
-    if (!tarariyor) return;
+    /*
+      Mandal `useRef`'te, state'te DEĞİL.
+      `setTarariyor(false)` bir sonraki çizime kadar `tarariyor`u değiştirmiyor; kamera
+      ise aynı barkodu saniyede onlarca kez okuyor. O aralıkta gelen çağrıların hepsi
+      `if (!tarariyor) return;` kontrolünü geçiyor ve aynı barkod için birden çok istek
+      gidiyordu. `ref` senkron güncelleniyor, ilk okuma kapıyı hemen kapatıyor.
+    */
+    if (kilitli.current) return;
+    kilitli.current = true;
+
     setTarariyor(false);
     setGirdi(deger);
     void araBarkod(deger);
   };
 
-  const ara = () => araBarkod(girdi);
+  const ara = () => {
+    // Elle arama tarayıcıyı yeniden açabilmeli.
+    kilitli.current = false;
+    return araBarkod(girdi);
+  };
 
   const gunEkle = async () => {
     if (!besin) return;
