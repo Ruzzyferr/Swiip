@@ -276,23 +276,30 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   engellenmeye çalışıldı. O bir `uses-permission` değil, AndroidX'in
   `ProfileInstallReceiver`'ı üzerindeki `android:permission` **koruması**. Paketi
   `grep`lemek yetmiyor, bağlamına bakmak gerekiyor.
-- **Play kapalı testi API'den YAYINA ALINAMIYOR — uygulama hâlâ "taslak".**
-  2026-08-25'te ölçüldü: paket alpha izine yükleniyor ama `completed`e almak
-  reddediliyor.
+- **Play: uygulama 2026-08-25'te ilk kez incelemeye GÖNDERİLDİ.** O güne kadar
+  "taslak uygulama"ydı ve bu, kapalı testi API'den yayına almayı engelliyordu:
 
       "Only releases with status draft may be created on draft app."
 
-  İç test izi bu durumda `completed` kabul ediyor (versionCode 6 yayında), kapalı
-  test etmiyor. Taslak sürüm test cihazlarına inmiyor, yani yüklemek tek başına
-  hiçbir şey teslim etmiyor.
+  Konsoldan tamamlananlar: Advertising ID beyanı (**Hayır** — pakette `AD_ID` izni
+  ve `gms.ads` yok, Google'ın kendi kuralına göre kullanan bir SDK olsa izin
+  manifeste birleşirdi), kapalı test için ülke (Türkiye), her iki ize 16 kişilik
+  mevcut "Testers" listesi, geri bildirim adresi, ve sürüm notu.
 
-  Uygulamanın taslaktan çıkması Console'daki kalan maddelere bağlı (App content
-  beyanları, veri güvenliği formunun incelemeye gönderilmesi) ve **API ile
-  yapılamıyor.** O bitene kadar yayın hattının izi `internal`; bitince:
+  Sağlık beyanı **kendiliğinden düştü** — yeni paketten `ACTIVITY_RECOGNITION`
+  çıktığı için. App content artık "You're all caught up".
 
-      gh variable set PLAY_IZ --body alpha
+  Sonuç: 14 değişiklik incelemede, kapalı test sürümü `draft` → `completed`.
+  Google tipik olarak 7 gün içinde sonuçlandırıyor.
 
-  İz bilerek `vars.PLAY_IZ` değişkeninde, kodda gömülü değil.
+  **Sürüm notu konsolda dil etiketi istiyor:** düz metin `Line 1: text outside
+  language tags` hatası veriyor, `<tr-TR>…</tr-TR>` ile sarılmalı. API'de böyle bir
+  şey yok (`releaseNotes: [{language, text}]`), yalnızca konsol alanı için.
+
+  **Yayın hattının izi hâlâ `internal`.** İnceleme onaylanıp uygulama taslaktan
+  çıkınca tek komut: `gh variable set PLAY_IZ --body alpha`. Onaydan önce çevirmek
+  her koşuyu kırmızıya düşürebilir; iç test izi bugün çalışıyor.
+
 - Play iç testi: "Select testers" seçilmemiş (3'te 2). Kapalı testten önce bitmeli.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
 - Play servis hesabı anahtarı `C:\Users\ruzzy\.play-keys\play-servis-hesabi.json`
