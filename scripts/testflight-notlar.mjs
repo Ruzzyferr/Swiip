@@ -39,11 +39,19 @@ const sonMu = argumanlar[0] === '--son';
 const hedefNumara = sonMu ? null : argumanlar[0];
 const metin = argumanlar[1] ?? '';
 
+/**
+ * Boş metin YAYINI DÜŞÜRMEZ.
+ *
+ * Not iyi bir şey ama teslim edilen şey derlemenin kendisi. Boş notta hata verilseydi,
+ * paket TestFlight'a çıkmış olmasına rağmen yayın kırmızı biterdi ve — daha kötüsü —
+ * etiket atılmadığı için bir sonraki koşu aynı commit'i yeniden derlerdi.
+ *
+ * Uydurma bir cümle de yazılmıyor: "İyileştirmeler ve hata düzeltmeleri" her sürüme
+ * konan, hiçbir şey söylemeyen bir cümle. Susmak dürüst olanı.
+ */
 if (!metin.trim()) {
-  console.error(
-    'Metin boş; yazılacak bir şey yok. Kullanım: testflight-notlar.mjs --son "<metin>"',
-  );
-  process.exit(2);
+  console.log('::notice::Sürüm notu boş; TestFlight alanına dokunulmadı.');
+  process.exit(0);
 }
 if (metin.length > SINIR) {
   console.error(`Metin ${metin.length - SINIR} karakter fazla (sınır ${SINIR}). Yazılmadı.`);
