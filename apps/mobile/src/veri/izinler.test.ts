@@ -82,3 +82,53 @@ describe('Android izinleri', () => {
     expect(kesisim, 'aynı izin hem istenip hem engellenemez').toEqual([]);
   });
 });
+
+/**
+ * iOS izin metinleri — Android manifestiyle aynı sınıf kusur.
+ *
+ * Üretilen IPA'nın `Info.plist`'i açılıp okundu: `app.json` iki izin metni bildiriyor
+ * ama pakette BEŞ tane vardı. Üçü eklenti varsayılanıydı ve hepsi İngilizce:
+ *
+ *   NSMicrophoneUsageDescription  "Allow Swiip to access your microphone"
+ *   NSMotionUsageDescription      "Allow Swiip to access your device motion"
+ *   NSFaceIDUsageDescription      "Allow Swiip to access your Face ID biometric data."
+ *
+ * İki sorun birden. Birincisi: mikrofon ve Face ID **hiç kullanılmıyor** — uygulama ses
+ * kaydetmiyor, biyometrik kimlik doğrulaması yapmıyor. Apple, kullanılmayan izin metni
+ * bildiren uygulamaları reddediyor ve gizlilik etiketiyle de çelişiyor.
+ *
+ * İkincisi: bu metinler kullanıcıya SİSTEM DİYALOĞUNDA gösteriliyor. Türkiye önce bir
+ * üründe, vücut fotoğrafı çekerken çıkan kutuda İngilizce bir cümle görmek, uygulamanın
+ * kendi iki metninin özenle Türkçe yazılmış olmasını boşa çıkarıyor.
+ *
+ * Hareket izni GERÇEKTEN kullanılıyor (`app/fotograf/cekim.tsx`, telefon dik mi
+ * kontrolü ivmeölçerden) — o yüzden silinmiyor, Türkçeleştiriliyor. Kör silme yerine
+ * her birinin kullanılıp kullanılmadığına bakıldı.
+ */
+describe('iOS izin metinleri', () => {
+  const yapilandirma = JSON.parse(readFileSync(uygulamaJson, 'utf8')) as {
+    expo: { plugins?: (string | [string, Record<string, unknown>])[] };
+  };
+
+  const eklenti = (ad: string): Record<string, unknown> | undefined => {
+    const bulunan = (yapilandirma.expo.plugins ?? []).find(
+      (p): p is [string, Record<string, unknown>] => Array.isArray(p) && p[0] === ad,
+    );
+    return bulunan?.[1];
+  };
+
+  it('mikrofon izin metni siliniyor — uygulama ses kaydetmiyor', () => {
+    expect(eklenti('expo-camera')?.microphonePermission).toBe(false);
+  });
+
+  it('Face ID izin metni siliniyor — biyometrik kimlik doğrulaması yok', () => {
+    expect(eklenti('expo-secure-store')?.faceIDPermission).toBe(false);
+  });
+
+  it('hareket izni SİLİNMİYOR ama Türkçe — ivmeölçer gerçekten kullanılıyor', () => {
+    const metin = eklenti('expo-sensors')?.motionPermission;
+    expect(typeof metin, 'silinmemeli: çekim ekranı ivmeölçer okuyor').toBe('string');
+    // Türkçeye özgü harf: varsayılan İngilizce metin geri gelirse yakalanır.
+    expect(String(metin)).toMatch(/[çğıöşüÇĞİÖŞÜ]/);
+  });
+});

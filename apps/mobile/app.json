@@ -41,12 +41,24 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
       [
         "expo-camera",
         {
           "cameraPermission": "Vücut analizi ve barkod okuma için kamera gerekiyor. Fotoğrafın analiz edildikten sonra anında silinir, sunucumuzda saklanmaz.",
-          "recordAudioAndroid": false
+          "recordAudioAndroid": false,
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Fotoğrafı çekerken telefonun dik olup olmadığını ivmeölçerden okuyoruz. Aynı açıyla çekilmeyen iki fotoğraf karşılaştırılamaz."
+        }
+      ],
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
         }
       ],
       [
