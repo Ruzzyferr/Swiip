@@ -25,6 +25,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { veriyiPaylas } from '../../src/veri/disaAktar';
+import { ANAHTARLAR, sil } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
 import { tarihMetni } from '@swiip/shared';
 import { magaza } from '../../src/odeme/magaza';
@@ -313,9 +314,10 @@ export default function Ayarlar() {
             baslik={a.degerlendirmeyiGuncelle}
             tur="ikincil"
             onPress={() => {
-              void istek('/v1/degerlendirme/yeni-surum', { yontem: 'POST', govde: {} }).then(() =>
-                router.push('/degerlendirme'),
-              );
+              // Yeni surum eski taslakla acilmasin; taslak tamamlanmis surumun kalintisi.
+              void sil(ANAHTARLAR.degerlendirmeTaslagi)
+                .then(() => istek('/v1/degerlendirme/yeni-surum', { yontem: 'POST', govde: {} }))
+                .then(() => router.push('/degerlendirme'));
             }}
           />
         </Kart>

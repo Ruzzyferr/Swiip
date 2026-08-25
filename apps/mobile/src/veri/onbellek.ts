@@ -19,6 +19,8 @@ export const ANAHTARLAR = {
   beslenmeHedefi: 'beslenme_hedefi',
   profilOzeti: 'profil_ozeti',
   bildirimTercihleri: 'bildirim_tercihleri',
+  /** Alışveriş listesinde işaretlenen kalemler. Markette ekrandan çıkınca kaybolmasın. */
+  alisverisIsaretleri: 'alisveris_isaretleri',
 } as const;
 
 export type OnbellekAnahtari = (typeof ANAHTARLAR)[keyof typeof ANAHTARLAR];

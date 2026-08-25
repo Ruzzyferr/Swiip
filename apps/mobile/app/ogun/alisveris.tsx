@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 import { Pressable, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
@@ -70,11 +71,34 @@ export default function AlisverisListesi() {
   const [hazir, setHazir] = useState(false);
   const [dolapHatasi, setDolapHatasi] = useState<string | null>(null);
 
+  /**
+   * İşaretler CİHAZDA saklanıyor.
+   *
+   * Yalnızca React state'teydi: ekrandan çıkıp geri gelmek — markette gayet olağan —
+   * bütün işaretleri siliyordu. Ekranın kendi notu "işaretleme cihazda tutulur" diyordu
+   * ama tutulmuyordu. Hafta anahtarıyla saklanıyor; yeni haftanın listesi eski
+   * işaretlerle açılmasın.
+   */
+  const isaretAnahtari = haftaBasi();
+
+  const isaretleriYaz = useCallback(
+    (yeni: Set<string>) => {
+      setAlinanlar(yeni);
+      void yaz(ANAHTARLAR.alisverisIsaretleri, { hafta: isaretAnahtari, kalemler: [...yeni] });
+    },
+    [isaretAnahtari],
+  );
+
   const yukle = useCallback(async () => {
     const cevap = await istek<ListeCevabi>(`/v1/ogun/plan/${haftaBasi()}`).catch(() => null);
     setReyonlar(cevap?.alisveris?.grouped_by_aisle ?? {});
+
+    const kayitli = await oku<{ hafta: string; kalemler: string[] }>(
+      ANAHTARLAR.alisverisIsaretleri,
+    );
+    if (kayitli && kayitli.hafta === isaretAnahtari) setAlinanlar(new Set(kayitli.kalemler));
     setHazir(true);
-  }, []);
+  }, [isaretAnahtari]);
 
   useEffect(() => {
     void yukle();
@@ -103,12 +127,10 @@ export default function AlisverisListesi() {
   }
 
   const degistir = (ad: string) => {
-    setAlinanlar((mevcut) => {
-      const yeni = new Set(mevcut);
-      if (yeni.has(ad)) yeni.delete(ad);
-      else yeni.add(ad);
-      return yeni;
-    });
+    const yeni = new Set(alinanlar);
+    if (yeni.has(ad)) yeni.delete(ad);
+    else yeni.add(ad);
+    isaretleriYaz(yeni);
   };
 
   return (

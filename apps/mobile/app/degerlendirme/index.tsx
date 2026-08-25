@@ -29,7 +29,7 @@ import { istek } from '../../src/veri/api';
 import { baglantiSorunuMu, yeniCevaplar } from '@swiip/shared';
 import { islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
+import { ANAHTARLAR, oku, sil, yaz } from '../../src/veri/onbellek';
 
 /**
  * Değerlendirme koşucusu (F2.1, F2.6, F2.9).
@@ -305,6 +305,15 @@ export default function Degerlendirme() {
       if (!sonrasi) {
         try {
           await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
+          /*
+            Taslak SILINIYOR.
+            Cihazdaki taslak, birlestirmede sunucunun uzerine biniyor (cevrimdisi
+            cevaplanan sorular kaybolmasin diye — dogru karar). Ama tamamlandiktan
+            sonra hic temizlenmiyordu: ayarlardan "Degerlendirmeyi guncelle" deyip yeni
+            surum acan kullanicinin karsisina aylar oncesinin taslagi cikiyor ve
+            sunucudaki taze cevaplari eziyordu.
+          */
+          await sil(ANAHTARLAR.degerlendirmeTaslagi);
         } catch {
           // Tamamlanmadan ilerlemek, profilsiz bir kullanici yaratir: program uretilemez.
           setHata(islemHatasiMetni('degerlendirme_tamamla', dil));
