@@ -290,3 +290,54 @@ jobs:
           git tag -a "$ad" -m "Play: ${{ needs.android.result }} · TestFlight: ${{ needs.ios.result }}"
           git push origin "$ad"
           echo "::notice::$ad etiketlendi; bir sonraki sürüm notu buradan başlayacak."
+
+  bildirim:
+    name: Bildirim
+    needs: [kapi, android, ios, etiket]
+    # `always()`: asıl değeri BAŞARISIZLIKTA. Yalnız başarıda koşan bir bildirim,
+    # sessizliği "her şey yolunda" diye okutur — oysa sessizlik hem başarı hem çöküş
+    # anlamına gelir. GitHub'ın kendi e-postası da yalnız hataya ve yalnız commit'i
+    # atana gidiyor, üstelik kişinin bildirim ayarına bağlı.
+    if: always() && needs.kapi.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Sonucu gönder
+        env:
+          POSTA_API_KEY: ${{ secrets.POSTA_API_KEY }}
+          BILDIRIM_ALICI: ${{ secrets.BILDIRIM_ALICI }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_SOHBET_ID: ${{ secrets.TELEGRAM_SOHBET_ID }}
+          DURUM: >-
+            ${{ (needs.android.result == 'failure' || needs.ios.result == 'failure')
+                && 'failure'
+                || (needs.kapi.outputs.derle != 'evet' && 'skipped' || 'success') }}
+          BAGLANTI: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DERLE: ${{ needs.kapi.outputs.derle }}
+          ANDROID: ${{ needs.android.result }}
+          IOS: ${{ needs.ios.result }}
+          ETIKET: ${{ needs.etiket.result }}
+          NOTLAR: ${{ needs.kapi.outputs.notlar_kisa }}
+          BASLIK_COMMIT: ${{ github.event.workflow_run.head_commit.message || github.sha }}
+        run: |
+          set -euo pipefail
+          baslik="Swiip yayın"
+          if [ "$DERLE" != "evet" ]; then
+            baslik="Swiip yayın — atlandı (ürün değişmemiş)"
+          fi
+          {
+            echo "Play kapalı test : $ANDROID"
+            echo "TestFlight       : $IOS"
+            echo "Etiket           : $ETIKET"
+            echo
+            echo "Commit: $(printf '%s' "$BASLIK_COMMIT" | head -1)"
+            if [ -n "${NOTLAR:-}" ]; then
+              echo
+              echo "Sürüm notu:"
+              printf '%s\n' "$NOTLAR"
+            fi
+          } > ayrinti.txt
+          cat ayrinti.txt
+          BASLIK="$baslik" AYRINTI="$(cat ayrinti.txt)" node scripts/bildirim-gonder.mjs
