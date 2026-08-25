@@ -10,7 +10,7 @@ import { splitSec } from '../split/split';
 /**
  * Blok arası geri bildirim (F2.8).
  *
- * Bu ekranlar terk oranına karşı en güçlü kozumuz: kullanıcı 12 dakikayı boşa harcamadığını
+ * Bu ekranlar terk oranına karşı en güçlü kozumuz: kullanıcı emeğini boşa harcamadığını
  * her blokta görür. Bu yüzden her metin gerçek bir hesaptan gelir, genel bir cümle değildir.
  *
  * ED modunda hiçbir metinde sayı görünmez.
@@ -24,7 +24,7 @@ export interface BlokGeriBildirimi {
    * Metin anahtarı.
    *
    * Değerlendirmenin her bloğunun sonunda "ne öğrendik, programını nasıl değiştirdi"
-   * cümlesi çıkıyor; 134 soruyu bitirten şey bu. Cümleyi motorda sabitlemek onu yalnızca
+   * cümlesi çıkıyor; akışı bitirten şey bu. Cümleyi motorda sabitlemek onu yalnızca
    * Türkçe kullanıcıya vermek demekti — motor anahtar üretiyor, cümle sözlükte kuruluyor.
    */
   anahtar: string;
@@ -134,17 +134,30 @@ const URETICILER: Record<string, Uretici> = {
   },
 
   A: (cevaplar) => {
-    const yas = antrenmanYasiBelirle(cevaplar);
-    const esik = TABAN_HACIM[yas];
-    const etiket = SEVIYE_ADLARI[yas];
+    const profil = profilDerle(cevaplar, { bugun: new Date(), userId: 'onizleme' });
+    const havuz = havuzHazirla(profil);
+    const agriElemesi = new Set(
+      havuz.elemeler
+        .filter((e) => e.kural === 'agriyi_artiran_patern' || e.kural === 'eksenel_yuk_yasak')
+        .map((e) => e.hareket_id),
+    ).size;
+
+    if (agriElemesi === 0) {
+      return c(
+        'agriTemiz',
+        'Ağrı tarafında programı kısıtlayan bir şey yok. Bir seansta ağrı bildirirsen ' +
+          'programı o gün değiştiririm.',
+      );
+    }
     return c(
-      'antrenmanYasi',
-      `${etiket} seviye. Haftada kas grubu başına ${esik.hedefAlt}-${esik.hedefUst} set kaldırırsın.`,
-      { seviye: yas, alt: esik.hedefAlt, ust: esik.hedefUst },
+      'agriEleme',
+      `Bildirdiğin ağrıya göre ${agriElemesi} hareket değişti; yerlerine aynı kası çalıştıran ` +
+        'muadiller koydum.',
+      { adet: agriElemesi },
     );
   },
 
-  S: (cevaplar) => {
+  G: (cevaplar) => {
     const profil = profilDerle(cevaplar, { bugun: new Date(), userId: 'onizleme' });
     const havuz = havuzHazirla(profil);
     const kisitElemesi = new Set(
@@ -184,41 +197,24 @@ const URETICILER: Record<string, Uretici> = {
   Z: (cevaplar) => {
     const gun = sayi(cevaplar, 'Z1') ?? Number(metin(cevaplar, 'Z1')?.match(/\d+/)?.[0] ?? 3);
     const dakika = Number(metin(cevaplar, 'Z2')?.match(/\d+/)?.[0] ?? 45);
-    const split = splitSec({
-      gunSayisi: gun,
-      antrenmanYasi: antrenmanYasiBelirle(cevaplar),
-      seansDakika: dakika,
-    });
+    const yas = antrenmanYasiBelirle(cevaplar);
+    const split = splitSec({ gunSayisi: gun, antrenmanYasi: yas, seansDakika: dakika });
+    const esik = TABAN_HACIM[yas];
 
-    return c('split', `${SPLIT_ADLARI[split.tip]} · ${split.gun_sayisi} gün sana uygun.`, {
-      split: SPLIT_ADLARI[split.tip] ?? split.tip,
-      gun: split.gun_sayisi,
-    });
-  },
-
-  Y: (cevaplar) => {
-    const uyku = metin(cevaplar, 'Y1');
-    const stres = sayi(cevaplar, 'Y6') ?? 5;
-    const duzeltmeler: string[] = [];
-
-    if (uyku === '5 saatten az' || uyku === '5-6 saat') duzeltmeler.push('uykun kısa');
-    if (stres >= 8) duzeltmeler.push('stresin yüksek');
-
-    if (duzeltmeler.length === 0) {
-      return c(
-        'toparlanmaTemiz',
-        'Toparlanma tarafında engelleyici bir şey yok; hacmi standart aralıkta tutuyorum.',
-      );
-    }
-
-    const oran = (uyku === '5 saatten az' || uyku === '5-6 saat' ? 12 : 0) + (stres >= 8 ? 10 : 0);
+    /**
+     * Antrenman yaşı ve split aynı kartta soruluyor, dolayısıyla aynı cümlede dönüyor.
+     * Ayrı bloklarken iki ayrı geri bildirim ekranıydı; kart birleşince cümle de birleşti.
+     */
     return c(
-      'toparlanmaDuzeltme',
-      `${cumleBasi(duzeltmeler.join(' ve '))}; haftalık hacmi yaklaşık %${oran} düşürdüm.`,
+      'splitVeSeviye',
+      `${SPLIT_ADLARI[split.tip]} · ${split.gun_sayisi} gün. ${SEVIYE_ADLARI[yas]} seviye: ` +
+        `haftada kas grubu başına ${esik.hedefAlt}-${esik.hedefUst} set.`,
       {
-        oran,
-        uykuKisa: uyku === '5 saatten az' || uyku === '5-6 saat' ? 1 : 0,
-        stres: stres >= 8 ? 1 : 0,
+        split: SPLIT_ADLARI[split.tip] ?? split.tip,
+        gun: split.gun_sayisi,
+        seviye: yas,
+        alt: esik.hedefAlt,
+        ust: esik.hedefUst,
       },
     );
   },
@@ -241,36 +237,27 @@ const URETICILER: Record<string, Uretici> = {
     );
   },
 
-  T: (cevaplar) => {
-    const kardiyo = metin(cevaplar, 'T3');
-    if (kardiyo === 'Nefret ederim') {
+  M: (cevaplar, edModu) => {
+    const kim = metin(cevaplar, 'B5');
+    if (kim === 'Ailem') {
       return c(
-        'kardiyoSevmiyor',
-        'Kardiyoyu sevmiyorsun; minimuma indirdim ve yerine günlük adım hedefi koydum.',
+        'mutfakAilem',
+        'Yemeği evde başkası hazırlıyor; menü dayatmayacağım. Mevcut sofraya porsiyon ve ' +
+          'tamamlayıcı önereceğim.',
       );
     }
-    if (kardiyo === 'Severim') {
+    if (edModu) {
+      return c('mutfakEd', 'Mutfak tercihlerini not ettim; planı porsiyon diliyle anlatacağım.');
+    }
+    const sure = metin(cevaplar, 'B7');
+    if (sure === 'Hiç pişiremem') {
       return c(
-        'kardiyoSeviyor',
-        'Kardiyoyu seviyorsun; toparlanmayı bozmayacak şekilde programa yerleştirdim.',
+        'mutfakPisirmez',
+        'Pişirme gerektirmeyen ve hazır alınabilen seçeneklerden kuracağım.',
       );
     }
-    return c(
-      'kardiyoOlculu',
-      'Kardiyoyu ölçülü tuttum: sağlık için yeterli, antrenmanı bozmayacak kadar.',
-    );
+    return c('mutfakTamam', 'Mutfak kısıtlarını not ettim; tarifleri bunlara göre seçeceğim.');
   },
-
-  F: (_cevaplar, edModu) =>
-    edModu
-      ? c(
-          'fotografEd',
-          'Ölçülerin kaydedildi. Vücut analizini sayı göstermeden, bölge bazlı anlatacağım.',
-        )
-      : c(
-          'fotograf',
-          'Vücut analizin hazırlanıyor. Yağ oranını tek sayı olarak değil, aralık olarak vereceğim.',
-        ),
 };
 
 const SEVIYE_ADLARI: Record<string, string> = {
@@ -305,8 +292,4 @@ function yasTahmini(cevaplar: Cevaplar): number {
 
 function sayiMetni(deger: number): string {
   return Number.isInteger(deger) ? String(deger) : String(deger).replace('.', ',');
-}
-
-function cumleBasi(metin: string): string {
-  return metin.charAt(0).toLocaleUpperCase('tr-TR') + metin.slice(1);
 }

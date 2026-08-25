@@ -44,45 +44,22 @@ const SIMGELER: Record<string, string> = {
   'Hiçbiri, vücut ağırlığı': '🧍',
 };
 
-/** Zincir salonlarda standart set. `salonOnDoldurma` ile aynı mantık, arayüz tarafı. */
-const SALON_SETLERI: Record<string, string[]> = {
-  MACFit: TAM_SET(),
-  'Fit In Time': TAM_SET(),
-  Sportium: TAM_SET(),
-  'B-Fit': DAR_SET(),
-  'Üniversite / kurum salonu': DAR_SET(),
-  'Bağımsız salon': DAR_SET(),
+/**
+ * E1 ("Nerede antrenman yapacaksın?") cevabına göre ön doldurma.
+ *
+ * Eskiden E2'ye (salon zinciri: MACFit, B-Fit…) bakıyordu ve o soru bankadan çıktı:
+ * cevabını hiçbir hesap okumuyordu. Ama ön doldurmanın kendisi ZATEN çalışmıyordu —
+ * `salon` prop'u hiçbir yerden geçilmiyordu, yani kod dört yıl boyunca ölüydü ve
+ * salon seçen kullanıcı 30 kutucuğu tek tek işaretliyordu.
+ *
+ * Artık E1'den geliyor ve gerçekten geçiliyor. Ön doldurma bir VARSAYIM, kısıt değil:
+ * kullanıcı tikleri kaldırabilir. Ev ve açık havada varsayım yapılmıyor — orada
+ * ekipman gerçekten olmayabilir.
+ */
+const KONUM_SETLERI: Record<string, string[]> = {
+  'Spor salonu': DAR_SET(),
+  Karma: DAR_SET(),
 };
-
-function TAM_SET(): string[] {
-  return [
-    'Barbell ve plaka',
-    'Dumbbell',
-    'Kettlebell',
-    'Leg press',
-    'Hack squat',
-    'Lat pulldown',
-    'Kablo makinesi',
-    'Smith makinesi',
-    'Barfiks barı',
-    'Dip barı',
-    'Düz bench',
-    'Eğimli bench',
-    'Ayarlanabilir bench',
-    'Squat rack',
-    'Koşu bandı',
-    'Sabit bisiklet',
-    'Kürek makinesi',
-    'Göğüs presi makinesi',
-    'Sırt makinesi',
-    'Omuz presi makinesi',
-    'Bacak ekstansiyon / curl makinesi',
-    'Baldır makinesi',
-    'Abduktor / adduktor makinesi',
-    'Preacher bench',
-    'Roma sandalyesi / hiperekstansiyon',
-  ];
-}
 
 function DAR_SET(): string[] {
   return [
@@ -103,16 +80,16 @@ export interface EkipmanEnvanteriProps {
   soru: Soru;
   deger: unknown;
   onDegisim: (deger: unknown) => void;
-  /** E2 cevabı; verilirse ön doldurma önerilir. */
-  salon?: string;
+  /** E1 cevabı; salon ya da karma ise ön doldurma önerilir. */
+  konum?: string;
 }
 
-export function EkipmanEnvanteri({ soru, deger, onDegisim, salon }: EkipmanEnvanteriProps) {
+export function EkipmanEnvanteri({ soru, deger, onDegisim, konum }: EkipmanEnvanteriProps) {
   const tema = useTema();
   const m = useMetinler().degerlendirme.ekipman;
   const secili = Array.isArray(deger) ? (deger as string[]) : [];
   const secenekler = soru.options ?? [];
-  const onDolduSet = salon ? SALON_SETLERI[salon] : undefined;
+  const onDolduSet = konum ? KONUM_SETLERI[konum] : undefined;
 
   const degistir = (secenek: string) => {
     if (secenek === 'Hiçbiri, vücut ağırlığı') {
@@ -127,7 +104,7 @@ export function EkipmanEnvanteri({ soru, deger, onDegisim, salon }: EkipmanEnvan
     <View style={{ gap: tema.bosluk.md }}>
       {onDolduSet && secili.length === 0 ? (
         <View style={{ gap: tema.bosluk.sm }}>
-          <Uyari govde={m.onDoldurmaOnerisi(salon ?? '')} />
+          <Uyari govde={m.onDoldurmaOnerisi(konum ?? '')} />
           <Dugme
             baslik={m.salonumaGoreDoldur}
             tur="ikincil"

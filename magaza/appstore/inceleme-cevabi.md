@@ -95,7 +95,7 @@ inceleyene yanlış beyan vermek istemeyiz.
 > _[DOLDURULACAK — ör. iPhone 15 Pro (iOS 26.0), iPhone 12 (iOS 26.0)]_
 >
 > **3. What the app does and who it is for**
-> Swiip is a personal training and nutrition coaching app. The user answers a 134-question
+> Swiip is a personal training and nutrition coaching app. The user answers an eight-card
 > assessment covering training history, available equipment, weekly schedule, injuries and
 > medical flags, food preferences and dietary constraints, and may optionally submit one
 > body photo. From those answers a deterministic engine produces a weekly training program

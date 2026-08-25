@@ -25,7 +25,7 @@ import { hareketGorseli } from '../../src/veri/hareketMedyasi.uretilmis';
 /**
  * 1. GÜN AÇILIŞI — ürünün tamamının kazanıldığı veya kaybedildiği ekran.
  *
- * Kullanıcı 134 soruya cevap verdi, fotoğrafını yükledi, 12 dakikasını harcadı.
+ * Kullanıcı sekiz kartı doldurdu, fotoğrafını yükledi, dakikalarını harcadı.
  * Bu ekran ona "emeğin karşılığını aldın" demek zorunda — programı göstererek değil,
  * CEVAPLARINI PROGRAMDA GÖSTEREREK.
  *

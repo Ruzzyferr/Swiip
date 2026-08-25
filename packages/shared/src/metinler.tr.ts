@@ -191,6 +191,12 @@ export const tr = {
     hedefKisa: () => 'Hedefin kaydedildi.',
     antrenmanYasi: (d: Record<string, string | number>) =>
       `${d.seviyeAdi} seviye. Haftada kas grubu başına ${d.alt}-${d.ust} set kaldırırsın.`,
+    agriTemiz: () =>
+      'Ağrı tarafında programı kısıtlayan bir şey yok. Bir seansta ağrı bildirirsen programı ' +
+      'o gün değiştiririm.',
+    agriEleme: (d: Record<string, string | number>) =>
+      `Bildirdiğin ağrıya göre ${d.adet} hareket değişti; yerlerine aynı kası çalıştıran ` +
+      'muadiller koydum.',
     saglikTemiz: () =>
       'Sağlık taramanda program üretimini kısıtlayan bir şey görünmüyor. Yine de ağrı ' +
       'bildirdiğin an programı değiştiririz.',
@@ -200,6 +206,9 @@ export const tr = {
     ekipman: (d: Record<string, string | number>) =>
       `Ekipmanınla ${d.yapilabilir} hareket yapılabiliyor (kütüphanede ${d.toplam} hareket var).`,
     split: (d: Record<string, string | number>) => `${d.split} · ${d.gun} gün sana uygun.`,
+    splitVeSeviye: (d: Record<string, string | number>) =>
+      `${d.split} · ${d.gun} gün. ${d.seviyeAdi} seviye: haftada kas grubu başına ` +
+      `${d.alt}-${d.ust} set.`,
     toparlanmaTemiz: () =>
       'Toparlanma tarafında engelleyici bir şey yok; hacmi standart aralıkta tutuyorum.',
     toparlanmaDuzeltme: (d: Record<string, string | number>) => {
@@ -214,6 +223,12 @@ export const tr = {
       'karbonhidrat, iki avuç sebze.',
     beslenmeProtein: (d: Record<string, string | number>) =>
       `Protein hedefin ${d.protein} g. Bu, kas kaybını önleyen en önemli tek sayı.`,
+    mutfakAilem: () =>
+      'Yemeği evde başkası hazırlıyor; menü dayatmayacağım. Mevcut sofraya porsiyon ve ' +
+      'tamamlayıcı önereceğim.',
+    mutfakEd: () => 'Mutfak tercihlerini not ettim; planı porsiyon diliyle anlatacağım.',
+    mutfakPisirmez: () => 'Pişirme gerektirmeyen ve hazır alınabilen seçeneklerden kuracağım.',
+    mutfakTamam: () => 'Mutfak kısıtlarını not ettim; tarifleri bunlara göre seçeceğim.',
     kardiyoSevmiyor: () =>
       'Kardiyoyu sevmiyorsun; minimuma indirdim ve yerine günlük adım hedefi koydum.',
     kardiyoSeviyor: () =>
@@ -372,7 +387,7 @@ export const tr = {
      * teknik künyesi; etiketleri de neyin künyesi olduğunu söylüyor.
      */
     maddeler: [
-      { etiket: 'SORU', metin: '134 soru soruyoruz. Hepsinin bir karşılığı var.' },
+      { etiket: 'SORU', metin: 'Sekiz kart, dört dakika. Her cevap programına dokunuyor.' },
       {
         etiket: 'GEREKÇE',
         metin: 'Programındaki her hareketin yanında neden orada olduğu yazıyor.',
@@ -390,13 +405,13 @@ export const tr = {
       baslik: 'Nasıl çalışır',
       ustBaslik: 'Önce soruyoruz, sonra yazıyoruz',
       girisMetni:
-        'Çoğu uygulama 8 soru sorup program üretir. Biz 134 soruyoruz, çünkü bel fıtığını bilmeden yerden çekiş yazmak, bilerek yazmamaktan daha kolay ama çok daha riskli.',
+        'Çoğu uygulama sekiz soru sorup program üretir. Biz sorularımızı seçtik: yalnızca programı gerçekten değiştirenleri soruyoruz. Bel fıtığını bilmeden yerden çekiş yazmak kolay ama çok riskli; sevdiğin rengi bilmek ise hiçbir şeyi değiştirmiyor.',
       adimlar: [
         {
           baslik: 'Değerlendirme',
-          sure: '11-14 dakika',
+          sure: '4-6 dakika',
           govde:
-            'On bölüm. Her bölüm bittiğinde ne öğrendiğimizi ve programını nasıl değiştirdiğini gösteriyoruz. Yarıda bırakırsan kaldığın yerden devam edersin.',
+            'Sekiz kart. Her kart bittiğinde ne öğrendiğimizi ve programını nasıl değiştirdiğini gösteriyoruz. Yarıda bırakırsan kaldığın yerden devam edersin.',
         },
         {
           baslik: 'Vücut analizi',
@@ -511,7 +526,7 @@ export const tr = {
     /**
      * Soru başına işaret ve bölüm başına özet.
      *
-     * 136 sorunun yalnızca 26'sı zorunlu; gerisi boş bırakılınca atlanmış sayılıyor.
+     * Kartların çoğu zorunlu; gerisi boş bırakılınca atlanmış sayılıyor.
      * Bunu söyleyen tek satır yoktu ve kullanıcı hepsini cevaplamak zorunda sanıyordu.
      */
     zorunluSoru: 'Zorunlu',
@@ -980,6 +995,31 @@ export const tr = {
         teknik_guven_dusuk: 'Teknik güveni düşük',
         kullanici_reddetti: 'Sen istemedin',
         agriyi_artiran_patern: 'Ağrıyı artıran patern',
+      },
+    },
+    keskinlestirme: {
+      sayfaBasligi: 'Programı keskinleştir',
+      baslik: 'Bunu cevaplarsan program değişir',
+      girisMetni:
+        'Aşağıdaki kararlar cevaplamadığın bir soruya dayanıyor. Muhafazakâr tarafı seçtim; ' +
+        'doğrusunu söylersen hemen düzeltirim.',
+      etkilenen: (adet: number) => `${adet} hareket geri gelir`,
+      cevapla: 'Cevapla',
+      simdiDegil: 'Şimdi değil',
+      kaydet: 'Kaydet ve programı yenile',
+      bosBaslik: 'Keskinleştirilecek bir şey yok',
+      bosGovde:
+        'Programındaki her karar verdiğin bir cevaba dayanıyor. Yeni bir kısıt çıkarsa burada görünür.',
+      sebepler: {
+        teknik_guven_dusuk:
+          'Karmaşık serbest ağırlık hareketlerini çıkardım — tekniğine ne kadar güvendiğini bilmiyorum.',
+        ekipman_yok: 'Ekipman listende olmayan hareketleri çıkardım.',
+        spotter_yok:
+          'Yardımcın olup olmadığını bilmiyorum; tek başına riskli hareketleri çıkardım.',
+        kullanici_reddetti: 'Yapmak istemediğin hareketleri bilmiyorum.',
+        tavan_alcak: 'Tavan yüksekliğini bilmiyorum; baş üstü hareketleri çıkardım.',
+        gurultu_kisiti: 'Gürültü kısıtını bilmiyorum.',
+        zipla_yasak: 'Zıplama kısıtını bilmiyorum.',
       },
     },
     hafta: {

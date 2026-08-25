@@ -19,8 +19,8 @@ const KARDIYAK_SORULAR = ['S2', 'S3', 'S7'] as const;
  * Gebelik taraması bu kullanıcıda gereksiz mi?
  *
  * K6 ("Hamile misin veya emziriyor musun?") erkek beyan edene artık sorulmuyor:
- * karşılığı olmayan bir soru, ürünün "134 sorunun hepsinin bir karşılığı var" sözünü
- * kullanıcının ilk on iki dakikasında yalanlıyordu.
+ * karşılığı olmayan bir soru, ürünün "her sorunun bir karşılığı var" sözünü
+ * kullanıcının ilk dakikalarında yalanlıyordu.
  *
  * Ama K6 aynı zamanda dört sert kapıdan birinin tarama sorusu. Yalnızca gizlenseydi
  * `eksik_tarama` hiç kapanmaz ve program HİÇ üretilemezdi. Bu yüzden kapı da biliyor.

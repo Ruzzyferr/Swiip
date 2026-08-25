@@ -8,7 +8,7 @@ AI antrenör ve beslenme koçu uygulaması. Türkiye önce, global mimari.
 
 ## Ürün tek cümlede
 
-Kullanıcının 134 soruya verdiği cevapları ve vücut fotoğrafını, **gerekçesi görünür** bir
+Kullanıcının sekiz kartta verdiği cevapları ve vücut fotoğrafını, **gerekçesi görünür** bir
 antrenman ve beslenme programına çeviren koç.
 
 Rakiplerden ayrıştığımız yer program üretmek değil — **programın neden o program olduğunu
@@ -32,10 +32,52 @@ Değiştirmek istiyorsan önce `docs/rakip-analizi.md`'yi oku, gerekçeleri orad
 | Zeka mimarisi | Deterministik çekirdek + yalnızca 4 noktada AI |
 | Vücut fotoğrafı | Analiz sonrası **anında silinir**, sadece ölçümler saklanır |
 | Antrenman takibi | Salonda kayıt **yok**. Seans sonrası üç dokunuş geri bildirim |
+| Değerlendirme | **8 kart, ~32 girdi, 4-6 dakika.** Soru sayısı bir vaat değil |
 | Program | Statik doküman değil; her seans önceki geri bildirimden hesaplanır |
 | Planlar | Ücretsiz · Temel 99₺/690₺ · Pro 169₺/1.190₺ |
 | Ücretsiz kapsam | Vücut analizi (bir kez), 1. gün programı, manuel kalori girişi |
 | Pro farkı | Fotoğraftan yemek tanıma (aylık 250) |
+
+---
+
+## Değerlendirme: sekiz kart, ~32 girdi
+
+**Soru sayısı bir vaat değil.** Uzun süre öyle sanıldı; ölçüldüğünde tersi çıktı.
+
+2026-08-25'te soru bankasının tamamı tarandı: her sorunun cevabı tek tek değiştirilip
+üretilen profil, program, kalori/makro ve öğün kısıtları yeniden hesaplandı. Sonuç:
+
+| | |
+|---|---|
+| Çıktıyı gerçekten değiştiren | 54 |
+| Yalnızca başka bir soruyu açan | 7 |
+| Yalnızca kart sonu metnini değiştiren | 2 |
+| **Hiçbir şey yapmayan** | **73** |
+
+Üçü zorunluydu (`H5`, `B24`, `F4`) — yani atlanamıyordu bile. `S1 -> S1a -> S1b` zinciri
+kullanıcıya "kalp rahatsızlığım var" dedirtip iki soru daha soruyor, sonunda hiçbir şey
+yapmıyordu. `S4`'te "Osteoporoz" işaretlenebiliyor ve program değişmiyordu.
+
+Bugün banka 53 soru: **40 temel** (sekiz kart), **10 keskinleştirme**, **3 periyodik**.
+
+**Kural — bozulmasın:** `soruTuketimi.test.ts` bankadaki her sorunun bir tüketicisi
+olmasını şart koşuyor. Bir soru ya kodda okunuyor, ya bir dalı açıyor. İkisi de değilse
+CI kırmızı. Bir dalın ölü zincire çıkması da yasak. `drives` alanı artık bir söz değil,
+doğrulanan bir şey.
+
+**Keskinleştirme.** Geri bildirim döngüsünün 1-2 haftada öğrenebileceğini ilk gün sormuyoruz
+(yükler, teknik güveni, salon kalabalığı, partner, istenmeyen hareketler). Ama bu sorular
+kaybolmuyor: `programUret` her havuz elemesini bir karara ve o kararı bir `soru_id`'ye
+bağlıyor. Cevaplanmamış bir soru bir kararı etkilediyse program bunu **görünür bedeliyle**
+söylüyor — *"Karmaşık serbest ağırlık hareketlerini çıkardım, tekniğine ne kadar
+güvendiğini bilmiyorum · 10 hareket geri gelir"*. Dırdır değil, kazanılmış teklif.
+
+**Bir tuzak var, tekrar kurulmasın:** `teknikGuveni` cevapsız A8'de sabit `2.5` dönüyordu
+ve `DUSUK_GUVEN_ESIGI` de tam `2.5`, karşılaştırma `<=`. Yani A8'i görmeyen HERKES teknik
+zorluk tavanı 3'e düşüyor, barbell squat (4), omuz presi (4) ve deadlift (5) havuzdan
+siliniyordu. A8 akıştan çıkınca bu, beş yıllık kullanıcıya yeni başlayan programı çıkarmak
+olurdu. Varsayılan artık antrenman yaşından türüyor (yeni 2 · orta 2,5 · ileri 3,5) ve
+**deadlift hiçbir varsayılanla açılmıyor** — zorluk 5 yalnızca açık beyanla geliyor.
 
 ---
 
@@ -118,7 +160,7 @@ Tipografi: başlıklarda grotesk, sayısal veride tabular rakamlı monospace.
 docs/spec.md              Tam spesifikasyon. Kod yazmadan önce oku.
 docs/uygulama-plani.md    Faz ve görev sırası, bitti kriterleriyle
 docs/rakip-analizi.md     15.000 yorumluk araştırma — kararların dayanağı
-data/sorular.json         134 soru, şıklarıyla, makine okunur
+data/sorular.json         53 soru (40 temel + 10 keskinleştirme + 3 periyodik), makine okunur
 data/hareketler.json      Hareket şeması ve başlangıç seti
 packages/shared/src/metinler.tr.ts   Türkçe sözlük — kullanıcıya görünen tüm metinler
 packages/shared/src/metinler.en.ts   İngilizce sözlük; tip düzeyinde Türkçeye bağlı
@@ -418,6 +460,21 @@ kez sorgulandığında 500 olarak görünüyor. 2026-08-25'te üretimde tam bu b
 `kanca_olaylari` tablosu yoktu ve **abonelik kancası** — hakkı açan tek yol — 42P01 ile
 patlıyordu. Yalnızca canlı bir kanca çağrısı denendiği için görüldü.
 `dagitim.test.ts` artık dört maddeyi birden koruyor.
+
+**BU SÜRÜM TEK BAŞINA DAĞITILMAZ — mobil derlemeyle birlikte çıkar.**
+
+Değerlendirme sekiz karta indirilirken blok kimlikleri de değişti (`S`→`G`, `A` artık
+"Ağrı", `Y`/`T`/`F` kalktı). Kart sonu geri bildirimi sunucuda **blok kimliğine göre**
+üretiliyor (`geriBildirim.ts` içindeki `URETICILER`). Yeni API'yi tek başına dağıtırsan
+mağazadaki eski derleme eski kimlikleri gönderir, eşleşme bulunamaz ve
+`blok_geri_bildirimi` **null** döner.
+
+Uygulama çökmez, hata da vermez — yalnızca "emeğin karşılığını gör" ekranı hiç çıkmaz.
+Yani terke karşı en güçlü kozumuz sessizce kaybolur, ve inceleyicinin göreceği ilk şey
+tam orası. Cevapların kendisi güvende: `/cevap` tanımadığı soru kimliğini reddetmiyor,
+sessizce saklıyor; yeni zorunlu küme de eskisinin alt kümesi.
+
+Sıra: mobil derleme mağaza testine çıksın → sunucu dağıtılsın.
 
 Erişim bilgileri (SSH, root parolası, DigitalOcean tokenı) depoda değil:
 `Masaüstü/Swiip-YEDEK/sunucu-erisimi.md`. Kurulumu yapan oturum SSH anahtarını

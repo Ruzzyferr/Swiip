@@ -1,4 +1,5 @@
 import type {
+  AntrenmanYasi,
   Ekipman,
   HacimGrubu,
   Kisitlar,
@@ -7,6 +8,7 @@ import type {
   Sakatlik,
 } from '@swiip/shared';
 import { alan, dizi, metin, sayi, type Cevaplar } from '../cevaplar';
+import { antrenmanYasiBelirle } from './olcumler';
 
 /**
  * Kısıt derleme — hareket havuzunu daraltan her şey burada toplanır.
@@ -170,8 +172,6 @@ const S12_PATERN: Record<string, Patern[]> = {
   'Belli değil': [],
 };
 
-const A8_HAREKETLER = ['Squat', 'Deadlift', 'Bench press', 'Omuz presi', 'Barfiks'];
-
 const T2_ANAHTAR: Record<string, string[]> = {
   Burpee: ['burpee'],
   Deadlift: ['deadlift', 'cekis'],
@@ -235,6 +235,23 @@ function ekipmaniDerle(cevaplar: Cevaplar): Ekipman[] {
   for (const secim of dizi(cevaplar, 'E3')) {
     for (const kod of EKIPMAN_HARITA[secim] ?? []) set.add(kod);
   }
+
+  /**
+   * E3 boşsa ve kullanıcı salonda çalışıyorsa standart donanım varsayılır.
+   *
+   * Boş ekipman listesi boş havuz demek: `ekipman_yok` kuralı KATALOĞUN TAMAMINI eliyor
+   * ve program hiç üretilemiyor. Arayüz E3'ü salon seçildiğinde ön işaretliyor, ama
+   * ön işaretleme bir arayüz kolaylığı; kullanıcı hepsini kaldırırsa ya da cevap eski
+   * bir kayıttan gelirse çekirdek yine boş liste görüyordu.
+   *
+   * Ev ve açık havada yedek YOK — orada ekipman gerçekten olmayabilir ve vücut ağırlığı
+   * havuzu zaten çalışıyor. Varsayım yalnızca doğru olduğu yerde yapılıyor.
+   */
+  if (set.size === 0) {
+    const yer = metin(cevaplar, 'E1');
+    if (yer === 'Spor salonu' || yer === 'Karma') return salonOnDoldurma(yer);
+  }
+
   return [...set].sort();
 }
 
@@ -284,6 +301,22 @@ function sakatlikDerle(cevaplar: Cevaplar): SakatlikDerleme {
       kontrendikasyonlar.add('bel_fitigi');
       bayraklar.eksenel_yuk_yasak = true;
     }
+    /**
+     * Osteoporoz uzun süre SORULUYOR ama HİÇBİR ŞEY YAPMIYORDU.
+     *
+     * Eski S4'te bir şıktı, `drives: durum_bazli_dallanma` yazıyordu ve öyle bir
+     * dallanma yoktu: kullanıcı işaretliyor, program değişmiyordu. Oysa kemik
+     * yoğunluğu düşükken omurgaya dikey yük ve yüklü fleksiyon vertebral kompresyon
+     * kırığı riskidir — bel fıtığından daha sert bir kısıt, daha yumuşak değil.
+     *
+     * Soru silinmedi, S17'ye taşındı ve bağlandı. Kural yazmadan sormak, kullanıcıya
+     * dinlendiği yanılgısını veriyor.
+     */
+    if (fitik === 'Osteoporoz / kemik erimesi') {
+      kontrendikasyonlar.add('bel_fitigi');
+      bayraklar.eksenel_yuk_yasak = true;
+      kisitli_paternler.add('kalca_baskin');
+    }
     if (fitik === 'Boyun fıtığı') {
       kontrendikasyonlar.add('boyun_fitigi');
       bayraklar.eksenel_yuk_yasak = true;
@@ -298,14 +331,50 @@ function sakatlikDerle(cevaplar: Cevaplar): SakatlikDerleme {
   return { sakatliklar, kontrendikasyonlar, kisitli_hacim_gruplari, kisitli_paternler, bayraklar };
 }
 
-/** A8 teknik güveni ortalaması (1-5). Cevapsızsa muhafazakâr orta değer. */
+/**
+ * Teknik güveni (1-5).
+ *
+ * A8 artık beş ayrı 1-5 skalası değil, tek çoklu seçim: "bu hareketleri tekniğine
+ * güvenerek yapabiliyor musun?". Beş skala beş ayrı ekran demekti ve `CLAUDE.md`'nin
+ * "ekran başına tek ölçek" kuralını tek soruda beş kez kullanıyordu.
+ *
+ * A8 CEVAPSIZ ise varsayılan antrenman yaşından türer — eskiden sabit 2.5'ti ve
+ * `DUSUK_GUVEN_ESIGI` de tam 2.5, karşılaştırma `<=`. Sonuç: A8'i görmeyen HERKES
+ * teknik zorluk tavanı 3'e düşüyordu; barbell squat (4), omuz presi (4) ve deadlift (5)
+ * havuzdan siliniyordu. A8 değerlendirme akışından çıkınca bu, beş yıllık kullanıcıya
+ * yeni başlayan programı çıkarmak anlamına gelirdi.
+ *
+ * Deadlift hiçbir varsayılanla açılmıyor: zorluk 5 yalnızca açık beyanla geliyor.
+ * "Sağlıkta muhafazakâr ol" korunuyor, ama deneyim yok sayılmıyor.
+ */
+const A8_ESKI_HAREKETLER = ['Squat', 'Deadlift', 'Bench press', 'Omuz presi', 'Barfiks'];
+const A8_HAREKET_SAYISI = 5;
+
+const YASA_GORE_GUVEN: Record<AntrenmanYasi, number> = {
+  yeni: 2,
+  erken: 2.5,
+  orta: 2.5,
+  ileri: 3.5,
+  kidemli: 3.5,
+};
+
 function teknikGuveni(cevaplar: Cevaplar): number {
-  const puanlar = A8_HAREKETLER.map((h) => sayi(cevaplar, `A8:${h}`)).filter(
+  const secilenler = dizi(cevaplar, 'A8').filter((s) => s !== 'Hiçbiri');
+  if (secilenler.length > 0) {
+    const oran = Math.min(secilenler.length, A8_HAREKET_SAYISI) / A8_HAREKET_SAYISI;
+    return Math.round((1 + 4 * oran) * 100) / 100;
+  }
+  if (dizi(cevaplar, 'A8').includes('Hiçbiri')) return 1;
+
+  // Eski kayıtlar: A8 beş ayrı skala olarak cevaplanmış olabilir.
+  const puanlar = A8_ESKI_HAREKETLER.map((h) => sayi(cevaplar, `A8:${h}`)).filter(
     (p): p is number => p !== undefined,
   );
   if (puanlar.length > 0) {
     return Math.round((puanlar.reduce((a, b) => a + b, 0) / puanlar.length) * 100) / 100;
   }
   const tek = sayi(cevaplar, 'A8');
-  return tek ?? 2.5;
+  if (typeof tek === 'number') return tek;
+
+  return YASA_GORE_GUVEN[antrenmanYasiBelirle(cevaplar)];
 }

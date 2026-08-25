@@ -145,7 +145,7 @@ describe('terk noktaları', () => {
 
     const s12 = cevap.json().terk_noktalari.find((t: { soru_id: string }) => t.soru_id === 'S12');
 
-    expect(s12.blok).toContain('Sağlık');
+    expect(s12.blok).toContain('Ağrı');
     expect(s12.soru_metni).toBeTruthy();
   });
 
@@ -186,7 +186,7 @@ describe('blok hunisi', () => {
 
     expect(cevap.statusCode).toBe(200);
     const huni = cevap.json().huni;
-    expect(huni).toHaveLength(10);
+    expect(huni).toHaveLength(8);
     expect(huni[0].blok_id).toBe('K');
     expect(huni[0].baslik).toBeTruthy();
   });

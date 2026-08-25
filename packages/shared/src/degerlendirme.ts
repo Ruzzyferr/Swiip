@@ -31,10 +31,23 @@ export interface SoruKapisi {
   mesaj?: string;
 }
 
+/**
+ * Sorunun hangi akışta sorulduğu.
+ *
+ * `temel` değerlendirme akışıdır. `keskinlestirme` soruları akışta HİÇ görünmez;
+ * programın karar izi bir hareketi elediğinde ("tekniğine güvendiğini bilmiyorum")
+ * o kararın `soru_id`'sinden çağrılır. `periyodik` olanlar haftalık ya da mevsimlik
+ * check-in'e ait: uyku kalitesi ve stres tek seferlik sorular değil, oruç ise yılın
+ * on ayında sorulmaması gereken bir soru.
+ */
+export type SoruAsamasi = 'temel' | 'keskinlestirme' | 'periyodik';
+
 export interface Soru {
   id: string;
   text: string;
   type: SoruTipi;
+  /** Varsayılan `temel`. Bkz. SoruAsamasi. */
+  asama?: SoruAsamasi;
   /**
    * Zorunlu mu?
    *

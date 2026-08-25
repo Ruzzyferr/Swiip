@@ -534,7 +534,7 @@ yasağı, "sayıyı araçtan al") iki dilde birebir aynı — bunlar üslup değ
 test bunları **sayarak** koruyor, cümleye bakarak değil.
 
 **Kalan yüzeyler de çevrildi.** Vücut analizi raporu (ücretsiz planın teslim ettiği tek
-çıktı), değerlendirme blok geri bildirimleri (134 soruyu bitirten şey), split gerekçesi,
+çıktı), değerlendirme kart geri bildirimleri (akışı bitirten şey), split gerekçesi,
 program uyarıları ve her satırda görünen ilerleme kuralı.
 
 Aynı desen: motor **kod ve parametre** üretiyor, cümle sözlükte kuruluyor, Türkçe metin iz
@@ -588,7 +588,7 @@ makine çevirisi sağlık bağlamında kabul edilebilir değil. Ayarlardaki dil 
 sayıyor.
 
 > **F10.1'de bilerek yapılmayan — dürüst not.** İki içerik katmanı Türkçe kalıyor:
-> **134 sorunun metinleri** (`data/sorular.json`) ve **122 hareketin talimatları**
+> **soru bankasının metinleri** (`data/sorular.json`) ve **122 hareketin talimatları**
 > (`talimat_tr`). İkisi de veri; şemada `locale` alanları hazır ama çevirileri yazılmadı.
 > `Hareket.ad_en` var, `talimat_en` yok. Sağlık bağlamında makine çevirisi kabul edilebilir
 > değil, bu yüzden uydurmak yerine boş bıraktık ve ayarlardaki dil kartı bunu kullanıcıya

@@ -193,6 +193,12 @@ export const en: Metinler = {
     hedefKisa: () => 'Your goal is saved.',
     antrenmanYasi: (d: Record<string, string | number>) =>
       `${d.seviyeAdi} level. You can handle ${d.alt}-${d.ust} sets per muscle group per week.`,
+    agriTemiz: () =>
+      'Nothing on the pain side restricts your program. The moment you report pain in a ' +
+      'session, I change the program that day.',
+    agriEleme: (d: Record<string, string | number>) =>
+      `Based on the pain you reported, ${d.adet} exercises changed; I put substitutes that ` +
+      'work the same muscle in their place.',
     saglikTemiz: () =>
       'Nothing in your health screening restricts program generation. Even so, the moment you ' +
       'report pain we change the program.',
@@ -202,6 +208,9 @@ export const en: Metinler = {
     ekipman: (d: Record<string, string | number>) =>
       `With your equipment, ${d.yapilabilir} exercises are possible (the library has ${d.toplam}).`,
     split: (d: Record<string, string | number>) => `${d.split} · ${d.gun} days suits you.`,
+    splitVeSeviye: (d: Record<string, string | number>) =>
+      `${d.split} · ${d.gun} days. ${d.seviyeAdi} level: ${d.alt}-${d.ust} sets per muscle ` +
+      'group per week.',
     toparlanmaTemiz: () =>
       'Nothing is blocking recovery; I am keeping volume in the standard range.',
     toparlanmaDuzeltme: (d: Record<string, string | number>) => {
@@ -219,6 +228,13 @@ export const en: Metinler = {
       'two handfuls of vegetables at each meal.',
     beslenmeProtein: (d: Record<string, string | number>) =>
       `Your protein target is ${d.protein} g. It is the single most important number for preventing muscle loss.`,
+    mutfakAilem: () =>
+      'Someone else cooks at home; I will not impose a menu. I will suggest portions and ' +
+      'additions for the meals already on your table.',
+    mutfakEd: () => 'I noted your kitchen preferences; I will describe the plan in portions.',
+    mutfakPisirmez: () =>
+      'I will build the plan from options that need no cooking or can be bought ready.',
+    mutfakTamam: () => 'I noted your kitchen constraints; I will pick recipes that fit them.',
     kardiyoSevmiyor: () =>
       'You do not like cardio; I cut it to the minimum and put a daily step target in its place.',
     kardiyoSeviyor: () =>
@@ -352,7 +368,10 @@ export const en: Metinler = {
     slogan: 'Made to fit.',
     altSlogan: 'And made to explain.',
     maddeler: [
-      { etiket: 'QUESTIONS', metin: 'We ask 134 questions. Every one of them changes something.' },
+      {
+        etiket: 'QUESTIONS',
+        metin: 'Eight cards, four minutes. Every answer touches your program.',
+      },
       {
         etiket: 'REASONING',
         metin: 'Next to every exercise in your program, it says why it is there.',
@@ -370,13 +389,13 @@ export const en: Metinler = {
       baslik: 'How it works',
       ustBaslik: 'We ask first, then we write',
       girisMetni:
-        'Most apps ask 8 questions and generate a program. We ask 134, because writing a deadlift without knowing about a herniated disc is easier than asking — and a great deal riskier.',
+        'Most apps ask eight questions and generate a program. We chose ours: we only ask what actually changes the program. Writing a deadlift without knowing about a herniated disc is easy and very risky; knowing your favourite colour changes nothing.',
       adimlar: [
         {
           baslik: 'Assessment',
-          sure: '11-14 minutes',
+          sure: '4-6 minutes',
           govde:
-            'Ten sections. At the end of each one we show you what we learned and how it changed your program. If you stop halfway, you continue where you left off.',
+            'Eight cards. At the end of each one we show you what we learned and how it changed your program. If you stop halfway, you continue where you left off.',
         },
         {
           baslik: 'Body analysis',
@@ -925,6 +944,31 @@ export const en: Metinler = {
         teknik_guven_dusuk: 'Low technical confidence',
         kullanici_reddetti: 'You said no',
         agriyi_artiran_patern: 'Pain-aggravating pattern',
+      },
+    },
+    keskinlestirme: {
+      sayfaBasligi: 'Sharpen the program',
+      baslik: 'Answer this and the program changes',
+      girisMetni:
+        'The decisions below rest on a question you have not answered. I took the ' +
+        'conservative side; tell me and I will fix it right away.',
+      etkilenen: (adet: number) => `${adet} exercises come back`,
+      cevapla: 'Answer',
+      simdiDegil: 'Not now',
+      kaydet: 'Save and rebuild the program',
+      bosBaslik: 'Nothing to sharpen',
+      bosGovde:
+        'Every decision in your program rests on an answer you gave. If a new constraint appears it will show up here.',
+      sebepler: {
+        teknik_guven_dusuk:
+          'I removed the complex free-weight lifts — I do not know how confident you are in your technique.',
+        ekipman_yok: 'I removed exercises that need equipment not on your list.',
+        spotter_yok:
+          'I do not know whether you have a spotter, so I removed lifts that are risky alone.',
+        kullanici_reddetti: 'I do not know which exercises you would rather not do.',
+        tavan_alcak: 'I do not know your ceiling height, so I removed overhead work.',
+        gurultu_kisiti: 'I do not know your noise constraints.',
+        zipla_yasak: 'I do not know your jumping constraints.',
       },
     },
     hafta: {

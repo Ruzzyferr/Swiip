@@ -1,5 +1,9 @@
 # Play Store listesi — Türkçe (varsayılan dil)
 
+> **Bu metin YENİ değerlendirmeyi (sekiz kart) anlatıyor.** Mağazada duran sürüm
+> hâlâ eski akışı çalıştırıyor, yani bu metni **yeni derleme yayına çıkmadan önce
+> konsola yapıştırma** — yoksa liste, indirilen uygulamayı yanlış anlatır.
+
 ## Uygulama adı (en fazla 30 karakter)
 
 ```
@@ -17,8 +21,9 @@ Programın neden o program olduğunu da söyleyen antrenör ve beslenme koçu.
 ## Tam açıklama (en fazla 4000 karakter)
 
 ```
-Çoğu uygulama sekiz soru sorup program üretir. Swiip 134 soruyor ve her hareketin
-yanına neden orada olduğunu yazıyor.
+Çoğu uygulama sekiz soru sorup program üretir. Swiip'te de dört dakika sürüyor — ama
+her cevabın programda görünür bir karşılığı var ve her hareketin yanına neden orada
+olduğu yazılıyor.
 
 "Bel fıtığın olduğunu söyledin; yerden çekiş yerine kalça itme koydum. Aynı kas
 zincirini çalıştırıyor, bele eksenel yük bindirmiyor."
@@ -29,9 +34,14 @@ gösterebilmek zor.
 
 NASIL ÇALIŞIR
 
-1. Değerlendirme — 11-14 dakika, on bölüm. Her bölüm bittiğinde ne öğrendiğimizi ve
+1. Değerlendirme — 4-6 dakika, sekiz kart. Her kart bittiğinde ne öğrendiğimizi ve
 programını nasıl değiştirdiğini gösteriyoruz. Yarıda bırakırsan kaldığın yerden devam
 edersin.
+
+Soru sayısıyla övünmüyoruz: bankamızda bir ara 136 soru vardı ve ölçtüğümüzde 73'ünün
+programa hiçbir etkisi olmadığını gördük. Hepsini attık. Kalanların bir kısmı da ilk gün
+gerekmiyor — tekniğine ne kadar güvendiğini bilmiyorsak programı muhafazakâr kuruyoruz ve
+bunu sana söylüyoruz: "20 saniye ver, on hareket geri gelsin".
 
 2. Vücut analizi — üç fotoğraf ya da sadece çevre ölçüleri. Fotoğrafın analiz edildiği
 anda bellekten silinir; sunucumuzun diskine hiç yazılmaz. Saklanan tek şey sayısal
@@ -75,7 +85,7 @@ YAPMADIKLARIMIZ
 
 ÜCRETSİZ NE VAR
 
-134 soruluk değerlendirme, vücut analizi (bir kez), programının 1. günü, manuel kalori
+Sekiz kartlık değerlendirme, vücut analizi (bir kez), programının 1. günü, manuel kalori
 girişi ve sınırsız program düzenleme. Hepsi ücretsiz, süresiz.
 
 

@@ -8,7 +8,7 @@ import { testUygulamasi, type TestUygulama } from '../test/uygulama';
  * Uçtan uca kullanıcı yolculuğu.
  *
  * Bu test tek tek parçaların değil, bağlantıların doğruluğunu kanıtlar:
- * kayıt → 134 soru → profil → program → gerekçe → geri bildirim → motor kararı.
+ * kayıt → sekiz kart → profil → program → gerekçe → keskinleştirme → geri bildirim.
  */
 
 let uygulama: TestUygulama;
@@ -40,57 +40,45 @@ function yetkili() {
   return { authorization: `Bearer ${token}` };
 }
 
-/** Gerçekçi bir kullanıcı: 32 yaşında, orta seviye, salonda 4 gün, bel fıtığı geçmişi var. */
+/**
+ * Gerçekçi bir kullanıcı: 32 yaşında, orta seviye, salonda 4 gün, bel fıtığı geçmişi var.
+ *
+ * Yalnızca `temel` aşama soruları — yani kullanıcının sekiz kartta gerçekten gördükleri.
+ * `A5`/`A8` (yük ve teknik güveni), `E4`, `E8`, `T2` keskinleştirmeye taşındı ve
+ * bilerek BOŞ: aşağıdaki keskinleştirme testi tam bunun üstüne kurulu.
+ */
 const SENARYO: Cevaplar = {
   K1: '1994-03-15',
   K2: 'Erkek',
   K3: 178,
   K4: 82,
-  K5: 'Bugün',
-  K6: 'Hayır',
   K7: 'Evet',
-  K8: 'Hayır',
-  K9: 'İstanbul',
-  K10: 'Değişmedi',
-  K11: 'Hiç yapmadım',
-  K12: { en_yuksek_kg: 88, en_dusuk_kg: 74 },
-  H1: 'Kas kazanımı',
-  H4: 'Yok',
-  H6: ['sirt', 'gogus'],
-  H10: 1,
-  A1: '1-3 yıl',
-  A2: 3,
-  A3: 10,
-  'A8:Squat': 4,
-  'A8:Bench press': 4,
-  'A8:Deadlift': 3,
-  'A8:Omuz presi': 4,
-  'A8:Barfiks': 3,
-  'A5:Squat': { kg: 100, tekrar: 5 },
-  'A5:Bench press': { kg: 80, tekrar: 6 },
   S1: 'Hayır',
   S2: 'Hayır',
   S3: 'Hayır',
-  S5: 'Hayır',
   S6: 'Hayır',
   S7: 'Hayır',
   S17: ['Bel fıtığı'],
   S18: 'Hayır',
+  H1: 'Kas kazanımı',
+  H3: 86,
+  H6: ['sirt', 'gogus'],
+  H10: 1,
   E1: 'Spor salonu',
-  E2: 'MACFit',
   E3: ['Barbell ve plaka', 'Dumbbell', 'Düz bench', 'Squat rack', 'Lat pulldown', 'Kablo makinesi'],
-  E4: 'Bazen beklerim',
-  E8: 'Hayır',
+  A1: '1-3 yıl',
   Z1: '4 gün',
   Z2: '60 dakika',
   Z3: ['Pazartesi', 'Salı', 'Perşembe', 'Cumartesi'],
   Y1: '7-8 saat',
-  Y2: 7,
   Y4: 'Masa başı, çoğunlukla oturarak',
-  Y6: 4,
-  T1: 'Bodybuilding / estetik',
-  T2: ['Yok'],
-  T3: 'Katlanırım',
+  B9: ['Yok'],
+  B10: ['Yok'],
+  B11: ['Helal'],
+  B13: ['Yok'],
+  B5: 'Kendim',
+  B7: '30 dakikaya kadar',
+  B8: 'Orta',
 };
 
 describe('uçtan uca yolculuk', () => {
@@ -163,7 +151,25 @@ describe('uçtan uca yolculuk', () => {
     expect(profil.antrenman_yasi).toBe('orta');
     expect(profil.kisitlar.kontrendikasyonlar).toContain('bel_fitigi');
     expect(profil.kisitlar.eksenel_yuk_yasak).toBe(true);
-    expect(profil.bilinen_yukler['barbell-squat']).toBeGreaterThan(100);
+
+    /**
+     * Kullanıcı hiçbir yük BEYAN ETMEDİ — A5/A6 keskinleştirmeye taşındı.
+     *
+     * Bu, programın yüksüz kalması demek değil: `programUret` boş `bilinen_yukler`
+     * gördüğünde `referansE1rm(lift, antrenman_yasi, cinsiyet, kilo)` ile tahmin
+     * üretiyor ve altı hafta sonra ölçülen e1RM bunun üstüne yazıyor. Tahminin gerçekten
+     * çalıştığı 6. adımda kanıtlanıyor.
+     */
+    expect(profil.bilinen_yukler).toEqual({});
+
+    /**
+     * Teknik güveni A8'den değil, ANTRENMAN YAŞINDAN türedi.
+     *
+     * Eskiden cevapsız A8 sabit 2.5 dönüyordu ve `DUSUK_GUVEN_ESIGI` de tam 2.5:
+     * A8'i görmeyen herkesin teknik zorluk tavanı 3'e düşüyor, barbell squat ve
+     * deadlift havuzdan siliniyordu.
+     */
+    expect(profil.kisitlar.teknik_guveni).toBe(2.5);
   });
 
   it('6. adım — program üretilir ve bel fıtığına uyar', async () => {
@@ -260,6 +266,64 @@ describe('uçtan uca yolculuk', () => {
     expect(gerekce.statusCode).toBe(200);
     expect(gerekce.json().aciklama.length).toBeGreaterThan(15);
     expect(Array.isArray(gerekce.json().kurallar)).toBe(true);
+  });
+
+  /**
+   * Keskinleştirme — değerlendirmeyi kısaltmanın karşılığı.
+   *
+   * Bu kullanıcı A8'i (teknik güveni) hiç cevaplamadı, çünkü o soru artık sekiz kartlık
+   * akışta yok. Program muhafazakâr davrandı ve karmaşık serbest ağırlık hareketlerini
+   * havuzdan çıkardı. Teklif tam bu karardan doğuyor: uydurma bir "şunu da cevapla"
+   * listesi değil, görünür bedeli olan bir öneri.
+   */
+  it('8b. adım — cevaplanmamış soruya dayanan karar keskinleştirme teklifi doğurur', async () => {
+    const cevap = await app.inject({
+      method: 'GET',
+      url: '/v1/degerlendirme/keskinlestirme',
+      headers: yetkili(),
+    });
+
+    expect(cevap.statusCode).toBe(200);
+    const teklifler: Array<{ soru: { id: string }; kural: string; etkilenen: number }> =
+      cevap.json().teklifler;
+
+    const a8 = teklifler.find((t) => t.soru.id === 'A8');
+    expect(a8, 'A8 cevapsız ve teknik_guven_dusuk kuralı ateşlendi').toBeTruthy();
+    expect(a8!.kural).toBe('teknik_guven_dusuk');
+    expect(a8!.etkilenen).toBeGreaterThan(0);
+
+    // Cevaplanmış sorular teklif edilmez: E3 (ekipman) sekiz kartın içinde.
+    expect(teklifler.some((t) => t.soru.id === 'E3')).toBe(false);
+  });
+
+  it('8c. adım — teklif cevaplanınca teklif kalkar ve tavan yükselir', async () => {
+    const kaydet = await app.inject({
+      method: 'POST',
+      url: '/v1/degerlendirme/cevap',
+      headers: yetkili(),
+      payload: {
+        cevaplar: {
+          A8: ['Barbell squat', 'Barbell bench press', 'Barbell omuz presi', 'Barfiks'],
+        },
+      },
+    });
+    expect(kaydet.statusCode).toBe(200);
+
+    const profil = await app.inject({
+      method: 'GET',
+      url: '/v1/degerlendirme/profil',
+      headers: yetkili(),
+    });
+    // 5/4 seçim → 1 + 4 × 0,8 = 4,2; teknik zorluk tavanı 5'e çıkar.
+    expect(profil.json().profil.kisitlar.teknik_guveni).toBeCloseTo(4.2, 1);
+
+    const sonra = await app.inject({
+      method: 'GET',
+      url: '/v1/degerlendirme/keskinlestirme',
+      headers: yetkili(),
+    });
+    const idler = sonra.json().teklifler.map((t: { soru: { id: string } }) => t.soru.id);
+    expect(idler).not.toContain('A8');
   });
 
   it('9. adım — ücretsiz kullanıcı geri bildirim veremez, nedeni açıkça söylenir', async () => {
@@ -537,7 +601,7 @@ describe('gerekçe dili', () => {
  * Blok geri bildirimi kullanıcının dilinde.
  *
  * Değerlendirmenin her bloğunun sonunda "ne öğrendik, programını nasıl değiştirdi" cümlesi
- * çıkıyor; 134 soruyu bitirten şey bu. Cümle motorda sabitken yalnızca Türkçe kullanıcıya
+ * çıkıyor; akışı bitirten şey bu. Cümle motorda sabitken yalnızca Türkçe kullanıcıya
  * veriliyordu.
  */
 describe('blok geri bildirimi dili', () => {

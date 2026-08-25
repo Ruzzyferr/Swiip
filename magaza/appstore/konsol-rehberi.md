@@ -31,7 +31,7 @@ E-posta : inceleme@swiip.app
 Parola  : mercan-defter-7431-yelken
 ```
 
-Böyle olmak zorunda: uygulama 134 soruluk değerlendirmeyle başlıyor ve program,
+Böyle olmak zorunda: uygulama sekiz kartlık değerlendirmeyle başlıyor ve program,
 beslenme, koç ekranları değerlendirme bitmeden görünmüyor. Boş hesap veren bir gönderim,
 inceleyicinin gördüğü tek ekranın anket olması demek.
 

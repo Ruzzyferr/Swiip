@@ -22,6 +22,7 @@ export * from './ilerleme/ilerleme';
 export * from './beslenme/beslenme';
 export * from './vucut/vucut';
 export * from './degerlendirme/motor';
+export * from './degerlendirme/keskinlestirme';
 export * from './degerlendirme/geriBildirim';
 export * from './ai/gecit';
 export * from './ai/gorselGirdi';

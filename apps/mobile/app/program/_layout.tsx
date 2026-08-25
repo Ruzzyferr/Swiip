@@ -25,6 +25,7 @@ export default function ProgramDuzeni() {
       <Stack.Screen name="hafta" options={{ title: m.hafta.sayfaBasligi }} />
       <Stack.Screen name="hareket" options={{ title: m.hareketSayfaBasligi }} />
       <Stack.Screen name="neden" options={{ title: m.neden.sayfaBasligi }} />
+      <Stack.Screen name="keskinlestir" options={{ title: m.keskinlestirme.sayfaBasligi }} />
       <Stack.Screen
         name="geri-bildirim"
         options={{ title: metinler.geriBildirim.kararSayfaBasligi }}

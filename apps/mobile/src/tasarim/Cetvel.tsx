@@ -78,7 +78,7 @@ export function Cetvel({ bolumler, aktifId, onBolumSec }: CetvelProps) {
                *
                * `accessibilityRole="none"` ögeyi kaldırmıyor: etiketi olan bir görünüm
                * hâlâ odaklanabilir. Sonuç, her soru ekranında ilk soruya varmadan önce
-               * on tane "Beslenme: 0/25" duyurusunu geçmekti — 134 soru boyunca çok
+               * her kart için ayrı bir "Beslenme: 0/9" duyurusunu geçmekti — akış boyunca çok
                * fazla kaydırma. Aktif ve dönülebilir bölümler duyurulmaya devam ediyor;
                * taşıdıkları bilgi gerçek.
                */

@@ -91,7 +91,7 @@ Set kaydı arayüzü, dinlenme kronometresi, senkron kuyruğu. Bunlar **yok** �
 
 ## F2 · Değerlendirme
 
-**Amaç:** 134 soru sorulabiliyor, profil çıkarılabiliyor. Program henüz yok.
+**Amaç:** Değerlendirme sekiz kart hâlinde sorulabiliyor, profil çıkarılabiliyor. Program henüz yok.
 
 ### Görevler
 
@@ -100,7 +100,7 @@ Set kaydı arayüzü, dinlenme kronometresi, senkron kuyruğu. Bunlar **yok** �
   measure, liftinput
 - `F2.3` **Vücut haritası bileşeni** (bodymap) — ön/arka, bölge seçimi, seçilene dallanma
 - `F2.4` **Hedef vücut görsel seçimi** (imagechoice) — cinsiyete göre 8 görsel
-- `F2.5` **Ekipman envanteri** — görsel çoklu seçim, salon zincirine göre ön doldurma
+- `F2.5` **Ekipman envanteri** — görsel çoklu seçim, E1 ("nerede") cevabına göre ön doldurma
 - `F2.6` Dallanma mantığı: `branch`, `conditional`, `conditionalOn` alanlarını işle
 - `F2.7` **Dört güvenlik kapısı** — spec bölüm 4. Atlanamaz, test edilir
 - `F2.8` Blok arası geri bildirim ekranları
@@ -112,8 +112,8 @@ Set kaydı arayüzü, dinlenme kronometresi, senkron kuyruğu. Bunlar **yok** �
 
 ### Bitti kriteri
 
-- 134 soru baştan sona cevaplanabiliyor
-- 7. blokta uygulamayı kapatıp açınca kaldığı yerden devam ediyor
+- Sekiz kart baştan sona cevaplanabiliyor (~32 girdi, 4-6 dakika)
+- 6. kartta uygulamayı kapatıp açınca kaldığı yerden devam ediyor
 - Dört kapının dördü de test edildi ve gerçekten durduruyor
 - S18 = Evet olan kullanıcıda ED modu bayrağı set ediliyor
 - Profil tablosu doğru dolduruluyor

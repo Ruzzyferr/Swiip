@@ -46,7 +46,7 @@ Parola  : mercan-defter-7431-yelken
 
 Not olarak eklenecek açıklama:
 
-> Uygulama 134 soruluk bir değerlendirme ile başlar. İncelemeyi hızlandırmak için bu
+> Uygulama sekiz kartlık bir değerlendirme ile başlar. İncelemeyi hızlandırmak için bu
 > hesabın değerlendirmesi tamamlanmış ve programı üretilmiş durumdadır; giriş yaptıktan
 > sonra Program sekmesi doğrudan açılır. Vücut fotoğrafı adımı atlanabilir; "Ölçülerle
 > devam et" seçeneği vardır.

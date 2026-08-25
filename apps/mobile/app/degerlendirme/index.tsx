@@ -39,7 +39,7 @@ import { ANAHTARLAR, oku, sil, yaz } from '../../src/veri/onbellek';
  * olarak imkânsız kılar.
  *
  * Kayıt blok bazlı: her blok bittiğinde sunucuya yazılır. Ağ yoksa cihazda tutulur,
- * bağlantı gelince gönderilir. 12 dakikalık emek internet kesintisiyle kaybolmaz.
+ * bağlantı gelince gönderilir. Doldurulan kartlar internet kesintisiyle kaybolmaz.
  */
 
 interface DurumCevabi {
@@ -393,8 +393,9 @@ export default function Degerlendirme() {
             </Yazi>
             {/*
               Hangi soruların zorunlu olduğunu söyleyen tek satır.
-              136 sorunun 26'sı zorunlu, gerisi boş bırakılınca atlanmış sayılıyor —
-              ama bunu söyleyen hiçbir şey yoktu ve kullanıcı hepsini dolduruyordu.
+              Sekiz kartın toplamı ~32 girdi ve bunların çoğu zorunlu; kalanlar boş
+              bırakılınca atlanmış sayılıyor — ama bunu söyleyen hiçbir şey yoktu ve
+              kullanıcı hepsini dolduruyordu.
             */}
             <Yazi tur="kucuk" renk="metinSilik">
               {m.zorunluNotu(zorunlu)}
@@ -434,6 +435,7 @@ export default function Degerlendirme() {
               >
                 <SoruAlani
                   soru={soru}
+                  cevaplar={cevaplar}
                   deger={cevaplar[soru.id] === ATLANDI ? null : cevaplar[soru.id]}
                   onDegisim={(deger) => {
                     setAlanHatalari((mevcut) => {

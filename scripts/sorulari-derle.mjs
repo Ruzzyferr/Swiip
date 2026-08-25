@@ -30,6 +30,8 @@ const TIPLER = new Set([
   'photo',
 ]);
 
+const ASAMALAR = new Set(['temel', 'keskinlestirme', 'periyodik']);
+
 const KAPI_EYLEMLERI = new Set([
   'kayit_reddet',
   'program_uretme',
@@ -84,6 +86,16 @@ for (const blok of veri.blocks) {
     tumIdler.add(soru.id);
 
     kontrol(TIPLER.has(soru.type), `${soru.id} — bilinmeyen tip: ${soru.type}`);
+    kontrol(
+      soru.asama === undefined || ASAMALAR.has(soru.asama),
+      `${soru.id} — bilinmeyen aşama: ${soru.asama}`,
+    );
+    // Akışta görünmeyen bir soru zorunlu olamaz: kullanıcı onu hiç görmediği için
+    // değerlendirme kalıcı olarak tamamlanamaz hâle gelirdi.
+    kontrol(
+      !(soru.asama && soru.asama !== 'temel' && soru.required),
+      `${soru.id} — ${soru.asama} aşamasındaki soru required olamaz`,
+    );
     kontrol(typeof soru.text === 'string' && soru.text.length > 3, `${soru.id} — metin eksik`);
 
     // "Sürücüsü olmayan soru sorulmaz" — spec bölüm 3.
@@ -139,6 +151,18 @@ for (const blok of veri.blocks) {
 }
 
 // Koşullu her sorunun onu açan bir kaynağı olmalı; yoksa kullanıcı o soruyu hiç göremez.
+// Tersi de geçerli: bir dalın hedefi koşullu DEĞİLSE dal süstür, soru zaten herkese
+// görünür. S8 (vücut haritası) tam bunu yapıyordu — S6 "Evet" için bir dal tanımlıyor,
+// ama S8 işaretsiz olduğu için "sorunum yok" diyene de harita çiziliyordu.
+for (const [hedef, acanlar] of gorunurluk) {
+  const soru = veri.blocks.flatMap((b) => b.questions).find((q) => q.id === hedef);
+  if (!soru) continue;
+  kontrol(
+    soru.conditional === true || soru.conditionalOn !== undefined,
+    `${hedef} — ${acanlar.join(', ')} tarafından açılıyor ama koşullu değil: dal etkisiz`,
+  );
+}
+
 for (const blok of veri.blocks) {
   for (const soru of blok.questions) {
     if (soru.conditional && !soru.conditionalOn) {

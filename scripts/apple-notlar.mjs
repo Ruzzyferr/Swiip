@@ -50,9 +50,20 @@ const metin = bolumler.join('\n\n');
 
 console.log(`gövde ${govde.length} · toplam ${metin.length} / ${SINIR}`);
 if (!kayit || !cihazlar) {
+  /**
+   * İki başlık metnin BAŞINA ekleniyor, yani gövde sınırın tamamını yiyemez.
+   *
+   * Gövde tek başına sığıyor diye rahatlamak yanlış: `--kayit` uzun bir imzalı
+   * bağlantıysa (Drive, S3) tek başına 150 karakteri geçebiliyor. Pay burada,
+   * ekleme yapılmadan önce ölçülüyor — sonra ölçmek "hiçbir şey yazılmadı" hatasını
+   * ancak Apple'a yazmaya kalkarken görmek demek.
+   */
+  const pay = SINIR - govde.length;
   console.log(
-    'UYARI: --kayit ve --cihazlar verilmedi. Apple’ın 1. ve 2. soruları cevapsız kalıyor;\n' +
-      '       eksik cevapla yeniden göndermek bir inceleme turu daha harcar.',
+    `UYARI: --kayit ve --cihazlar verilmedi. Apple'ın 1. ve 2. soruları cevapsız kalıyor;\n` +
+      '       eksik cevapla yeniden göndermek bir inceleme turu daha harcar.\n' +
+      `       İki başlığa kalan pay: ${pay} karakter` +
+      (pay < 220 ? ' — DAR. Uzun bir kayıt bağlantısı sığmayabilir; gövdeyi kısalt.' : '.'),
   );
 }
 

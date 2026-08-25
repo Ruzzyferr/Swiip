@@ -33,9 +33,17 @@ export interface SoruAlaniProps {
   deger: CevapDegeri;
   onDegisim: (deger: CevapDegeri) => void;
   hata?: string;
+  /**
+   * Başka soruların cevapları.
+   *
+   * Yalnızca bir alanın ihtiyacı var: ekipman envanteri E1'e ("nerede") bakıp salon
+   * donanımını ön işaretliyor. Tüm cevapları geçmek yerine yalnızca gerekeni geçmek
+   * de olurdu, ama o zaman her yeni bağımlılık imzayı değiştirirdi.
+   */
+  cevaplar?: Record<string, unknown>;
 }
 
-export function SoruAlani({ soru, deger, onDegisim, hata }: SoruAlaniProps) {
+export function SoruAlani({ soru, deger, onDegisim, hata, cevaplar }: SoruAlaniProps) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
 
@@ -49,7 +57,7 @@ export function SoruAlani({ soru, deger, onDegisim, hata }: SoruAlaniProps) {
           Eskiden not `soru.optional` ile çiziliyordu ve o bayrak soru bankasında
           yalnızca 12 soruda vardı. Oysa doğrulama `required` bakıyor ve 110 soru
           boş bırakılabiliyor: 98 soru hiçbir işaret taşımadan zorunlu görünüyordu.
-          Azınlığı işaretlemek hem doğru hem daha az mürekkep — 136 sorunun 26'sı.
+          Azınlığı işaretlemek hem doğru hem daha az mürekkep.
         */}
         {soru.required ? (
           <Yazi tur="kucuk" renk="metinSilik">
@@ -58,7 +66,7 @@ export function SoruAlani({ soru, deger, onDegisim, hata }: SoruAlaniProps) {
         ) : null}
       </View>
 
-      <Alan soru={soru} deger={deger} onDegisim={onDegisim} />
+      <Alan soru={soru} deger={deger} onDegisim={onDegisim} cevaplar={cevaplar} />
 
       {hata ? (
         <Yazi tur="kucuk" renk="tehlike">
@@ -69,12 +77,12 @@ export function SoruAlani({ soru, deger, onDegisim, hata }: SoruAlaniProps) {
   );
 }
 
-function Alan({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
+function Alan({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'hata'>) {
   switch (soru.type) {
     case 'single':
-      return <TekSecim soru={soru} deger={deger} onDegisim={onDegisim} />;
+      return <TekSecim soru={soru} deger={deger} onDegisim={onDegisim} cevaplar={cevaplar} />;
     case 'multi':
-      return <CokluSecim soru={soru} deger={deger} onDegisim={onDegisim} />;
+      return <CokluSecim soru={soru} deger={deger} onDegisim={onDegisim} cevaplar={cevaplar} />;
     case 'scale':
       return <Olcek soru={soru} deger={deger} onDegisim={onDegisim} />;
     case 'number':
@@ -109,12 +117,20 @@ function Alan({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
 /** Bu sayıdan uzun listeler aranarak seçilir; kaydırarak seçmek işkence olur. */
 const ARAMALI_ESIK = 12;
 
-function TekSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
+/** E1 cevabını ekipman envanterine geçirir; yoksa prop hiç konmaz. */
+function konumu(cevaplar: Record<string, unknown> | undefined): { konum?: string } {
+  const e1 = cevaplar?.['E1'];
+  return typeof e1 === 'string' ? { konum: e1 } : {};
+}
+
+function TekSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
 
   // Ekipman envanteri görsel çoklu seçim olarak ayrı ele alınır.
   if (soru.id === 'E3') {
-    return <EkipmanEnvanteri soru={soru} deger={deger} onDegisim={onDegisim} />;
+    return (
+      <EkipmanEnvanteri soru={soru} deger={deger} onDegisim={onDegisim} {...konumu(cevaplar)} />
+    );
   }
 
   const secenekler = soru.options ?? [];
@@ -202,11 +218,13 @@ function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) 
   );
 }
 
-function CokluSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
+function CokluSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
   if (soru.id === 'E3') {
-    return <EkipmanEnvanteri soru={soru} deger={deger} onDegisim={onDegisim} />;
+    return (
+      <EkipmanEnvanteri soru={soru} deger={deger} onDegisim={onDegisim} {...konumu(cevaplar)} />
+    );
   }
 
   const secili = Array.isArray(deger) ? (deger as string[]) : [];
@@ -255,7 +273,7 @@ function Olcek({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
       {/*
         On kutu tek satıra sığmıyor.
         `flex: 1` ile 390 px'lik ekranda her hücre ~32 px kalıyordu: `minHeight` 44'tü
-        ama GENİŞLİK için hiçbir alt sınır yoktu. Bu satır 134 soruluk akıştaki her
+        ama GENİŞLİK için hiçbir alt sınır yoktu. Bu satır değerlendirme akışındaki her
         `scale` sorusunda çıkıyor, yani üründeki en sık yanlış dokunma yüzeyi.
         `flexWrap` ile dar ekranda ikinci satıra iniyor; kutular 44'ün altına düşmüyor.
       */}

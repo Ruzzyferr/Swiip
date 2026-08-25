@@ -1,5 +1,10 @@
 # Swiip — App Review videosu çekim senaryosu
 
+> **Bu talimat YENİ değerlendirmeyi (sekiz kart) anlatıyor.** Kaydı çekmeden önce
+> telefonundaki Swiip'in yeni derleme olduğundan emin ol: TestFlight'ta sürüm notunda
+> "değerlendirme sekiz karta indi" yazmalı. Eski derlemede akış 10 bölüm ve 136 soru
+> olarak görünür; o hâliyle çekilen kayıt Apple'a yanlış uygulamayı gösterir.
+
 Apple, Swiip 1.0'ı **Guideline 2.1 — Information Needed** ile geri çevirdi. Uygulamada
 hata bulmuş değiller; yeni uygulamalardan istedikleri sekiz bilgiyi istiyorlar ve
 bunların başında **gerçek bir telefonda çekilmiş ekran kaydı** geliyor.
@@ -56,18 +61,19 @@ Apple'ın sekiz sorusundan biri bu ve videosuz kadar önemli.
 2. Açılış / "nasıl çalışır" ekranını geç.
 3. **Kayıt ol.** E-posta ve parola gir. **Sağlık verisi onay kutusunu işaretle** —
    bu ekran önemli, Apple veri toplama iznini görmek istiyor. Kadrajda dursun.
-4. **Değerlendirme başlıyor.** 10 bölüm, 136 soru — ama yalnızca altında **"Zorunlu"**
-   yazanlar gerekiyor.
-   - **İlk bölümün** zorunlularını doldur (5 soru).
-   - **Bölüm sonu geri bildirim ekranını kadraja al** — "senin cevaplarından şunu
+4. **Değerlendirme başlıyor.** Sekiz kart, toplam ~32 girdi — baştan sona 4-6 dakika.
+   Yalnızca altında **"Zorunlu"** yazanlar gerekiyor.
+   - **İlk kartı** doldur: doğum tarihi, cinsiyet, boy, kilo. Dördü de tek ekranda.
+   - **Kart sonu geri bildirim ekranını kadraja al** — "senin cevaplarından şunu
      hesapladık" diyen ekran. Ürünün ayırt edici yeri orası, 2-3 saniye bekle.
-   - Zorunlular bitince **"İsteğe bağlı soruları sonra cevaplayacağım"** satırı çıkar.
-     Buna bir kez bas; kalan isteğe bağlı sorular atlanır. Kadrajda dursun.
-5. **Değerlendirmeyi bitirmene gerek yok.** İkinci bölüme geçildiğini göster ve dur.
+   - İsteğe bağlı sorusu olan bir karta gelirsen **"İsteğe bağlı soruları sonra
+     cevaplayacağım"** satırı çıkar. Buna bir kez bas; kadrajda dursun.
+5. **Değerlendirmeyi bitirmene gerek yok.** İkinci karta (Güvenlik) geçildiğini göster
+   ve dur.
 
 Bu bölümde çıkan **bildirim izni istemi** olursa kadraja al.
 
-> Değerlendirmeyi sonuna kadar doldurma. 25 zorunlu soru videoyu gereksiz uzatır;
+> Değerlendirmeyi sonuna kadar doldurma. Kısaldı ama yine de videoyu uzatır;
 > tamamlanmış hâli zaten 2 ve 3 numaralı hesaplarda hazır.
 
 ---
@@ -138,7 +144,7 @@ Bu hesabın değerlendirmesi dolu, programı ve öğün planı hazır.
 - **`inceleme@swiip.app` hesabını silme.** Apple'ın gireceği hesap o.
 - **`inceleme-ucretsiz@swiip.app` hesabını da silme.** Apple satın alma ekranına o
   hesapla ulaşıyor.
-- Değerlendirmenin 136 sorusunu doldurma; ilk bölüm yeterli.
+- Değerlendirmenin sekiz kartını baştan sona doldurma; ilk kart yeterli.
 - Koç sohbetinde uzun uzun yazışma.
 - Videoyu kesip birleştirme; tek parça olsun.
 

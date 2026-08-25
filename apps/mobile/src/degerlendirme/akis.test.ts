@@ -25,11 +25,15 @@ import {
  *    kapıları sunucuda hiç değerlendirilmiyordu. Hiçbiri hata üretmiyordu.
  *
  * 2. Ekran başına tek soru vardı: 134 soru, 134 ekran, her birinin %80'i boş.
- *    Sorular artık bloklar hâlinde. Blok uydurulmuş bir gruplama değil; soru
- *    bankasının kendi yapısı.
+ *    Sorular artık kart kart. Kart uydurulmuş bir gruplama değil; soru bankasının
+ *    kendi yapısı — sekiz kart, sekiz konu.
  */
 
+/** Kimlik kartı tamamlanmış bir kullanıcı. */
 const K = { K1: '1992-03-14', K2: 'Erkek', K3: 178, K4: 92 } as Cevaplar;
+
+/** Kimlik kartı YARIM: sıradaki cevaplanmamış soru hâlâ K bloğunda. */
+const YARIM_K = { K1: '1992-03-14', K2: 'Erkek' } as Cevaplar;
 
 describe('gosterilecekBlokId', () => {
   it('boş cevapla ilk blokta başlar', () => {
@@ -42,7 +46,9 @@ describe('gosterilecekBlokId', () => {
   });
 
   it('seçili blok yoksa sıradaki cevaplanmamış sorunun bloğuna düşer', () => {
-    expect(gosterilecekBlokId(K, undefined)).toBe('K');
+    expect(gosterilecekBlokId(YARIM_K, undefined)).toBe('K');
+    // Kart tamamlanınca bir sonraki karta geçer.
+    expect(gosterilecekBlokId(K, undefined)).toBe('G');
   });
 
   /** Dallanma bir bloğu tamamen boşaltabiliyor; orada kilitlenmemeli. */
@@ -63,8 +69,9 @@ describe('blokSorulari', () => {
   });
 
   /** Tek soru/ekran düzeninde bu sayı hep 1'di; asıl değişiklik bu. */
-  it('bir blokta birden çok soru aynı anda gösterilir', () => {
-    expect(blokSorulari({}, 'K').length).toBeGreaterThanOrEqual(5);
+  it('bir kartta birden çok soru aynı anda gösterilir', () => {
+    expect(blokSorulari({}, 'K').length).toBeGreaterThanOrEqual(4);
+    expect(blokSorulari({}, 'G').length).toBeGreaterThanOrEqual(6);
   });
 });
 
@@ -111,7 +118,7 @@ describe('zorunluSayisi', () => {
   it('soru bankasında artık optional bayrağı yok — tek doğruluk kaynağı required', () => {
     const hepsi = SORU_BANKASI.blocks.flatMap((b) => b.questions);
 
-    expect(hepsi.length).toBeGreaterThan(100);
+    expect(hepsi.length).toBeGreaterThan(30);
     for (const soru of hepsi) expect(soru).not.toHaveProperty('optional');
   });
 });
@@ -124,20 +131,19 @@ describe('zorunluSayisi', () => {
  * güvenlik kapısı (18 yaş, gebelik, kardiyak, yeme bozukluğu) oradan geçiyor.
  */
 describe('istegeBaglilariAtla', () => {
-  it('bütün blokların isteğe bağlı sorularını atlanmış yapar', () => {
+  it('bütün kartların isteğe bağlı sorularını atlanmış yapar', () => {
     const sonuc = istegeBaglilariAtla(K);
-    const bloklar = ['K', 'H', 'A', 'S', 'E', 'Z', 'Y', 'B', 'T', 'F'];
     let sayac = 0;
 
-    for (const blok of bloklar)
-      for (const soru of blokSorulari(K, blok)) {
+    for (const blok of SORU_BANKASI.blocks)
+      for (const soru of blokSorulari(K, blok.id)) {
         if (soru.required) continue;
         if (K[soru.id] !== undefined) continue;
         expect(sonuc[soru.id]).toBe(ATLANDI);
         sayac += 1;
       }
 
-    expect(sayac).toBeGreaterThan(50);
+    expect(sayac).toBeGreaterThan(5);
   });
 
   it('zorunlu soruya dokunmaz — kapılar bir dokunuşla aşılamaz', () => {
@@ -182,8 +188,9 @@ describe('zorunlulariBitti', () => {
 
 describe('atlananlariIsaretle', () => {
   it('boş isteğe bağlı soruları atlanmış yapar', () => {
-    const sonuc = atlananlariIsaretle(K, 'K');
-    const istegeBagli = blokSorulari(K, 'K').filter((s) => !s.required);
+    // Kimlik kartının dördü de zorunlu; isteğe bağlı soru Beslenme kartında.
+    const sonuc = atlananlariIsaretle(K, 'B');
+    const istegeBagli = blokSorulari(K, 'B').filter((s) => !s.required);
 
     expect(istegeBagli.length).toBeGreaterThan(0);
     for (const soru of istegeBagli) expect(sonuc[soru.id]).toBe(ATLANDI);
@@ -206,7 +213,7 @@ describe('blokBolumleri', () => {
     const bolumler = blokBolumleri(K);
     const k = bolumler.find((b) => b.id === 'K');
 
-    expect(bolumler.length).toBeGreaterThanOrEqual(9);
+    expect(bolumler.length).toBeGreaterThanOrEqual(8);
     expect(k?.toplam).toBeGreaterThan(0);
     expect(k?.cevaplanan).toBe(4);
   });

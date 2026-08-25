@@ -10,7 +10,7 @@ import { testUygulamasi, type TestUygulama } from '../test/uygulama';
  * olmadan HTTP üzerinden servis etmek, reddettiğimiz şeyi kendi elimizle yapmak olur:
  * tek bir `curl` ile 122 hareketin Türkçe talimatı indirilebilir.
  *
- * Aynısı 134 soruluk değerlendirme bankası için de geçerli — ürünün ayrıştığı yer o.
+ * Aynısı değerlendirme soru bankası için de geçerli — ürünün ayrıştığı yer o.
  *
  * Fiyat listesi bilinçli olarak açık: mağaza incelemesi ve şeffaflık bunu gerektiriyor.
  */

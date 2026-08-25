@@ -320,7 +320,7 @@ type BlokMetinleri = Metinler['blokGeriBildirimi'];
  * Blok geri bildirimini kullanıcının dilinde kurar.
  *
  * Değerlendirmenin her bloğunun sonunda "ne öğrendik, programını nasıl değiştirdi" cümlesi
- * çıkıyor; 134 soruyu bitirten şey bu geri bildirim. Bilinmeyen bir anahtarda cümle
+ * çıkıyor; akışı bitirten şey bu geri bildirim. Bilinmeyen bir anahtarda cümle
  * uydurmuyoruz, motorun Türkçe metnine düşüyoruz.
  */
 export function blokGeriBildirimiMetni(iz: BlokGeriBildirimiIzi, metinler: BlokMetinleri): string {

@@ -6,7 +6,7 @@ Sürüm 1.0 · Bu belge kod yazmadan önce okunur. Kararların dayanağı `rakip
 
 ## 1. Ürün tezi
 
-Kullanıcının 134 soruya verdiği cevapları ve vücut fotoğrafını, **gerekçesi görünür** bir
+Kullanıcının sekiz kartta verdiği cevapları ve vücut fotoğrafını, **gerekçesi görünür** bir
 antrenman ve beslenme programına çeviren koç.
 
 Rakip analizinde ölçtüğümüz şey şuydu: YAZIO 8 soru soruyor, Fitify sakatlık bile sormuyor
@@ -14,8 +14,15 @@ ve Türkiye'nin en çok beğenilen fitness şikâyeti tam bu (69 beğeni: *"bel 
 sakatlığım var, sorulsaydı riskli hareketlerden kaçınılırdı"*). Kimse derinlemesine sormuyor
 çünkü derin soru sormak dönüşümü düşürür.
 
-**Bizim bahsimiz tersi: derinlik dönüşümü düşürmez, güveni kurar.** 134 soruya cevap veren
-biri, karşısına çıkan programda kendi cevaplarını görürse ödemeye hazır hale gelir.
+**Bizim bahsimiz tersi: derinlik dönüşümü düşürmez, güveni kurar.** Ama derinlik soru
+SAYISI değil. 2026-08-25'te ölçüldü: 136 soruluk bankanın **73'ü** hiçbir çıktıyı
+değiştirmiyordu — cevapları yazılıyor, kullanıcının dakikalarını yiyor ve programa hiçbir
+şey katmıyorlardı. Üçü zorunluydu, yani atlanamıyordu bile.
+
+Derinlik artık şu: sorduğumuz her şeyin programda görünür bir karşılığı var, ve
+cevaplamadığın bir şey bir kararı etkilediyse **program bunu sana söylüyor** (bkz. 3.4,
+Keskinleştirme). Kullanıcı programda kendi cevaplarını görürse ödemeye hazır hale gelir;
+kendi cevaplarını göremediği 73 soru bu bahsi güçlendirmiyor, zayıflatıyordu.
 
 > Program satmıyoruz, **gerekçe** satıyoruz. Rakibin veremediği şey program değil, o
 > programın neden sana ait olduğunun kanıtı.
@@ -56,34 +63,77 @@ bu tablodur — tercih değil, kanıt.
 
 ## 3. Değerlendirme protokolü
 
-**Tam içerik `data/sorular.json` dosyasında** — 134 soru, şıkları, sürücüleri, dallanma
+**Tam içerik `data/sorular.json` dosyasında** — 53 soru, şıkları, sürücüleri, dallanma
 mantığı ve güvenlik kapılarıyla birlikte.
 
 Kaynak: PAR-Q+ 2024 sağlık taraması, ACSM ön katılım değerlendirmesi, standart PT alım
 formları, diyetisyen beslenme değerlendirmesi. Üstüne Türkiye'ye özgü sorular eklendi.
 
-### Blok yapısı
+### Kart yapısı
 
-| # | Blok | Soru | Blok sonu geri bildirimi |
+Birim **soru** değil **kart**. Gerçek bir PT ilk görüşmede 62 soru sormaz; on iki şey
+sorar ve bazılarının içinde dört alan vardır. Kimse boy, kilo, yaş ve cinsiyeti dört ayrı
+sayfada sormaz — o dördü tek formdur. Aynı cevapları 62 adıma bölmek sınav, sekiz karta
+koymak form yapıyor.
+
+| # | Kart | Girdi | Kart sonu geri bildirimi |
 |---|---|---|---|
-| 1 | Kimlik ve kapı | 12 | "Bakım kalorin yaklaşık 2.340 kcal" |
-| 2 | Hedef | 10 | "Bu hedef 14 haftada gerçekçi" |
-| 3 | Antrenman geçmişi | 14 | "Orta seviye. Haftada 14-18 set/kas grubu" |
-| 4 | Sağlık ve sakatlık | 20 | "3 hareket havuzdan çıkarıldı" |
-| 5 | Ekipman ve ortam | 12 | "Salonunda 87 hareket yapılabilir" |
-| 6 | Zaman | 8 | "Upper/Lower 4 gün sana uygun" |
-| 7 | Yaşam ve toparlanma | 12 | "Uykun kısa, hacmi %10 düşürdüm" |
-| 8 | Beslenme | 25 | "Protein hedefin 132 g" |
-| 9 | Tercih ve psikoloji | 10 | "Kardiyoyu sevmiyorsun, minimuma indirdim" |
-| 10 | Ölçüm ve fotoğraf | 6 | vücut analizi |
+| 1 | Sen | 4 | "Bakım kalorin yaklaşık 2.340 kcal" |
+| 2 | Güvenlik | 7-9 | "3 hareket havuzdan çıkarıldı" |
+| 3 | Ağrı ve kısıt | 1-7 | "Bildirdiğin ağrıya göre 4 hareket değişti" |
+| 4 | Hedef | 4 | "Bu hedef 14 haftada gerçekçi" |
+| 5 | Nerede | 2-5 | "Salonunda 87 hareket yapılabilir" |
+| 6 | Takvim | 6 | "Upper/Lower 4 gün. Orta seviye: haftada 14-20 set" |
+| 7 | Yemiyorum | 5 | "Protein hedefin 132 g" |
+| 8 | Mutfak | 3 | "Tarifleri kısıtlarına göre seçeceğim" |
 
-Tahmini süre 11-14 dakika. **Her blok bittiğinde profil kaydedilir**; yarıda bırakan
-kullanıcı kaldığı yerden devam eder ve en değerli yeniden pazarlama hedefidir.
+Sağlıklı, salonda çalışan bir kullanıcı **32 girdi** dolduruyor; sakatlığı ve ev salonu
+olan ~40. Tahmini süre 4-6 dakika. **Her kart bittiğinde profil kaydedilir**; yarıda
+bırakan kullanıcı kaldığı yerden devam eder ve en değerli yeniden pazarlama hedefidir.
+
+Kartların bu boyda olması karışıklığı da çözüyor: eski Beslenme bloğu tek kaydırmada 25
+soruydu ve boş kalan zorunlu soru ekranın dışında kalınca "Devam et" hiçbir şey yapmıyor
+gibi görünüyordu.
+
+### 3.4 Aşamalar
+
+Bankadaki her soru akışta sorulmuyor. `asama` alanı üç değer alıyor:
+
+| Aşama | Nerede sorulur | Örnek |
+|---|---|---|
+| `temel` | Sekiz kart | K1-K4, güvenlik taraması, E1/E3, Z1/Z2 |
+| `keskinlestirme` | Programın karar izinden | A8 (teknik güveni), A5/A6 (yükler), E4, E8, T2 |
+| `periyodik` | Haftalık ya da mevsimlik check-in | Y2 (uyku kalitesi), Y6 (stres), B12 (oruç) |
+
+**Keskinleştirmenin mantığı:** geri bildirim döngüsünün 1-2 haftada öğrenebileceği hiçbir
+şeyi ilk gün sormaya gerek yok. Yük beyanı buna en iyi örnek — `programUret` boş
+`bilinen_yukler` gördüğünde `referansE1rm` ile tahmin üretiyor, altı hafta sonra ölçülen
+e1RM onun üstüne yazıyor.
+
+Ama bu sorular kaybolmuyor. `programUret` her havuz elemesini bir `Karar`'a bağlıyor ve o
+kararın `girdiler[].soru_id` alanında hangi sorudan doğduğu yazıyor. Keskinleştirme bunun
+**tersi**: cevaplanmamış bir soru bir kararı etkilediyse, program bunu görünür bedeliyle
+söylüyor.
+
+> "Karmaşık serbest ağırlık hareketlerini çıkardım — tekniğine ne kadar güvendiğini
+> bilmiyorum. 20 saniye: hangilerini rahat yapıyorsun?" · *10 hareket geri gelir*
+
+Genel bir "daha çok soru cevapla" dırdırı değil; kazanılmış bir teklif. "Gerekçesi görünür
+program" vaadinin doğrudan devamı.
+
+`periyodik` sorular tek seferlik olmadıkları için çıktı: Ağustos'taki stres Kasım'daki
+programı ayarlamamalı.
 
 ### Kuralı
 
-**Her sorunun bir sürücüsü vardır.** Sürücüsü olmayan soru sorulmaz — dolgu soru yoktur.
-`sorular.json` içindeki `drives` alanı bunu tanımlar.
+**Her sorunun bir sürücüsü vardır ve bir tüketicisi olmalı.** Sürücüsü olmayan soru
+sorulmaz — `sorular.json` içindeki `drives` alanı bunu tanımlar.
+
+Ama `drives` bir SÖZ'dü ve doğrulanmıyordu: `K10 -> metabolik_adaptasyon_bayrak` yazıyordu
+ve öyle bir hesap yoktu. `soruTuketimi.test.ts` sözü doğrulanabilir yapıyor: bankadaki her
+soru ya kodda okunuyor ya bir dalı açıyor; ikisi de değilse test kırmızı. Bir dalın ölü
+zincire çıkması da yasak — `S1 -> S1a, S1b` tam bu tuzağa düşmüştü ve zincirin sonunda
+hiçbir şey yoktu.
 
 ---
 
@@ -164,7 +214,7 @@ açıklanabilir, ucuz, çevrimdışı çalışır. AI yalnızca çıktının **a
 
 ```
 1. PROFİL DERLEME
-   134 cevap → yapılandırılmış profil
+   Değerlendirme cevapları → yapılandırılmış profil
    Antrenman yaşı, toparlanma kapasitesi, kısıt listesi, hedef vektörü
 
 2. HACİM BÜTÇESİ
@@ -484,7 +534,7 @@ sınırları çizilmiş bir koç.
 ### Erişebildiği araçlar
 
 ```
-profil_getir()              134 cevap + analiz çıktıları
+profil_getir()              değerlendirme cevapları + analiz çıktıları
 antrenman_gecmisi(n)        son n seans, geri bildirimler, ilerleme
 beslenme_gecmisi(n)         son n gün, hedefe uyum
 program_degistir(...)       hareket değiştir, gün kaydır, hacim ayarla
@@ -560,7 +610,7 @@ koymadan önce maliyetini hesapla.**
 
 | Özellik | Ücretsiz | Temel 99₺/690₺ | Pro 169₺/1.190₺ |
 |---|---|---|---|
-| 134 soruluk değerlendirme | Tam | Tam | Tam |
+| Değerlendirme ve program | Tam | Tam | Tam |
 | Vücut analizi + rapor | Bir kez | Aylık | Aylık |
 | 1. gün programı | Tam | ✓ | ✓ |
 | Manuel kalori girişi + arama | Sınırsız | ✓ | ✓ |
@@ -600,7 +650,7 @@ users              id, created_at, locale, birth_date, sex, height_cm,
                    consent_health, consent_photo, ed_mode, medical_gate_status
 
 assessments        id, user_id, version, completed_at, answers_jsonb
-                   → 134 cevap; versiyonlu
+                   → değerlendirme cevapları; versiyonlu
 
 profiles           user_id, training_age, recovery_score, tdee_estimated,
                    tdee_corrected, volume_budget_jsonb, constraints_jsonb,
@@ -676,7 +726,7 @@ kılar, ve zamanla "hangi kurallar gerçekten sonuç üretiyor" sorusunu cevapla
 | Ayarlar | 4 | Profil, bildirimler, gizlilik ve veri, değerlendirmeyi güncelle |
 
 **En kritik ekran: 1. gün açılışı.** Ürünün tamamı burada kazanılır veya kaybedilir.
-Kullanıcı 134 soruya cevap verdi, fotoğrafını yükledi, 12 dakikasını harcadı. Bu ekran ona
+Kullanıcı sekiz kartı doldurdu, fotoğrafını yükledi, dakikalarını harcadı. Bu ekran ona
 *"emeğin karşılığını aldın"* demek zorunda — programı göstererek değil, **cevaplarını
 programda göstererek**.
 
@@ -721,7 +771,7 @@ programda göstererek**.
 | Risk | Şiddet | Azaltma |
 |---|---|---|
 | **Birim ekonomisi** — AI maliyeti marjı yer | Kritik | Kota + PT kıyasına dayalı fiyat + 12 ay içinde global |
-| **134 soruda terk** | Yüksek | Blok arası geri bildirim, her blokta kayıt, yarım kalana yeniden pazarlama |
+| **Değerlendirmede terk** | Orta | Sekiz kart (4-6 dk), kart arası geri bildirim, her kartta kayıt, yarım kalana yeniden pazarlama |
 | **Hareket veritabanı emeği** | Yüksek | F1'de 120 temel hareketle başla, kullanıma göre genişlet |
 | **Vücut analizi doğruluğu** | Yüksek | Aralık sun, ölçüyle çapraz doğrula, çekim standardını zorla |
 | **Sağlık sorumluluğu** | Kritik | Dört kapı, muhafazakâr varsayılan, aralık dili |

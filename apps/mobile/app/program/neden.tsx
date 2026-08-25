@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { grupAdi } from '@swiip/core';
 import type { HacimGrubu, Karar as DomainKarar, KararParametreleri, Metinler } from '@swiip/shared';
 import { kararMetni } from '@swiip/shared';
 import {
   BosDurum,
+  Dugme,
   Ekran,
   Etiket,
   Kart,
@@ -66,16 +67,22 @@ function kararCumlesi(karar: Karar, gerekce: Metinler['gerekce']): string {
 export default function NedenBuProgram() {
   const tema = useTema();
   const m = useMetinler().program.neden;
+  const mk = useMetinler().program.keskinlestirme;
   const [program, setProgram] = useState<ProgramCevabi | null>(null);
   const [kararlar, setKararlar] = useState<Karar[]>([]);
+  const [keskinlestirilebilir, setKeskinlestirilebilir] = useState(0);
   const [hazir, setHazir] = useState(false);
 
   useEffect(() => {
     void (async () => {
       const p = await istek<ProgramCevabi>('/v1/program/aktif').catch(() => null);
       const d = await istek<{ kararlar: Karar[] }>('/v1/hesap/disa-aktar').catch(() => null);
+      const k = await istek<{ teklifler: unknown[] }>('/v1/degerlendirme/keskinlestirme').catch(
+        () => null,
+      );
       setProgram(p);
       setKararlar(d?.kararlar ?? []);
+      setKeskinlestirilebilir(k?.teklifler.length ?? 0);
       setHazir(true);
     })();
   }, []);
@@ -147,6 +154,25 @@ export default function NedenBuProgram() {
             {havuzKararlari.map((karar, i) => (
               <KararSatiri key={i} karar={karar} />
             ))}
+
+            {/*
+              Karar izinin tersi: bu elemelerin bir kısmı CEVAPLANMAMIŞ bir sorudan
+              doğuyor. Kullanıcıya "daha çok soru cevapla" demek yerine, bedeli görünen
+              bir teklif veriyoruz — ve teklif ancak gerçekten bir karar buna dayanıyorsa
+              çıkıyor.
+            */}
+            {keskinlestirilebilir > 0 ? (
+              <View style={{ marginTop: tema.bosluk.md, gap: tema.bosluk.xs }}>
+                <Yazi tur="kucuk" renk="metinYumusak">
+                  {mk.girisMetni}
+                </Yazi>
+                <Dugme
+                  baslik={mk.sayfaBasligi}
+                  tur="ikincil"
+                  onPress={() => router.push('/program/keskinlestir')}
+                />
+              </View>
+            ) : null}
           </Kart>
         ) : null}
 

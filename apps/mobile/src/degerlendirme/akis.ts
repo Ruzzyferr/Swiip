@@ -20,8 +20,9 @@ import { SORU_BANKASI } from '@swiip/shared';
  *    kapısı sunucuda hiç değerlendirilmiyordu — hepsi sessizce.
  *
  * 2. Ekran başına tek soru vardı: 134 soru, 134 ekran, her birinin %80'i boş. On iki
- *    dakikalık bir angarya ve terk sebebi. Sorular artık bloklar hâlinde gösteriliyor;
- *    blok zaten soru bankasının kendi yapısı, uydurulmuş bir gruplama değil.
+ *    dakikalık bir angarya ve terk sebebi. Sorular artık kartlar hâlinde gösteriliyor;
+ *    kart zaten soru bankasının kendi yapısı, uydurulmuş bir gruplama değil. Bugün
+ *    sekiz kart ve ~32 girdi var — bankanın 73 ölü sorusu 2026-08-25'te atıldı.
  */
 
 export type Blok = (typeof SORU_BANKASI.blocks)[number];
@@ -128,7 +129,7 @@ export function zorunlulariBitti(cevaplar: Cevaplar, blokId: string): boolean {
  * İsteğe bağlı soruların TAMAMINI atlanmış işaretler — açık blokla sınırlı değil.
  *
  * `atlananlariIsaretle` tek bloğa bakıyor ve "Devam et"in yaptığı şeyin aynısı; tek
- * başına bir düğmeye değmez. Değeri olan şey angaryanın tamamını bitirmek: 136 sorunun
+ * başına bir düğmeye değmez. Değeri olan şey angaryanın tamamını bitirmek: kalan
  * 110'u isteğe bağlı ve kullanıcı bunu bir dokunuşla arkada bırakabilmeli. Zorunlu
  * sorular etkilenmiyor — kalan bloklarda hâlâ sorulurlar.
  *

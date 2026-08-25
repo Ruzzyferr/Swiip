@@ -7,9 +7,9 @@ import type { Cevaplar } from '../cevaplar';
  * Gebelik kapısı ve K6'nın kime sorulduğu.
  *
  * Emülatörde görüldü: 34 yaşındaki erkek kullanıcıya "Hamile misin veya emziriyor
- * musun?" soruluyordu. Ürünün tek cümlelik vaadi "134 soru soruyoruz, hepsinin bir
- * karşılığı var" — ve kullanıcının ilk on iki dakikasında karşılığı olmayan bir soru
- * görmesi, o cümleyi ilk anda yalanlıyor.
+ * musun?" soruluyordu. Ürünün tek cümlelik vaadi "sorduğumuz her şeyin bir karşılığı
+ * var" — ve kullanıcının ilk dakikalarında karşılığı olmayan bir soru görmesi, o
+ * cümleyi ilk anda yalanlıyor.
  *
  * Soruyu gizlemek tek başına yeterli değil: K6 dört sert kapıdan birinin tarama
  * sorusu. Yalnızca gizlenirse `eksik_tarama` hiç kapanmaz ve program HİÇ üretilemez.

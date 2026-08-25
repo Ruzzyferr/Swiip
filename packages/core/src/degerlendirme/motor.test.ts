@@ -58,8 +58,8 @@ function ornekCevap(soru: { type: string; options?: string[]; regions?: string[]
 }
 
 describe('soru bankası bütünlüğü', () => {
-  it('10 blok içerir', () => {
-    expect(SORU_BANKASI.blocks).toHaveLength(10);
+  it('8 kart içerir', () => {
+    expect(SORU_BANKASI.blocks.map((b) => b.id)).toEqual(['K', 'G', 'A', 'H', 'E', 'Z', 'B', 'M']);
   });
 
   it('her sorunun bir sürücüsü vardır', () => {
@@ -81,23 +81,18 @@ describe('gorunurSorular — dallanma', () => {
     const gorunur = gorunurSorular({}).map((s) => s.id);
 
     expect(gorunur).toContain('K1');
-    expect(gorunur).not.toContain('K8a');
-    expect(gorunur).not.toContain('S1a');
+    expect(gorunur).not.toContain('S8');
+    expect(gorunur).not.toContain('S15');
   });
 
   it('branch tetiklenince bağlı sorular görünür olur', () => {
-    const gorunur = gorunurSorular({ K8: 'Evet' }).map((s) => s.id);
+    const gorunur = gorunurSorular({ S6: 'Evet' }).map((s) => s.id);
 
-    expect(gorunur).toContain('K8a');
+    expect(gorunur).toContain('S8');
   });
 
   it('branch geri alınınca soru tekrar gizlenir', () => {
-    expect(gorunurSorular({ K8: 'Hayır' }).map((s) => s.id)).not.toContain('K8a');
-  });
-
-  it('_notYok anahtarı "Yok" dışındaki her cevapta tetiklenir', () => {
-    expect(gorunurSorular({ H4: 'Düğün' }).map((s) => s.id)).toContain('H4a');
-    expect(gorunurSorular({ H4: 'Yok' }).map((s) => s.id)).not.toContain('H4a');
+    expect(gorunurSorular({ S6: 'Hayır' }).map((s) => s.id)).not.toContain('S8');
   });
 
   /**
@@ -108,66 +103,67 @@ describe('gorunurSorular — dallanma', () => {
    * sorunun devamı soruluyordu. Aynı şey her `branch` anahtarı için geçerli.
    */
   it('atlanmış cevap dal açmaz', () => {
-    expect(gorunurSorular({ H4: ATLANDI }).map((s) => s.id)).not.toContain('H4a');
-    expect(gorunurSorular({ K8: ATLANDI }).map((s) => s.id)).not.toContain('K8a');
-  });
-
-  it('çoklu seçimde her seçim kendi dalını açar', () => {
-    const gorunur = gorunurSorular({ S4: ['Diyabet', 'Astım / KOAH'] }).map((s) => s.id);
-
-    expect(gorunur).toContain('S14');
-    expect(gorunur).toContain('S16');
+    expect(gorunurSorular({ S6: ATLANDI }).map((s) => s.id)).not.toContain('S8');
   });
 
   it('conditionalOn başka sorunun cevabına bakar', () => {
-    expect(gorunurSorular({ K2: 'Kadın' }).map((s) => s.id)).toContain('S20');
-    expect(gorunurSorular({ K2: 'Erkek' }).map((s) => s.id)).not.toContain('S20');
+    expect(gorunurSorular({ K2: 'Kadın' }).map((s) => s.id)).toContain('K6');
+    expect(gorunurSorular({ K2: 'Erkek' }).map((s) => s.id)).not.toContain('K6');
   });
 
-  it('_bos koşulu cevap verilmediğinde tetiklenir', () => {
-    expect(gorunurSorular({}).map((s) => s.id)).toContain('A6');
-    expect(gorunurSorular({ 'A5:Squat': { kg: 100, tekrar: 5 } }).map((s) => s.id)).not.toContain(
-      'A6',
-    );
+  /** Tansiyon detayı yalnızca kalp/tansiyon beyanı olana sorulur. */
+  it('S15 yalnızca S1 = Evet ise görünür', () => {
+    expect(gorunurSorular({ S1: 'Evet' }).map((s) => s.id)).toContain('S15');
+    expect(gorunurSorular({ S1: 'Hayır' }).map((s) => s.id)).not.toContain('S15');
   });
 
-  it('ev seçildiğinde ev soruları, salon soruları değil', () => {
+  it('ev seçildiğinde ev soruları, salonda hiçbiri', () => {
     const ev = gorunurSorular({ E1: 'Ev' }).map((s) => s.id);
 
-    expect(ev).toContain('E5');
     expect(ev).toContain('E5a');
     expect(ev).toContain('E6');
-    expect(ev).not.toContain('E2');
+    expect(ev).toContain('E7');
+
+    const salon = gorunurSorular({ E1: 'Spor salonu' }).map((s) => s.id);
+    expect(salon).not.toContain('E5a');
+    expect(salon).not.toContain('E7');
   });
 
-  it('karma seçiminde hem ev hem salon soruları görünür', () => {
+  it('karma seçiminde ev kısıtları da sorulur', () => {
     const karma = gorunurSorular({ E1: 'Karma' }).map((s) => s.id);
 
-    expect(karma).toContain('E2');
-    expect(karma).toContain('E5');
+    expect(karma).toContain('E5a');
+    expect(karma).toContain('E7');
   });
 
   it('vücut haritasında işaretlenen her bölge için soru seti tekrarlanır', () => {
     const gorunur = gorunurSorular({ S6: 'Evet', S8: ['bel', 'diz_sag'] }).map((s) => s.id);
 
-    expect(gorunur).toContain('S9:bel');
     expect(gorunur).toContain('S11:bel');
-    expect(gorunur).toContain('S9:diz_sag');
+    expect(gorunur).toContain('S12:bel');
     expect(gorunur).toContain('S11:diz_sag');
+    expect(gorunur).toContain('S12:diz_sag');
   });
 
   it('bölge işaretlenmezse tekrar soruları çıkmaz', () => {
     const gorunur = gorunurSorular({ S6: 'Evet', S8: [] }).map((s) => s.id);
 
-    expect(gorunur.some((id) => id.startsWith('S9:'))).toBe(false);
+    expect(gorunur.some((id) => id.startsWith('S11:'))).toBe(false);
   });
 
-  it('repeatFor her kalem için ayrı soru üretir', () => {
+  /**
+   * Keskinleştirme ve periyodik sorular değerlendirme akışında YOK.
+   *
+   * A8 (teknik güveni) programın karar izinden, Y6 (stres) haftalık check-in'den
+   * çağrılıyor. Akışta görünseler değerlendirme yine 50 soruya çıkardı.
+   */
+  it('temel olmayan sorular akışta görünmez', () => {
     const gorunur = gorunurSorular({}).map((s) => s.id);
 
-    expect(gorunur).toContain('A8:Squat');
-    expect(gorunur).toContain('A8:Barfiks');
     expect(gorunur).not.toContain('A8');
+    expect(gorunur).not.toContain('A5');
+    expect(gorunur).not.toContain('Y6');
+    expect(gorunur).not.toContain('B12');
   });
 
   it('görünür soru listesi deterministiktir', () => {
@@ -190,12 +186,15 @@ describe('sonrakiSoru', () => {
   it('yeni açılan koşullu soruyu sırasında verir', () => {
     const cevaplar: Cevaplar = {};
     for (const soru of gorunurSorular({})) {
-      if (soru.id === 'K8') break;
+      if (soru.id === 'S6') break;
       cevaplar[soru.id] = ornekCevap(soru);
     }
-    cevaplar['K8'] = 'Evet';
+    cevaplar['S6'] = 'Evet';
+    cevaplar['S7'] = 'Hayır';
+    cevaplar['S18'] = 'Hayır';
+    cevaplar['S17'] = ['Hayır'];
 
-    expect(sonrakiSoru(cevaplar)?.id).toBe('K8a');
+    expect(sonrakiSoru(cevaplar)?.id).toBe('S8');
   });
 
   it('cevaplandıkça açılan dallarla birlikte akış sonlanır', () => {
@@ -207,8 +206,8 @@ describe('sonrakiSoru', () => {
   });
 
   it('cevap vermek yeni dal açtığında akış uzar', () => {
-    const kisa = gorunurSorular({ H4: 'Yok' }).length;
-    const uzun = gorunurSorular({ H4: 'Düğün' }).length;
+    const kisa = gorunurSorular({ S6: 'Hayır' }).length;
+    const uzun = gorunurSorular({ S6: 'Evet' }).length;
 
     expect(uzun).toBeGreaterThan(kisa);
   });
@@ -220,7 +219,6 @@ describe('sonrakiSoru', () => {
       K2: 'Erkek',
       K3: 178,
       K4: 82,
-      K5: 'Bugün',
     };
 
     // K6 (gebelik) erkek beyan edene sorulmuyor; sıradaki soru K7.
@@ -231,13 +229,13 @@ describe('sonrakiSoru', () => {
    * Aynı noktada kadın kullanıcıya K6 soruluyor. İki testi birlikte tutmak, gizleme
    * kuralının yanlışlıkla herkese uygulanmasını yakalar.
    */
-  it('kadın kullanıcıda gebelik sorusu sıradaki sorudur', () => {
+  it('kadın kullanıcıda gebelik sorusu sorulur', () => {
     const cevaplar: Cevaplar = {
       K1: '1990-05-10',
       K2: 'Kadın',
       K3: 165,
       K4: 61,
-      K5: 'Bugün',
+      K7: 'Evet',
     };
 
     expect(sonrakiSoru(cevaplar)?.id).toBe('K6');
@@ -256,7 +254,7 @@ describe('blokIlerlemesi', () => {
   it('bir blok bitince sonraki bloğa geçer', () => {
     const cevaplar = blogunuDoldur('K');
 
-    expect(blokIlerlemesi(cevaplar).blok_id).toBe('H');
+    expect(blokIlerlemesi(cevaplar).blok_id).toBe('G');
   });
 
   it('yüzde ilerleme 0 ile 100 arasındadır', () => {
@@ -278,7 +276,7 @@ describe('blokIlerlemesi', () => {
 
     expect(ilerleme.tamamlandi).toBe(true);
     expect(ilerleme.yuzde).toBe(100);
-    expect(ilerleme.tamamlanan_bloklar).toHaveLength(10);
+    expect(ilerleme.tamamlanan_bloklar).toHaveLength(8);
   });
 });
 
@@ -306,7 +304,7 @@ describe('cevabiDogrula', () => {
   });
 
   it('isteğe bağlı soruda boş cevabı kabul eder', () => {
-    expect(cevabiDogrula(soruBul('H3'), null).gecerli).toBe(true);
+    expect(cevabiDogrula(soruBul('Z3'), null).gecerli).toBe(true);
   });
 
   it('ölçek sınırlarını uygular', () => {
@@ -354,7 +352,21 @@ describe('toplamSoruSayisi', () => {
     expect(cok).toBeGreaterThan(az);
   });
 
-  it('temel soru sayısı spec ile uyumludur', () => {
-    expect(toplamSoruSayisi({})).toBeGreaterThanOrEqual(100);
+  /**
+   * Değerlendirmenin uzunluğu bir tasarım kararı; sessizce büyümesin.
+   *
+   * 136 soruluk bankanın 73'ü hiçbir çıktıyı değiştirmiyordu. Kalanların bir kısmı da
+   * ilk gün sorulmak zorunda değildi: yük ve teknik güveni seans geri bildiriminden,
+   * uyku kalitesi ve stres haftalık check-in'den geliyor. Sağlıklı bir erkek kullanıcı
+   * artık 32 girdi dolduruyor; sakatlığı ve ev salonu olan ~40.
+   *
+   * Üst sınır bilerek dar: bir sonraki "şunu da soralım" bu testi kırsın ve tartışma
+   * kod incelemesinde yapılsın.
+   */
+  it('temel akış kısa kalıyor', () => {
+    const sade = toplamSoruSayisi({ K2: 'Erkek', S6: 'Hayır', E1: 'Spor salonu' });
+
+    expect(sade).toBeLessThanOrEqual(34);
+    expect(sade).toBeGreaterThanOrEqual(25);
   });
 });

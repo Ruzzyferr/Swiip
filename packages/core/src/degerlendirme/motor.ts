@@ -1,4 +1,4 @@
-import { SORU_BANKASI, type Soru, type SoruBlogu } from '@swiip/shared';
+import { SORU_BANKASI, type Soru, type SoruAsamasi, type SoruBlogu } from '@swiip/shared';
 import { atlandiMi, dizi, type CevapDegeri, type Cevaplar } from '../cevaplar';
 
 /**
@@ -22,9 +22,20 @@ export interface GorunurSoru extends Soru {
   temel_id: string;
 }
 
+/** Sorunun aşaması; alan yoksa `temel`. */
+export function soruAsamasi(soru: Soru): SoruAsamasi {
+  return soru.asama ?? 'temel';
+}
+
 /**
  * Cevaplara göre görünür soruların tam listesi, sırayla.
  * Saf fonksiyon: aynı cevaplar her zaman aynı listeyi verir.
+ *
+ * Yalnızca `temel` aşama döner. `keskinlestirme` soruları programın karar izinden,
+ * `periyodik` olanlar check-in'den çağrılıyor; ikisi de değerlendirme akışında yok.
+ * Filtre BURADA, çünkü `sonrakiSoru`, `blokIlerlemesi` ve arayüzün blok listesi
+ * hepsi bu tek listeden türüyor — ayrı ayrı filtrelenseydi biri unutulurdu ve
+ * değerlendirme asla "tamamlandı" olmazdı.
  */
 export function gorunurSorular(cevaplar: Cevaplar): GorunurSoru[] {
   const acilanlar = acilanSorulariTopla(cevaplar);
@@ -32,6 +43,7 @@ export function gorunurSorular(cevaplar: Cevaplar): GorunurSoru[] {
 
   for (const blok of SORU_BANKASI.blocks) {
     for (const soru of blok.questions) {
+      if (soruAsamasi(soru) !== 'temel') continue;
       if (!soruGorunur(soru, cevaplar, acilanlar)) continue;
 
       if (soru.repeatFor && soru.repeatFor.length > 0) {

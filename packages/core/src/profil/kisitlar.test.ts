@@ -95,6 +95,20 @@ describe('kisitlariDerle — sakatlık', () => {
     expect(k.eksenel_yuk_yasak).toBe(true);
   });
 
+  /**
+   * Osteoporoz uzun süre soruluyor ama hiçbir şey yapmıyordu: eski S4'te bir şıktı,
+   * `drives: durum_bazli_dallanma` yazıyordu ve öyle bir dallanma yoktu.
+   * Kemik yoğunluğu düşükken omurgaya dikey yük ve yüklü fleksiyon vertebral
+   * kompresyon kırığı riskidir.
+   */
+  it('osteoporoz eksenel yükü ve yüklü fleksiyonu kısıtlar', () => {
+    const k = kisitlariDerle({ ...salonKullanicisi, S17: ['Osteoporoz / kemik erimesi'] });
+
+    expect(k.eksenel_yuk_yasak).toBe(true);
+    expect(k.kontrendikasyonlar).toContain('bel_fitigi');
+    expect(k.kisitli_paternler).toContain('kalca_baskin');
+  });
+
   it('S17 = Hayır hiçbir kontrendikasyon üretmez', () => {
     expect(kisitlariDerle({ ...salonKullanicisi, S17: ['Hayır'] }).kontrendikasyonlar).toEqual([]);
   });
@@ -201,8 +215,42 @@ describe('kisitlariDerle — ortam ve tercih', () => {
     expect(k.teknik_guveni).toBeCloseTo(2, 1);
   });
 
-  it('A8 hiç cevaplanmamışsa muhafazakâr orta değer kullanılır', () => {
-    expect(kisitlariDerle({ E1: 'Ev' }).teknik_guveni).toBe(2.5);
+  /**
+   * Yeni A8 tek çoklu seçim: seçilen hareket sayısı güvene çevriliyor.
+   * Beş skala beş ekran demekti; "ekran başına tek ölçek" kuralını tek soruda beş kez
+   * kullanıyordu.
+   */
+  it('A8 çoklu seçimi seçim oranına göre güvene çevrilir', () => {
+    const hepsi = kisitlariDerle({
+      ...salonKullanicisi,
+      A8: [
+        'Barbell squat',
+        'Barbell deadlift',
+        'Barbell bench press',
+        'Barbell omuz presi',
+        'Barfiks',
+      ],
+    });
+    const biri = kisitlariDerle({ ...salonKullanicisi, A8: ['Barbell squat'] });
+    const hicbiri = kisitlariDerle({ ...salonKullanicisi, A8: ['Hiçbiri'] });
+
+    expect(hepsi.teknik_guveni).toBe(5);
+    expect(biri.teknik_guveni).toBeCloseTo(1.8, 1);
+    expect(hicbiri.teknik_guveni).toBe(1);
+  });
+
+  /**
+   * A8 CEVAPSIZ ise varsayılan antrenman yaşından türer.
+   *
+   * Eskiden sabit 2.5'ti ve `DUSUK_GUVEN_ESIGI` de tam 2.5, karşılaştırma `<=`: A8'i
+   * görmeyen HERKES teknik zorluk tavanı 3'e düşüyor, barbell squat (4), omuz presi (4)
+   * ve deadlift (5) havuzdan siliniyordu. A8 değerlendirme akışından çıkınca bu, beş
+   * yıllık kullanıcıya yeni başlayan programı çıkarmak olurdu.
+   */
+  it('A8 cevapsızsa varsayılan antrenman yaşından gelir', () => {
+    expect(kisitlariDerle({ E1: 'Ev', A1: 'Hiç yapmadım' }).teknik_guveni).toBe(2);
+    expect(kisitlariDerle({ E1: 'Ev', A1: '1-3 yıl' }).teknik_guveni).toBe(2.5);
+    expect(kisitlariDerle({ E1: 'Ev', A1: '5 yıldan fazla' }).teknik_guveni).toBe(3.5);
   });
 });
 

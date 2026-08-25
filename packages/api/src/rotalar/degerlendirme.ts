@@ -7,19 +7,20 @@ import {
   cevabiDogrula,
   gorunurSorular,
   kapilariDegerlendir,
+  keskinlestirmeTeklifleri,
   profilDerle,
   sonrakiSoru,
   type Cevaplar,
 } from '@swiip/core';
 import { blokGeriBildirimiMetni, dilCozumle, metinleriAl, SORU_BANKASI } from '@swiip/shared';
 import { HataliIstek, Yasak } from '../hatalar';
-import { analytics_events, assessments, profiles, users } from '../db/sema';
+import { analytics_events, assessments, decisions, profiles, users } from '../db/sema';
 
 /**
  * Değerlendirme akışı (F2).
  *
- * Her blok bittiğinde kayıt yapılır: 134 soruyu yarıda bırakan kullanıcı en değerli yeniden
- * pazarlama hedefimiz ve kaldığı yerden devam edebilmeli.
+ * Her kart bittiğinde kayıt yapılır: değerlendirmeyi yarıda bırakan kullanıcı en değerli
+ * yeniden pazarlama hedefimiz ve kaldığı yerden devam edebilmeli.
  */
 
 const cevapSemasi = z.record(z.string(), z.unknown());
@@ -275,6 +276,56 @@ export async function degerlendirmeRotalari(app: FastifyInstance): Promise<void>
     return { profil, kapi_durumu: profil.kapi_durumu };
   });
 
+  /**
+   * Keskinleştirme teklifleri — kısaltmanın karşılığı.
+   *
+   * Değerlendirme sekiz karta indi; çıkan soruların bir kısmı programı iyileştiriyor
+   * ama ilk gün sorulması gerekmiyordu. Onlar burada, ve kullanıcıya "daha çok soru
+   * cevapla" diye değil, **görünür bir bedelle** sunuluyorlar:
+   *
+   *   "Karmaşık serbest ağırlık hareketlerini çıkardım — tekniğine ne kadar
+   *    güvendiğini bilmiyorum. 20 saniye: hangilerini rahat yapıyorsun?"
+   *
+   * Kaynak uydurma değil: `programUret` her havuz elemesini bir karara bağlıyor ve o
+   * kararın `inputs_jsonb` alanında hangi sorudan doğduğu yazıyor. Bu uç o izin tersi.
+   */
+  app.get('/keskinlestirme', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const kayit = await aktifDegerlendirme(istek.kullaniciId);
+    const cevaplar = kayit.answers_jsonb as Cevaplar;
+
+    const kayitlar = await db
+      .select({
+        entity_id: decisions.entity_id,
+        rule_fired: decisions.rule_fired,
+        inputs_jsonb: decisions.inputs_jsonb,
+        parametreler_jsonb: decisions.parametreler_jsonb,
+        explanation_tr: decisions.explanation_tr,
+      })
+      .from(decisions)
+      .where(and(eq(decisions.user_id, istek.kullaniciId), eq(decisions.entity_type, 'havuz')));
+
+    const teklifler = keskinlestirmeTeklifleri(
+      kayitlar.map((k) => ({
+        id: k.entity_id,
+        entity_tipi: 'havuz' as const,
+        entity_id: k.entity_id,
+        kurallar: k.rule_fired as string[],
+        girdiler: k.inputs_jsonb as Array<{ soru_id: string; deger: string }>,
+        parametreler: k.parametreler_jsonb as { adet?: number },
+        aciklama_tr: k.explanation_tr,
+      })),
+      cevaplar,
+    );
+
+    return {
+      teklifler: teklifler.map((t) => ({
+        soru: t.soru,
+        kural: t.kural,
+        etkilenen: t.etkilenen,
+      })),
+    };
+  });
+
   /** Değerlendirmeyi ayarlardan güncelleme (F2.12): yeni sürüm açılır, eskisi durur. */
   app.post('/yeni-surum', { preHandler: app.kimlikDogrula }, async (istek) => {
     const mevcut = await aktifDegerlendirme(istek.kullaniciId);
@@ -284,7 +335,7 @@ export async function degerlendirmeRotalari(app: FastifyInstance): Promise<void>
       .values({
         user_id: istek.kullaniciId,
         version: mevcut.version + 1,
-        // Eski cevaplar taşınır: kullanıcı 134 soruyu baştan cevaplamak zorunda değil.
+        // Eski cevaplar taşınır: kullanıcı her şeyi baştan cevaplamak zorunda değil.
         answers_jsonb: mevcut.answers_jsonb,
       })
       .returning();

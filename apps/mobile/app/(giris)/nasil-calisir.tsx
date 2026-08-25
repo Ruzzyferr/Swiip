@@ -5,9 +5,9 @@ import { useTema } from '../../src/tasarim/tema';
 import { useMetinler } from '../../src/durum/Oturum';
 
 /**
- * "Nasıl çalışır" — 134 sorudan önceki tek ekran.
+ * "Nasıl çalışır" — değerlendirmeden önceki tek ekran.
  *
- * Amacı dönüşüm değil, beklenti yönetimi: kullanıcı 12 dakika harcayacağını ve karşılığında
+ * Amacı dönüşüm değil, beklenti yönetimi: kullanıcı dört-altı dakika harcayacağını ve karşılığında
  * ne alacağını buradan bilerek girsin. Sürprizle terk, bilgiyle terkten pahalıdır.
  */
 export default function NasilCalisir() {
