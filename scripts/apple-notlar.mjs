@@ -44,7 +44,7 @@ const cihazlar = argAl('cihazlar');
 
 const bolumler = [];
 if (kayit) bolumler.push(`SCREEN RECORDING\n${kayit}`);
-if (cihazlar) bolumler.push(`DEVICES AND OS VERSIONS TESTED\n${cihazlar}`);
+if (cihazlar) bolumler.push(`DEVICES TESTED\n${cihazlar}`);
 bolumler.push(govde);
 const metin = bolumler.join('\n\n');
 

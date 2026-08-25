@@ -1,98 +1,151 @@
-# Swiip — App Review videosu çekim talimatı
+# Swiip — App Review videosu çekim senaryosu
 
-Apple, Swiip 1.0'ı "Guideline 2.1 — Information Needed" ile geri çevirdi. Uygulamada
-hata bulmuş değiller; yeni uygulamalardan istedikleri bilgileri istiyorlar ve bunların
-başında **gerçek bir telefonda çekilmiş ekran kaydı** geliyor. Simülatör kabul edilmiyor.
+Apple, Swiip 1.0'ı **Guideline 2.1 — Information Needed** ile geri çevirdi. Uygulamada
+hata bulmuş değiller; yeni uygulamalardan istedikleri sekiz bilgiyi istiyorlar ve
+bunların başında **gerçek bir telefonda çekilmiş ekran kaydı** geliyor.
+Simülatör kaydı kabul edilmiyor.
 
-Bu dosya Arda'ya olduğu gibi gönderilebilir.
+**Bu dosya olduğu gibi testçiye gönderilebilir.**
+
+---
+
+## Hesaplar
+
+Üç hesap var. Hangisiyle ne çekileceği bölüm başlarında yazıyor.
+
+| # | Hesap | Ne için |
+|---|---|---|
+| 1 | *kendi açacağın hesap* | Kayıt olma, izin istemleri, değerlendirmenin başı |
+| 2 | `inceleme-ucretsiz@swiip.app` · `kumsal-terazi-5820-fener` | **Satın alma ekranı** ve kilitli özellikler |
+| 3 | `inceleme@swiip.app` · `mercan-defter-7431-yelken` | Uygulamanın tamamı — bütün ekranlar açık |
+
+**Neden üç tane:** 3 numaralı hesap Pro. Ödeyen kullanıcıya tek satır bile upsell
+göstermiyoruz, yani o hesapta Ayarlar'daki **"Planlara bak" düğmesi hiç çıkmıyor.**
+Satın alma ekranını ancak 2 numaralı ücretsiz hesapla gösterebilirsin. 1 numaralı
+hesabı da sen açacaksın çünkü Apple kayıt akışını ve izin istemlerini görmek istiyor.
+
+> **3 numaralı hesabı (`inceleme@swiip.app`) SAKIN SİLME.** Apple'ın gireceği hesap o.
+> Silinecek olan yalnızca kendi açtığın 1 numaralı deneme hesabı.
 
 ---
 
 ## Çekimden önce
 
-- **TestFlight**'ı App Store'dan kur, `ardaerenbulut2121@gmail.com` Apple ID'siyle gir.
-  Swiip görünecek. **Build 7'yi kur** — daha eskisi yüklüyse TestFlight'ta "Güncelle"
-  yazar, güncelle. Görünmüyorsa gelen kutusundaki TestFlight davetini kabul et.
-- Telefon **güncel iOS**'ta olsun. Apple bunu şart koşuyor.
+- **TestFlight**'ı App Store'dan kur ve davet aldığın Apple ID'yle gir. Swiip görünecek;
+  **build 12**'yi kur. Daha eskisi yüklüyse "Güncelle" yazar. Görünmüyorsa gelen
+  kutundaki TestFlight davetini kabul et.
+- Telefon **güncel iOS**'ta olsun — Apple bunu şart koşuyor.
 - Kaydı **dikey** al, telefonu döndürme.
 - Kayıt: Kontrol Merkezi → ekran kaydı düğmesi. Ses gerekmiyor.
-- Her ekranda **1-2 saniye bekle**. Hızlı geçilen ekranı inceleyici göremiyor.
-- Toplam 4-6 dakika yeterli.
+- **Her ekranda 1-2 saniye bekle.** Hızlı geçilen ekranı inceleyici göremez.
+- Toplam **5-7 dakika** yeterli. Tek parça çek, kesme.
 
-**Bana lazım olan tek şey:** hangi iPhone modeli ve hangi iOS sürümü. `Ayarlar → Genel →
-Hakkında` ekranından bakabilirsin, yazıp göndermen yeterli.
+**Videoyla birlikte bana lazım olan tek bilgi:** hangi iPhone modeli ve hangi iOS
+sürümü. `Ayarlar → Genel → Hakkında` ekranında yazıyor. Bunu yazmadan gönderme —
+Apple'ın sekiz sorusundan biri bu ve videosuz kadar önemli.
 
 ---
 
-## Bölüm 1 — Kayıt, izinler, satın alma (yeni hesapla)
+## Bölüm 1 — Kayıt ve izinler · *kendi açacağın hesapla* (~2 dk)
 
-Bu bölümü **yeni açacağın** bir hesapla çek. Deneme hesabı; sonunda silinecek.
-
-1. **Uygulamayı kapalıyken aç.** Kayıt açılış ekranından başlamalı, uygulama arka planda
-   açık kalmışsa önce tamamen kapat.
+1. **Uygulamayı tamamen kapat, sonra aç.** Kayıt soğuk başlangıçtan başlamalı.
 2. Açılış / "nasıl çalışır" ekranını geç.
-3. **Kayıt ol.** E-posta ve parola gir. Sağlık verisi onay kutusunu işaretle — bu ekran
-   önemli, Apple veri toplama iznini görmek istiyor.
-4. **Değerlendirme başlıyor.** 10 bölüm, toplam 136 soru — ama **yalnızca altında
-   "Zorunlu" yazanları doldurman gerekiyor**, o da 25 tane. Bölüm başında kaç tanesinin
-   zorunlu olduğu yazıyor.
-   - İlk bölümde zorunluları doldur, **bölüm sonu geri bildirim ekranını kadraja al** —
-     "senin cevaplarından şunu hesapladık" diyen ekran, ürünün ayırt edici yeri orası.
-   - Zorunlular bitince araya **"İsteğe bağlı soruları sonra cevaplayacağım"** satırı
-     çıkar. **Buna bir kez bas** — kalan bütün isteğe bağlı sorular atlanır, geriye
-     yalnızca zorunlular kalır. Videoyu kısaltan şey bu, kadrajda dursun.
-   - Sonraki bölümlerde yalnızca "Zorunlu" yazanlar çıkacak; doldur ve geç.
-   - Bölüm başına zorunlu: K 5 · H 3 · A 1 · S 6 · E 2 · Z 2 · Y 2 · B 3 · T 0 · F 1.
-   - "Devam et" ilerletmiyorsa düğmenin hemen üstünde kaç zorunlu sorunun boş kaldığı
-     yazar; yukarı kaydırıp doldur.
-5. **Vücut fotoğrafı adımına gel.** Kamera izni istemi çıkacak — **izin istemini kadraja
-   al**, Apple bunu özellikle istiyor. Fotoğrafı çek ve **fotoğrafın silindiğini söyleyen
-   ekranı göster.**
-6. **Ayarlar sekmesi → Bildirim ayarları.** Bildirim izni istemini de göster.
-7. **Ayarlar → Planlar.** Paywall açılacak:
-   - Aylık / Yıllık geçişini göster
-   - Temel ve Pro fiyatlarını göster
-   - En alta in: **Kullanım koşulları** ve **Gizlilik politikası** bağlantılarını göster
-   - Bir plan seç → seçince **ödenecek tutar ve yenileme tarihi** çıkacak, onu göster
-   - **"Plan seç" düğmesine bas.** Apple'ın satın alma sayfası açılacak.
-     **TestFlight'ta satın almalar sandbox'tır, para çekilmez.** Satın almayı tamamla.
-8. **Ayarlar → Hesabını sil → Sil.** Silme akışını sonuna kadar göster. Bu deneme hesabını
-   temizler ve seni çıkışa atar.
+3. **Kayıt ol.** E-posta ve parola gir. **Sağlık verisi onay kutusunu işaretle** —
+   bu ekran önemli, Apple veri toplama iznini görmek istiyor. Kadrajda dursun.
+4. **Değerlendirme başlıyor.** 10 bölüm, 136 soru — ama yalnızca altında **"Zorunlu"**
+   yazanlar gerekiyor.
+   - **İlk bölümün** zorunlularını doldur (5 soru).
+   - **Bölüm sonu geri bildirim ekranını kadraja al** — "senin cevaplarından şunu
+     hesapladık" diyen ekran. Ürünün ayırt edici yeri orası, 2-3 saniye bekle.
+   - Zorunlular bitince **"İsteğe bağlı soruları sonra cevaplayacağım"** satırı çıkar.
+     Buna bir kez bas; kalan isteğe bağlı sorular atlanır. Kadrajda dursun.
+5. **Değerlendirmeyi bitirmene gerek yok.** İkinci bölüme geçildiğini göster ve dur.
+
+Bu bölümde çıkan **bildirim izni istemi** olursa kadraja al.
+
+> Değerlendirmeyi sonuna kadar doldurma. 25 zorunlu soru videoyu gereksiz uzatır;
+> tamamlanmış hâli zaten 2 ve 3 numaralı hesaplarda hazır.
 
 ---
 
-## Bölüm 2 — Uygulamanın tamamı (inceleme hesabıyla)
+## Bölüm 2 — Satın alma · *2 numaralı hesapla* (~2 dk)
 
-```
-E-posta : inceleme@swiip.app
-Parola  : mercan-defter-7431-yelken
-```
+Ayarlar → **Çıkış yap**, sonra `inceleme-ucretsiz@swiip.app` ile gir.
+**Bu bölüm Apple için en kritik olanı** — 1.0'ın reddedilme sebeplerinden biri buydu.
 
-Bu hesabın değerlendirmesi dolu, programı ve öğün planı hazır — bütün ekranlar açık.
+6. **Program sekmesi.** 1. gün açık. Aşağı in: **"2 gün daha hazır"** başlıklı kart
+   çıkacak, altında *"Haftanın tamamı hesaplandı. 1. günü ücretsiz görüyorsun…"* yazıyor.
+   Bu kartı 2-3 saniye kadrajda tut, sonra içindeki **"Planlara bak"** düğmesine bas.
+   Satın alma ekranı açılacak. Bu, kullanıcının gerçek yolu.
+7. Satın alma ekranında sırayla göster:
+   - **Aylık / Yıllık** geçişi
+   - **Temel ve Pro fiyatları**
+   - En alta in: **Kullanım koşulları** ve **Gizlilik politikası** bağlantıları
+   - **Bir plan seç** → seçince **ödenecek tutar ve yenileme tarihi** en büyük puntoyla
+     çıkar. 2-3 saniye bekle, Apple tam olarak buna bakıyor.
+8. **"Plan seç" düğmesine bas.** Apple'ın satın alma sayfası açılacak.
+   **TestFlight'ta satın almalar sandbox'tır — para çekilmez.** Satın almayı tamamla.
+9. Geri dön, **Ayarlar → Planlara bak** düğmesinin de aynı ekranı açtığını göster
+   (bir bas, yeter). Apple satın almaya iki ayrı yoldan ulaşıldığını görmüş olur.
 
-9. **Giriş yap.** Giriş akışını da göstermiş oluyorsun.
-10. **Program sekmesi.** Haftanın programı görünecek.
-    - **Listenin ikinci hareketine bas** (Romanian deadlift). Birincinin — dizden şınav —
-      fotoğrafı yok; kaynağımız kamu malı ve bazı hareketleri içermiyor, yanlış fotoğraf
-      koymaktansa boş bırakıyoruz. Videoda fotoğraflı olan görünsün.
-    - **"Neden bu hareket"** kutusunu göster — uygulamanın asıl farkı bu, kararın hangi
-      cevaplardan çıktığını yazıyor
-    - Aşağı in: Türkçe talimat, çalışan kaslar, hareket fotoğrafı
-    - Geri dön, **"Haftalık yapı"**ya bas — hacim bütçesini göster
-11. **Beslenme sekmesi.**
+---
+
+## Bölüm 3 — Uygulamanın tamamı · *3 numaralı hesapla* (~3 dk)
+
+Ayarlar → **Çıkış yap**, sonra `inceleme@swiip.app` ile gir.
+Bu hesabın değerlendirmesi dolu, programı ve öğün planı hazır.
+
+10. **Giriş yap.** Giriş akışını da göstermiş oluyorsun.
+11. **Program sekmesi.**
+    - **Listenin ikinci hareketine bas.** Birincinin fotoğrafı yok; kaynağımız kamu malı
+      ve bazı hareketleri içermiyor, yanlış fotoğraf koymaktansa boş bırakıyoruz.
+      Videoda fotoğraflı olan görünsün.
+    - **"Neden bu hareket"** kutusunu göster ve 2-3 saniye bekle. **Uygulamanın asıl
+      farkı bu** — kararın hangi cevaplardan çıktığını yazıyor.
+    - Aşağı in: Türkçe talimat, çalışan kaslar, hareket fotoğrafı.
+    - Geri dön, **"Haftalık yapı"**ya bas.
+12. **Beslenme sekmesi.**
     - Günün öğün planını göster
     - **"Öğün değiştir"**e gir, kaydırmalı destede birkaç alternatif geç
-    - **Barkod okuma**yı aç (kamera izni burada da çıkabilir, göster)
-12. **Koç sekmesi.** Bir soru yaz, cevabı bekle. **1-2 mesaj yeter** — her mesaj para.
-13. **İlerleme sekmesi.** Grafikleri kısaca göster.
-14. **Ayarlar sekmesi.** En üstte **"Aboneliği iptal et"** düğmesini göster —
+    - **Barkod okuma**yı aç — kamera izni istemi burada çıkarsa **kadraja al**
+13. **Vücut analizi.** Yolu: **İlerleme sekmesi → "Fotoğrafları karşılaştır" → "Yeni
+    ölçüm"**. Kamera izni istemini kadraja al, fotoğrafı çek, ardından **fotoğrafın
+    silindiğini söyleyen ekranı göster.** Apple gizlilik iddiamızı burada doğruluyor.
+    (Bu hesabın aylık analiz hakkı varsa çalışır; "hakkın bitti" derse bölümü atla ve
+    bana söyle.)
+14. **Koç sekmesi.** Bir soru yaz, cevabı bekle. **1-2 mesaj yeter** — her mesaj para.
+15. **İlerleme sekmesi.** Grafikleri kısaca göster.
+16. **Ayarlar sekmesi.** En üstte **"Aboneliği iptal et"** düğmesini göster —
     **basma, sadece görünsün.** Apple iptalin gizlenmediğini görmek istiyor.
+
+---
+
+## Bölüm 4 — Hesap silme · *1 numaralı hesapla* (~30 sn)
+
+17. Çıkış yap, **Bölüm 1'de kendi açtığın hesapla** gir.
+18. **Ayarlar → Hesabımı sil.** Akışı sonuna kadar göster (onay metnini yazman
+    isteniyor). Bu hem Apple'ın istediği silme akışını gösterir hem deneme hesabını
+    temizler.
 
 ---
 
 ## Yapma
 
-- **İnceleme hesabını (`inceleme@swiip.app`) SİLME.** Silinecek olan Bölüm 1'de kendi
-  açtığın deneme hesabı. İnceleme hesabı silinirse Apple'ın gireceği hesap kalmaz.
-- Değerlendirmedeki 136 sorunun hepsini doldurma; 25'i zorunlu, gerisi isteğe bağlı.
+- **`inceleme@swiip.app` hesabını silme.** Apple'ın gireceği hesap o.
+- **`inceleme-ucretsiz@swiip.app` hesabını da silme.** Apple satın alma ekranına o
+  hesapla ulaşıyor.
+- Değerlendirmenin 136 sorusunu doldurma; ilk bölüm yeterli.
 - Koç sohbetinde uzun uzun yazışma.
+- Videoyu kesip birleştirme; tek parça olsun.
+
+---
+
+## Bittiğinde
+
+Videoyu ve **iPhone modeli + iOS sürümünü** gönder. Sonrası bende:
+
+```bash
+node scripts/apple-notlar.mjs --dene \
+  --kayit "<videonun bağlantısı>" \
+  --cihazlar "iPhone 15 Pro (iOS 26.0)"
+```

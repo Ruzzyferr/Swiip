@@ -238,6 +238,14 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   haftanın öğün planı, Pro hakkı). Sürüm `PREPARE_FOR_SUBMISSION`, cihaz ailesi
   yalnızca iPhone, 6.7" ekran görüntüsü seti yüklü — iPad istenmiyor.
 
+  **İki inceleme hesabı var, ve ikincisi zorunlu.** `inceleme@swiip.app` Pro; ödeyene
+  upsell göstermediğimiz için o hesapta Ayarlar'daki "Planlara bak" düğmesi **hiç
+  çıkmıyor** (`promosyon_goster: false`). Notlar Apple'a "Settings → Planlar" diyordu;
+  inceleyici satın alma ekranına asla ulaşamazdı — tek başına ret sebebi.
+  `scripts/inceleme-hesabi-kur.mjs` ücretsiz katmanda, değerlendirmesi tamamlanmış
+  ikinci hesabı kuruyor (`inceleme-ucretsiz@swiip.app`) ve inceleyicinin göreceği dört
+  şartı geri okuyup doğruluyor. Testçi senaryosu `magaza/appstore/video-cekim-talimati.md`.
+
   **Kalan iki şey uydurulamaz:** fiziksel cihazda çekilmiş ekran kaydı (simülatör
   kabul edilmiyor) ve test edilen iPhone modeli + iOS sürümü. Bunlar girilmeden
   gönderim tekrarlanmadı — 2.1'e yarım cevap vermek bir inceleme turu daha harcar.
