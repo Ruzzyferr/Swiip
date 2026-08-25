@@ -59,11 +59,6 @@
         "language": "tr-TR",
         "companyName": "Ruzgar Bulut",
         "ascAppId": "6803979374"
-      },
-      "android": {
-        "track": "alpha",
-        "releaseStatus": "draft",
-        "serviceAccountKeyPath": "./play.json"
       }
     }
   }

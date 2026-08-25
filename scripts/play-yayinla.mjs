@@ -121,6 +121,36 @@ try {
   }
 } catch (hata) {
   await cagir(`/edits/${id}`, { method: 'DELETE' }).catch(() => {});
+
+  /**
+   * "Only releases with status draft may be created on draft app."
+   *
+   * Play uygulamayı hâlâ **taslak uygulama** sayıyor: hiç yayımlanmamış. Bu durumda
+   * iç test izi `completed` sürümü kabul ediyor ama kapalı test (alpha) etmiyor.
+   * Paket yüklenmiş olur, taslak olarak durur ve testçiye İNMEZ.
+   *
+   * Ham yığın izi bunu anlatmıyor; hata mesajı ne yapılacağını söylemeli, yoksa
+   * bir sonraki kişi paketin neden görünmediğini saatlerce arar.
+   */
+  if (String(hata.message).includes('draft app')) {
+    console.error(
+      [
+        '',
+        `Play, "${IZ}" izinde yayına almayı reddetti: uygulama hâlâ TASLAK durumda.`,
+        '',
+        `Paket yüklendi ve ${IZ} izinde taslak olarak duruyor — ama testçilere inmiyor.`,
+        '',
+        'Uygulamanın taslaktan çıkması için Play Console tarafında kalan maddeler',
+        'bitirilmeli (App content beyanları, veri güvenliği formunun incelemeye',
+        'gönderilmesi, mağaza listesi). Bunlar API ile yapılamıyor.',
+        '',
+        'O bitene kadar iç test izi çalışıyor:',
+        '  gh workflow run yayin.yml -f platform=android -f iz=internal',
+        '',
+      ].join('\n'),
+    );
+    process.exit(1);
+  }
   throw hata;
 }
 

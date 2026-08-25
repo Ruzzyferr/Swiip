@@ -26,8 +26,8 @@ on:
       iz:
         description: Play izi (alpha = kapalı test)
         type: choice
-        options: [alpha, internal, beta]
-        default: alpha
+        options: [internal, alpha, beta]
+        default: internal
       zorla:
         description: Ürün değişmemiş olsa da derle
         type: boolean
@@ -182,9 +182,14 @@ jobs:
             --output "$RUNNER_TEMP/swiip.aab"
           ls -la "$RUNNER_TEMP/swiip.aab"
 
-      - name: Play kapalı test izine yükle
-        working-directory: apps/mobile
-        run: eas submit --platform android --profile ci --path "$RUNNER_TEMP/swiip.aab" --non-interactive
+      - name: Play izine yükle
+        # `eas submit` yerine doğrudan Play API'si (`play-yukle.mjs`): `eas.json`'daki
+        # gönderim profili izi SABİT tutuyor, oysa iz artık bir değişken. İkisi
+        # ayrışsaydı paket bir ize yüklenir, yayına alma başka izde aranırdı.
+        env:
+          PLAY_SERVIS_HESABI: apps/mobile/play.json
+          IZ: ${{ inputs.iz || vars.PLAY_IZ || 'internal' }}
+        run: node scripts/play-yukle.mjs yukle "$RUNNER_TEMP/swiip.aab" "$IZ"
 
       - name: Yayına al ve notu yaz
         # `eas submit` sürümü TASLAK bırakıyor ve taslak sürüm test cihazlarına
@@ -193,9 +198,16 @@ jobs:
         #
         # versionCode `en-yeni`: yerel derlemede `eas build:list` bu paketi
         # görmüyor, tek doğru kaynak izin kendisi.
+        #
+        # İZ BİR DEĞİŞKENDE, kodda gömülü değil. Play şu an uygulamayı "taslak
+        # uygulama" sayıyor ve o durumda KAPALI TESTE yayına alma isteğini
+        # reddediyor ("Only releases with status draft may be created on draft
+        # app"); iç test izi kabul ediyor. Console tarafındaki maddeler bitip
+        # uygulama taslaktan çıkınca tek komut yeter, kod değişmiyor:
+        #   gh variable set PLAY_IZ --body alpha
         env:
           PLAY_SERVIS_HESABI: apps/mobile/play.json
-          IZ: ${{ inputs.iz || 'alpha' }}
+          IZ: ${{ inputs.iz || vars.PLAY_IZ || 'internal' }}
           NOTLAR: ${{ needs.kapi.outputs.notlar_kisa }}
         run: node scripts/play-yayinla.mjs "$IZ" en-yeni "$NOTLAR"
 
