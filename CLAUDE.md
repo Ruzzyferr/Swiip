@@ -241,6 +241,19 @@ sunucuda `/opt/swiip/SURUM` dosyasında yazar.
 Sunucudaki `/opt/swiip` bir git deposu **değil** — "hangi kod dönüyor" sorusunun tek
 cevabı o dosya.
 
+**Betik TÜM servisleri derliyor, yalnızca `api`'yi değil — bu satırı geri alma.**
+Uzun süre `docker compose build api` yazıyordu. `gocmen` ve `tohumcu` aynı Dockerfile'ı
+kullanıyor ama ayrı servisler, yani ayrı imajları var: `api` her dağıtımda tazelenirken
+ötekiler ilk derlendikleri hâlde kalıyordu. `gocmen` göç dosyalarını **imajdan** okuyor.
+Sonuç: o imaj derlendikten sonra eklenen **hiçbir göç veritabanına uygulanmadı.**
+
+Kusur sessizdi — `gocmen` başarıyla çıkıyor (uygulayacak yeni dosya görmüyor), `api`
+ayağa kalkıyor, sağlık ucu 200 dönüyor, dağıtım "başarılı" yazıyor. Ancak yeni tablo ilk
+kez sorgulandığında 500 olarak görünüyor. 2026-08-25'te üretimde tam bu bulundu:
+`kanca_olaylari` tablosu yoktu ve **abonelik kancası** — hakkı açan tek yol — 42P01 ile
+patlıyordu. Yalnızca canlı bir kanca çağrısı denendiği için görüldü.
+`dagitim.test.ts` artık dört maddeyi birden koruyor.
+
 Erişim bilgileri (SSH, root parolası, DigitalOcean tokenı) depoda değil:
 `Masaüstü/Swiip-YEDEK/sunucu-erisimi.md`. Kurulumu yapan oturum SSH anahtarını
 kaydetmeyi unuttuğu için erişim bir kez kaybedildi ve parola sıfırlamayla geri alındı;
