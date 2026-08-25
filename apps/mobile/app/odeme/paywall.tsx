@@ -8,7 +8,7 @@ import {
   Ekran,
   Etiket,
   Kart,
-  Sayi,
+  Para,
   Satir,
   Uyari,
   Yazi,
@@ -108,9 +108,33 @@ export default function Paywall() {
       : seciliPlan.yillik_fiyat_try
     : 0;
 
-  const yenilemeTarihi = new Date();
-  if (donem === 'aylik') yenilemeTarihi.setMonth(yenilemeTarihi.getMonth() + 1);
-  else yenilemeTarihi.setFullYear(yenilemeTarihi.getFullYear() + 1);
+  /**
+   * Yenileme tarihi.
+   *
+   * `setMonth(+1)` ayın son günlerinde TAŞIYOR: 31 Ocak'a bir ay eklenince 31 Şubat
+   * olmuyor, 3 Mart'a atlıyor. Ekranın en büyük puntolarından birinde yanlış bir tarih
+   * göstermek, fiyatı yanlış göstermekle aynı sınıfta.
+   *
+   * Ayın son gününe sabitleniyor: taşma olursa ayın sonuna çekiliyor.
+   *
+   * DÜRÜST SINIR: bu tarih istemcide hesaplanıyor ve ücretsiz deneme ya da giriş
+   * teklifi varsa YANLIŞ olur — ilk tahsilat o zaman daha geç. Doğrusu mağazadan gelen
+   * `introPrice`/dönem bilgisinden türetmek; ürünlerde şu an tanımlı teklif yok, o yüzden
+   * bugün doğru sonuç veriyor. Teklif tanımlanırsa burası da değişmeli.
+   */
+  const yenilemeTarihi = (() => {
+    const simdi = new Date();
+    const d = new Date(simdi);
+    if (donem === 'aylik') {
+      d.setMonth(d.getMonth() + 1);
+      // Taşmışsa (gün değiştiyse) bir önceki ayın son gününe çek.
+      if (d.getDate() !== simdi.getDate()) d.setDate(0);
+    } else {
+      d.setFullYear(d.getFullYear() + 1);
+      if (d.getDate() !== simdi.getDate()) d.setDate(0);
+    }
+    return d;
+  })();
 
   const satinAl = async () => {
     if (!secili) return;
@@ -266,9 +290,10 @@ export default function Paywall() {
                 <Satir dagit="space-between" hizala="baseline">
                   <Yazi tur="baslik2">{ad}</Yazi>
                   <Satir arasi="xs" hizala="baseline">
-                    <Sayi tur="baslik1" renk={isaretli ? 'aksan' : 'metin'}>
+                    {/* `Para`: ₺ sembolü sayısal fontta yok, arayüz fontunda basılıyor. */}
+                    <Para tur="baslik1" renk={isaretli ? 'aksan' : 'metin'}>
                       {fiyat}
-                    </Sayi>
+                    </Para>
                     <Yazi tur="kucuk" renk="metinSilik">
                       /{donem === 'aylik' ? m.ayKisa : m.yilKisa}
                     </Yazi>
@@ -306,10 +331,17 @@ export default function Paywall() {
             <Yazi tur="etiket" renk="aksan">
               {m.odenecekTutar}
             </Yazi>
-            <Sayi tur="dev" renk="aksan">
+            <Para tur="dev" renk="aksan">
               {fiyatYazisi(seciliPlan.kod, donem, tutar)}
-            </Sayi>
-            <Yazi tur="baslik3">{m.yenilemeTarihi(tarihMetni(yenilemeTarihi, dil))}</Yazi>
+            </Para>
+            {/*
+              Yenileme tarihi de BÜYÜK.
+              Kilitli kural "fiyat VE yenileme tarihi en büyük puntoda" diyor; tarih
+              `baslik3` (17 px) ile ölçeğin dördüncü kademesindeydi — plan kartlarındaki
+              fiyatlardan (27 px) ve plan adlarından (21 px) bile küçüktü. Kuralın
+              yarısı uygulanmış oluyordu.
+            */}
+            <Yazi tur="baslik1">{m.yenilemeTarihi(tarihMetni(yenilemeTarihi, dil))}</Yazi>
             <Yazi tur="kucuk" renk="metinYumusak">
               {m.tahsilatNotu(donem === 'aylik' ? m.herAy : m.herYil)}
             </Yazi>

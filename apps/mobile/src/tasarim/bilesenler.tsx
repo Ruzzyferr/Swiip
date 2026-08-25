@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { gorselOrani } from './gorselOrani';
+import { paraParcalari } from './para';
 import { useTema, type Tema } from './tema';
 import { useMetinler } from '../durum/Oturum';
 
@@ -104,6 +105,62 @@ export function Yazi({
 }
 
 /** Sayısal veri: tabular hizalama hem okunurluk hem "ölçü aleti" hissi verir. */
+/**
+ * Para tutarı — sembol ARAYÜZ fontunda, rakamlar monospace'te.
+ *
+ * `JetBrainsMono_500Medium` U+20BA (₺) glifini İÇERMİYOR. Fontun `cmap` tablosu
+ * okunarak doğrulandı: 976 kod noktası var, ₺ yok; `Inter` içinde var. Eksik glif
+ * sessizce sistem yedeğine düşüyor ve ₺ paywall'da serif bir harf gibi, farklı kalınlıkta,
+ * rakama yapışık çıkıyordu — "₺99" yerine "Ł99" okunuyordu.
+ *
+ * Türkiye önce bir üründe ödeme ekranının en büyük puntosu bu. Sayısal fontu değiştirmek
+ * (IBM Plex Mono, Roboto Mono) tek satırlık bir çözüm ama uygulamadaki HER sayının
+ * görünüşünü değiştirirdi; tabular hizalama iddiası JetBrains Mono ile kurulmuş.
+ * Onun yerine yalnızca sembol arayüz fontunda basılıyor: rakamlar monospace kalıyor,
+ * hizalama bozulmuyor, sembol doğru çiziliyor.
+ *
+ * Ayırma biçime bağlı değil: `Intl` para birimini başa da (`₺99`) sona da (`99 TL`)
+ * koyabiliyor, dile göre değişiyor. O yüzden rakam/ayraç olmayan her şey sembol sayılıyor.
+ */
+export function Para({
+  children,
+  tur = 'govde',
+  renk = 'metin',
+}: {
+  children: string;
+  tur?: BaslikProps['tur'];
+  renk?: BaslikProps['renk'];
+}) {
+  const tema = useTema();
+  const olcek = tema.tipografi.olcek[tur ?? 'govde'];
+
+  const parcalar = paraParcalari(children);
+
+  return (
+    <Text
+      style={{
+        fontSize: olcek.size,
+        lineHeight: olcek.lineHeight * yaziOlcegi(),
+        color: tema.renk[renk ?? 'metin'],
+      }}
+    >
+      {parcalar.map((parca, i) => (
+        <Text
+          key={i}
+          style={{
+            fontFamily: parca.sayisal
+              ? tema.tipografi.aileler.sayisal
+              : tema.tipografi.aileler.baslik,
+            ...(parca.sayisal ? { fontVariant: ['tabular-nums' as const] } : {}),
+          }}
+        >
+          {parca.metin}
+        </Text>
+      ))}
+    </Text>
+  );
+}
+
 export function Sayi({
   children,
   tur = 'govde',
