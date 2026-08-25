@@ -187,6 +187,28 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
         ),
       );
 
+    /**
+     * Hak kontrolü `body_analyses` DEFTERİNDEN okunuyor — `quotas`'tan değil.
+     *
+     * Kural dönemsel bir sayaçla ifade edilemiyor: ücretsiz katmanda ömür boyu bir kez,
+     * ödemelide ayda bir, ama ay içinde ödemeye geçen kullanıcının penceresi abonelik
+     * anında başlıyor (`hakDonemininBasi`). `quotas` satırı `YYYY-MM` ile anahtarlı
+     * olduğu için "yükseltince pencere sıfırlanır" kuralını taşıyamıyor — denendi ve
+     * `vucutHakki.test.ts` haklı olarak düştü.
+     *
+     * Defterin kendisi zaten doğru kaynak. Kalan iki sorun ayrıca çözüldü:
+     *  - Sayaç gösterimi: `GET /v1/abonelik/durum` hiç yazılmayan `quotas.body_analyses_used`
+     *    kolonundan besleniyordu ve ömür boyu hakkını kullanmış kullanıcıya "1 kalan"
+     *    diyordu. Artık aynı defterden okuyor.
+     *
+     * KALAN AÇIK: kontrol ile kayıt arasında görsel AI çağrısı var (birkaç saniye) ve
+     * o aralıkta gelen ikinci istek de kontrolü geçer. Bir zaman penceresiyle kapatmak
+     * denendi ve geri alındı: pencere, plan yükseltip hemen yeniden analiz eden
+     * meşru kullanıcıyı da engelliyordu (`vucutHakki.test.ts` bunu yakaladı). Gerçek
+     * çözüm rezervasyonu deftere yazmak — şema değişikliği gerektiriyor. Bedeli çift
+     * dokunmada bir fazladan görsel çağrısı; hakkın kendisi yine tek kalıyor çünkü
+     * ikinci kayıt yazıldığında sayım artıyor.
+     */
     if (!vucutAnaliziHakki(plan, toplam?.adet ?? 0, buAy?.adet ?? 0)) {
       // Mesaj önce hesaplanıyor: `throw` içindeki koşullu ifade, hata kodu tarayıcısının
       // ikinci argümanı bulmasını zorlaştırıyor.

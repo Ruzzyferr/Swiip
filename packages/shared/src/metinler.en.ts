@@ -309,6 +309,14 @@ export const en: Metinler = {
       `You have used this month's photo recognitions (${d.hak}). It resets on ` +
       `${gunMetni(d.yenilenme, 'en')}. Manual entry and barcode stay unlimited in the meantime.`,
   },
+  /** Render-error screen. A page that explains itself instead of a blank one. */
+  hataEkrani: {
+    baslik: 'Something went wrong',
+    govde:
+      'An unexpected error happened while drawing this screen. Your data is safe; ' +
+      'trying again usually works.',
+    yeniden: 'Try again',
+  },
   genel: {
     devam: 'Continue',
     geri: 'Back',
@@ -959,6 +967,8 @@ export const en: Metinler = {
     girisMetni:
       'Three taps, fifteen seconds. We do not want you fiddling with your phone at the gym.',
     gonder: 'Send',
+    isaretsizNotu: (adet: number) =>
+      `You left ${adet} exercise(s) unmarked; they will not be reported for this session.`,
     gonderilemedi: 'Could not send. You can try again.',
     yargilamiyoruz: 'No judgement; we shift the program accordingly.',
     atlamaSebepleri: [

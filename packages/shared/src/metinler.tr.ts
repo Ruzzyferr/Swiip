@@ -307,6 +307,14 @@ export const tr = {
       `Bu ayki fotoğraf tanıma hakkın doldu (${d.hak}). ${gunMetni(d.yenilenme, 'tr')} tarihinde ` +
       'sıfırlanır. Bu arada manuel giriş ve barkod sınırsız.',
   },
+  /** Çizim hatası ekranı. Beyaz ekran yerine ne olduğunu söyleyen bir sayfa. */
+  hataEkrani: {
+    baslik: 'Bir şeyler ters gitti',
+    govde:
+      'Bu ekranı çizerken beklenmedik bir hata oldu. Verilerin yerinde duruyor; ' +
+      'tekrar denemek çoğu zaman yetiyor.',
+    yeniden: 'Tekrar dene',
+  },
   genel: {
     devam: 'Devam',
     geri: 'Geri',
@@ -1013,6 +1021,8 @@ export const tr = {
     sayfaBasligi: 'Seans sonrası',
     girisMetni: 'Üç dokunuş, on beş saniye. Salonda telefonla uğraşmanı istemiyoruz.',
     gonder: 'Gönder',
+    isaretsizNotu: (adet: number) =>
+      `${adet} hareketi işaretlemedin; onlar bu seansta hiç raporlanmayacak.`,
     gonderilemedi: 'Gönderilemedi. Tekrar deneyebilirsin.',
     yargilamiyoruz: 'Yargılamıyoruz; programı buna göre kaydırıyoruz.',
     atlamaSebepleri: [

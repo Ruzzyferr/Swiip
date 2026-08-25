@@ -1,7 +1,8 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { OturumSaglayici } from '../src/durum/Oturum';
+import { OturumSaglayici, useMetinler } from '../src/durum/Oturum';
+import { HataSiniri } from '../src/tasarim/HataSiniri';
 import { useYiginSecenekleri } from '../src/gezinme/yiginSecenekleri';
 import { useTema } from '../src/tasarim/tema';
 import { yaziTipleriHazirMi } from '../src/tasarim/yazitipi';
@@ -28,9 +29,23 @@ export default function KokDuzen() {
   return (
     <SafeAreaProvider>
       <OturumSaglayici>
-        <Yigin />
+        {/*
+          Hata sınırı oturum sağlayıcısının İÇİNDE: metinler kullanıcının dilinde
+          olsun diye. Sağlayıcının kendisi patlarsa zaten uygulama açılmıyor demektir
+          ve orada gösterilecek bir ekran da yok.
+        */}
+        <SinirliYigin />
       </OturumSaglayici>
     </SafeAreaProvider>
+  );
+}
+
+function SinirliYigin() {
+  const m = useMetinler().hataEkrani;
+  return (
+    <HataSiniri metinler={m}>
+      <Yigin />
+    </HataSiniri>
   );
 }
 

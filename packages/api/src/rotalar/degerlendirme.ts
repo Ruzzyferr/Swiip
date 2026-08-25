@@ -236,6 +236,45 @@ export async function degerlendirmeRotalari(app: FastifyInstance): Promise<void>
     return { profil, kapi_durumu: profil.kapi_durumu };
   });
 
+  /**
+   * Profili YALNIZCA OKUR — hiçbir şey yazmaz.
+   *
+   * `POST /tamamla` profili derlerken aynı zamanda `profiles` satırını upsert ediyor ve
+   * `assessments.completed_at` damgasını basıyor. Bu doğru: değerlendirmeyi bitirmek
+   * gerçekten bir yazma işlemi.
+   *
+   * Ama iki ekran profili yalnızca OKUMAK için o ucu çağırıyordu. Sonucu: ayarlardan
+   * "Değerlendirmeyi güncelle" deyip yeni bir sürüm açan, yani yarısı boş bir
+   * değerlendirmesi olan kullanıcı, "Hedefin gerçekçi mi?" ekranını açtığı anda o yarım
+   * sürüm TAMAMLANMIŞ işaretleniyordu. Okuma isteğinin yan etkisi olmaz.
+   *
+   * Aynı hesap `profilDerle` ile yapıldığı için çıktı `POST /tamamla` ile birebir aynı;
+   * fark yalnızca yazmaması.
+   */
+  app.get('/profil', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const kayit = await aktifDegerlendirme(istek.kullaniciId);
+    const cevaplar = kayit.answers_jsonb as Cevaplar;
+
+    const [kullanici] = await db
+      .select({ onay: users.doktor_onayi_at, edAcik: users.ed_sayilar_acik })
+      .from(users)
+      .where(eq(users.id, istek.kullaniciId))
+      .limit(1);
+
+    const profil = profilDerle(cevaplar, {
+      bugun: new Date(),
+      userId: istek.kullaniciId,
+      doktorOnayiVar: kullanici?.onay !== null && kullanici?.onay !== undefined,
+      kullaniciSayilariActi: kullanici?.edAcik ?? false,
+    });
+
+    if (profil.kapi_durumu.kayit_engelli) {
+      throw Yasak(profil.kapi_durumu.kapilar[0]!.mesaj, 'kapi_yas');
+    }
+
+    return { profil, kapi_durumu: profil.kapi_durumu };
+  });
+
   /** Değerlendirmeyi ayarlardan güncelleme (F2.12): yeni sürüm açılır, eskisi durur. */
   app.post('/yeni-surum', { preHandler: app.kimlikDogrula }, async (istek) => {
     const mevcut = await aktifDegerlendirme(istek.kullaniciId);

@@ -129,3 +129,60 @@ describe('temiz tarama programı açar', () => {
     expect(aktif.json().gunler.length).toBeGreaterThan(0);
   });
 });
+
+/**
+ * Okuma isteğinin yan etkisi olmaz.
+ *
+ * "Hedefin gerçekçi mi?" ekranı profili yalnızca OKUMAK için `POST /tamamla`
+ * çağırıyordu ve o uç `assessments.completed_at` damgasını basıyor. Sonuç: ayarlardan
+ * "Değerlendirmeyi güncelle" deyip yarım bir sürüm açan kullanıcı, o ekranı açtığı
+ * anda yarım sürümü tamamlanmış sayılıyordu.
+ */
+describe('GET /v1/degerlendirme/profil yazmıyor', () => {
+  /** Aktif (en yüksek sürümlü) değerlendirmenin tamamlanma damgası. */
+  async function damga(token: string): Promise<string | null> {
+    const g = await app.inject({
+      method: 'GET',
+      url: '/v1/degerlendirme/gecmis',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    return g.json().surumler[0].completed_at ?? null;
+  }
+
+  it('profili döner ama tamamlanma damgasını basmaz', async () => {
+    const token = await kur('okuma@swiip.app', {});
+
+    // Tamamlanmış bir değerlendirmenin üstüne yeni (damgasız) bir sürüm açılıyor.
+    const yeni = await app.inject({
+      method: 'POST',
+      url: '/v1/degerlendirme/yeni-surum',
+      headers: { authorization: `Bearer ${token}` },
+      payload: {},
+    });
+    expect(yeni.statusCode).toBe(200);
+    expect(await damga(token), 'yeni sürüm damgasız açılmalı').toBeNull();
+
+    const profil = await app.inject({
+      method: 'GET',
+      url: '/v1/degerlendirme/profil',
+      headers: { authorization: `Bearer ${token}` },
+    });
+    expect(profil.statusCode).toBe(200);
+    expect(profil.json().profil).toBeTruthy();
+
+    expect(await damga(token), 'profil okumak damga basmamalı').toBeNull();
+
+    /*
+      Karşı kontrol: iddianın ayırt edici olduğunu göstermek için.
+      `POST /tamamla` AYNI alanı dolduruyor; bu satır olmadan yukarıdaki `toBeNull`
+      her koşulda geçerdi ve test hiçbir şey korumazdı.
+    */
+    await app.inject({
+      method: 'POST',
+      url: '/v1/degerlendirme/tamamla',
+      headers: { authorization: `Bearer ${token}` },
+      payload: {},
+    });
+    expect(await damga(token), 'POST /tamamla damgayı basmalı').not.toBeNull();
+  });
+});

@@ -44,3 +44,35 @@ export function gunMetni(ham: string | number | undefined, dil: Dil): string {
   if (Number.isNaN(zaman)) return metin;
   return tarihMetni(new Date(zaman), dil);
 }
+
+/**
+ * "Bugün" — YEREL güne göre, `YYYY-MM-DD`.
+ *
+ * Her yerde `new Date().toISOString().slice(0, 10)` yazıyordu ve o UTC günü verir.
+ * Türkiye UTC+3: gece 00:00 ile 03:00 arasında girilen yemek DÜNE yazılıyor ve
+ * kullanıcının "Bugün" listesinden kayboluyordu. Gece atıştırması bu üründe
+ * kenar durum değil — kalori takibinin en sık kaçırılan öğünü.
+ *
+ * `toISOString` yerine yerel bileşenler okunuyor; cihaz hangi saat diliminde olursa
+ * olsun kullanıcının gördüğü tarih ile kaydedilen gün aynı oluyor.
+ */
+export function yerelGun(tarih: Date = new Date()): string {
+  const yil = tarih.getFullYear();
+  const ay = String(tarih.getMonth() + 1).padStart(2, '0');
+  const gun = String(tarih.getDate()).padStart(2, '0');
+  return `${yil}-${ay}-${gun}`;
+}
+
+/**
+ * O haftanın pazartesisi — yerel güne göre, `YYYY-MM-DD`.
+ *
+ * Öğün planı hafta anahtarıyla saklanıyor. UTC ile hesaplandığında aynı gece penceresi
+ * anahtarı bir önceki haftaya kaydırıyor ve kullanıcı kendi planını bulamıyordu.
+ */
+export function yerelHaftaBasi(tarih: Date = new Date()): string {
+  const d = new Date(tarih.getFullYear(), tarih.getMonth(), tarih.getDate());
+  // getDay(): 0 pazar. Pazartesi başlangıç olacak şekilde kaydırılıyor.
+  const kaydir = (d.getDay() + 6) % 7;
+  d.setDate(d.getDate() - kaydir);
+  return yerelGun(d);
+}

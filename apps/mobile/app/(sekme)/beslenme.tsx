@@ -18,7 +18,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { islemHatasiMetni } from '@swiip/shared';
+import { islemHatasiMetni, yerelGun } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**
@@ -68,7 +68,12 @@ export default function Beslenme() {
   const tema = useTema();
   const m = useMetinler().beslenme;
   const genel = useMetinler().genel;
-  const bugun = new Date().toISOString().slice(0, 10);
+  /*
+    `toISOString()` UTC gunu verir. Turkiye UTC+3: gece 00:00-03:00 arasi girilen
+    yemek DUNE yaziliyor ve "Bugun" listesinden kayboluyordu — kalori takibinde en
+    sik kacirilan ogun tam da o.
+  */
+  const bugun = yerelGun();
 
   const [hedef, setHedef] = useState<HedefCevabi | null>(null);
   const [gun, setGun] = useState<GunCevabi | null>(null);

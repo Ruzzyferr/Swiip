@@ -63,7 +63,13 @@ export default function GeriBildirimEkrani() {
     void (async () => {
       try {
         const program = await istek<SeansCevabi>('/v1/program/aktif');
-        const gun = program.gunler.find((g) => g.seans.id === seans) ?? program.gunler[0];
+        /*
+          İstenen seans bulunamazsa BOŞ kalıyor, ilk güne düşmüyor.
+          Eskiden `?? program.gunler[0]` vardı: yanlış günün hareketleri, istenen
+          `seans_id` altında gönderiliyordu. İlerleme motoru o seansta hiç yapılmamış
+          hareketlerden yük hesaplıyordu.
+        */
+        const gun = program.gunler.find((g) => g.seans.id === seans);
         setKalemler(gun?.hareketler ?? []);
       } catch {
         setKalemler([]);
@@ -79,11 +85,23 @@ export default function GeriBildirimEkrani() {
         yontem: 'POST',
         govde: {
           seans_id: seans,
-          kalemler: (kalemler ?? []).map((k) => ({
-            hareket_id: k.exercise_id,
-            sonuc: secimler[k.exercise_id] ?? 'tamamladim',
-            agri: agriBolgeleri.length > 0,
-          })),
+          /*
+            YALNIZCA işaretlenen hareketler gönderiliyor.
+            Eskiden işaretlenmeyenler `?? 'tamamladim'` ile "tamamladım" sayılıyordu
+            ve düğme tek bir işaretle açılıyordu: bir hareketi işaretleyip gönderen
+            kullanıcının diğer beşi ilerleme motoruna "tamamladı" olarak gidiyordu.
+            Motor bir sonraki seansın yükünü buradan hesapladığı için yük, yapılmamış
+            hareketlere göre artıyordu — sessiz ve yanlış yönde.
+
+            İşaretlenmeyen hareket artık hiç raporlanmıyor: durumu değişmiyor.
+          */
+          kalemler: (kalemler ?? [])
+            .filter((k) => secimler[k.exercise_id] !== undefined)
+            .map((k) => ({
+              hareket_id: k.exercise_id,
+              sonuc: secimler[k.exercise_id]!,
+              agri: agriBolgeleri.length > 0,
+            })),
         },
       });
       setKararlar(cevap.motor_kararlari);
@@ -244,6 +262,20 @@ export default function GeriBildirimEkrani() {
         </Kart>
 
         {hata ? <Uyari tur="tehlike" govde={hata} /> : null}
+
+        {/*
+          Kaç hareketin işaretsiz kaldığı SÖYLENİYOR.
+          İşaretsiz hareket artık raporlanmıyor; kullanıcı bunu bilmeli, yoksa
+          "gönderdim, hepsi kaydedildi" sanır.
+        */}
+        {(kalemler ?? []).some((k) => secimler[k.exercise_id] === undefined) &&
+        Object.keys(secimler).length > 0 ? (
+          <Yazi tur="etiket" renk="metinSilik" hizala="center">
+            {m.isaretsizNotu(
+              (kalemler ?? []).filter((k) => secimler[k.exercise_id] === undefined).length,
+            )}
+          </Yazi>
+        ) : null}
 
         <Dugme
           baslik={m.gonder}

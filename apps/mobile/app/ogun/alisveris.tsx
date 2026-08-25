@@ -15,7 +15,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf, islemHatasiMetni } from '@swiip/shared';
+import { buyukHarf, islemHatasiMetni, yerelHaftaBasi } from '@swiip/shared';
 
 /**
  * Alışveriş listesi (F8.8).
@@ -52,12 +52,10 @@ const REYON_SIRASI = [
 ];
 
 function haftaBasi(): string {
-  const bugun = new Date();
-  const gun = bugun.getDay();
-  const fark = gun === 0 ? -6 : 1 - gun;
-  const pazartesi = new Date(bugun);
-  pazartesi.setDate(bugun.getDate() + fark);
-  return pazartesi.toISOString().slice(0, 10);
+  // Ayni hesap iki ekranda kopyaliydi ve ikisi de UTC gunu donduruyordu; gece
+  // penceresinde hafta anahtari bir onceki haftaya kayiyor, kullanici kendi planini
+  // bulamiyordu. Tek yerde, yerel gune gore.
+  return yerelHaftaBasi();
 }
 
 export default function AlisverisListesi() {

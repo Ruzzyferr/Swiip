@@ -99,3 +99,62 @@ describe('ücretsiz planda vücut analizi', () => {
     expect(ikinci.json().kod).toBe('analiz_hakki_bitti');
   });
 });
+
+/**
+ * Ayarlardaki sayaç yalan söylemesin.
+ *
+ * `GET /v1/abonelik/durum`, hiçbir yerde YAZILMAYAN `quotas.body_analyses_used`
+ * kolonundan besleniyordu; yani her zaman 0. Ömür boyu tek hakkını kullanmış ücretsiz
+ * kullanıcı ayarlarda "1 kalan" görüyor, deniyor ve 403 alıyordu — ürünün kullanıcıya
+ * doğrudan yanlış söylediği az sayıdaki yerden biri.
+ */
+describe('vücut analizi sayacı gösterimi', () => {
+  async function kullaniciAc(email: string): Promise<string> {
+    const kayit = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/kayit',
+      payload: { email, parola: 'Yesil-Defter-91', saglik_onayi: true },
+    });
+    const t = kayit.json().erisim_token as string;
+    await app.inject({
+      method: 'POST',
+      url: '/v1/degerlendirme/cevap',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { cevaplar: { K1: '1994-05-01', K2: 'Erkek', K3: 178, K4: 82 } },
+    });
+    return t;
+  }
+
+  async function durumOku(t: string) {
+    const d = await app.inject({
+      method: 'GET',
+      url: '/v1/abonelik/durum',
+      headers: { authorization: `Bearer ${t}` },
+    });
+    return d.json().kota.vucut_analizi as { kullanilan: number; toplam: number; kalan: number };
+  }
+
+  async function analizEtToken(t: string) {
+    return app.inject({
+      method: 'POST',
+      url: '/v1/vucut/analiz',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { olculer: OLCULER },
+    });
+  }
+
+  it('hakkını kullanmış ücretsiz kullanıcıya "kalan 0" gösteriliyor', async () => {
+    const yeniToken = await kullaniciAc('sayac@swiip.app');
+
+    const once = await durumOku(yeniToken);
+    expect(once.kullanilan).toBe(0);
+    expect(once.kalan).toBe(1);
+
+    const analiz = await analizEtToken(yeniToken);
+    expect(analiz.statusCode).toBeLessThan(300);
+
+    const sonra = await durumOku(yeniToken);
+    expect(sonra.kullanilan, 'analiz yapıldı, sayaç artmalı').toBe(1);
+    expect(sonra.kalan, 'ömür boyu hak bitti, kalan 0 olmalı').toBe(0);
+  });
+});

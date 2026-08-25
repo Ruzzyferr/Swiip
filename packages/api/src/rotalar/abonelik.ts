@@ -1,10 +1,10 @@
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq, gte } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { Yasak } from '../hatalar';
-import { kanca_olaylari, quotas, subscriptions, users } from '../db/sema';
-import { HAK_TABLOSU, planHaklari, type Plan } from '../servisler/haklar';
+import { body_analyses, kanca_olaylari, quotas, subscriptions, users } from '../db/sema';
+import { HAK_TABLOSU, planHaklari, type Haklar, type Plan } from '../servisler/haklar';
 import { dilCozumle, metinleriAl } from '@swiip/shared';
 import { planGecerliMi } from '../servisler/planOku';
 
@@ -122,6 +122,34 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
     return (kayit.plan as Plan) ?? 'ucretsiz';
   }
 
+  /**
+   * Vücut analizi kullanımı — `body_analyses` defterinden.
+   *
+   * Ücretsiz katmanda hak ömür boyu tek, o yüzden toplam sayılıyor. Ödemelide aylık,
+   * o yüzden ay başından beri sayılıyor. `vucut.ts`'teki kapı ile aynı mantık; iki
+   * yerde iki farklı cevap vermemeleri için ikisi de aynı defteri okuyor.
+   */
+  async function vucutAnaliziSayaci(kullaniciId: string, plan: Plan, haklar: Haklar) {
+    const ayBasi = new Date();
+    ayBasi.setUTCDate(1);
+    ayBasi.setUTCHours(0, 0, 0, 0);
+
+    const [toplam] = await db
+      .select({ adet: count() })
+      .from(body_analyses)
+      .where(eq(body_analyses.user_id, kullaniciId));
+
+    const [buAy] = await db
+      .select({ adet: count() })
+      .from(body_analyses)
+      .where(and(eq(body_analyses.user_id, kullaniciId), gte(body_analyses.taken_at, ayBasi)));
+
+    const kullanilan = plan === 'ucretsiz' ? (toplam?.adet ?? 0) : (buAy?.adet ?? 0);
+    const tavan = plan === 'ucretsiz' ? 1 : haklar.vucut_analizi_aylik;
+
+    return { kullanilan, toplam: tavan, kalan: Math.max(0, tavan - kullanilan) };
+  }
+
   async function kotaGetir(kullaniciId: string) {
     const donem = donemKodu();
     const [kayit] = await db
@@ -192,11 +220,19 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
           toplam: haklar.koc_mesaji_aylik,
           kalan: Math.max(0, haklar.koc_mesaji_aylik - kota.coach_messages_used),
         },
-        vucut_analizi: {
-          kullanilan: kota.body_analyses_used,
-          toplam: haklar.vucut_analizi_aylik,
-          kalan: Math.max(0, haklar.vucut_analizi_aylik - kota.body_analyses_used),
-        },
+        /**
+         * Vücut analizi sayacı DEFTERDEN okunuyor.
+         *
+         * `quotas.body_analyses_used` kolonu hiçbir yerde YAZILMIYOR — sadece burada
+         * okunuyordu, yani her zaman 0. Sonuç: ömür boyu tek hakkını çoktan kullanmış
+         * ücretsiz kullanıcı ayarlarda "1 kalan" görüyor, deniyor ve 403 alıyordu.
+         *
+         * Gerçek defter `body_analyses` tablosu ve hakkı belirleyen kural da
+         * `vucutAnaliziHakki` — gösterim artık ikisiyle aynı kaynaktan besleniyor.
+         * Ücretsiz katmanda kural ömür boyu, ödemelide aylık; o yüzden iki farklı
+         * sayım.
+         */
+        vucut_analizi: await vucutAnaliziSayaci(istek.kullaniciId, plan, haklar),
         // Kota adalet kuralı kullanıcının dilinde; kural her dilde aynı.
         adalet_notu: metinleriAl(dilCozumle(kullaniciLocale)).ayarlar.kotaAdaletNotu,
         kotadan_dusmeyen: {

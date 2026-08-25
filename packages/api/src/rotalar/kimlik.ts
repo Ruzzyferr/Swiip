@@ -174,6 +174,40 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       .limit(1);
 
     if (!kayit || kayit.expires_at.getTime() < Date.now()) {
+      /**
+       * İPTAL EDİLMİŞ bir token yeniden sunulduysa zincir kırılır.
+       *
+       * Rotasyon doğru çalışıyordu — eski token anında iptal ediliyor — ama tekrar
+       * kullanım yalnızca 401 alıyordu. Oysa iptal edilmiş bir tokenın ikinci kez
+       * gelmesinin tek makul açıklaması var: token kopyalanmış ve iki taraf da onu
+       * kullanıyor. Hangisinin saldırgan olduğunu bilemeyiz.
+       *
+       * Eski davranışta çalınan token bir kez kullanılınca saldırgan taze ve geçerli
+       * bir çift alıyordu; kurbanın bir sonraki yenilemesi 401 alıp yeniden giriş
+       * yapıyor, saldırganın oturumu 30 gün yaşamaya devam ediyordu. Dosyanın
+       * başındaki "ikinci kullanımda zincir kırılır" notu kodun yaptığından fazlasını
+       * söylüyordu.
+       *
+       * Artık o kullanıcının bütün yenileme tokenları iptal ediliyor: iki taraf da
+       * düşer, gerçek kullanıcı yeniden giriş yapar. Rahatsız edici ama doğru taraf.
+       */
+      const [iptalli] = await db
+        .select({ user_id: refresh_tokens.user_id })
+        .from(refresh_tokens)
+        .where(eq(refresh_tokens.token_hash, ozet))
+        .limit(1);
+
+      if (iptalli) {
+        await db
+          .update(refresh_tokens)
+          .set({ iptal_at: new Date() })
+          .where(and(eq(refresh_tokens.user_id, iptalli.user_id), isNull(refresh_tokens.iptal_at)));
+        app.log.warn(
+          { kullaniciId: iptalli.user_id },
+          'iptal edilmiş yenileme tokenı tekrar sunuldu; zincir kırıldı',
+        );
+      }
+
       throw Yetkisiz('Oturumun sona ermiş. Tekrar giriş yap.', 'oturum_bitti');
     }
 

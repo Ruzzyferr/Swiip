@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { gunAyMetni, gunMetni, kisaTarihMetni, tarihMetni } from './tarih';
+import {
+  gunAyMetni,
+  gunMetni,
+  kisaTarihMetni,
+  tarihMetni,
+  yerelGun,
+  yerelHaftaBasi,
+} from './tarih';
 
 /**
  * Tarih biçimi (F10.3).
@@ -79,5 +86,38 @@ describe('gunMetni', () => {
   it('bozuk değer çökmez, olduğu gibi geçer', () => {
     expect(gunMetni('bilinmeyen', 'tr')).toBe('bilinmeyen');
     expect(gunMetni(undefined, 'tr')).toBe('');
+  });
+});
+
+describe('yerelGun', () => {
+  /**
+   * Asıl kusur bu pencerede: UTC+3'te gece 01:30, UTC'de hâlâ önceki gün.
+   * `toISOString()` o yüzden bir gün geri veriyordu ve yemek düne yazılıyordu.
+   */
+  it('gece yarısından sonra yerel günü veriyor, UTC gününü değil', () => {
+    // 2026-08-25 01:30 yerel (UTC+3) → UTC'de 2026-08-24 22:30
+    const gece = new Date(2026, 7, 25, 1, 30);
+    expect(yerelGun(gece)).toBe('2026-08-25');
+  });
+
+  it('gün, ay ve yıl sınırlarında iki haneli biçim koruyor', () => {
+    expect(yerelGun(new Date(2026, 0, 1, 12))).toBe('2026-01-01');
+    expect(yerelGun(new Date(2026, 11, 31, 23, 59))).toBe('2026-12-31');
+  });
+});
+
+describe('yerelHaftaBasi', () => {
+  it('pazartesi haftanın başı', () => {
+    // 2026-08-25 salı
+    expect(yerelHaftaBasi(new Date(2026, 7, 25, 12))).toBe('2026-08-24');
+  });
+
+  it('pazar bir önceki pazartesiye bağlanıyor', () => {
+    // 2026-08-30 pazar
+    expect(yerelHaftaBasi(new Date(2026, 7, 30, 12))).toBe('2026-08-24');
+  });
+
+  it('pazartesi kendisi', () => {
+    expect(yerelHaftaBasi(new Date(2026, 7, 24, 6))).toBe('2026-08-24');
   });
 });

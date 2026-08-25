@@ -51,7 +51,9 @@ export default function Gerceklik() {
   const [hazir, setHazir] = useState(false);
 
   useEffect(() => {
-    void istek<ProfilCevabi>('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} })
+    // Okuma isteginin yan etkisi olmaz: eskiden POST /tamamla cagriliyordu ve o uc
+    // degerlendirmeyi TAMAMLANMIS isaretliyordu — yarim doldurulmus yeni surum dahil.
+    void istek<ProfilCevabi>('/v1/degerlendirme/profil')
       .then((c) => setProfil(c.profil))
       .catch(() => setProfil(null))
       .finally(() => setHazir(true));

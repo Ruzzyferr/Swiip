@@ -156,6 +156,47 @@ describe('POST /v1/kimlik/yenile', () => {
     expect(ikinci.statusCode).toBe(401);
   });
 
+  /**
+   * Çalınan token senaryosu.
+   *
+   * Rotasyon tek başına yetmiyordu: eski token tekrar sunulduğunda yalnızca 401
+   * dönüyordu, ama saldırgan onu ilk kullanan taraf olduysa elinde TAZE ve GEÇERLİ bir
+   * çift kalıyordu. Kurban bir sonraki yenilemede 401 alıp yeniden giriş yapıyor,
+   * saldırganın oturumu 30 gün yaşamaya devam ediyordu.
+   *
+   * İptal edilmiş bir tokenın ikinci kez gelmesinin tek makul açıklaması kopyalanmış
+   * olması; hangi tarafın saldırgan olduğu bilinemez, o yüzden ikisi de düşürülür.
+   */
+  it('iptal edilmiş token tekrar sunulunca ZİNCİR kırılır — çalınan çift de ölür', async () => {
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'zincir@swiip.app' });
+    const { yenileme_token } = kayit.json();
+
+    // Saldırgan çalınan tokenı ilk kullanan: taze bir çift alıyor.
+    const saldirgan = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/yenile',
+      payload: { yenileme_token },
+    });
+    expect(saldirgan.statusCode).toBe(200);
+    const saldirganinTokeni = saldirgan.json().yenileme_token as string;
+
+    // Kurban aynı eski tokenla geliyor: reddediliyor VE zincir kırılıyor.
+    const kurban = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/yenile',
+      payload: { yenileme_token },
+    });
+    expect(kurban.statusCode).toBe(401);
+
+    // Saldırganın taze tokenı da artık çalışmamalı.
+    const saldirganTekrar = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/yenile',
+      payload: { yenileme_token: saldirganinTokeni },
+    });
+    expect(saldirganTekrar.statusCode, 'çalınan çift de düşmeli').toBe(401);
+  });
+
   it('uydurma token reddedilir', async () => {
     const cevap = await app.inject({
       method: 'POST',
