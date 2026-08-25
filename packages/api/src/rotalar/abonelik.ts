@@ -1,4 +1,4 @@
-import { and, count, eq, gte } from 'drizzle-orm';
+import { and, count, eq, gte, max, ne } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
@@ -268,6 +268,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
     urunId: string | null,
     yenilenme: Date | null,
     olayDamgasiMs?: number,
+    olayKimligi?: string,
   ): Promise<void> {
     /**
      * UUID olmayan kimlik sorgulanmadan elenir.
@@ -301,21 +302,39 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
      * RevenueCat teslimatları sırayla göndermiyor ve başarısızları yeniden deniyor.
      * Sıra koruması olmadan, birkaç saat gecikmiş bir `EXPIRATION` daha sonra işlenmiş
      * bir `RENEWAL`'ı ezip parasını ödemiş kullanıcının planını düşürebiliyordu.
+     *
+     * Karşılaştırma İŞLENMİŞ OLAYLARA karşı yapılıyor, `subscriptions.updated_at`'e
+     * karşı değil. Önce öyle yazılmıştı ve üretimde satın almayı sessizce düşürdü:
+     * o kolonu kanca dışındaki yazmalar da dolduruyor — kayıt olurken satır
+     * `plan: 'ucretsiz'` ile oluşuyor ve `updated_at = now()` alıyor. Kayıttan hemen
+     * sonra gelen (ya da saat kayması olan) gerçek bir satın alma, kendi damgası o
+     * `now()`'dan küçük kaldığı için "eski olay" sayılıp atılıyordu. Ödeme yapan
+     * kullanıcı Pro olmuyordu.
+     *
+     * Doğru referans noktası, aynı kullanıcı için daha önce İŞLENMİŞ kanca olaylarının
+     * en yenisi. Bu olayın kendisi hariç tutuluyor: tekilleştirme kaydı bu noktadan
+     * önce yazılıyor.
      */
-    if (olayDamgasiMs !== undefined) {
-      const [mevcut] = await db
-        .select({ guncellendi: subscriptions.updated_at })
-        .from(subscriptions)
-        .where(eq(subscriptions.user_id, kullaniciId))
-        .limit(1);
+    if (olayDamgasiMs !== undefined && olayKimligi !== undefined) {
+      const [oncekiler] = await db
+        .select({ enYeni: max(kanca_olaylari.olay_at) })
+        .from(kanca_olaylari)
+        .where(
+          and(
+            eq(kanca_olaylari.app_user_id, kullaniciId),
+            ne(kanca_olaylari.event_id, olayKimligi),
+          ),
+        );
 
-      if (mevcut?.guncellendi && mevcut.guncellendi.getTime() > olayDamgasiMs) {
+      if (oncekiler?.enYeni && oncekiler.enYeni.getTime() > olayDamgasiMs) {
         app.log.info({ kullaniciId }, 'daha eski kanca olayı yok sayıldı');
         return;
       }
     }
 
-    const damga = olayDamgasiMs !== undefined ? new Date(olayDamgasiMs) : new Date();
+    // `updated_at` bu SATIRIN ne zaman yazıldığı; olayın damgası değil. İkisini aynı
+    // kolonda tutmak yukarıdaki karışıklığın kaynağıydı.
+    const damga = new Date();
 
     await db
       .insert(subscriptions)
@@ -405,7 +424,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
        */
       if (event.type === 'TRANSFER') {
         for (const eski of event.transferred_from ?? []) {
-          await planYaz(eski, 'ucretsiz', null, null, event.event_timestamp_ms);
+          await planYaz(eski, 'ucretsiz', null, null, event.event_timestamp_ms, event.id);
         }
         const yeniPlan = urunPlani(event.new_product_id ?? event.product_id);
         for (const yeni of event.transferred_to ?? []) {
@@ -415,6 +434,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
             event.new_product_id ?? event.product_id ?? null,
             event.expiration_at_ms ? new Date(event.expiration_at_ms) : null,
             event.event_timestamp_ms,
+            event.id,
           );
         }
         return { alindi: true };
@@ -424,7 +444,14 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
 
       // Hakkı kapatan olaylar ürün kimliği taşımayabilir; tip yeterli.
       if (event.type === 'EXPIRATION' || event.type === 'SUBSCRIPTION_PAUSED') {
-        await planYaz(event.app_user_id, 'ucretsiz', null, null, event.event_timestamp_ms);
+        await planYaz(
+          event.app_user_id,
+          'ucretsiz',
+          null,
+          null,
+          event.event_timestamp_ms,
+          event.id,
+        );
         return { alindi: true };
       }
 
@@ -450,7 +477,14 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
       if (event.type === 'CANCELLATION') {
         const iade = event.cancel_reason && IADE_SEBEPLERI.has(event.cancel_reason.toUpperCase());
         if (iade) {
-          await planYaz(event.app_user_id, 'ucretsiz', null, null, event.event_timestamp_ms);
+          await planYaz(
+            event.app_user_id,
+            'ucretsiz',
+            null,
+            null,
+            event.event_timestamp_ms,
+            event.id,
+          );
         }
         return { alindi: true };
       }
@@ -470,6 +504,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
         event.new_product_id ?? event.product_id ?? null,
         event.expiration_at_ms ? new Date(event.expiration_at_ms) : null,
         event.event_timestamp_ms,
+        event.id,
       );
 
       return { alindi: true };

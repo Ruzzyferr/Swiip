@@ -422,3 +422,46 @@ describe('kanca ortam ve kimlik ayrımı', () => {
     expect(cevap.statusCode).toBe(200);
   });
 });
+
+/**
+ * Kayıttan hemen sonra gelen satın alma DÜŞMEMELİ.
+ *
+ * Sıra koruması önce `subscriptions.updated_at`'e bakıyordu. O kolonu kanca dışındaki
+ * yazmalar da dolduruyor: kayıt olurken satır `plan: 'ucretsiz'` ile oluşuyor ve
+ * `updated_at = now()` alıyor. Kayıttan hemen sonra gelen (ya da RevenueCat ile
+ * aramızda birkaç yüz milisaniye saat kayması olan) gerçek bir satın alma, kendi
+ * damgası o `now()`'dan küçük kaldığı için "eski olay" sayılıp atılıyordu — ödeme
+ * yapan kullanıcı Pro olmuyordu.
+ *
+ * Üretimde tam bu oldu ve ancak canlı bir kanca çağrısı denenince görüldü.
+ */
+describe('kanca: kayıt zamanı sıra korumasını tetiklemiyor', () => {
+  it('damgası kayıt anından ÖNCE olan satın alma yine de işleniyor', async () => {
+    const eposta = `sira-kayit-${Date.now()}@swiip.app`;
+    const kayit = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/kayit',
+      payload: { email: eposta, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    });
+    const t = kayit.json().erisim_token as string;
+    const id = JSON.parse(Buffer.from(t.split('.')[1]!, 'base64url').toString('utf8'))
+      .sub as string;
+
+    // Kayıt satırı "şimdi" yazıldı; olay damgası bilerek bir dakika ÖNCESİ.
+    const cevap = await olay({
+      id: `sira-kayit-${Date.now()}`,
+      type: 'INITIAL_PURCHASE',
+      app_user_id: id,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: Date.now() - 60_000,
+    });
+    expect(cevap.statusCode).toBe(200);
+
+    const durum = await app.inject({
+      method: 'GET',
+      url: '/v1/abonelik/durum',
+      headers: { authorization: `Bearer ${t}` },
+    });
+    expect(durum.json().plan, 'kayıt zamanı satın almayı düşürmemeli').toBe('pro');
+  });
+});
