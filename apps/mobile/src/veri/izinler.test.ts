@@ -42,6 +42,18 @@ const ENGELLENMESI_GEREKENLER = [
   'android.permission.SYSTEM_ALERT_WINDOW',
   'android.permission.READ_EXTERNAL_STORAGE',
   'android.permission.WRITE_EXTERNAL_STORAGE',
+  /**
+   * MİKROFON. `app.json` zaten `recordAudioAndroid: false` diyor ama o seçenek
+   * yalnızca eklentinin izni EKLEMESİNİ engelliyor; `expo-camera`nın kendi kitaplık
+   * manifesti `RECORD_AUDIO`yu koşulsuz bildiriyor ve manifest birleşmesi geri
+   * getiriyor. Üretilen AAB açılıp bakıldığında görüldü.
+   *
+   * Gizlilikle pazarlanan bir sağlık uygulamasının Play listesinde mikrofon izni
+   * görünmesi, hiç kullanılmayan bir yetenek için ödenecek en kötü bedel.
+   */
+  'android.permission.RECORD_AUDIO',
+  /** İmza düzeyinde sistem izni; uygulamaya zaten verilmiyor, listeyi şişiriyor. */
+  'android.permission.DUMP',
 ];
 
 /** Gerçekten kullandığımız izinler. Listeye ekleme yapmadan önce nedenini yaz. */

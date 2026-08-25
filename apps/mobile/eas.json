@@ -46,7 +46,8 @@
       },
       "android": {
         "track": "internal",
-        "releaseStatus": "draft"
+        "releaseStatus": "draft",
+        "serviceAccountKeyPath": "C:/Users/ruzzy/.play-keys/play-servis-hesabi.json"
       }
     }
   }
