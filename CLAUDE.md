@@ -338,9 +338,13 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   language tags` hatası veriyor, `<tr-TR>…</tr-TR>` ile sarılmalı. API'de böyle bir
   şey yok (`releaseNotes: [{language, text}]`), yalnızca konsol alanı için.
 
-  **Yayın hattının izi hâlâ `internal`.** İnceleme onaylanıp uygulama taslaktan
-  çıkınca tek komut: `gh variable set PLAY_IZ --body alpha`. Onaydan önce çevirmek
-  her koşuyu kırmızıya düşürebilir; iç test izi bugün çalışıyor.
+  **Yayın hattının izi `alpha` (kapalı test).** 2026-08-25'te çevrildi: uygulama
+  taslaktan çıktı, kapalı testte yayında bir sürüm var ve `internal` izi artık gereksiz
+  bir ara durak. `gh variable set PLAY_IZ --body alpha` yapıldı.
+
+  Aynı gün bir kez terfi gerekti: vc=10 `internal`'a yüklenmişti, kapalı test hâlâ
+  vc=7'deydi. `play-yayinla.mjs` yalnızca izde ZATEN var olan sürümü yayına alıyor,
+  terfi etmiyor. Değişkeni çevirdikten sonra bu bir daha gerekmiyor.
 
 - Play iç testi: "Select testers" seçilmemiş (3'te 2). Kapalı testten önce bitmeli.
 - Play kapalı testi: 12 test kullanıcısı × 14 gün — Google'ın kuralı, kısaltılamıyor
@@ -380,19 +384,22 @@ Bilinmesi gerekenler:
   Yerel derlemede o kota hiç devreye girmiyor. Bulut kuyruğu da ücretsiz planda
   uzun; aynı gün bir Android derlemesi 15 dakikadan fazla kuyrukta bekledi.
 
-  **Bunun bedeli GitHub dakikası ve ölçüldü.** Depo özel, macOS çarpanı **10**.
-  2026-08-25'te iki iOS derlemesi (29 ve 24 dakika) **528 faturalanan dakika** yedi —
-  Free planın aylık 2.000 dakikasının dörtte biri, tek öğleden sonrada. Hesabı bu
-  depo tek başına kullanmıyor.
+  **Bir ara iOS elle tetiklemeye alınmıştı; geri alındı.** Gerekçe ölçülmüştü: özel
+  depolarda macOS çarpanı **10** ve 2026-08-25'te iki iOS derlemesi (29 ve 24 dakika)
+  **528 faturalanan dakika** yedi.
 
-  Bu yüzden **iOS otomatik koşmuyor**, yalnızca elle:
+  O gerekçe artık yok — **depo herkese açık** ve herkese açık depolarda GitHub Actions
+  ücretsiz ve sınırsız, macOS dahil. Karar ölçülmüş bir maliyete dayanıyordu; maliyet
+  ortadan kalkınca kararın da kalkması gerekti.
+
+  **Kural: main'e giren her ürün değişikliği İKİ mağazanın test izine birden gider** —
+  Play kapalı test (`alpha`) ve TestFlight. Yalnız birine gitmesi, iki mağazanın farklı
+  sürümleri test etmesi demek; hangi hatanın hangi derlemede olduğu kaybolur.
+  `yayinHatti.test.ts` ikisinin de otomatik kalmasını kilitliyor.
+
+  Elle tetikleme tek platform için hâlâ çalışıyor:
 
       gh workflow run yayin.yml -f platform=ios
-
-  Android ubuntu'da ve çarpanı 1, o otomatik kalıyor — "push et, test sürümü çıksın"
-  akışı orada bozulmadan duruyor. TestFlight'a her commit'te yeni derleme çıkmasına
-  zaten gerek yok: testçiye derleme lazım olduğunda çıkılır.
-  `yayinHatti.test.ts` ikisini de kilitliyor.
 
 - **iOS işinde SDK kapısı var.** Apple, paketin iOS 26 SDK'sıyla derlenmiş olmasını
   şart koşuyor; build 3 bu yüzden ITMS-90725 ile geri döndü. Koşucu imajı eskiyse

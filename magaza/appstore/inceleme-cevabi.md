@@ -21,7 +21,7 @@ bunu açıkça istiyor.
 | Testçi | `info@swiip.app` · `ardaerenbulut2121@gmail.com` · `caglajaa13@gmail.com` |
 | Sunucu | sağlık ucu 200 |
 | İnceleme hesabı | **uçtan uca doğrulandı** — giriş 200, değerlendirme tamam, hafta 1 programı, bu haftanın öğün planı, Pro hakkı |
-| App Review → Notes | **depodan yönetiliyor**: `inceleme-notlari.md` → `scripts/apple-notlar.mjs`. 3.762 karakter; 1. ve 2. cevap için 238 karakter yer bırakıldı |
+| App Review → Notes | **depodan yönetiliyor**: `inceleme-notlari.md` → `scripts/apple-notlar.mjs`. 3.780 karakter; 1. ve 2. cevap için 220 karakter yer bırakıldı |
 | Paywall | kullanım koşulları + gizlilik bağlantısı eklendi (kural 3.1.2) |
 | RevenueCat anahtarı | EAS `production` ortamında; satın alma derlemede çalışıyor |
 
@@ -46,7 +46,8 @@ simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp sırayla:
 1. Uygulamayı açış (soğuk başlangıç)
 2. Kayıt olma, çıkış, tekrar giriş — kayıtta e-posta doğrulama adımı yok; kod yalnızca
    parola sıfırlamada gidiyor, istersen onu da göster
-3. Değerlendirmenin ilk bloğu (zorunlu sorular işaretli; hepsini doldurmak gerekmiyor)
+3. Değerlendirmenin ilk kartı (zorunlu sorular işaretli; sekiz kartın hepsini doldurmak
+   gerekmiyor)
 4. Kamera izni istemi ve vücut fotoğrafı çekimi; ardından fotoğrafın silindiğini
    söyleyen ekran
 5. Program sekmesi: bir hareketin detayı ve "neden bu hareket" gerekçesi
@@ -58,13 +59,14 @@ simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp sırayla:
 
 ## Kalan iki madde — ikisi de bende üretilemez
 
-**1. Ekran kaydı.** Apple fiziksel cihaz istiyor; simülatör kaydı kabul edilmiyor.
-Bu makinede iPhone yok.
+**1. Ekran kaydı — HAZIR.** `Desktop/swiip.mp4`, fiziksel cihazda çekilmiş:
+H.264 1080×1920 dikey, 7 dk 08 sn, 386 MB. Apple bağlantı istiyor, dosya değil;
+erişilebilir bir yere yüklenip bağlantısı `--kayit` ile verilecek.
 
-**2. Denenen cihaz ve iOS sürümü.** Hangi modelde denendiğini bilmiyorum, uydurmak
-da tam olarak Apple'ın sorduğu şeyi yanlış cevaplamak olur.
+**2. Denenen cihaz ve iOS sürümü.** Hâlâ eksik ve uydurulamaz: kaydın çekildiği
+iPhone modeli ve iOS sürümü yazılmalı. Bunu bilen tek kişi kaydı çeken kişi.
 
-Bu ikisi girilmeden gönderim tekrarlanmadı. Eksik cevapla resubmit etmek yeni bir
+Bu ikincisi girilmeden gönderim tekrarlanmıyor. Eksik cevapla resubmit etmek yeni bir
 2.1 reddi ve bir inceleme turu daha demek; kazancı yok.
 
 **İkisi hazır olunca tek komut:**
@@ -77,8 +79,9 @@ node scripts/apple-notlar.mjs --dene   --kayit "<videonun bağlantısı>"   --ci
 kaldır; betik yazdıktan sonra alanı geri okuyup doğruluyor.
 
 Notlar alanı 4.000 karakterle sınırlı ve konsol sınırı aşan metni **sessizce**
-kırpıyor. Gövde bu yüzden 3.762'ye indirildi; iki cevabın sığdığı `--dene` ile
-ölçüldü (3.930/4.000).
+kırpıyor. Gövde bu yüzden 3.780'de tutuluyor; iki başlığa kalan 220 karakteri betik
+artık kendisi ölçüyor ve pay 220'nin altına düşerse uyarıyor — uzun bir imzalı kayıt
+bağlantısı (Drive, S3) tek başına 150 karakteri geçebiliyor.
 
 Bir yanlış da bu turda düzeldi: notlar hâlâ modeller için "Haiku 4.5" diyordu,
 oysa ucuz seviye Gemini'ye geçmişti. Artık "Anthropic and Google models" yazıyor —
@@ -120,11 +123,19 @@ inceleyene yanlış beyan vermek istemeyiz.
 > screen is reachable immediately after signing in. This matters because the app opens on
 > the assessment and the program, nutrition and coach tabs stay locked until it is finished
 > — a program cannot be computed without answers. To see the flow from zero instead, please
-> register a new account and complete the assessment; it takes roughly twelve minutes.
+> register a new account and complete the assessment; it takes about five minutes.
 > No sample files are required.
 >
+> A second account is provided for the purchase screen:
+> `inceleme-ucretsiz@swiip.app` / `kumsal-terazi-5820-fener`
+>
+> It is on the free tier with the assessment completed. This is deliberate and worth
+> explaining: we show paying subscribers no upsell anywhere in the app, so the Pro demo
+> account above has no entry point to the purchase screen by design. Please use the free
+> account to reach it.
+>
 > **5. External services used to deliver core functionality**
-> - Vercel AI Gateway, routing to Anthropic Claude models (Opus 5, Sonnet 5, Haiku 4.5).
+> - Vercel AI Gateway, routing to Anthropic and Google models.
 >   AI is used at exactly four points: interpreting the assessment answers, analysing the
 >   body photo, identifying which dish is in a food photo, and the coach chat. Every numeric
 >   value — training volume, progression, calories, macronutrients, nutrient content — is

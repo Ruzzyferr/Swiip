@@ -7,9 +7,9 @@ name: Yayın
 # aynı dosyada iki iş yazılsaydı `needs` ile sıralanırdı ama derleme adımı, testler
 # kırmızıyken de kuyruğa girmiş olurdu. Burada kırmızı CI hiç tetiklemiyor.
 #
-# Android her push'ta otomatik; **iOS yalnızca elle tetiklendiğinde** — macOS
-# dakikası 10 kat sayılıyor ve otomatik koşarken aylık bütçeyi bir öğleden sonrada
-# yiyor (ölçüm iş tanımında).
+# İkisi de her push'ta otomatik: Play kapalı test ve TestFlight birlikte güncellenir.
+# Bir ara iOS elle tetiklemeye alınmıştı (özel depoda macOS dakikası 10 kat); depo
+# herkese açık olduğu için o maliyet yok ve karar geri alındı.
 #
 # DERLEME GITHUB KOŞUCULARINDA, EAS bulutunda değil (`eas build --local`).
 # EAS'in ücretsiz planında aylık derleme kotası var ve iOS tarafı 2026-08-25'te
@@ -218,24 +218,24 @@ jobs:
   ios:
     name: TestFlight
     needs: kapi
-    # iOS OTOMATIK KOŞMAZ — yalnızca elle tetiklendiğinde.
+    # iOS OTOMATİK KOŞAR — Android ile aynı şekilde.
     #
-    # Ölçüldü: bir iOS derlemesi ~25-30 dakika macOS koşucusu, ve özel depoda macOS
-    # dakikası **10 kat** sayılıyor. Yani derleme başına ~250-300 faturalanan dakika.
-    # 2026-08-25'te iki derleme 528 dakika yedi — Free planın aylık 2.000
-    # dakikasının dörtte biri, tek öğleden sonrada. Hesabı bu depo tek başına
-    # kullanmıyor; diğer projeler de aynı bütçeden yiyor.
+    # Bir ara elle tetiklemeye alınmıştı: bir iOS derlemesi ~25-30 dakika macOS
+    # koşucusu ve **özel** depolarda macOS dakikası 10 kat sayılıyor, yani derleme
+    # başına ~250-300 faturalanan dakika. 2026-08-25'te iki derleme 528 dakika yedi.
     #
-    # Android tarafı ubuntu'da ve çarpanı 1, o yüzden otomatik kalıyor. TestFlight'a
-    # her commit'te yeni derleme çıkmasına zaten gerek yok: testçiye derleme
-    # gerektiğinde çıkılır.
+    # O gerekçe artık yok: depo herkese açık ve herkese açık depolarda GitHub Actions
+    # ücretsiz ve sınırsız, macOS dahil. Karar ölçülmüş bir maliyete dayanıyordu ve
+    # maliyet ortadan kalkınca kararın da kalkması gerekiyor.
     #
-    #   gh workflow run yayin.yml -f platform=ios
-    #   gh workflow run yayin.yml -f platform=ikisi
+    # Kural: main'e giren her ürün değişikliği İKİ mağazanın test izine birden gider —
+    # Play kapalı test ve TestFlight. Yalnız birine gitmesi, iki mağazanın farklı
+    # sürümleri test etmesi demek; hangi hatanın hangi derlemede olduğu kaybolur.
+    #
+    # `platform` girdisi elle tetiklemede hâlâ tek platform seçmeye yarıyor.
     if: >-
       needs.kapi.outputs.derle == 'evet' &&
-      github.event_name == 'workflow_dispatch' &&
-      inputs.platform != 'android'
+      (github.event_name != 'workflow_dispatch' || inputs.platform != 'android')
     runs-on: macos-15
     timeout-minutes: 90
     steps:

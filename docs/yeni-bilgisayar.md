@@ -34,18 +34,22 @@ npm -w @swiip/mobile run start
 
 ```
 push → CI (biçim/lint/tip/test) → yeşilse Yayın
-                                    ├─ Play test izi      ← otomatik
+                                    ├─ Play kapalı test (alpha)  ← otomatik
+                                    ├─ TestFlight                ← otomatik
                                     ├─ sürüm etiketi
                                     └─ sonuç e-postası
-
-TestFlight                                                ← ELLE
-  gh workflow run yayin.yml -f platform=ios
 ```
 
-**iOS neden otomatik değil:** macOS koşucusu dakikası özel depoda **10 kat**
-sayılıyor. Ölçüldü: iki derleme 528 faturalanan dakika, yani Free planın aylık
-2.000 dakikasının dörtte biri. Android ubuntu'da ve çarpanı 1; o otomatik.
-TestFlight'a her commit'te derleme çıkmasına da gerek yok.
+**İkisi de otomatik.** main'e giren her ürün değişikliği iki mağazanın test izine
+birden gider. Bir ara iOS elle tetikleniyordu — özel depolarda macOS dakikası 10 kat
+sayılıyor ve iki derleme 528 faturalanan dakika yemişti. Depo herkese açık olduğu için
+o maliyet yok; karar geri alındı ve `yayinHatti.test.ts` geri dönüşü engelliyor.
+
+Tek platform derlemek istersen elle tetikleme duruyor:
+
+```bash
+gh workflow run yayin.yml -f platform=ios
+```
 
 Bilinmesi gerekenler:
 
@@ -53,7 +57,7 @@ Bilinmesi gerekenler:
 - **Kapı var:** son `yayin-*` etiketinden beri `apps/mobile`, `packages/core` veya
   `packages/shared` değişmediyse derleme atlanıyor. Yalnızca belge, betik ya da sunucu
   kodu (`packages/api`) değiştiyse derleme yapılmıyor — kullanıcının telefonunda
-  değişen bir şey yok ve iOS derlemesi ~300 GitHub dakikası tutuyor.
+  değişen bir şey yok. Kapıyı aşmak için: `-f zorla=true`.
 - **Sürüm numarasını sen artırmıyorsun.** Sayaç EAS'te; `app.json` içinde
   `buildNumber`/`versionCode` yok ve olmamalı.
 - **Sürüm notu commit konularından üretiliyor.** Testçiye başka bir cümle göstermek
@@ -121,7 +125,7 @@ Kurulu ve hattın çalışması için gereken her şey:
 
 | Değişken | Şu an | Ne zaman değişir |
 |---|---|---|
-| `PLAY_IZ` | `internal` | Play uygulamayı taslaktan çıkarınca `alpha` yapılır |
+| `PLAY_IZ` | `alpha` | Kapalı test izi. 2026-08-25'te `internal`'dan çevrildi |
 
 **Yükleme anahtarını (`ANDROID_KEYSTORE_B64`) kaybetme.** Play o anahtarla imzalanmayan
 paketi kabul etmiyor; kaybolursa uygulama bir daha güncellenemez. Yerel kopya
