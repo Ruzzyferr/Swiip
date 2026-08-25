@@ -59,9 +59,17 @@ simülatör kabul edilmiyor. Uygulamanın açılışından başlayıp sırayla:
 
 ## Kalan iki madde — ikisi de bende üretilemez
 
-**1. Ekran kaydı — HAZIR.** `Desktop/swiip.mp4`, fiziksel cihazda çekilmiş:
-H.264 1080×1920 dikey, 7 dk 08 sn, 386 MB. Apple bağlantı istiyor, dosya değil;
-erişilebilir bir yere yüklenip bağlantısı `--kayit` ile verilecek.
+**1. Ekran kaydı — HAZIR ve yüklendi.** Fiziksel cihazda çekilmiş:
+H.264 1080×1920 dikey, 7 dk 08 sn, 386 MB.
+
+    https://drive.google.com/file/d/1i0o8NftLWCbvklSI-b0bP9vFkDeMtmfW/view
+
+Bağlantı **anonim erişime açık** — oturumsuz istekte dosya adı ve `video/mp4` dönüyor,
+"erişim isteyin" sayfası çıkmıyor. Bu kontrol önemli: kısıtlı bir bağlantı inceleyicinin
+videoyu hiç açamaması ve tek başına bir inceleme turu daha demek.
+
+Dosya EK olarak değil BAĞLANTI olarak veriliyor. 386 MB, Apple'ın inceleme eki sınırının
+üstünde; Resolution Center eki zaten API'de yok, yalnızca konsolda.
 
 **2. Denenen cihaz ve iOS sürümü.** Hâlâ eksik ve uydurulamaz: kaydın çekildiği
 iPhone modeli ve iOS sürümü yazılmalı. Bunu bilen tek kişi kaydı çeken kişi.
