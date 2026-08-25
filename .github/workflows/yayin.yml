@@ -252,6 +252,27 @@ jobs:
           printf '%s' "$ASC_P8" | base64 -d > apps/mobile/asc.p8
           grep -q 'BEGIN PRIVATE KEY' apps/mobile/asc.p8 || { echo "anahtar bozuk"; exit 1; }
 
+      - name: Xcode ve iOS SDK sürümü
+        # Apple, yüklenen paketin iOS 26 SDK'sıyla derlenmiş olmasını şart koşuyor;
+        # build 3 tam bu yüzden ITMS-90725 ile geri döndü (iOS 18.2 SDK'sıyla
+        # derlenmişti). Koşucu imajı eskiyse derleme SORUNSUZ bitiyor ve iş yalnızca
+        # YÜKLEMEDE patlıyor — yani ~30 dakika macOS dakikası (10× çarpanla ~300)
+        # harcandıktan sonra. Kontrol bu yüzden en başta.
+        run: |
+          set -euo pipefail
+          echo "kurulu Xcode sürümleri:"
+          ls -d /Applications/Xcode*.app 2>/dev/null || true
+          en_yeni="$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)"
+          test -n "$en_yeni" || { echo "::error::Xcode bulunamadı"; exit 1; }
+          sudo xcode-select -s "$en_yeni/Contents/Developer"
+          xcodebuild -version
+          sdk="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iOS SDK: $sdk"
+          if [ "${sdk%%.*}" -lt 26 ]; then
+            echo "::error::Koşucudaki iOS SDK $sdk; Apple 26 istiyor (ITMS-90725). Derleme başlatılmadı."
+            exit 1
+          fi
+
       - uses: expo/expo-github-action@v8
         with:
           eas-version: latest
