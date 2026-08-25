@@ -169,6 +169,23 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   1. Sunucuda her gece 03:15'te `scripts/yedek-al.sh` → `/opt/swiip/yedekler`
   2. Bu makineye çekme: `scripts/yedek-indir.mjs`, Windows görev zamanlayıcıda
      **Swiip-yedek-indir** adıyla her gün 09:30. Hedef `~/Swiip-yedekler`.
+
+     **2026-08-25'te bu katmanın ölü olduğu bulundu.** Görevin çalışma dizini
+     `C:\dev\Made2Fit` yazıyordu — projenin taşınmadan önceki adı. O klasörde
+     yalnızca `infra` kalmış, betik yok; görev her sabah `LastTaskResult = 1` ile
+     düşüyordu. Yereldeki kopyalar otomatik değil, elle indirilmişti.
+
+     Kusur "uçtan uca doğrulandı" denmiş olmasına rağmen durdu, çünkü doğrulama
+     **betiği** çalıştırmıştı, **görevi** değil. Betik her zaman çalışıyordu.
+     Bundan sonra kontrol şu:
+
+     ```powershell
+     Get-ScheduledTaskInfo -TaskName 'Swiip-yedek-indir' |
+       Select-Object LastRunTime, LastTaskResult   # 0 olmalı
+     ```
+
+     Aylık geri yükleme testiyle **aynı turda** bakılacak. Yol değiştiren bir
+     zamanlanmış görev sessizce ölür; hiçbir şey uyarmaz.
      Nesne deposu (Spaces) aylık ücretli ve kullanıcı sayısı sıfır; şart yine
      karşılanıyor, kopya sunucunun **dışında**. Betik her çalıştığında yerelde
      olmayan **bütün** dump'ları indiriyor — bir hafta kapalı kalan bilgisayar
