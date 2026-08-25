@@ -9,7 +9,14 @@
  * derlemeye yerelleştirme eklenemiyor, o yüzden betik `VALID` olana kadar bekliyor.
  *
  *   node scripts/testflight-notlar.mjs <build-numarasi> <metin>
- *   node scripts/testflight-notlar.mjs --son "<metin>"     # en yeni derleme
+ *   node scripts/testflight-notlar.mjs --son "<metin>"
+ *
+ * **`--son` OTOMASYONDA KULLANILMAZ.** "En yeni derleme" demek, "az önce
+ * yüklediğim derleme" demek değil: Apple yeni derlemeyi listeye almadan önce bu
+ * betik koşarsa `--son` bir ÖNCEKİ derlemeyi seçer. İlk gerçek yayın koşusunda tam
+ * bu oldu — yeni derleme notsuz kaldı ve eski derlemenin notunun üstüne yazıldı,
+ * ikisi de sessizce. Yayın hattı numarayı IPA'nın `CFBundleVersion`'ından okuyup
+ * açıkça veriyor. `--son` yalnızca elle, gözle bakarak kullanılır.
  */
 import { apple } from './apple-api.mjs';
 

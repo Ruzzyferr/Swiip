@@ -305,15 +305,29 @@ jobs:
         run: eas submit --platform ios --profile ci --path "$RUNNER_TEMP/swiip.ipa" --non-interactive
 
       - name: TestFlight sürüm notu
-        # Apple derlemeyi birkaç dakika işliyor; betik VALID olana kadar bekliyor ve
-        # yazdıktan sonra alanı geri okuyor. Dil kodu `tr` — TestFlight `tr-TR`'yi
-        # reddediyor, mağaza metinlerinden farklı.
+        # Derleme numarası IPA'DAN okunuyor, "en yeni derleme"den değil.
+        #
+        # İlk gerçek koşuda `--son` kullanıldı ve not YANLIŞ DERLEMEYE yazıldı:
+        # bu adım çalıştığında Apple yeni derlemeyi henüz listelememişti, `--son`
+        # da listedeki en yeniyi (bir önceki derlemeyi) seçti. Yeni derleme notsuz
+        # kaldı ve eski derlemenin notunun üstüne yazıldı. İkisi de sessizdi —
+        # iş yeşil bitti. IPA'nın `CFBundleVersion`'ı ne yüklediğimizin tek kanıtı.
+        #
+        # Dil kodu `tr`: TestFlight `tr-TR`'yi reddediyor, mağaza metinlerinden farklı.
         env:
           EXPO_ASC_API_KEY_PATH: apps/mobile/asc.p8
           EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           NOTLAR: ${{ needs.kapi.outputs.notlar_uzun }}
-        run: node scripts/testflight-notlar.mjs --son "$NOTLAR"
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/ipa" && mkdir -p "$RUNNER_TEMP/ipa"
+          unzip -o -q "$RUNNER_TEMP/swiip.ipa" -d "$RUNNER_TEMP/ipa"
+          plist="$(find "$RUNNER_TEMP/ipa/Payload" -maxdepth 2 -name Info.plist | head -1)"
+          test -n "$plist" || { echo "::error::IPA icinde Info.plist yok"; exit 1; }
+          numara="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$plist")"
+          echo "yuklenen derleme numarasi: $numara"
+          node scripts/testflight-notlar.mjs "$numara" "$NOTLAR"
 
   etiket:
     name: Yayını etiketle
