@@ -20,7 +20,7 @@
         "NSPhotoLibraryUsageDescription": "Vücut analizi için galeriden fotoğraf seçebilirsin. Fotoğraf sunucumuzda saklanmaz.",
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "9"
+      "buildNumber": "11"
     },
     "android": {
       "package": "app.swiip",
@@ -37,7 +37,7 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.DUMP"
       ],
-      "versionCode": 4
+      "versionCode": 5
     },
     "plugins": [
       "expo-router",
