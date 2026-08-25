@@ -1,0 +1,292 @@
+name: Yayın
+
+# main'e giren her ürün değişikliğini iki mağazanın TEST izlerine götürür:
+# Play kapalı test + TestFlight. Mağazaya göndermek elle kalıyor — bilerek.
+#
+# CI'nin ardından çalışıyor, paralel değil. `workflow_run` seçilmesinin sebebi:
+# aynı dosyada iki iş yazılsaydı `needs` ile sıralanırdı ama derleme adımı, testler
+# kırmızıyken de kuyruğa girmiş olurdu. Burada kırmızı CI hiç tetiklemiyor.
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Hangi platform
+        type: choice
+        options: [ikisi, ios, android]
+        default: ikisi
+      iz:
+        description: Play izi (alpha = kapalı test)
+        type: choice
+        options: [alpha, internal, beta]
+        default: alpha
+      zorla:
+        description: Ürün değişmemiş olsa da derle
+        type: boolean
+        default: false
+
+concurrency:
+  # Sürüm numarası EAS tarafında artıyor; iki yayın aynı anda koşarsa numaralar
+  # çakışır ve hangi derlemenin hangi commit olduğu belirsizleşir. Kuyruğa alınıyor,
+  # iptal EDİLMİYOR: yarıda kesilen bir yayın mağazada yarım iş bırakabilir.
+  group: yayin
+  cancel-in-progress: false
+
+permissions:
+  contents: write # yayın etiketini atmak için
+
+jobs:
+  kapi:
+    name: Gerek var mı
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    outputs:
+      derle: ${{ steps.karar.outputs.derle }}
+      notlar_kisa: ${{ steps.notlar.outputs.kisa }}
+      notlar_uzun: ${{ steps.notlar.outputs.uzun }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # etiket geçmişi lazım
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+      - id: karar
+        name: Son yayından beri ürün değişti mi
+        # EAS ücretsiz planında aylık derleme kotası var ve iOS tarafı bu ay bir kez
+        # zaten doldu. Yalnızca belge veya betik değiştiren bir commit'e derleme
+        # harcamak, ay sonunda gerçekten lazım olduğunda kotasız kalmak demek.
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.zorla }}" = "true" ]; then
+            echo "derle=evet" >> "$GITHUB_OUTPUT"; echo "zorlandı"; exit 0
+          fi
+          son="$(git describe --tags --abbrev=0 --match 'yayin-*' 2>/dev/null || true)"
+          if [ -z "$son" ]; then
+            echo "derle=evet" >> "$GITHUB_OUTPUT"; echo "ilk yayın"; exit 0
+          fi
+          degisen="$(git diff --name-only "$son"..HEAD -- apps/mobile packages/core packages/shared | wc -l)"
+          echo "$son sonrası ürün dosyası değişikliği: $degisen"
+          if [ "$degisen" -gt 0 ]; then
+            echo "derle=evet" >> "$GITHUB_OUTPUT"
+          else
+            echo "derle=hayir" >> "$GITHUB_OUTPUT"
+            echo "::notice::Ürün kodu değişmemiş; derleme atlandı."
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.karar.outputs.derle == 'evet'
+        with: { node-version: 22 }
+
+      - id: notlar
+        name: Sürüm notları
+        if: steps.karar.outputs.derle == 'evet'
+        run: |
+          set -euo pipefail
+          node scripts/surum-notlari.mjs > notlar.txt
+          cat notlar.txt
+          json="$(node scripts/surum-notlari.mjs --json)"
+          {
+            echo "kisa<<SWIIP_EOF"
+            node -e "process.stdout.write(JSON.parse(process.argv[1]).kisa)" "$json"
+            echo
+            echo "SWIIP_EOF"
+            echo "uzun<<SWIIP_EOF"
+            node -e "process.stdout.write(JSON.parse(process.argv[1]).uzun)" "$json"
+            echo
+            echo "SWIIP_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  android:
+    name: Play kapalı test
+    needs: kapi
+    if: >-
+      needs.kapi.outputs.derle == 'evet' &&
+      (github.event_name != 'workflow_dispatch' || inputs.platform != 'ios')
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+
+      - name: İmzalama malzemesi
+        # `credentialsSource: local` — anahtarlar depoda DEĞİL (gitignore) ve olmamalı.
+        # Koşucuda `credentials.json`'ın beklediği göreli yollara yazılıyorlar;
+        # böylece CI ile yerel derleme birebir aynı kimlikle imzalıyor.
+        env:
+          CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_JSON }}
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          IOS_DIST_P12_B64: ${{ secrets.IOS_DIST_P12_B64 }}
+          IOS_PROVISION_B64: ${{ secrets.IOS_PROVISION_B64 }}
+        run: |
+          set -euo pipefail
+          for d in CREDENTIALS_JSON ANDROID_KEYSTORE_B64 IOS_DIST_P12_B64 IOS_PROVISION_B64; do
+            test -n "${!d:-}" || { echo "$d sırrı yok"; exit 1; }
+          done
+          mkdir -p apps/mobile/kimlik
+          printf '%s' "$CREDENTIALS_JSON" > apps/mobile/credentials.json
+          printf '%s' "$ANDROID_KEYSTORE_B64" | base64 -d > apps/mobile/kimlik/yukleme.jks
+          printf '%s' "$IOS_DIST_P12_B64"     | base64 -d > apps/mobile/kimlik/dagitim.p12
+          printf '%s' "$IOS_PROVISION_B64"    | base64 -d > apps/mobile/kimlik/swiip-appstore.mobileprovision
+          node -e "
+            const c=require('./apps/mobile/credentials.json'), fs=require('fs');
+            for (const y of [c.ios.provisioningProfilePath, c.ios.distributionCertificate.path, c.android.keystore.keystorePath]) {
+              const t='apps/mobile/'+y;
+              if (!fs.statSync(t).size) { console.error('bos dosya: '+t); process.exit(1); }
+            }
+            console.log('imzalama malzemesi yerinde');
+          "
+
+      - name: Play servis hesabı anahtarı
+        # `eas.json`'un `ci` gönderim profili `./play.json` diyor — yol apps/mobile'a
+        # göreli. Depodaki `uretim` profili mutlak Windows yolu tutuyor ve koşucuda yok.
+        env:
+          PLAY_JSON: ${{ secrets.PLAY_SERVIS_HESABI_JSON }}
+        run: |
+          set -euo pipefail
+          test -n "$PLAY_JSON" || { echo "PLAY_SERVIS_HESABI_JSON sırrı yok"; exit 1; }
+          printf '%s' "$PLAY_JSON" > apps/mobile/play.json
+          node -e "JSON.parse(require('fs').readFileSync('apps/mobile/play.json','utf8'))"
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Derle
+        working-directory: apps/mobile
+        run: eas build --platform android --profile uretim --non-interactive --wait
+
+      - name: Play kapalı test izine yükle
+        working-directory: apps/mobile
+        run: eas submit --platform android --profile ci --latest --non-interactive
+
+      - name: Yayına al ve notu yaz
+        # `eas submit` sürümü TASLAK bırakıyor ve taslak sürüm test cihazlarına
+        # inmiyor: konsolda "yüklendi" görünürken kimse kuramıyor. Yayına almak
+        # ayrı bir adım ve betik taahhütten sonra izi geri okuyup doğruluyor.
+        env:
+          PLAY_SERVIS_HESABI: apps/mobile/play.json
+          IZ: ${{ inputs.iz || 'alpha' }}
+          NOTLAR: ${{ needs.kapi.outputs.notlar_kisa }}
+        run: |
+          set -euo pipefail
+          kod="$(node -e "
+            const {execFileSync}=require('child_process');
+            const j=JSON.parse(execFileSync('npx',['eas-cli','build:list','--platform','android','--limit','1','--non-interactive','--json'],{cwd:'apps/mobile',encoding:'utf8'}));
+            process.stdout.write(String(j[0].appBuildVersion));
+          ")"
+          echo "versionCode: $kod · iz: $IZ"
+          node scripts/play-yayinla.mjs "$IZ" "$kod" "$NOTLAR"
+
+  ios:
+    name: TestFlight
+    needs: kapi
+    if: >-
+      needs.kapi.outputs.derle == 'evet' &&
+      (github.event_name != 'workflow_dispatch' || inputs.platform != 'android')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+
+      - name: İmzalama malzemesi
+        # `credentialsSource: local` — anahtarlar depoda DEĞİL (gitignore) ve olmamalı.
+        # Koşucuda `credentials.json`'ın beklediği göreli yollara yazılıyorlar;
+        # böylece CI ile yerel derleme birebir aynı kimlikle imzalıyor.
+        env:
+          CREDENTIALS_JSON: ${{ secrets.CREDENTIALS_JSON }}
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          IOS_DIST_P12_B64: ${{ secrets.IOS_DIST_P12_B64 }}
+          IOS_PROVISION_B64: ${{ secrets.IOS_PROVISION_B64 }}
+        run: |
+          set -euo pipefail
+          for d in CREDENTIALS_JSON ANDROID_KEYSTORE_B64 IOS_DIST_P12_B64 IOS_PROVISION_B64; do
+            test -n "${!d:-}" || { echo "$d sırrı yok"; exit 1; }
+          done
+          mkdir -p apps/mobile/kimlik
+          printf '%s' "$CREDENTIALS_JSON" > apps/mobile/credentials.json
+          printf '%s' "$ANDROID_KEYSTORE_B64" | base64 -d > apps/mobile/kimlik/yukleme.jks
+          printf '%s' "$IOS_DIST_P12_B64"     | base64 -d > apps/mobile/kimlik/dagitim.p12
+          printf '%s' "$IOS_PROVISION_B64"    | base64 -d > apps/mobile/kimlik/swiip-appstore.mobileprovision
+          node -e "
+            const c=require('./apps/mobile/credentials.json'), fs=require('fs');
+            for (const y of [c.ios.provisioningProfilePath, c.ios.distributionCertificate.path, c.android.keystore.keystorePath]) {
+              const t='apps/mobile/'+y;
+              if (!fs.statSync(t).size) { console.error('bos dosya: '+t); process.exit(1); }
+            }
+            console.log('imzalama malzemesi yerinde');
+          "
+
+      - name: App Store Connect anahtarı
+        env:
+          ASC_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          test -n "$ASC_P8" || { echo "ASC_API_KEY_P8 sırrı yok"; exit 1; }
+          printf '%s' "$ASC_P8" | base64 -d > apps/mobile/asc.p8
+          grep -q 'BEGIN PRIVATE KEY' apps/mobile/asc.p8 || { echo "anahtar bozuk"; exit 1; }
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Derle
+        working-directory: apps/mobile
+        run: eas build --platform ios --profile uretim --non-interactive --wait
+
+      - name: TestFlight'a yükle
+        working-directory: apps/mobile
+        run: eas submit --platform ios --profile ci --latest --non-interactive
+
+      - name: TestFlight sürüm notu
+        # Apple derlemeyi birkaç dakika işliyor; betik VALID olana kadar bekliyor ve
+        # yazdıktan sonra alanı geri okuyor.
+        env:
+          EXPO_ASC_API_KEY_PATH: apps/mobile/asc.p8
+          EXPO_ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          NOTLAR: ${{ needs.kapi.outputs.notlar_uzun }}
+        run: node scripts/testflight-notlar.mjs --son "$NOTLAR"
+
+  etiket:
+    name: Yayını etiketle
+    needs: [kapi, android, ios]
+    # Biri atlandıysa (tek platform seçildi) yine etiketlensin; ama BAŞARISIZ
+    # olduysa etiketlenmesin — yoksa bir sonraki koşu bu commit'i "yayınlandı"
+    # sayar ve düşen platform sessizce geride kalır.
+    if: >-
+      always() && needs.kapi.outputs.derle == 'evet' &&
+      needs.android.result != 'failure' && needs.ios.result != 'failure' &&
+      (needs.android.result == 'success' || needs.ios.result == 'success')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+      - name: Etiket at
+        run: |
+          set -euo pipefail
+          ad="yayin-$(date -u +%Y%m%d-%H%M)"
+          git config user.name  'swiip-yayin'
+          git config user.email 'bilgi@send.swiip.app'
+          git tag -a "$ad" -m "Play: ${{ needs.android.result }} · TestFlight: ${{ needs.ios.result }}"
+          git push origin "$ad"
+          echo "::notice::$ad etiketlendi; bir sonraki sürüm notu buradan başlayacak."

@@ -6,13 +6,16 @@
  * uygulamayı kuramıyor. Aradaki farkı yalnızca izin kendisini okumak gösteriyor,
  * o yüzden bu betik hem yayına alıyor hem de sonucu geri okuyup doğruluyor.
  *
- *   PLAY_SERVIS_HESABI=<json yolu> node scripts/play-yayinla.mjs <iz> <versionCode>
+ *   PLAY_SERVIS_HESABI=<json yolu> node scripts/play-yayinla.mjs <iz> <versionCode> [notlar]
+ *
+ * `notlar` verilmezse sürüm notu YAZILMIYOR. Uydurma bir cümle koymaktansa boş
+ * bırakmak doğru; notu `scripts/surum-notlari.mjs` üretiyor.
  */
 import { readFileSync } from 'node:fs';
 import { createSign } from 'node:crypto';
 
 const PAKET = process.env.PLAY_PAKET_ADI ?? 'app.swiip';
-const [IZ, SURUM_KODU] = process.argv.slice(2);
+const [IZ, SURUM_KODU, NOTLAR] = process.argv.slice(2);
 if (!IZ || !SURUM_KODU) {
   console.error('kullanım: play-yayinla.mjs <iz> <versionCode>');
   process.exit(2);
@@ -66,13 +69,6 @@ const cagir = async (yol, secenek = {}) => {
   return govde ? JSON.parse(govde) : {};
 };
 
-const NOTLAR = `Alerji filtresi düzeltildi: dokuz alerjenin dördü hiç eşleşmiyordu.
-Değerlendirmedeki dört güvenlik kapısının ikisi açılmıyordu; artık açılıyor.
-"Fotoğraf çek" gerçekten kamerayı açıyor.
-"Aboneliği iptal et" mağazanın abonelik sayfasına götürüyor.
-Günlükte yemek adı ve silme düğmesi var.
-Kullanılmayan mikrofon izni paketten çıkarıldı.`;
-
 const { id } = await cagir('/edits', { method: 'POST' });
 try {
   const once = await cagir(`/edits/${id}/tracks/${IZ}`);
@@ -98,7 +94,7 @@ try {
             name: hedef.name ?? SURUM_KODU,
             versionCodes: [SURUM_KODU],
             status: 'completed',
-            releaseNotes: [{ language: 'tr-TR', text: NOTLAR }],
+            ...(NOTLAR ? { releaseNotes: [{ language: 'tr-TR', text: NOTLAR }] } : {}),
           },
         ],
       }),

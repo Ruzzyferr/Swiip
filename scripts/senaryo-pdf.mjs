@@ -35,16 +35,27 @@ if (!tarayici) {
 const kacir = (m) => m.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /** Satır içi biçimlendirme. Sıra önemli: kod parçaları önce çıkarılıyor. */
+/**
+ * Kod parçalarının çeviri sırasında korunması için yer tutucu.
+ *
+ * Önce NUL (U+0000) kullanılmıştı ve lint haklı olarak düştü: düzenli ifadeye
+ * kontrol karakteri koymak, gözle görülmeyen bir eşleşme demek. U+E000 özel
+ * kullanım alanından, yani markdown kaynağında geçmesi mümkün değil — ama kaynağa
+ * görünmez bir bayt gömmemek için burada ADIYLA duruyor.
+ */
+const YER_TUTUCU = '\uE000';
+const YER_TUTUCU_DESENI = new RegExp(`${YER_TUTUCU}(\\d+)${YER_TUTUCU}`, 'g');
+
 function satirIci(ham) {
   const kodlar = [];
   let m = ham.replace(/`([^`]+)`/g, (_, k) => {
     kodlar.push(k);
-    return `\u0000${kodlar.length - 1}\u0000`;
+    return `${YER_TUTUCU}${kodlar.length - 1}${YER_TUTUCU}`;
   });
   m = kacir(m)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
-  return m.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${kacir(kodlar[Number(i)])}</code>`);
+  return m.replace(YER_TUTUCU_DESENI, (_, i) => `<code>${kacir(kodlar[Number(i)])}</code>`);
 }
 
 /**

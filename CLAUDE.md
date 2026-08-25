@@ -285,6 +285,47 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   (geçici işleniyor) ve uygulama içi eylemler eklendi. **Taslak olarak kaydedildi;
   incelemeye göndermek ayrı bir adım.** Ayrıntı `magaza/play/konsol-rehberi.md` bölüm 7.
 
+## Yayın hattı (GitHub Actions)
+
+`.github/workflows/yayin.yml` — CI yeşil bittiğinde çalışıyor (`workflow_run`), main'e
+giren ürün değişikliğini iki mağazanın **test** izlerine götürüyor: Play kapalı test
+(`alpha`) ve TestFlight. **Mağazaya göndermek elle kalıyor, bilerek.**
+
+Adımlar: sürüm notu üret → derle → yükle → yayına al → notu yaz → etiketle.
+
+Bilinmesi gerekenler:
+
+- **Sürüm sayacı EAS'te.** `appVersionSource` `local`den `remote`a alındı. Yerelken
+  `autoIncrement` app.json'ı koşucuda artırıyordu ve o değişiklik commit edilmediği
+  için kayboluyordu: her koşu aynı numarayı üretir, mağaza yinelenen sürümü reddederdi.
+  Sayaç iOS 12 / Android 6'ya tohumlandı. `app.json`'daki `buildNumber` ve
+  `versionCode` **silindi** — uzak kaynakta yok sayılıyorlar ve orada durmaları
+  "sürüm bu" diye okunacak bir tuzaktı.
+- **Kapı var.** Son `yayin-*` etiketinden beri `apps/mobile`, `packages/core` veya
+  `packages/shared` değişmediyse derleme atlanıyor. `packages/api` bilerek listede
+  yok: sunucu kodu mobil pakete girmiyor, yalnız API'yi düzelten bir commit iki
+  derleme birden yakardı.
+- **EAS ücretsiz planında aylık derleme kotası var** ve iOS tarafı 2026-08-25'te
+  doldu (1 Eylül'de sıfırlanıyor). O tarihe kadar iOS işi kotadan düşecek. Kapı bu
+  yüzden var; yine de sık yayın gerekiyorsa plan yükseltilmeli.
+- **İmzalama malzemesi depoda değil** (`credentialsSource: local`, `kimlik/` ve
+  `credentials.json` gitignore'da). Koşucu bunları sırlardan `credentials.json`'ın
+  beklediği göreli yollara yazıyor, yani CI ile yerel derleme aynı kimlikle imzalıyor.
+- **`eas.json`'da ayrı bir `ci` gönderim profili var.** `uretim` profili mutlak
+  Windows yolları tutuyor (`C:/Users/ruzzy/...`) ve Linux koşucusunda yok.
+- **Play sürümü taslak kalır.** `eas submit` yüklüyor ama yayına almıyor;
+  `scripts/play-yayinla.mjs` alıyor ve sürüm notunu orada yazıyor.
+
+Gereken sırlar (hepsi kurulu): `EXPO_TOKEN`, `ASC_API_KEY_P8` (base64), `ASC_KEY_ID`,
+`ASC_ISSUER_ID`, `PLAY_SERVIS_HESABI_JSON`, `CREDENTIALS_JSON`, `ANDROID_KEYSTORE_B64`,
+`IOS_DIST_P12_B64`, `IOS_PROVISION_B64`.
+
+Sürüm notu `scripts/surum-notlari.mjs` ile commit konularından üretiliyor. Hedef kitle
+kapalı test ve TestFlight **testçileri**, halka açık mağaza metni değil — o zaten elle
+yazılıyor. Bir commit'e başka bir cümle gerekiyorsa gövdeye `not: ...` satırı eklenir.
+Play'in sınırı 500 karakter, TestFlight'ın 4.000; ikisi ayrı üretiliyor ve kaç madde
+düştüğü yazılıyor.
+
 ## Dağıtım ve sunucu
 
 Dağıtım `scripts/sunucu-dagit.sh` ile. Kaynağı `git archive` ile paketler, `/opt/swiip`

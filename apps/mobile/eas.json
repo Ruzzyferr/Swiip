@@ -1,7 +1,7 @@
 {
   "cli": {
     "version": ">= 16.0.0",
-    "appVersionSource": "local"
+    "appVersionSource": "remote"
   },
   "build": {
     "gelistirme": {
@@ -48,6 +48,22 @@
         "track": "internal",
         "releaseStatus": "draft",
         "serviceAccountKeyPath": "C:/Users/ruzzy/.play-keys/play-servis-hesabi.json"
+      }
+    },
+    "ci": {
+      "ios": {
+        "appleTeamId": "3HPYDLAP64",
+        "ascApiKeyPath": "./asc.p8",
+        "ascApiKeyId": "YX69K49LLD",
+        "ascApiKeyIssuerId": "785ff925-e57d-4629-b589-eb48230f0a8f",
+        "language": "tr-TR",
+        "companyName": "Ruzgar Bulut",
+        "ascAppId": "6803979374"
+      },
+      "android": {
+        "track": "alpha",
+        "releaseStatus": "draft",
+        "serviceAccountKeyPath": "./play.json"
       }
     }
   }
