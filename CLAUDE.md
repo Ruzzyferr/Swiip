@@ -242,6 +242,43 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   `RevenueCat-Subscriber-app4d2c3ef35f` bu konudan silinsin.
 
 - TürKomp kullanım koşulları yazılı teyit edilecek
+
+## 2026-08-26 denetiminde panelden yapılanlar
+
+Üçü de panelde uygulandı ve geri okunarak doğrulandı:
+
+1. **Apple · Regulated Medical Device beyanı yapıldı.** App Information → App Store
+   Regulations & Permits artık "This app has been declared not a regulated medical
+   device in any country or region." diyor. Sürüm 1.0 beyandan sonra da
+   `WAITING_FOR_REVIEW` olarak kaldı — gönderim bozulmadı (API ile doğrulandı).
+
+2. **Play · ön-yayın raporu için test hesabı kimliği girildi.** Pre-launch report →
+   Settings artık "Provide credentials" ve `inceleme-ucretsiz@swiip.app`. Hesap
+   önce üretimde denendi (`/v1/kimlik/giris` → 200, token döndü). Rapor bir sonraki
+   AAB yüklemesinde kendiliğinden üretilecek; şu an "Upload artifacts" diyor.
+
+3. **Pub/Sub · Conversa kendi konusuna taşındı.** Artık Swiip'in RTDN konusunda
+   yalnızca Swiip'in aboneliği var. Sıra bilerek şöyle işletildi:
+
+   1. `conversa-play-rtdn` konusu açıldı,
+   2. çalışan `cheep-play-rtdn` konusunun izinleri okundu ve aynısı verildi
+      (`google-play-developer-notifications@system.gserviceaccount.com` → Pub/Sub Publisher),
+   3. RevenueCat > Conversa (Play Store) → Disconnect → yeni konu → Connect,
+   4. Play Console > Conversa → Monetization setup → yeni konu adı,
+   5. iki uygulamadan da test bildirimi gönderilip iki panelden geri okundu.
+
+   Sonuç: Conversa "Last received" 18 Ağustos → **26 Ağustos 09:27 UTC**,
+   Swiip → **09:29 UTC**. İki zincir de sağlam.
+
+   **Öğrenilen:** RevenueCat'te "Disconnect from Google" servis hesabı kimliğini
+   SİLMİYOR ("File saved" ve "Valid credentials" duruyor), yalnızca konu seçimini
+   açıyor. Başka bir ürünün kimlik JSON'u elimizde olmasa bile bu geçiş güvenli.
+
+**Yapılmayan, bilerek:** yaş derecelendirmesi (sürüm incelemede, düzenlemek onu
+incelemeden çıkarabilir — inceleme sonuçlanmadan dokunulmayacak) ve testçi daveti
+(`scripts/testci-daveti.mjs` hazır; 16 gerçek kişiye posta gitmesi kullanıcının
+kararı). Play sayacı hâlâ **1/12**.
+
 - **AI geçidi ÇALIŞIYOR (2026-08-25).** Eski not "anahtar şu an çalışmıyor" diyordu;
   artık doğru değil. Vercel'de $9,18 kredi var, `swiip-api` anahtarının aylık $5
   tavanı kurulu ve `scripts/ai-gecit-dogrula.mjs` üç modelin üçünde de yeşil.
@@ -298,11 +335,24 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   "Last received" göründü. Öncesinde "No notifications received" yazıyordu.
   Bunlar bağlı değilken iade, iptal ve yenileme yalnızca yoklamayla öğreniliyordu;
   **parasını geri alan kullanıcı Pro kalıyordu.**
-- **GCP'de üç servis hesabı anahtarı var** (`revenuecat-connect@swiip-revenuecat`):
-  4 Ocak (yerel betiklerin kullandığı), 8 Temmuz ve 25 Ağustos. RevenueCat hangisini
-  tuttuğunu panelde göstermiyor, o yüzden körlemesine silinmedi — silinen anahtar
-  canlı fatura doğrulamasını durdurabilir. Sıra: yeni anahtar yükle → test olayıyla
-  doğrula → kalan ikisini sil.
+- **GCP'deki üç servis hesabı anahtarının ÜÇÜ DE KULLANIMDA — hiçbiri silinmeyecek.**
+  `revenuecat-connect@swiip-revenuecat` altında üç anahtar var ve 2026-08-26'da
+  RevenueCat panellerinden tek tek okundu; her biri ayrı bir uygulamaya bağlı:
+
+  | Anahtar | Tarih | Kullanan |
+  |---|---|---|
+  | `0c19f00fab…` | 4 Ocak | **Swiip Android** + yereldeki `scripts/play-*.mjs` |
+  | `1fb2aea794…` | 8 Temmuz | **Conversa Android** |
+  | `881ba0e978…` | 25 Ağustos | **Cheep Android** |
+
+  Eski not "kalan ikisini sil" diyordu; o plan uygulansaydı Conversa ve Cheep'in
+  canlı fatura doğrulaması kesilirdi. Üç anahtarın varlığı bir birikinti değil,
+  üç ayrı uygulamanın aynı servis hesabını paylaşmasının sonucu.
+
+  Gerçek risk başka: **üç uygulama tek servis hesabını paylaşıyor.** O hesap
+  üçünün de Play faturalandırmasına erişiyor; biri sızarsa üçü birden etkilenir.
+  Doğru düzeltme silmek değil AYIRMAK: her uygulamaya kendi servis hesabı.
+  Acıl değil, ama üçünü de "artık gereksiz" sanıp silmekten çok daha doğru.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
