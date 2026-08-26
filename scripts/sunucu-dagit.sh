@@ -85,6 +85,24 @@ rm -f /tmp/swiip.tar.gz /tmp/.env.koruma
 docker compose -f infra/docker-compose.yml build
 docker compose -f infra/docker-compose.yml up -d
 
+# Caddy ZORLA yeniden olusturuluyor.
+#
+# `Caddyfile` konteynere TEK DOSYA olarak baglaniyor
+# (`./Caddyfile:/etc/caddy/Caddyfile:ro`) ve Docker tek dosya baglantisini inode'a
+# bagliyor. `tar -xzf` dosyayi yerinde degistirmiyor: siliyor ve yenisini
+# olusturuyor, yani yeni inode. Konteyner eski inode'u tutmaya devam ediyor.
+#
+# `up -d` de yardim etmiyor: compose dosyasi degismedigi icin caddy'yi "Running"
+# birakiyor. Sonuc: Caddyfile'daki hicbir degisiklik dagitimla etkili olmuyordu.
+#
+# 2026-08-26'da olculdu. Site yonlendirmesi duzeltildi, dagitildi, sunucudaki
+# `infra/Caddyfile` guncelken konteynerdeki dosyada `handle_errors` sayisi HALA 0'di
+# ve yanlis yollar 200 ile ana sayfayi donduruyordu. `caddy reload` da yetmedi --
+# okudugu dosyanin kendisi eskiydi.
+#
+# Ayni sinif kusur: bir sey yapildigi saniliyor, hicbir sey uyarmiyor.
+docker compose -f infra/docker-compose.yml up -d --force-recreate caddy
+
 # SURUM en sonda yazılıyor. Önce yazılıyordu ve derleme yarıda kaldığında dosya yeni
 # commit'i gösterirken konteynerde hâlâ eski kod dönüyordu — "hangi kod dönüyor?"
 # sorusunun tek cevabı olan dosya yalan söylüyordu. Derleme düşerse eski değer kalır.

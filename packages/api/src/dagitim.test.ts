@@ -198,3 +198,47 @@ describe('dağıtım: sunucunun okuduğu her klasör pakete giriyor', () => {
     expect(eksik, `compose bağlıyor ama dağıtım göndermiyor: ${eksik.join(', ')}`).toEqual([]);
   });
 });
+
+/**
+ * Caddy yapılandırması dağıtımla GERÇEKTEN yenileniyor mu?
+ *
+ * `Caddyfile` konteynere tek dosya olarak bağlanıyor ve Docker tek dosya bağlantısını
+ * inode'a bağlıyor. `tar -xzf` dosyayı yerinde değiştirmiyor: siliyor ve yenisini
+ * oluşturuyor — yani yeni inode. Konteyner eski inode'u tutmaya devam ediyor.
+ *
+ * `docker compose up -d` de yardım etmiyor: compose dosyası değişmediği için caddy'yi
+ * "Running" bırakıyor. Sonuç: Caddyfile'daki hiçbir değişiklik dağıtımla etkili
+ * olmuyordu.
+ *
+ * 2026-08-26'da ölçüldü. Site yönlendirmesi düzeltildi, dağıtıldı, sunucudaki
+ * `infra/Caddyfile` güncelken konteynerdeki dosyada `handle_errors` sayısı hâlâ 0'dı
+ * ve yanlış yollar 200 ile ana sayfayı döndürüyordu. `caddy reload` bile yetmedi —
+ * okuduğu dosyanın kendisi eskiydi.
+ */
+describe('dağıtım: Caddy yapılandırması gerçekten yenileniyor', () => {
+  const dagitim = readFileSync(resolve(kok, 'scripts/sunucu-dagit.sh'), 'utf8');
+  const compose = readFileSync(resolve(kok, 'infra/docker-compose.yml'), 'utf8');
+
+  it('Caddyfile hâlâ tek dosya olarak bağlanıyor — bu testin varlık sebebi', () => {
+    expect(compose, 'bağlantı biçimi değiştiyse bu testin gerekçesi de gözden geçirilmeli').toMatch(
+      /\.\/Caddyfile:\/etc\/caddy\/Caddyfile/,
+    );
+  });
+
+  it('dağıtım caddy konteynerini zorla yeniden oluşturuyor', () => {
+    expect(
+      dagitim,
+      'force-recreate yoksa Caddyfile değişikliği konteynere hiç ulaşmaz: eski inode ' +
+        'okunmaya devam eder ve dağıtım yine "başarılı" yazar.',
+    ).toMatch(/up -d --force-recreate caddy/);
+  });
+
+  it('yeniden oluşturma normal up satırından SONRA geliyor', () => {
+    const normal = dagitim.indexOf('up -d\n');
+    const zorla = dagitim.indexOf('up -d --force-recreate caddy');
+    expect(zorla, 'force-recreate satırı yok').toBeGreaterThan(-1);
+    expect(zorla, 'force-recreate normal up’tan önce koşarsa etkisi kaybolur').toBeGreaterThan(
+      normal,
+    );
+  });
+});
