@@ -68,7 +68,12 @@ describe('kısayol kilitleri', () => {
 
     const kilitler = hedefAl(token).then((c) => c.json().kilitler);
 
-    expect(await kilitler).toEqual({ ogun_plani: true, kaydirmali_ogun: true });
+    expect(await kilitler).toEqual({
+      ogun_plani: true,
+      kaydirmali_ogun: true,
+      barkod: true,
+      yemek_tanima: true,
+    });
   });
 
   /** Ödeyen kullanıcıya tek satır bile upsell gösterilmez. */
@@ -84,7 +89,12 @@ describe('kısayol kilitleri', () => {
 
     const govde = (await hedefAl(token)).json();
 
-    expect(govde.kilitler).toEqual({ ogun_plani: false, kaydirmali_ogun: false });
+    expect(govde.kilitler).toEqual({
+      ogun_plani: false,
+      kaydirmali_ogun: false,
+      barkod: false,
+      yemek_tanima: false,
+    });
     expect(govde.hedef_kilidi).toBeUndefined();
   });
 
@@ -99,6 +109,16 @@ describe('kısayol kilitleri', () => {
 
     expect(govde.hedef_kilidi).toBe(true);
     expect(govde.kilitler).toBeDefined();
-    expect(Object.keys(govde.kilitler)).toEqual(['ogun_plani', 'kaydirmali_ogun']);
+    /*
+     * `barkod` ve `yemek_tanima` sonradan eklendi: beslenme sekmesindeki
+     * "Barkod okut" ve "Fotoğraftan ekle" düğmeleri hiçbir kilit işareti
+     * taşımıyordu ve ücretsiz kullanıcı bir sonraki ekranda duvara çarpıyordu.
+     */
+    expect(Object.keys(govde.kilitler).sort()).toEqual([
+      'barkod',
+      'kaydirmali_ogun',
+      'ogun_plani',
+      'yemek_tanima',
+    ]);
   });
 });
