@@ -33,9 +33,12 @@ export default function NasilCalisir() {
 
         <Kart vurgulu>
           <Yazi tur="baslik3">{m.uyariBaslik}</Yazi>
-          <Yazi tur="kucuk" renk="metinYumusak">
-            {m.uyariGovde}
-          </Yazi>
+          {m.uyariMaddeler.map((madde) => (
+            <Yazi key={madde} tur="kucuk" renk="metinYumusak">
+              {'•  '}
+              {madde}
+            </Yazi>
+          ))}
         </Kart>
 
         <Dugme baslik={m.devamEt} onPress={() => router.push('/(giris)/kayit')} />

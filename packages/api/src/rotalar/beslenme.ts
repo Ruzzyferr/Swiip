@@ -157,9 +157,27 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
      * Hak tablosundan okunuyor, `hedef_kilidi`nden türetilmiyor: ikisi farklı haklar ve
      * bir gün ayrışabilirler.
      */
+    /**
+     * Ekranda kilitli GÖRÜNMESİ gereken her şey burada bildirilir.
+     *
+     * Yalnızca `ogun_plani` ve `kaydirmali_ogun` vardı. Sonucu, beslenme sekmesinde
+     * tek ekranda ÜÇ FARKLI davranıştı: bazı satırlar "Temel plandan" etiketiyle
+     * kilitli görünüyor, "Fotoğraftan ekle" ve "Barkod okut" düğmeleri hiçbir işaret
+     * taşımıyor, "Buzdolabım" ise açık görünürken sunucuda `ogun_plani` hakkıyla
+     * korunuyordu.
+     *
+     * `Dugme` bileşeninin kendi yorumu bu hatayı zaten adlandırmış: "kilitli olduğu
+     * görünmeyen bir düğme kullanıcıyı duvara çarptırıyordu." Düzeltme düğmeye
+     * yapılmış, bu iki çağrı yerine uğramamış.
+     *
+     * Bir dürüstlük sistemi ancak İSTİSNASIZ uygulandığında dürüst sayılır: tek
+     * satırda tutmadığı görülünce kullanıcı diğer etiketlere de güvenmez.
+     */
     const kilitler = {
       ogun_plani: !haklar.ogun_plani,
       kaydirmali_ogun: !haklar.kaydirmali_ogun,
+      barkod: !haklar.barkod,
+      yemek_tanima: haklar.yemek_tanima_aylik === 0,
     };
 
     if (!haklar.kalori_makro_hedefi) {

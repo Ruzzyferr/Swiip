@@ -34,7 +34,26 @@
 
 	handle {
 		root * /site
-		try_files {path} {path}/ /index.html
+
+		# Bilinmeyen yol ANA SAYFAYA düşmez.
+		#
+		# Burada `try_files {path} {path}/ /index.html` yazıyordu — tek sayfalık bir
+		# uygulama kalıbı. Ama `apps/site` bir SPA değil, üç statik sayfa. Sonucu şuydu:
+		# YANLIŞ YAZILMIŞ HER YOL 200 ile ana sayfayı döndürüyordu.
+		#
+		#   /gizlilik      -> 200, ana sayfa   (uzantı unutulmuş bir gizlilik bağlantısı)
+		#   /destek.html   -> 200, ana sayfa   (olmayan bir sayfaya verilmiş bağlantı)
+		#   /.env          -> 200, ana sayfa
+		#
+		# `apps/mobile/src/baglantilar.ts` bu tuzağı biliyor ve bağlantılara `.html`
+		# ekleyerek kaçınmaya çalışıyor — ama yukarıdaki ikinci satır gösteriyor ki
+		# `.html` de kurtarmıyor. Kırık bir gizlilik bağlantısı kırık GÖRÜNMÜYOR;
+		# pazarlama sayfası açılıyor ve kimse fark etmiyor. Mağaza incelemesinde
+		# gizlilik/destek bağlantısı tıklanan ilk şeylerden biri.
+		#
+		# `{path}.html` bilerek deneniyor: `/gizlilik` artık ana sayfayı değil
+		# `gizlilik.html`'i açıyor. Kalan her şey `handle_errors`a düşüyor.
+		try_files {path} {path}.html {path}/index.html
 		file_server
 
 		# Yazı tipleri ve işaret uzun süre önbelleklenebilir; HTML asla.
@@ -42,6 +61,13 @@
 		header @varlik Cache-Control "public, max-age=604800"
 		@html path / /index.html
 		header @html Cache-Control "no-cache"
+	}
+
+	# Bulunamayan sayfa GERÇEKTEN 404 döner ve bir sayfası vardır.
+	handle_errors {
+		root * /site
+		rewrite * /404.html
+		file_server
 	}
 
 	log {

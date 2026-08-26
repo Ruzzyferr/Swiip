@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Linking, Pressable, View } from 'react-native';
+import { Linking, Platform, Pressable, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
   Ayirac,
@@ -20,6 +20,14 @@ import { fiyatMetni, tarihMetni } from '@swiip/shared';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/odeme/magaza';
 import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '../../src/baglantilar';
+
+/**
+ * Aboneliğin yönetildiği mağazanın adı.
+ *
+ * Ürün adları çevrilmez; iki mağaza da her dilde kendi adıyla anılıyor. Bu yüzden
+ * sözlükte değil, burada duruyor — ve sözlüğe parametre olarak geçiyor.
+ */
+const MAGAZA_ADI = Platform.OS === 'ios' ? 'App Store' : 'Google Play';
 
 /**
  * Paywall — spec bölüm 13.
@@ -383,7 +391,7 @@ export default function Paywall() {
         <Kart>
           <Yazi tur="baslik3">{m.kosullarBasligi}</Yazi>
           <Yazi tur="kucuk" renk="metinYumusak">
-            {m.kosullarGovde}
+            {m.kosullarGovde(MAGAZA_ADI)}
           </Yazi>
           <BaglantiSatiri
             baslik={m.kullanimKosullari}

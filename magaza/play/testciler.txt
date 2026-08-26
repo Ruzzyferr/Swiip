@@ -1,0 +1,27 @@
+# Play kapalı testi — davetli testçiler.
+#
+# Bu liste Play Console'daki "Testers" e-posta listesiyle AYNI olmalı
+# (Kapalı test izi → Testers → Email lists → Testers).
+#
+# Google'ın saydığı şey bu listede olmak DEĞİL, kişinin opt-in bağlantısını
+# açıp teste katılması. Kaç kişinin katıldığını yalnızca Play Console söylüyor:
+#   Dashboard → "N testers currently opted-in"
+#
+# Davet göndermek için: node scripts/testci-daveti.mjs
+
+ab426319@gmail.com
+allachy60@gmail.com
+denemelerdeyiz14@gmail.com
+dilserar@gmail.com
+dr.nurettinbulut@gmail.com
+edanursarohan15@gmail.com
+edanursarohan@gmail.com
+edogukancelikel@outlook.com
+hatunbayram.00@gmail.com
+husneture58@gmail.com
+makson18gole@gmail.com
+mercanmercan7575@gmail.com
+ozlemture83@gmail.com
+quazimoto@gmail.com
+ruzgaremirofficial@gmail.com
+zerindemirdag@gmail.com

@@ -63,6 +63,17 @@ const c = (
   degerler?: Record<string, string | number>,
 ): UreticiSonucu => (degerler ? { anahtar, metin, degerler } : { anahtar, metin });
 
+/**
+ * Bakım kalorisi tahmininin belirsizlik payı ve yuvarlama adımı.
+ *
+ * %8: Mifflin-St Jeor'un bildirilen standart hatası (~%10) ile aktivite çarpanının
+ * kendi payı arasında, muhafazakâr ama abartısız bir orta yol. 25 kcal adımı ise
+ * aralığın kendisinin sahte bir kesinlik taşımasını engelliyor: `1817-2133` yazmak
+ * `1975` yazmak kadar yanıltıcı olurdu.
+ */
+const TDEE_BELIRSIZLIK = 0.08;
+const KALORI_YUVARLAMA = 25;
+
 type Uretici = (cevaplar: Cevaplar, edModu: boolean) => UreticiSonucu;
 
 const URETICILER: Record<string, Uretici> = {
@@ -93,10 +104,30 @@ const URETICILER: Record<string, Uretici> = {
     });
     const tdee = Math.round(bmr * aktiviteCarpani(cevaplar, sayi(cevaplar, 'A2') ?? 3));
 
+    /**
+     * Tahmin ARALIK olarak veriliyor, tek sayı olarak değil.
+     *
+     * Burada `yaklaşık 1975 kcal` yazıyordu. "Yaklaşık" kelimesi vardı ama gösterilen
+     * şey yuvarlanmamış dört haneli tek bir sayıydı ve olduğundan çok daha kesin
+     * okunuyordu. Oysa hem Mifflin-St Jeor'un standart hatası (~%10) hem de aktivite
+     * çarpanı birer tahmin; ikisinin çarpımı tek bir sayıyla ifade edilemez.
+     *
+     * Ürünün kilitli kuralı zaten bunu söylüyor: "Tahminler aralık olarak sunulur,
+     * tek sayı olarak asla." Vücut yağı tarafında uygulanmış (`vucut.ts` ·
+     * `yagOraniAralik`), bakım kalorisinde uygulanmamıştı.
+     *
+     * Pratik sonucu da var: kullanıcı bir sonraki kartta 1990 görürse tek sayı
+     * "tutarsızlık" gibi okunur — rakip analizinde en çok beğenilen negatif yorum
+     * tam olarak buydu. Aralık, aynı belirsizliği dürüstçe gösteriyor.
+     */
+    const pay = tdee * TDEE_BELIRSIZLIK;
+    const alt = Math.round((tdee - pay) / KALORI_YUVARLAMA) * KALORI_YUVARLAMA;
+    const ust = Math.round((tdee + pay) / KALORI_YUVARLAMA) * KALORI_YUVARLAMA;
+
     return c(
       'bakimKalorisi',
-      `Bakım kalorin yaklaşık ${tdee} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
-      { tdee },
+      `Bakım kalorin yaklaşık ${alt}-${ust} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
+      { alt, ust, tdee },
     );
   },
 

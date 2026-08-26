@@ -182,7 +182,7 @@ export const en: Metinler = {
       'Your basics are saved. We turned the numbers off for you; we will describe nutrition ' +
       'in portions.',
     bakimKalorisi: (d: Record<string, string | number>) =>
-      `Your maintenance is around ${d.tdee} kcal. That is the energy you take in daily to hold your weight.`,
+      `Your maintenance is around ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. That is the energy you take in daily to hold your weight.`,
     hedefEd: () =>
       'I noted your goal. We will track progress by how you feel and by your measurements, not by weight.',
     hedefKaydedildi: () => 'Your goal is saved. We will build the program around it.',
@@ -351,6 +351,7 @@ export const en: Metinler = {
     planlaraBak: 'See plans',
     dakikaKisa: (dakika: number) => `${dakika} MIN`,
     temelPlandan: 'From Basic',
+    proPlandan: 'From Pro',
     planAdlari: {
       ucretsiz: 'Free',
       temel: 'Basic',
@@ -417,8 +418,10 @@ export const en: Metinler = {
         },
       ],
       uyariBaslik: 'Two things we want you to know',
-      uyariGovde:
-        'Swiip is not a medical device and does not diagnose. Your answers to the health questions are what let us write a safe program — and they are used for nothing else.',
+      uyariMaddeler: [
+        'Swiip is not a medical device and does not diagnose.',
+        'Your answers to the health questions are what let us write a safe program — and they are used for nothing else.',
+      ],
       devamEt: 'Continue',
     },
 
@@ -437,6 +440,8 @@ export const en: Metinler = {
       olcumRizasiAciklama:
         'Optional. Without it, the body fat estimate comes out as a wider range.',
       gonder: 'Create account and start the assessment',
+      kullanimKosullari: 'Terms of use',
+      gizlilikPolitikasi: 'Privacy policy',
       yasNotu: 'Swiip is for ages 18 and over.',
     },
 
@@ -1571,8 +1576,8 @@ export const en: Metinler = {
     iptalGovde:
       '1. Open the Settings tab. 2. Press the "Cancel subscription" button at the top. That is all. No phone call, no email, no reason required.',
     kosullarBasligi: 'Subscription terms',
-    kosullarGovde:
-      'The subscription renews automatically at the end of the period you choose. Unless you cancel at least 24 hours before renewal, the same amount is charged again. You can also manage and cancel it from your App Store account.',
+    kosullarGovde: (magaza: string) =>
+      `The subscription renews automatically at the end of the period you choose. Unless you cancel at least 24 hours before renewal, the same amount is charged again. You can also manage and cancel it from your ${magaza} account.`,
     kullanimKosullari: 'Terms of use',
     gizlilikPolitikasi: 'Privacy policy',
     durusEtiketi: 'NO COUNTDOWN - NO FAKE SCARCITY - NO PRESELECTED PLAN',
@@ -1596,6 +1601,7 @@ export const en: Metinler = {
     baktigimVeri: 'DATA I LOOKED AT:',
     saglikYonlendirmesi: 'HEALTH QUESTION - REFERRED TO A DOCTOR',
     dusunuyor: 'Looking at your data',
+    kocKapali: 'Coach chat is open from the Temel plan onwards.',
     kalanMesaj: (kalan: number) => `${kalan} messages left this month`,
     girdiErisim: 'Message to the coach',
     gonder: 'Send',

@@ -466,6 +466,14 @@ interface DugmeProps {
    * düğme kullanıcıyı duvara çarptırıyordu.
    */
   kilitli?: boolean;
+  /**
+   * Kilidi hangi plan açıyor. Rozet metni bundan geliyor.
+   *
+   * Sabit "Temel plandan" basılıyordu; fotoğraftan yemek tanıma ise Pro özelliği.
+   * Pro özelliğine "Temel plandan" demek, kullanıcıya Temel'i aldığında alamayacağı
+   * bir şeyi vadetmekti.
+   */
+  kilitPlan?: 'temel' | 'pro';
 }
 
 export function Dugme({
@@ -477,9 +485,11 @@ export function Dugme({
   tamGenislik = true,
   erisimIpucu,
   kilitli = false,
+  kilitPlan = 'temel',
 }: DugmeProps) {
   const tema = useTema();
-  const kilitMetni = useMetinler().genel.temelPlandan;
+  const genel = useMetinler().genel;
+  const kilitMetni = kilitPlan === 'pro' ? genel.proPlandan : genel.temelPlandan;
 
   const zeminler: Record<string, string> = {
     birincil: tema.renk.aksan,

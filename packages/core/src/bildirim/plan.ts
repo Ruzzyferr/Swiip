@@ -238,3 +238,37 @@ function cakismalariAyir(plan: PlanliBildirim[]): PlanliBildirim[] {
 export function bildirimKimligi(bildirim: PlanliBildirim): string {
   return `${bildirim.tur}-${bildirim.haftaGunu}-${bildirim.saat}-${bildirim.dakika}`;
 }
+
+const DORT_HAFTA_SANIYE = 28 * 24 * 60 * 60;
+
+/**
+ * Dört haftada bir tekrar eden bildirimin ilk tetiklenmesine kalan saniye.
+ *
+ * Neden burada: adaptörde `haftalikOlanlar()` diye bir süzgeç vardı ve
+ * `dort_haftada_bir` olan her şeyi ELİYORDU. Gerekçesi "yaklaşık haftalık kurmaktansa
+ * hiç kurmayalım"dı; sonucu, ayarlardaki "Ölçüm hatırlatması" anahtarının **ölü bir
+ * düğme** olmasıydı. Kullanıcı açıyor, "kaydedildi" görüyor, bildirim hiç gelmiyordu.
+ *
+ * Hesap adaptörde değil çekirdekte: "ne zaman" bir ürün kararı, bir platform detayı
+ * değil — ve ancak burada saf ve sınanabilir kalıyor. Adaptör yalnızca kuruyor.
+ *
+ * Kural: ilk tetikleme, planın verdiği gün ve saate (Cumartesi 10:00) denk gelen ve
+ * bugünden en az dört hafta sonraki an. Böylece hem "ayda bir" sözü tutuluyor hem de
+ * hatırlatma sessiz saatin (22:00–07:00) dışında kalıyor — kullanıcı ayarı gecenin
+ * yarısında kaydetse bile.
+ */
+export function ilkTetiklemeyeSaniye(bildirim: PlanliBildirim, simdi: Date): number {
+  const hedef = new Date(simdi);
+  hedef.setHours(bildirim.saat, bildirim.dakika, 0, 0);
+
+  // Once hedef hafta gunune ilerle (bugunse ve saat gectiyse bir sonraki haftaya).
+  hedef.setDate(hedef.getDate() + ((bildirim.haftaGunu - hedef.getDay() + 7) % 7));
+  if (hedef.getTime() <= simdi.getTime()) hedef.setDate(hedef.getDate() + 7);
+
+  // Sonra dort haftalik soze uyana kadar yediser gun ekle.
+  while ((hedef.getTime() - simdi.getTime()) / 1000 < DORT_HAFTA_SANIYE) {
+    hedef.setDate(hedef.getDate() + 7);
+  }
+
+  return Math.round((hedef.getTime() - simdi.getTime()) / 1000);
+}

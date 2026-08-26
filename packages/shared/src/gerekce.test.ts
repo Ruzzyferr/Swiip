@@ -290,14 +290,20 @@ describe('raporMetinleri', () => {
 describe('blokGeriBildirimiMetni', () => {
   const iz = (uzat: Partial<BlokGeriBildirimiIzi> = {}): BlokGeriBildirimiIzi => ({
     anahtar: 'bakimKalorisi',
-    degerler: { tdee: 2450 },
+    // Bakım kalorisi artık ARALIK taşıyor: tahmin tek sayı olarak sunulmuyor.
+    degerler: { alt: 2250, ust: 2650, tdee: 2450 },
     metin: 'Motorun Türkçe metni.',
     ...uzat,
   });
 
   it('sayı taşıyan geri bildirim iki dilde de kuruluyor', () => {
-    expect(blokGeriBildirimiMetni(iz(), tr.blokGeriBildirimi)).toContain('2450');
-    expect(blokGeriBildirimiMetni(iz(), en.blokGeriBildirimi)).toContain('2450');
+    for (const sozluk of [tr.blokGeriBildirimi, en.blokGeriBildirimi]) {
+      const metin = blokGeriBildirimiMetni(iz(), sozluk);
+      expect(metin).toContain('2250');
+      expect(metin).toContain('2650');
+      // Tek sayı olarak sunulmuyor: kilitli sağlık kuralı.
+      expect(metin).toMatch(/2250\s*[-\u2013]\s*2650/);
+    }
   });
 
   it('İngilizce geri bildirimde Türkçe karakter kalmıyor', () => {

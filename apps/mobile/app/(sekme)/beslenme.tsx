@@ -35,7 +35,12 @@ interface HedefCevabi {
   /** Günlük hedef ücretli katman; ücretsiz planda kilitli gelir. */
   hedef_kilidi?: boolean;
   /** Hangi kısayolların ücretli katmanda olduğu; ekran bunu önceden söyler. */
-  kilitler?: { ogun_plani: boolean; kaydirmali_ogun: boolean };
+  kilitler?: {
+    ogun_plani: boolean;
+    kaydirmali_ogun: boolean;
+    barkod: boolean;
+    yemek_tanima: boolean;
+  };
   mesaj?: string;
   porsiyon_rehberi?: PorsiyonRehberi;
 }
@@ -291,9 +296,20 @@ export default function Beslenme() {
 
         <Satir arasi="sm">
           <View style={{ flex: 1 }}>
+            {/*
+              Kilit ROZETİ burada da var — istisnasız.
+
+              Bu iki düğme hiçbir işaret taşımıyordu: ücretsiz kullanıcı basıyor ve
+              bir sonraki ekranda duvara çarpıyordu. Aynı ekranın hemen altındaki
+              planlama satırları ise "Temel plandan" diye kilitli görünüyordu. Bir
+              dürüstlük sistemi tek satırda tutmadığında geri kalanı da inandırıcı
+              olmuyor.
+            */}
             <Dugme
               baslik={m.fotograftanEkle}
               tur="ikincil"
+              kilitli={hedef?.kilitler?.yemek_tanima}
+              kilitPlan="pro"
               onPress={() => router.push('/beslenme/tanima')}
             />
           </View>
@@ -301,6 +317,7 @@ export default function Beslenme() {
             <Dugme
               baslik={m.barkodOkut}
               tur="ikincil"
+              kilitli={hedef?.kilitler?.barkod}
               onPress={() => router.push('/beslenme/barkod')}
             />
           </View>
@@ -335,7 +352,15 @@ export default function Beslenme() {
               kilitli={hedef?.kilitler?.ogun_plani}
               onPress={() => router.push('/ogun/alisveris')}
             />
-            <BaglantiSatiri baslik={m.buzdolabim} onPress={() => router.push('/ogun/dolap')} />
+            {/*
+              Buzdolabı da `ogun_plani` hakkıyla korunuyor (`ogun.ts` → `ozellikKontrol`),
+              ama satır açık görünüyordu. Sunucu kapıyı tutuyordu, ekran söylemiyordu.
+            */}
+            <BaglantiSatiri
+              baslik={m.buzdolabim}
+              kilitli={hedef?.kilitler?.ogun_plani}
+              onPress={() => router.push('/ogun/dolap')}
+            />
           </View>
         </View>
 

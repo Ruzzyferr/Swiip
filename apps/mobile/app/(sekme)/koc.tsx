@@ -58,6 +58,8 @@ export default function Koc() {
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [kilit, setKilit] = useState<string | null>(null);
   const [kalan, setKalan] = useState<number | null>(null);
+  /** Planın toplam hakkı. 0 ise koç bu planda HİÇ açık değil. */
+  const [toplamHak, setToplamHak] = useState<number | null>(null);
 
   const yukle = useCallback(async () => {
     try {
@@ -75,11 +77,13 @@ export default function Koc() {
      * yeri, ölçüm başlamadan önce.
      */
     try {
-      const durum = await istek<{ kota?: { koc_sohbeti?: { kalan?: number } } }>(
-        '/v1/abonelik/durum',
-      );
+      const durum = await istek<{
+        kota?: { koc_sohbeti?: { kalan?: number; toplam?: number } };
+      }>('/v1/abonelik/durum');
       const hak = durum.kota?.koc_sohbeti?.kalan;
       if (typeof hak === 'number') setKalan(hak);
+      const toplam = durum.kota?.koc_sohbeti?.toplam;
+      if (typeof toplam === 'number') setToplamHak(toplam);
     } catch {
       // Kota okunamazsa sayacı hiç göstermiyoruz; yanlış sayı göstermekten iyidir.
     }
@@ -90,6 +94,17 @@ export default function Koc() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+
+  /**
+   * Koç şu an kullanılabilir mi?
+   *
+   * Kota 0 iken ekran hiçbir şey değiştirmiyordu: üç örnek soru teal renkte
+   * (uygulamanın eylem rengi) tıklanabilir duruyor, metin kutusu yazılabiliyor ve
+   * "Gönder" basılabiliyordu. Kullanıcı yazıyor, basıyor ve 402 duvarına çarpıyordu.
+   *
+   * Çalışmayan bir metin kutusu, olmayan bir metin kutusundan kötüdür.
+   */
+  const kocAcik = kalan === null || kalan > 0;
 
   const gonder = async () => {
     const metin = girdi.trim();
@@ -175,11 +190,18 @@ export default function Koc() {
               {m.ornekSorular.map((ornek: string) => (
                 <Pressable
                   key={ornek}
-                  onPress={() => setGirdi(ornek)}
-                  accessibilityRole="button"
+                  onPress={kocAcik ? () => setGirdi(ornek) : undefined}
+                  disabled={!kocAcik}
+                  accessibilityRole={kocAcik ? 'button' : undefined}
+                  accessibilityState={{ disabled: !kocAcik }}
                   style={{ minHeight: tema.dokunmaHedefi, justifyContent: 'center' }}
                 >
-                  <Yazi tur="kucuk" renk="aksan">
+                  {/*
+                    Kota yokken örnek sorular EYLEM RENGİNDE durmuyor.
+                    Teal bu üründe "buraya bas" demek; basılınca hiçbir şey olmayan
+                    bir davet, hayal kırıklığını kendisi üretiyordu.
+                  */}
+                  <Yazi tur="kucuk" renk={kocAcik ? 'aksan' : 'metinSilik'}>
                     {ornek}
                   </Yazi>
                 </Pressable>
@@ -249,7 +271,7 @@ export default function Koc() {
       >
         {kalan !== null ? (
           <Yazi tur="etiket" renk="metinSilik">
-            {m.kalanMesaj(kalan)}
+            {kalan > 0 ? m.kalanMesaj(kalan) : toplamHak === 0 ? m.kocKapali : m.kotaBitti}
           </Yazi>
         ) : null}
         <Satir arasi="sm">
@@ -279,7 +301,7 @@ export default function Koc() {
             baslik={m.gonder}
             onPress={() => void gonder()}
             tamGenislik={false}
-            pasif={girdi.trim() === ''}
+            pasif={girdi.trim() === '' || !kocAcik}
             yukleniyor={gonderiliyor}
           />
         </Satir>

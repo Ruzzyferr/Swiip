@@ -38,6 +38,27 @@ export const URUNLER: UrunTanimi[] = [
   { kod: 'pro', donem: 'yillik', urun_id: 'swiip_pro_yillik' },
 ];
 
+/**
+ * Mağazadan gelen ürün kimliğini bizim kimliğimize indirger.
+ *
+ * App Store kimliği olduğu gibi veriyor (`swiip_pro_aylik`); Google Play ise **taban
+ * plan kimliğini iki nokta üst üste ile ekliyor** (`swiip_pro_aylik:aylik`). Sunucu
+ * tarafı bunu zaten biliyordu — `abonelik.ts` içindeki `urunPlani()` kancada son eki
+ * kırpıyor. İstemcide kırpılmıyordu ve sonucu şuydu:
+ *
+ *   fiyatlariGetir() -> { 'swiip_pro_aylik:aylik': '₺169,99' }
+ *   paywall arıyor   ->   'swiip_pro_aylik'                     → İSABET YOK
+ *
+ * Yani Android'de mağazanın yerelleştirilmiş fiyatı ekrana HİÇ gelmiyor, her zaman
+ * sunucudaki TRY liste fiyatına düşülüyordu. Mağaza başka para biriminde tahsil
+ * ederken ekranda ₺ yazması yalnızca çeviri hatası değil, yanlış fiyat beyanıdır —
+ * `fiyat.test.ts` tam bunu önlemek için yazılmıştı ama yalnızca `magaza.fiyatlar()`
+ * çağrılıyor mu diye bakıyordu, sonucunun kullanılıp kullanılmadığına değil.
+ */
+export function urunKimliginiSadelestir(magazaKimligi: string): string {
+  return magazaKimligi.split(':')[0] ?? magazaKimligi;
+}
+
 export interface SatinAlmaSonucu {
   durum: 'basarili' | 'iptal' | 'hata' | 'sdk_yok';
   mesaj?: string;
@@ -92,7 +113,9 @@ const revenueCatSaglayicisi: MagazaSaglayicisi = {
 
   async fiyatlariGetir() {
     const urunler = await Purchases.getProducts(URUNLER.map((u) => u.urun_id));
-    return Object.fromEntries(urunler.map((u) => [u.identifier, u.priceString]));
+    return Object.fromEntries(
+      urunler.map((u) => [urunKimliginiSadelestir(u.identifier), u.priceString]),
+    );
   },
 
   async satinAl(urunId) {

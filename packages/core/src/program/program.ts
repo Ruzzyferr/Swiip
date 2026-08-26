@@ -458,7 +458,15 @@ function havuzKararlari(havuz: HavuzSonucu): Karar[] {
     tavan_alcak: 'Tavan yüksekliğin yeterli olmadığı için baş üstü hareketleri çıkardım.',
     gurultu_kisiti: 'Gürültü kısıtın nedeniyle ağırlık bırakılan hareketleri çıkardım.',
     zipla_yasak: 'Zıplama kısıtın nedeniyle pliometrik hareketleri çıkardım.',
-    spotter_yok: 'Yardımcın olmadığı için tek başına riskli hareketleri çıkardım.',
+    /**
+     * Cümle kullanıcının SÖYLEDİĞİ bir şeye dayanmalı.
+     *
+     * "Yardımcın olmadığı için" yazıyordu ve E8 sekiz kartta sorulmadığı için bu,
+     * kullanıcının hiç yapmadığı bir beyanı ona atfediyordu — "gerekçesi görünür
+     * program" vaadinin tam tersi. Kısıt artık ya E8 beyanından ya da E1'den
+     * ("Ev" / "Açık hava") geliyor; iki durumda da doğru olan cümle bu.
+     */
+    spotter_yok: 'Tek başına çalıştığın için bar altında sıkışma riski olan hareketleri çıkardım.',
     teknik_guven_dusuk:
       'Teknik güvenin oturana kadar karmaşık serbest ağırlık hareketlerini çıkardım.',
     kullanici_reddetti: 'Yapmak istemediğini söylediğin hareketleri çıkardım.',
