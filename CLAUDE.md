@@ -147,7 +147,12 @@ pratikte Arial'a düşüyordu. `scripts/marka-uret.mjs` harfleri tek tek yerleş
 > birleşmiyordu ve dişli çark okunuyordu; ikincisi doğru bir S ama çentikler hâlâ
 > "taksimat" değil "yırtık kenar" gibi duruyor. Tasarımcı eli değmeden mağazaya gitmesin.
 
-Renk: mürekkep `#131614`, aksan çam yeşili `#14615A`, zemin `#F6F7F5`.
+Renk: mürekkep `#131614`, aksan çam yeşili `#14615A`, zemin `#ECEEED`.
+Zemin bir ton soğutuldu (`#F6F7F5` → `#ECEEED`, gerekçesi `tokens.ts`'te):
+eski değer kâğıdımsıydı, ölçü aleti gövdesi kâğıt değil metaldir.
+**Yan etkisi ölçüldü:** soğuk zemin, beyaz kart kenarının kontrastını iki
+katına çıkarıyor (ΔL* 2,9 → 6,1). Aşağıdaki "beyaz kartlar ekranı bölüyor"
+itirazının muhtemel kök nedeni bu — kutuları sökmeden önce düşünülmeli.
 **Neon veya turuncu kullanma** — kategorinin tamamı orada.
 
 Tipografi: başlıklarda grotesk, sayısal veride tabular rakamlı monospace.
@@ -180,12 +185,10 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
      dolu nesne olduğunda kutu içinde içerik olmaktan çıkıp sayfanın çapası oluyor;
      yani fotoğraf itirazı aslında çözümün kendisi. Görselsiz hareketler aynı 1:1
      karoyu düz renkle alıyor, böylece listenin ritmi bozulmuyor. Karar hâlâ senin.
-  1b. **`₺` işareti sayısal fontta YOK.** Ölçüldü: `JetBrainsMono_500Medium`
-     cmap'inde U+20BA yok, `Inter` içinde var. Yani her fiyat, para biriminde sistem
-     serif yedeğine düşüyor — paywall'da rakamla çakışıyor ve "Ł99" gibi okunuyor.
-     Türkiye önce bir üründe ödeme ekranının en büyük puntosu bu. İki yol: sembolü
-     başlık fontunda ayrı basmak, ya da sayısal fontu ₺ içeren birine çevirmek
-     (IBM Plex Mono, Roboto Mono).
+  1b. ~~`₺` işareti sayısal fontta yok~~ — **ÇÖZÜLDÜ.** `tasarim/para.ts` para
+     dizesini rakam ve sembol parçalarına bölüyor: rakamlar monospace, sembol
+     arayüz fontunda basılıyor. `para.test.ts` fontun cmap'ini her koşuda yeniden
+     ölçüyor. Cihazda doğrulandı (2026-08-26): paywall'da `₺169` düzgün çiziliyor.
   2. 23 hareket görselsiz. Kaynak (free-exercise-db, kamu malı) bunları içermiyor —
      çoğu mobilite ve ısınma. `data/medya-eslemeleri.json` içinde `null` olarak
      kayıtlı: "bakıldı, bilinçli olarak boş". Yanlış görsel görselsizden kötüdür.
@@ -194,6 +197,49 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   ölçüm okuduğu yerde kullanılır. Şu an iki yerde: değerlendirme cetveli ve yağ oranı
   skalası. Navigasyonda, kart kenarında, düz metin altında çentik yok. Ekran başına tek
   ölçek: ikincisi konduğunda arayüz kumpas değil, bozuk bir ses mikseri gibi görünür.
+
+- **Play kapalı testi: 14 günlük sayaç HENÜZ BAŞLAMADI (2026-08-26).**
+  Konsolun kendi satırı: *"Have at least 12 testers opted-in to your closed test —
+  **1 tester currently opted-in**"*. İz sekmesindeki e-posta listesi "Testers" 16 kişi
+  içeriyor ama Google'ın saydığı şey davet değil **katılım**: 16 davetliden yalnızca
+  1'i opt-in bağlantısını açıp teste girmiş. Yükleme tabanı da bunu doğruluyor (1 kişi).
+
+  Yani "12 kişi × 14 gün" şartının sayacı hiç çalışmaya başlamadı. Liste eklemek
+  katılım değil — aynı sınıf: yedek görevi, `eas submit` taslak sürümü.
+  **Yapılacak:** kapalı test izindeki "Join on the web / Join on Android" bağlantısını
+  16 testçiye gönder, her birinin KABUL ettiğini dashboard'dan say. Sayanç 12'ye
+  ulaşınca başlar; üretime başvuru ondan 14 gün sonra.
+
+- **Play ön-yayın raporu HİÇ üretilmemiş.** 5 paket yüklendi (vc 6-10), rapor yok.
+  Ayarlarda "Provide test account credentials" zorunlu alanı "Don't provide"ta duruyor
+  ve uygulamanın tamamı giriş ekranının arkasında — kimlik verilmeden Google'ın
+  tarayıcısı yalnızca giriş ekranını görür. `inceleme-ucretsiz@swiip.app` hesabı
+  Apple için zaten kuruldu; aynısı buraya da girilebilir. "Uygulama çökmez" vaadini
+  bedavaya sınayan tek otomatik araç ve kapalı duruyor.
+
+- **Apple: "Regulated Medical Device" beyanı yapılmamış.** App Information → App Store
+  Regulations & Permits altında düğme hâlâ "Declare Regulated Medical Device" diyor.
+  Apple'ın metni: Health &amp; Fitness kategorisindeki uygulama, **belirli bölgelerde
+  dağıtıma devam edebilmek için** tıbbi cihaz olup olmadığını beyan etmek zorunda.
+  Cevap kolay (inceleme notları zaten "not a medical device" diyor) ama beyan şart.
+
+- **Apple yaş derecelendirmesi 9+ ama uygulama 18 yaş altını REDDEDİYOR.**
+  9+ (172 ülke) · 12+ Vietnam · 10+ Brezilya · iOS 26 öncesinde **4+**.
+  `K7` sert kapısı 18 yaş altını kayıttan çeviriyor ve inceleme notu "Audience:
+  adults 18+" diyor. Karar elle verilmeli: **sürüm şu an WAITING_FOR_REVIEW,
+  yaş derecelendirmesini düzenlemek sürümü incelemeden çıkarabilir.**
+
+- **Pub/Sub: Conversa, SWIIP'in RTDN konusunu kullanıyor.**
+  `projects/swiip-revenuecat/topics/Play-Store-Notifications` konusuna iki push
+  aboneliği bağlı: `...-app0ee7872a7b` (Swiip Android, doğru) ve `...-app4d2c3ef35f`
+  (**Conversa (Play Store)**, `com.conversa.app`). Sebep: Conversa'nın Play
+  Console'undaki konu adı da aynı konuyu gösteriyor. Sonuç çift yönlü — Swiip'in
+  satın alma/iptal/iade olayları Conversa'nın RevenueCat projesine, Conversa'nınkiler
+  Swiip'inkine düşüyor. RevenueCat paket adına göre elediği için yanlış hak
+  açılması beklenmiyor, ama iki ürünün ödeme olayları birbirinin projesine akıyor.
+  (Cheep doğru yapmış: kendi konusu `cheep-play-rtdn`.)
+  **Sıra önemli:** önce Conversa kendi konusuna taşınsın, sonra
+  `RevenueCat-Subscriber-app4d2c3ef35f` bu konudan silinsin.
 
 - TürKomp kullanım koşulları yazılı teyit edilecek
 - **AI geçidi ÇALIŞIYOR (2026-08-25).** Eski not "anahtar şu an çalışmıyor" diyordu;
@@ -212,10 +258,11 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   2. Bu makineye çekme: `scripts/yedek-indir.mjs`, Windows görev zamanlayıcıda
      **Swiip-yedek-indir** adıyla her gün 09:30. Hedef `~/Swiip-yedekler`.
 
-     **2026-08-25'te bu katmanın ölü olduğu bulundu.** Görevin çalışma dizini
-     `C:\dev\Made2Fit` yazıyordu — projenin taşınmadan önceki adı. O klasörde
-     yalnızca `infra` kalmış, betik yok; görev her sabah `LastTaskResult = 1` ile
-     düşüyordu. Yereldeki kopyalar otomatik değil, elle indirilmişti.
+     2026-08-25'te bu katmanın ölü olduğu bulundu (görevin çalışma dizini
+     `C:\dev\Made2Fit` — taşınmadan önceki ad — gösteriyordu ve her sabah
+     `LastTaskResult = 1` ile düşüyordu). **Düzeltildi ve doğrulandı (2026-08-26):**
+     çalışma dizini artık `C:\dev\Swiip`, `LastRunTime` 26.08 09:39,
+     `LastTaskResult` **0**, yerelde 22-26 Ağustos dump'ları sırasıyla duruyor.
 
      Kusur "uçtan uca doğrulandı" denmiş olmasına rağmen durdu, çünkü doğrulama
      **betiği** çalıştırmıştı, **görevi** değil. Betik her zaman çalışıyordu.
