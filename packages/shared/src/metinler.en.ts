@@ -182,7 +182,7 @@ export const en: Metinler = {
       'Your basics are saved. We turned the numbers off for you; we will describe nutrition ' +
       'in portions.',
     bakimKalorisi: (d: Record<string, string | number>) =>
-      `Your maintenance is around ${d.alt}-${d.ust} kcal. That is the energy you take in daily to hold your weight.`,
+      `Your maintenance is around ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. That is the energy you take in daily to hold your weight.`,
     hedefEd: () =>
       'I noted your goal. We will track progress by how you feel and by your measurements, not by weight.',
     hedefKaydedildi: () => 'Your goal is saved. We will build the program around it.',

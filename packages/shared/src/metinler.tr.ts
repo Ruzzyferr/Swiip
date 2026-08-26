@@ -179,8 +179,19 @@ export const tr = {
     kimlikEd: () =>
       'Temel bilgilerin kaydedildi. Senin için sayıları kapattık; beslenmeyi porsiyon diliyle ' +
       'anlatacağız.',
+    /**
+     * Aralık yoksa tek sayıya düşülüyor — "undefined-undefined" yazmaktansa.
+     *
+     * Dağıtım sırası tehlikesi: sunucu `degerler`i `{alt, ust, tdee}` olarak
+     * gönderiyor ama YENİ istemci ESKİ sunucuya bağlanırsa yalnızca `tdee` gelir.
+     * Bu satır olmadan kullanıcı değerlendirmenin ilk kartının sonunda
+     * "Bakım kalorin yaklaşık undefined-undefined kcal" görürdü.
+     *
+     * Mağazadaki sürüm ile sunucu her zaman aynı anda güncellenmiyor; sıraya
+     * bağımlı bir metin, sıra bir kez şaşınca sessizce bozulur.
+     */
     bakimKalorisi: (d: Record<string, string | number>) =>
-      `Bakım kalorin yaklaşık ${d.alt}-${d.ust} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
+      `Bakım kalorin yaklaşık ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
     hedefEd: () =>
       'Hedefini not ettim. İlerlemeyi kilo yerine nasıl hissettiğin ve ölçülerinle takip edeceğiz.',
     hedefKaydedildi: () => 'Hedefin kaydedildi. Programı buna göre kuracağız.',

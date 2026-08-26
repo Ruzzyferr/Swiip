@@ -81,3 +81,30 @@ describe('bakım kalorisi tahmini', () => {
     expect(geri?.metin ?? '', 'ED modunda kalori sızdı').not.toMatch(/\d{3,}/);
   });
 });
+
+/**
+ * Dağıtım sırası tehlikesi.
+ *
+ * Sunucu ile mağazadaki sürüm her zaman aynı anda güncellenmiyor. Yeni istemci eski
+ * sunucuya bağlandığında `degerler` yalnızca `tdee` taşır; metin bunu karşılamazsa
+ * kullanıcı "Bakım kalorin yaklaşık undefined-undefined kcal" görür.
+ *
+ * Sıraya bağımlı bir metin, sıra bir kez şaşınca sessizce bozulur.
+ */
+describe('eski sunucuya karşı dayanıklılık', () => {
+  it('aralık gelmezse tek sayıya düşer, "undefined" yazmaz', async () => {
+    const { tr, en } = await import('@swiip/shared');
+
+    for (const sozluk of [tr.blokGeriBildirimi, en.blokGeriBildirimi]) {
+      const metin = sozluk.bakimKalorisi({ tdee: 1975 });
+      expect(metin).toContain('1975');
+      expect(metin, `undefined sızdı: ${metin}`).not.toContain('undefined');
+    }
+  });
+
+  it('aralık geldiğinde aralığı yazar', async () => {
+    const { tr } = await import('@swiip/shared');
+    const metin = tr.blokGeriBildirimi.bakimKalorisi({ alt: 1825, ust: 2125, tdee: 1975 });
+    expect(metin).toContain('1825-2125');
+  });
+});
