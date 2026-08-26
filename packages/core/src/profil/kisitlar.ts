@@ -218,7 +218,7 @@ export function kisitlariDerle(cevaplar: Cevaplar): Kisitlar {
     bas_ustu_yasak: basUstuYasak,
     zipla_yasak: ziplaYasak,
     gurultu_yasak: gurultuYasak,
-    spotter_yok: (metin(cevaplar, 'E8') ?? 'Hayır') === 'Hayır',
+    spotter_yok: spotterYok(cevaplar),
     kalabalik_salon: kalabalik,
     teknik_guveni: teknikGuveni(cevaplar),
     eksenel_yuk_yasak: bayraklar.eksenel_yuk_yasak,
@@ -228,6 +228,38 @@ export function kisitlariDerle(cevaplar: Cevaplar): Kisitlar {
   if (dumbbellMax !== undefined) kisitlar.dumbbell_max_kg = dumbbellMax;
 
   return kisitlar;
+}
+
+/**
+ * Yardımcı (spotter) var mı?
+ *
+ * Burada `(metin(cevaplar,'E8') ?? 'Hayır') === 'Hayır'` yazıyordu ve bu, A8 tuzağının
+ * birebir aynısıydı: **E8 sekiz kartta sorulmuyor** — keskinleştirme sorusu. Cevapsız
+ * kaldığında `?? 'Hayır'` onu "partnerim yok" BEYANINA çeviriyordu ve `spotter: true`
+ * olan beş hareket havuzdan siliniyordu:
+ *
+ *   barbell-bench-press · barbell-squat · barbell-omuz-presi
+ *   egimli-barbell-press · nordic-curl
+ *
+ * Sonucu ölçüldü: normal akıştan geçen HİÇBİR kullanıcı barbell bench press, barbell
+ * squat veya barbell omuz presi alamıyordu. Beş yıllık, tam donanımlı salonda çalışan
+ * bir kullanıcının göğüs hareketi **dizden şınav** çıkıyordu. A8 tam cevaplansa bile
+ * geri gelmiyorlardı: onları eleyen teknik tavanı değil, bu satırdı.
+ *
+ * Artık cevapsızlık bir beyan sayılmıyor; cevaplanmış bir sorudan (E1) türetiliyor:
+ *  - Salon ve karma: çevrede insan var, rack'te emniyet barı var → yardımcı var sayılır.
+ *  - Ev ve açık hava: tek başına bar altına girmek gerçek risk → yardımcı yok sayılır.
+ *
+ * "Sağlıkta muhafazakâr ol" korunuyor — riskin gerçekten bulunduğu yerde. Evde rack ve
+ * bench beyan etmeyen kullanıcıda bu hareketler zaten `ekipman_yok` ile eleniyor.
+ * E8 keskinleştirme sorusu olarak duruyor ve açık cevap her iki yönde de son sözü söylüyor.
+ */
+function spotterYok(cevaplar: Cevaplar): boolean {
+  const beyan = metin(cevaplar, 'E8');
+  if (beyan !== undefined) return beyan === 'Hayır';
+
+  const yer = metin(cevaplar, 'E1');
+  return yer === 'Ev' || yer === 'Açık hava';
 }
 
 function ekipmaniDerle(cevaplar: Cevaplar): Ekipman[] {
