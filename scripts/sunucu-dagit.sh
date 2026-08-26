@@ -31,10 +31,28 @@ SURUM="$(git rev-parse HEAD)"
 KISA="$(git rev-parse --short HEAD)"
 PAKET="$(mktemp -d)/swiip.tar.gz"
 
-# Sunucuda bulunan üst düzey girdilerin aynısı. `apps/` gönderilmiyor: mobil uygulama
-# sunucuda derlenmiyor. `yedekler/` sunucunun kendi ürettiği klasör, dokunulmuyor.
+# `apps/site` GONDERILIYOR — Caddy marka sitesini oradan sunuyor.
+#
+# Burada yalnizca `infra magaza packages scripts` vardi ve yorumu "apps/ gonderilmiyor:
+# mobil uygulama sunucuda derlenmiyor" diyordu. Dogru ama eksik: `docker-compose.yml`
+# Caddy'ye `../apps/site:/site:ro` bagliyor, yani site sunucudaki o klasorden servis
+# ediliyor. Sonuc: site dosyalari HICBIR dagitimda guncellenmiyordu.
+#
+# 2026-08-26'da olculdu — sunucudaki kopya ilk kurulumdan (21 Agustos) kalmisti ve
+# dort dosyadan ucunun md5'i depodakinden farkliydi:
+#
+#   index.html        c94507a3880f  (depoda f83ed83b239d)
+#   gizlilik.html     c779f036bd37  (depoda 5f02f37c21d3)
+#   hesap-silme.html  e98099376df6  (depoda 5da250fa3f67)
+#
+# Yani canlidaki gizlilik politikasi ve hesap silme sayfasi depodakiyle ayni degildi —
+# ve bu ikisi magaza incelemesinde tiklanan baglantilar. Kusur sessizdi: dagitim
+# "basarili" yaziyor, saglik ucu 200 donuyor, site aciliyor; yalnizca icerigi eski.
+#
+# `apps/mobile` hala gonderilmiyor: sunucuda derlenmiyor ve bosuna yer kaplar.
+# `yedekler/` sunucunun kendi urettigi klasor, dokunulmuyor.
 git archive --format=tar.gz -o "$PAKET" HEAD \
-  infra magaza packages scripts \
+  infra magaza packages scripts apps/site \
   package.json package-lock.json tsconfig.base.json tsconfig.json vitest.config.ts
 
 echo "  paket: $(du -h "$PAKET" | cut -f1) · sürüm $KISA"

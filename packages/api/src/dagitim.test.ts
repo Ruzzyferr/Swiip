@@ -127,3 +127,74 @@ describe('dağıtım: göçler imaja giriyor ve uygulanıyor', () => {
     expect(apiBlogu).toContain('service_completed_successfully');
   });
 });
+
+/**
+ * Compose'un bağladığı her yol dağıtım paketinde OLMALI.
+ *
+ * `git archive` yalnızca `infra magaza packages scripts` gönderiyordu ve yorumu
+ * "apps/ gönderilmiyor: mobil uygulama sunucuda derlenmiyor" diyordu. Doğru ama
+ * eksik: aynı depodaki `docker-compose.yml` Caddy'ye `../apps/site:/site:ro`
+ * bağlıyor, yani marka sitesi sunucudaki o klasörden servis ediliyor.
+ *
+ * Sonuç: site dosyaları HİÇBİR dağıtımda güncellenmiyordu. 2026-08-26'da ölçüldü —
+ * sunucudaki kopya ilk kurulumdan (21 Ağustos) kalmıştı ve dört dosyadan üçünün
+ * md5'i depodakinden farklıydı. Canlıdaki gizlilik politikası ve hesap silme
+ * sayfası depodakiyle aynı değildi; ikisi de mağaza incelemesinde tıklanan
+ * bağlantılar.
+ *
+ * Kusur sessizdi: dağıtım "başarılı" yazıyor, sağlık ucu 200 dönüyor, site
+ * açılıyor — yalnızca içeriği eski. Hiçbir şey uyarmıyor.
+ */
+describe('dağıtım: sunucunun okuduğu her klasör pakete giriyor', () => {
+  const dagitim = readFileSync(resolve(kok, 'scripts/sunucu-dagit.sh'), 'utf8');
+  const compose = readFileSync(resolve(kok, 'infra/docker-compose.yml'), 'utf8');
+
+  /** `git archive` satırında sayılan yollar. */
+  const paketYollari = (() => {
+    const satirlar = dagitim.split('\n');
+    const bas = satirlar.findIndex((s) => s.startsWith('git archive'));
+    if (bas < 0) return [];
+
+    const parcalar: string[] = [];
+    for (let i = bas; i < satirlar.length; i++) {
+      const s = satirlar[i]!;
+      parcalar.push(s.replace(/\\$/, ''));
+      if (!s.trimEnd().endsWith('\\')) break;
+    }
+    return parcalar
+      .join(' ')
+      .split(/\s+/)
+      .filter(
+        (p) => p && !p.startsWith('-') && !p.startsWith('$') && p !== 'git' && p !== 'archive',
+      );
+  })();
+
+  /** Compose'un ana makineden bağladığı `../<yol>` girdileri. */
+  const baglananYollar = [...compose.matchAll(/^\s*-\s*\.\.\/([\w./-]+):/gm)].map((m) => m[1]!);
+
+  it('git archive satırı okunabiliyor', () => {
+    expect(paketYollari.length, 'git archive yolları ayrıştırılamadı').toBeGreaterThan(3);
+  });
+
+  it('compose ana makineden klasör bağlıyor', () => {
+    expect(baglananYollar.length, 'bağlanan yol bulunamadı').toBeGreaterThan(0);
+  });
+
+  it.each(['apps/site'])('%s dağıtım paketinde', (yol) => {
+    expect(
+      paketYollari.some((p) => p === yol || yol.startsWith(`${p}/`)),
+      `${yol} compose tarafından bağlanıyor ama git archive göndermiyor — ` +
+        'sunucudaki kopya ilk kurulumdan kalır ve sessizce eskir.',
+    ).toBe(true);
+  });
+
+  it('compose bağladığı halde pakete girmeyen klasör yok', () => {
+    // `yedekler` ve `scripts` sunucunun kendi ürettiği ya da zaten gönderilen yollar.
+    const muaf = ['yedekler'];
+    const eksik = baglananYollar
+      .filter((y) => !muaf.some((m) => y.startsWith(m)))
+      .filter((y) => !paketYollari.some((p) => y === p || y.startsWith(`${p}/`)));
+
+    expect(eksik, `compose bağlıyor ama dağıtım göndermiyor: ${eksik.join(', ')}`).toEqual([]);
+  });
+});
