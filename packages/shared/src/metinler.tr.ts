@@ -180,7 +180,7 @@ export const tr = {
       'Temel bilgilerin kaydedildi. Senin için sayıları kapattık; beslenmeyi porsiyon diliyle ' +
       'anlatacağız.',
     bakimKalorisi: (d: Record<string, string | number>) =>
-      `Bakım kalorin yaklaşık ${d.tdee} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
+      `Bakım kalorin yaklaşık ${d.alt}-${d.ust} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
     hedefEd: () =>
       'Hedefini not ettim. İlerlemeyi kilo yerine nasıl hissettiğin ve ölçülerinle takip edeceğiz.',
     hedefKaydedildi: () => 'Hedefin kaydedildi. Programı buna göre kuracağız.',
@@ -350,6 +350,14 @@ export const tr = {
     // Kilitli kısayolun altında; baskı değil, dokunmadan önce bilgi.
     temelPlandan: 'Temel plandan',
     /**
+     * Fotoğraftan yemek tanıma yalnızca **Pro**'da açık.
+     *
+     * Kilit rozeti her yerde sabit "Temel plandan" basıyordu. Pro özelliğine
+     * "Temel plandan" demek yanlış bir söz: kullanıcı Temel'i satın alır ve
+     * özelliği yine alamaz. Yanlış fiyat beyanıyla aynı sınıfta.
+     */
+    proPlandan: 'Pro plandan',
+    /**
      * Plan adları sözlükte, sunucuda değil.
      *
      * Hak tablosundaki `ad` alanı Türkçe bir görünen ad ve API cevabında gidiyordu:
@@ -433,8 +441,18 @@ export const tr = {
         },
       ],
       uyariBaslik: 'Bilmeni istediğimiz iki şey',
-      uyariGovde:
-        'Swiip tıbbi cihaz değildir ve teşhis koymaz. Sağlık sorularına verdiğin cevaplar, sana güvenli bir program yazabilmemiz için gerekli — ve yalnızca bunun için kullanılır.',
+      /**
+       * Başlık "iki şey" diyor; ekranda TEK paragraf vardı.
+       *
+       * İçerik aslında iki iddia taşıyordu ama tek blok hâlinde yazıldığı için başlık
+       * tutmayan bir söz gibi okunuyordu — ve bu, açılışta okunan ilk üç ekrandan
+       * biri. "Gerekçesi görünür" diyen bir üründe sayı tutmayan bir başlık ucuz bir
+       * hata. Metin aynı, sunum ikiye ayrıldı.
+       */
+      uyariMaddeler: [
+        'Swiip tıbbi cihaz değildir ve teşhis koymaz.',
+        'Sağlık sorularına verdiğin cevaplar, sana güvenli bir program yazabilmemiz için gerekli — ve yalnızca bunun için kullanılır.',
+      ],
       devamEt: 'Devam et',
     },
 
@@ -452,6 +470,8 @@ export const tr = {
       olcumRizasi: 'Çevre ölçülerimin işlenmesine açık rıza veriyorum',
       olcumRizasiAciklama: 'İsteğe bağlı. Vermezsen yağ oranı tahmini daha geniş bir aralık olur.',
       gonder: 'Hesabı aç ve değerlendirmeye başla',
+      kullanimKosullari: 'Kullanım koşulları',
+      gizlilikPolitikasi: 'Gizlilik politikası',
       yasNotu: 'Uygulamayı 18 yaş ve üzeri kullanabilir.',
     },
 
@@ -1624,8 +1644,17 @@ export const tr = {
     iptalGovde:
       '1. Ayarlar sekmesini aç. 2. En üstteki "Aboneliği iptal et" düğmesine bas. Hepsi bu. Aramana, e-posta yazmana veya sebep açıklamana gerek yok.',
     kosullarBasligi: 'Abonelik koşulları',
-    kosullarGovde:
-      'Abonelik seçtiğin dönemin sonunda kendiliğinden yenilenir. Yenilemeden en az 24 saat önce iptal etmezsen aynı tutar tekrar tahsil edilir. Yönetim ve iptal App Store hesabından da yapılabilir.',
+    /**
+     * Mağaza adı ÇALIŞMA ZAMANINDA geliyor; metne gömülü değil.
+     *
+     * "App Store" diye sabit yazılıydı ve Android kullanıcısına da öyle görünüyordu:
+     * aboneliğini hiç kullanmadığı bir mağazadan yönetmesi söyleniyordu. Aynı dosyada
+     * `ayarlar.tsx` iptal bağlantısını zaten platforma göre seçiyor (`Platform.OS`);
+     * paywall metni o ayrımı yapmıyordu. Abonelik koşullarının mağazayı doğru
+     * adlandırması yalnızca nezaket değil, iki mağazanın da kural gereği beklediği şey.
+     */
+    kosullarGovde: (magaza: string) =>
+      `Abonelik seçtiğin dönemin sonunda kendiliğinden yenilenir. Yenilemeden en az 24 saat önce iptal etmezsen aynı tutar tekrar tahsil edilir. Yönetim ve iptal ${magaza} hesabından da yapılabilir.`,
     kullanimKosullari: 'Kullanım koşulları',
     gizlilikPolitikasi: 'Gizlilik politikası',
     durusEtiketi: 'GERİ SAYIM YOK · SAHTE KITLIK YOK · ÖN SEÇİM YOK',
@@ -1649,6 +1678,16 @@ export const tr = {
     baktigimVeri: 'BAKTIĞIM VERİ:',
     saglikYonlendirmesi: 'SAĞLIK SORUSU — HEKİME YÖNLENDİRİLDİ',
     dusunuyor: 'Verine bakıyorum',
+    /**
+     * "0 mesaj hakkın kaldı" YANLIŞ cümleydi.
+     *
+     * "Kaldı" harcanmış bir bakiyeyi ima ediyor. Ücretsiz kullanıcı hiç harcamadı —
+     * hakkı hiç olmadı. Ekranda "Bu ay 0 mesaj hakkın kaldı" gören kişi
+     * "ben ne zaman 60 mesaj yaktım?" diye düşünüyordu.
+     *
+     * Üç durum ayrıldı: plana dahil değil, bu ay bitti, hakkı var.
+     */
+    kocKapali: 'Koç sohbeti Temel plandan itibaren açık.',
     kalanMesaj: (kalan: number) => `Bu ay ${kalan} mesaj hakkın kaldı`,
     girdiErisim: 'Koça sorulacak mesaj',
     gonder: 'Gönder',

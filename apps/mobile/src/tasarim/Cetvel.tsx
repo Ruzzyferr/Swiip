@@ -171,8 +171,22 @@ function KucukCentikler({
   doluRenk: string;
   bosRenk: string;
 }) {
-  if (toplam <= 1) return null;
-
+  /**
+   * Tek soruluk bölüm de çentiklerini çizer.
+   *
+   * `if (toplam <= 1) return null;` yazıyordu ve sonucu, bu bileşenin hemen üstündeki
+   * yorumun anlattığı kusurun ta kendisiydi — sadece ölçeğin öbür ucunda: bölümün
+   * yerinde boşluk kalıyor ve **cetvel kırıkmış gibi görünüyordu.**
+   *
+   * Ölçüldü (1320 px cihaz, değerlendirme kartı 1): "Ağrı ve kısıt" bölümü o anda tek
+   * görünür soru taşıyordu (`S8` ancak `S6 = Evet` ile açılıyor) ve cetvelde
+   * x=358→505 arasında 147 px'lik bir delik açılıyordu. Diğer yedi bölüm 13-14 px
+   * aralıkla düzgün diziliyken bir tanesinin yok olması, ölçek olma iddiasını bozuyor.
+   *
+   * Bölüm eleme `blokBolumleri` içinde zaten `toplam > 0` süzgeciyle yapılıyor, yani
+   * burada sıfıra bölme riski yok. Çentik sayısı sabit; tek soruluk bölümde oran ya
+   * 0 ya 1 çıkar — ikisi de doğru çizilir.
+   */
   const oran = cevaplanan / toplam;
   const dolu = Math.round(oran * KUCUK_ADET);
 

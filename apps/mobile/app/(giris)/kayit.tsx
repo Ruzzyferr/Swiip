@@ -1,10 +1,19 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Linking, StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import { Dugme, Ekran, Kart, SecimDugmesi, Uyari, Yazi } from '../../src/tasarim/bilesenler';
+import {
+  BaglantiSatiri,
+  Dugme,
+  Ekran,
+  Kart,
+  SecimDugmesi,
+  Uyari,
+  Yazi,
+} from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler, useOturum } from '../../src/durum/Oturum';
 import { ApiHatasi } from '../../src/veri/api';
+import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '../../src/baglantilar';
 
 /**
  * Kayıt + KVKK açık rıza (F0.5, F4.9).
@@ -122,6 +131,27 @@ export default function Kayit() {
           pasif={!email || !parola || !saglikOnayi}
           yukleniyor={yukleniyor}
         />
+
+        {/*
+          Kullanım koşulları ve gizlilik politikası BURADA da duruyor.
+
+          İki bağlantı yalnızca paywall'da vardı. Yani hesap açan ama hiç ödeme
+          ekranına girmeyen kullanıcı — yani kullanıcıların çoğu — sözleşmeyi ve
+          gizlilik metnini uygulama içinde hiç göremiyordu. Hem KVKK aydınlatma
+          yükümlülüğü hem de iki mağazanın hesap açma gerekliliği burayı işaret ediyor:
+          rızanın istendiği ekran, metnin okunabildiği ekran olmalı.
+        */}
+        <View>
+          <BaglantiSatiri
+            ilk
+            baslik={m.kullanimKosullari}
+            onPress={() => void Linking.openURL(KULLANIM_KOSULLARI_URL)}
+          />
+          <BaglantiSatiri
+            baslik={m.gizlilikPolitikasi}
+            onPress={() => void Linking.openURL(GIZLILIK_URL)}
+          />
+        </View>
 
         <Yazi tur="etiket" renk="metinSilik" hizala="center">
           {m.yasNotu}
