@@ -404,6 +404,31 @@ kararı). Play sayacı hâlâ **1/12**.
   `privacyPolicyUrl` dolu, `supportUrl` dolu, dört aboneliğin de süresi tanımlı
   (ONE_MONTH / ONE_YEAR), paywall'da fiyat + yenileme tarihi + iptal yolu var.
 
+  **Yeniden gonderim akisi (2026-08-26'da ogrenildi, kolay degil):**
+  Reddedilen bir gonderimde konsolun "Resubmit to App Review" dugmesi **hic
+  aktiflesmiyor**. Isleyen sira su:
+
+  1. Reddedilen gonderimi iptal et (`canceled: true`) — durum `COMPLETE` olur.
+  2. Yeni build'i surume bagla (`PATCH /appStoreVersions/{id}/relationships/build`).
+  3. Abonelik grubu sayfasindan **Add for Review** -> yeni taslak olusur.
+  4. **Her aboneligi tek tek** kendi sayfasindan ekle: "Add for Review" bir
+     ACILIR MENU; icinden mevcut taslagi ("Started by...") secmek gerekiyor.
+     Yeni taslak acmak, iki ayri gonderim demek.
+  5. Surumu de ayni taslaga ekle (`POST /reviewSubmissionItems`).
+  6. `PATCH /reviewSubmissions/{id}` ile `submitted: true`.
+
+  **Iki tuzak:**
+  - `POST /reviewSubmissionItems` abonelikler icin `subscription` iliskisini
+    KABUL ETMIYOR (409 `RELATIONSHIP.UNKNOWN`). Abonelikler yalnizca konsoldan
+    eklenebiliyor; surum ve grup API ile eklenebiliyor.
+  - Grup tek basina gonderilemiyor: *"This is a new subscription group, you need
+    to submit at least one subscription first."* Once abonelikler, sonra grup.
+  - Konsolda `element.click()` React'i tetiklemiyor; gercek fare tiklamasi
+    (koordinat) gerekiyor.
+
+  Sonuc (2026-08-26 21:01): 6 oge — surum + grup + dort abonelik — tek gonderimde
+  `WAITING_FOR_REVIEW`. Build 17 bagli.
+
   **Ders:** ilk retten sonra "2.1 kapandı" diye rahatlamak erken oldu. Apple her turda
   **tek** gerekçe döndürüyor; biri kapanınca sıradaki görünür hale geliyor. Yeniden
   göndermeden önce o kuralın **tüm** şartlarını taramak bir turu kurtarıyor.
