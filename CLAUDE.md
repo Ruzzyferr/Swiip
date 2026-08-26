@@ -373,7 +373,42 @@ kararı). Play sayacı hâlâ **1/12**.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
-- **App Store: 1.0 reddedildi — Guideline 2.1, Information Needed (2026-08-22).**
+- **App Store: 1.0 İKİNCİ KEZ reddedildi — Guideline 3.1.2, Subscriptions (2026-08-26).**
+  İlk ret (2.1, aşağıda) cevaplandı ve gönderim yenilendi; Apple aynı gün 19:08'de
+  **başka bir gerekçeyle** reddetti. Resolution Center'daki metin:
+
+  > The submission offers auto-renewable subscriptions but does not include a
+  > functional link to the Terms of Use (EULA) in the app metadata that appears
+  > on the app's App Store product page.
+  >
+  > If you are using the standard Apple Terms of Use (EULA), include a link to the
+  > Terms of Use in the App Description.
+
+  Yani eksik olan uygulama içindeki bağlantı değil — o zaten paywall'da vardı —
+  **ürün sayfasının açıklama alanındaki** bağlantı. Otomatik yenilenen abonelik satan
+  her uygulamada Apple bunu şart koşuyor ve kontrolü otomatik: mesajın kendisi
+  *"This is an automated message"* diyor.
+
+  **Düzeltildi (2026-08-26):** açıklamanın sonuna eklendi ve ASC API'den geri okunarak
+  doğrulandı (3.508 → 3.689 karakter, sınır 4.000):
+
+  ```
+  KULLANIM KOŞULLARI VE GİZLİLİK
+  Kullanım koşulları (EULA):
+  https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+  Gizlilik politikası:
+  https://swiip.app/gizlilik.html
+  ```
+
+  3.1.2'nin geri kalan şartları da tek tek kontrol edildi ve zaten sağlanıyordu:
+  `privacyPolicyUrl` dolu, `supportUrl` dolu, dört aboneliğin de süresi tanımlı
+  (ONE_MONTH / ONE_YEAR), paywall'da fiyat + yenileme tarihi + iptal yolu var.
+
+  **Ders:** ilk retten sonra "2.1 kapandı" diye rahatlamak erken oldu. Apple her turda
+  **tek** gerekçe döndürüyor; biri kapanınca sıradaki görünür hale geliyor. Yeniden
+  göndermeden önce o kuralın **tüm** şartlarını taramak bir turu kurtarıyor.
+
+- **İlk ret: Guideline 2.1, Information Needed (2026-08-22).**
   Hata bulunmuş değil; yeni uygulamadan istenen sekiz bilgi. Cevap taslağı
   `magaza/appstore/inceleme-cevabi.md`. Altı maddesi `App Review Information → Notes`
   alanında hazır.
