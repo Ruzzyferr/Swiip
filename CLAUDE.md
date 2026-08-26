@@ -565,6 +565,43 @@ kez sorgulandığında 500 olarak görünüyor. 2026-08-25'te üretimde tam bu b
 patlıyordu. Yalnızca canlı bir kanca çağrısı denendiği için görüldü.
 `dagitim.test.ts` artık dört maddeyi birden koruyor.
 
+**İki şey sessizce hiç dağıtılmıyordu — 2026-08-26'da bulundu ve düzeltildi.**
+
+1. **Marka sitesi hiçbir dağıtımda güncellenmiyordu.** `git archive` yalnızca
+   `infra magaza packages scripts` gönderiyordu ve yorumu "apps/ gönderilmiyor:
+   mobil uygulama sunucuda derlenmiyor" diyordu. Doğru ama eksik: aynı depodaki
+   `docker-compose.yml` Caddy'ye `../apps/site:/site:ro` bağlıyor, yani site
+   sunucudaki **o klasörden** servis ediliyor. Sunucudaki kopya ilk kurulumdan
+   (21 Ağustos) kalmıştı ve dört dosyadan üçünün md5'i depodakinden farklıydı —
+   **canlıdaki gizlilik politikası ve hesap silme sayfası depodakiyle aynı değildi.**
+   İkisi de mağaza incelemesinde tıklanan bağlantılar.
+
+2. **Caddyfile değişikliği konteynere hiç ulaşmıyordu.** Yukarıdaki düzeltme
+   dağıtıldı, sunucudaki `infra/Caddyfile` güncel görünüyordu — ama yanlış yollar
+   hâlâ 200 ile ana sayfayı döndürüyordu. Konteynerin içine bakınca oradaki dosyanın
+   eskİ olduğu görüldü (`handle_errors` sayısı 0).
+
+   Sebep bir Docker davranışı: `Caddyfile` konteynere **tek dosya** olarak bağlanıyor
+   ve Docker tek dosya bağlantısını **inode'a** bağlıyor. `tar -xzf` dosyayı yerinde
+   değiştirmiyor; siliyor ve yenisini oluşturuyor — yani yeni inode. Konteyner eski
+   inode'u tutmaya devam ediyor. `docker compose up -d` de yardım etmiyor: compose
+   dosyası değişmediği için caddy'yi "Running" bırakıyor. **`caddy reload` bile
+   yetmedi** — okuduğu dosyanın kendisi eskiydi.
+
+   Düzeltme: `up -d --force-recreate caddy`. `dagitim.test.ts` artık üç şeyi
+   koruyor: compose'un bağladığı her yol pakette olmalı, caddy zorla yeniden
+   oluşturulmalı, ve bu adım normal `up`'tan **sonra** gelmeli.
+
+   Canlıda doğrulandı: `/bulunmayan-sayfa`, `/destek.html`, `/.env` → **404**
+   ("Sayfa bulunamadı — Swiip"); `/gizlilik` → 200 "Gizlilik — Swiip";
+   `/`, `/gizlilik.html`, `/stil.css`, `/saglik` → hepsi 200, bozulma yok.
+
+> Bu, bu depoda **üçüncü kez** yakalanan aynı sınıf kusur: önce `gocmen` imajı,
+> sonra yedek görevi, şimdi Caddy. Ortak deseni şu — bir şey yapıldığı **sanılıyor**,
+> başarısızlık gibi görünmüyor ve hiçbir şey uyarmıyor. Dağıtımdan sonra "değişen
+> şey gerçekten değişti mi" diye **dışarıdan** bakmak, betik çıktısına güvenmekten
+> daha ucuz.
+
 **BU SÜRÜM TEK BAŞINA DAĞITILMAZ — mobil derlemeyle birlikte çıkar.**
 
 Değerlendirme sekiz karta indirilirken blok kimlikleri de değişti (`S`→`G`, `A` artık
