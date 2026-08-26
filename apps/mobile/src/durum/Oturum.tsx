@@ -21,7 +21,8 @@ import { router } from 'expo-router';
 import { tumunuTemizle } from '../veri/onbellek';
 import { disaAktarmaArtiklariniSil } from '../veri/disaAktar';
 import { magaza } from '../odeme/magaza';
-import { bildirimleriKapat } from '../bildirim/zamanlayici';
+import { bildirimleriKapat, bildirimleriKur } from '../bildirim/zamanlayici';
+import { ANAHTARLAR, oku } from '../veri/onbellek';
 
 /**
  * Oturum durumu. Uygulamanın tek küresel durumu budur; gerisi ekranların kendi içinde.
@@ -61,6 +62,47 @@ interface OturumCevabi {
 }
 
 const Baglam = createContext<OturumDurumu | null>(null);
+
+/**
+ * Hatırlatmaları oturum başında sessizce yeniden kurar.
+ *
+ * Neden gerekli — iki ayrı kusuru birden kapatıyor:
+ *
+ *  1. `bildirimleriKur` yalnızca ayar ekranındaki "Kaydet" düğmesinden çağrılıyordu.
+ *     Telefon değiştiren ya da uygulamayı silip kuran kullanıcının tercihleri
+ *     duruyordu ama tek bir hatırlatma bile kurulu değildi — kullanıcı ayarlarda
+ *     "açık" görüyor, bildirim hiç gelmiyordu.
+ *  2. Seans hatırlatması programın antrenman GÜNLERİNE kuruluyor. Program her hafta
+ *     yeniden hesaplanıyor ve günler değişebiliyor; ayarlara bir daha girilmediği
+ *     sürece hatırlatmalar eski günlerde kalıyordu.
+ *
+ * İzin İSTENMEZ (`izinIsteme: true`): uygulamayı açar açmaz sistem izin kutusu
+ * göstermek hem kötü bir karşılama hem de mağaza incelemesinde göze batan bir davranış.
+ * İzin yalnızca kullanıcı ayarlardan kaydederken isteniyor.
+ *
+ * Sessizce başarısız olur: hatırlatma kurulamaması oturumu düşürmemeli.
+ */
+async function bildirimleriTazele(locale: string): Promise<void> {
+  try {
+    const tercihler = await oku<Parameters<typeof bildirimleriKur>[0]>(
+      ANAHTARLAR.bildirimTercihleri,
+    );
+    if (!tercihler || typeof tercihler !== 'object' || !('seans_hatirlatmasi' in tercihler)) return;
+
+    const program = await istek<{ takvim?: { gunler?: number[] } }>('/v1/program/aktif').catch(
+      () => null,
+    );
+
+    await bildirimleriKur(
+      tercihler,
+      program?.takvim?.gunler ?? [],
+      metinleriAl(dilCozumle(locale)).bildirim,
+      { izinIsteme: true },
+    );
+  } catch {
+    /* Hatırlatma kurulamadı; oturum bundan etkilenmez. */
+  }
+}
 
 export function OturumSaglayici({ children }: { children: ReactNode }) {
   const [kullanici, setKullanici] = useState<Kullanici | null>(null);
@@ -107,6 +149,9 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
      * yapmış sayılıyordu. Satın alma katmanının arızası oturumu düşürmemeli.
      */
     await magaza.hazirla(kayit.id).catch(() => null);
+
+    // Hatırlatmalar oturum başında sessizce tazelenir; izin İSTENMEZ.
+    void bildirimleriTazele(kayit.locale);
   }, []);
 
   useEffect(() => {

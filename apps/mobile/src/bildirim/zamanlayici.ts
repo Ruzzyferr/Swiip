@@ -3,10 +3,10 @@ import * as Bildirimler from 'expo-notifications';
 import {
   bildirimKimligi,
   bildirimPlaniHesapla,
+  ilkTetiklemeyeSaniye,
   type BildirimMetinleri,
   type BildirimTercihleri,
   type BildirimTuru,
-  type PlanliBildirim,
 } from '@swiip/core';
 
 /**
@@ -103,15 +103,6 @@ function haftaGunuSdk(haftaGunu: number): number {
 }
 
 /**
- * Dört haftada bir tekrar eden bildirim, haftalık tetikleyicilerle ifade edilemez.
- * Bunu yaklaşık olarak haftalık kurmaktansa hiç kurmuyoruz: kullanıcıya söz verdiğimiz
- * aralık dört hafta, her hafta ölçü hatırlatması göndermek verdiğimiz sözü bozar.
- */
-function haftalikOlanlar(plan: PlanliBildirim[]): PlanliBildirim[] {
-  return plan.filter((b) => b.tekrar === 'haftalik');
-}
-
-/**
  * Metinler çağıranın verdiği sözlükten gelir.
  *
  * Bildirim, kullanıcının uygulamayı açmadan gördüğü tek yüzümüz; ekranları çevirip
@@ -121,8 +112,9 @@ export async function bildirimleriKur(
   tercihler: BildirimTercihleri,
   antrenmanGunleri: number[],
   metinler: BildirimMetinleri,
+  { izinIsteme = false }: { izinIsteme?: boolean } = {},
 ): Promise<ZamanlayiciDurumu> {
-  const plan = haftalikOlanlar(bildirimPlaniHesapla(tercihler, { antrenmanGunleri }, metinler));
+  const plan = bildirimPlaniHesapla(tercihler, { antrenmanGunleri }, metinler);
 
   // Hiçbir tercih açık değilse izin istemeye gerek yok; sadece temizle.
   if (plan.length === 0) {
@@ -131,7 +123,12 @@ export async function bildirimleriKur(
   }
 
   let izin = await Bildirimler.getPermissionsAsync();
-  if (!izin.granted) izin = await Bildirimler.requestPermissionsAsync();
+  if (!izin.granted) {
+    // Açılışta sessizce yenilerken izin İSTENMEZ: kullanıcı uygulamayı açar açmaz
+    // sistem izin kutusu görmemeli. İzin yalnızca ayar ekranından kaydederken istenir.
+    if (izinIsteme) return { durum: 'izin_yok' };
+    izin = await Bildirimler.requestPermissionsAsync();
+  }
   if (!izin.granted) return { durum: 'izin_yok' };
 
   await kanallariKur();
@@ -157,13 +154,32 @@ export async function bildirimleriKur(
        * bildirim `expo_notifications_fallback_notification_channel` içine düşüyordu —
        * yani kullanıcı sistem ayarlarından "antrenman hatırlatması"nı ayrı kapatamıyordu.
        */
-      trigger: {
-        type: Bildirimler.SchedulableTriggerInputTypes.WEEKLY,
-        ...(Platform.OS === 'android' ? { channelId: kanalKimligi(bildirim.tur) } : {}),
-        weekday: haftaGunuSdk(bildirim.haftaGunu),
-        hour: bildirim.saat,
-        minute: bildirim.dakika,
-      },
+      trigger:
+        bildirim.tekrar === 'haftalik'
+          ? {
+              type: Bildirimler.SchedulableTriggerInputTypes.WEEKLY,
+              ...(Platform.OS === 'android' ? { channelId: kanalKimligi(bildirim.tur) } : {}),
+              weekday: haftaGunuSdk(bildirim.haftaGunu),
+              hour: bildirim.saat,
+              minute: bildirim.dakika,
+            }
+          : {
+              /**
+               * Tek seferlik, tekrarlı DEĞİL — ve bu bilinçli.
+               *
+               * `TIME_INTERVAL` + `repeats` denendi ve yanlıştı: o tetikleyicide tekrar
+               * aralığı ilk gecikmeye EŞİT oluyor. İlk tetikleme "bugünden sonraki
+               * Cumartesi 10:00" olduğu için aralık tam 28 gün değil, 28 gün + kesir
+               * kadar çıkıyor; her tekrarda saat kayıyor ve birkaç tur sonra hatırlatma
+               * sessiz saatin (22:00–07:00) içine düşüyordu.
+               *
+               * Tek seferlik kurup her açılışta yenilemek, hem çapayı (Cumartesi 10:00)
+               * hem sessiz saat sözünü kalıcı olarak koruyor.
+               */
+              type: Bildirimler.SchedulableTriggerInputTypes.DATE,
+              ...(Platform.OS === 'android' ? { channelId: kanalKimligi(bildirim.tur) } : {}),
+              date: new Date(Date.now() + ilkTetiklemeyeSaniye(bildirim, new Date()) * 1000),
+            },
     });
   }
 
