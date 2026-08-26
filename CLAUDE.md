@@ -223,11 +223,28 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
   dağıtıma devam edebilmek için** tıbbi cihaz olup olmadığını beyan etmek zorunda.
   Cevap kolay (inceleme notları zaten "not a medical device" diyor) ama beyan şart.
 
-- **Apple yaş derecelendirmesi 9+ ama uygulama 18 yaş altını REDDEDİYOR.**
-  9+ (172 ülke) · 12+ Vietnam · 10+ Brezilya · iOS 26 öncesinde **4+**.
-  `K7` sert kapısı 18 yaş altını kayıttan çeviriyor ve inceleme notu "Audience:
-  adults 18+" diyor. Karar elle verilmeli: **sürüm şu an WAITING_FOR_REVIEW,
-  yaş derecelendirmesini düzenlemek sürümü incelemeden çıkarabilir.**
+- **Yaş derecelendirmesi: kusur DEĞİL, ve şu an değiştirilemez de.**
+  Önce "9+ ama uygulama 18 yaş altını reddediyor" diye tutarsızlık sanılmıştı.
+  2026-08-26'da ASC API'den anketin tamamı okundu ve resim değişti:
+
+  ```
+  healthOrWellnessTopics                 true    <<< tek "true" bu
+  medicalOrTreatmentInformation          NONE
+  ageRatingOverride                      NONE
+  (diğer 26 sorunun hepsi false / NONE)
+  ```
+
+  Yani **9+ tek bir DOĞRU cevaptan geliyor**: uygulama sağlık/wellness konuları
+  içeriyor. Apple'ın yaş derecelendirmesi bir **içerik** derecelendirmesidir,
+  erişim kontrolü değil — bir bankacılık uygulaması da 4+ olup 18 yaş şartı koyar.
+  `K7` kapısının varlığı anketin cevabını değiştirmiyor.
+
+  Ayrıca **şu an teknik olarak da değiştirilemez**: `appInfos.state` = `IN_REVIEW`.
+  App Information (yaş derecelendirmesi dahil) sürümle birlikte inceleniyor.
+
+  Yine de yükseltmek istenirse yolu var: `ageRatingOverride` alanı (şu an `NONE`)
+  17+/18+ yapılabiliyor. Ama **inceleme sonuçlandıktan sonra** — şimdi dokunmak
+  incelemedeki sürümü riske atar ve kazanılan bir şey yok.
 
 - **Pub/Sub: Conversa, SWIIP'in RTDN konusunu kullanıyor.**
   `projects/swiip-revenuecat/topics/Play-Store-Notifications` konusuna iki push
