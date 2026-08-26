@@ -1,0 +1,14 @@
+# Swiip — arama motorlarına yönerge.
+#
+# Site ve API AYNI origin'den sunuluyor (bkz. infra/Caddyfile). API yolları
+# taranmasın: indekslenecek bir içerik değiller ve boşuna istek üretirler.
+#
+# `/v1/*` altındaki her şey kimlik istiyor ya da POST; tarayıcı zaten içerik
+# bulamaz. Yine de açıkça kapatmak, tarama bütçesini gerçek sayfalara bırakıyor.
+
+User-agent: *
+Allow: /
+Disallow: /v1/
+Disallow: /saglik
+
+Sitemap: https://swiip.app/sitemap.xml

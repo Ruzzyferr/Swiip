@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Yalnızca gerçekten var olan ve indekslenmesi istenen üç sayfa.
+
+  `404.html` bilerek yok: hata sayfası indekslenmez. `/v1/*` ve `/saglik` de yok;
+  onlar robots.txt'te ayrıca kapatılı.
+
+  `lastmod` elle güncellenir. Otomatik üretmek için bir betik yazmak, üç sayfalık
+  bir sitede çözdüğünden fazla bakım üretirdi.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://swiip.app/</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://swiip.app/gizlilik.html</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://swiip.app/hesap-silme.html</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
