@@ -373,6 +373,64 @@ kararı). Play sayacı hâlâ **1/12**.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
+- **App Store: 1.0 ÜÇÜNCÜ KEZ reddedildi — 1.4.1 + 1.5 + 2.3.10 (2026-08-27).**
+  İlk iki ret metadata’ydı; bu sefer Apple uygulamayı GERÇEKTEN inceledi
+  (Review Device: **iPad Air 11-inch (M3)**, sürüm 1.0 build 17) ve **üç ayrı**
+  gerekçe döndürdü. Üçü de gerçekti — hiçbiri yanlış anlaşılma değildi.
+
+  **1.4.1 Safety — Physical Harm.** *“The app includes medical information but
+  does not include citations… The citations should be easy for the user to find.”*
+
+  Uygulama kalori, makro, yağ oranı ve 1RM hesabı sunuyor ama hiçbirinin
+  kaynağını göstermiyordu. Bu, ürünün kendi ilkesiyle de çelişiyordu:
+  “her karar izlenebilir” diyoruz ama kararın dayandığı denklemin nereden
+  geldiği hiçbir yerde yazmıyordu.
+
+  Çözüm: `packages/shared/src/kaynaklar.ts` (dokuz denklemin künyesi) +
+  `apps/mobile/app/ayarlar/kaynaklar.tsx` (uygulama içi ekran, DOI bağlantıları
+  tıklanabilir) + `apps/site/kaynaklar.html`. Ekran, Ayarlar’da **sağlık
+  uyarısının yanında** duruyor — “bu sayı nereden çıktı” diye bakılacak yer orası.
+  `kaynaklar.test.ts` hem künyeleri hem ekranın Ayarlar’dan açılabilmesini
+  kilitliyor.
+
+  **Künye neden sözlükte değil:** akademik künye çevrilmez. Yazar, dergi, cilt
+  ve DOI her dilde aynı; sözlüğe koymak iki kopya yaratır ve biri güncellenmeyi
+  unutur. Çevrilen tek şey her kaynağın NE İÇİN kullanıldığı.
+
+  **1.5 Safety — Developer Information.** *“The Support URL, https://swiip.app,
+  does not direct to a website with information users can use to ask questions
+  and request support.”*
+
+  Alan adı çalışıyordu; sorun oydu ki ana sayfa bir **destek** sayfası değil,
+  pazarlama sayfasıydı. `apps/site/destek.html` yazıldı, Support URL ona çevrildi
+  (`scripts/apple-destek-adresi.mjs` — yazmadan ÖNCE sayfanın 200 döndüğünü
+  ağdan sınıyor).
+
+  **2.3.10 Performance — Accurate Metadata.** *“Revise the app’s screenshots to
+  remove non-iOS status bar images.”*
+
+  App Store’a yüklenen altı görüntü `magaza/play/ekranlar/` klasöründen
+  geliyordu — **Android emülatöründe çekilmişlerdi.** Üst şeritte Android saat
+  biçimi, Brave kalkanı ve Android pil simgesi vardı.
+
+  `scripts/appstore-ekranlari-uret.py` durum çubuğu şeridini uygulamanın **kendi
+  zemin rengiyle** dolduruyor. Sahte bir iOS durum çubuğu **çizmiyoruz** — o,
+  olmayan bir cihazı varmış gibi göstermek olurdu. Zemin her dosya için ayrı
+  ölçülüyor. Yükleyici: `scripts/apple-ekranlari-yukle.mjs`.
+  **Play görüntülerine dokunulmuyor** — orada Android durum çubuğu doğru olan.
+
+  **Yan bulgu (kendi testimiz yakaladı):** `siteSozleri.test.ts` destek
+  sayfasındaki iki yanlış yol tarifini bulup CI’ı kırdı. “Ayarlar → Üyelik” diye
+  bir yer yok (doğrusu **Plan ve kota**) ve “Satın almalarımı geri yükle”
+  ayarlarda değil, plan ekranında. Destek sayfasında yanlış tarif, kullanıcının
+  hakkını kullanamaması demek.
+
+  **Ölçülen ders:** Apple her turda **tek bir katmanı** görüyor. Önce metadata
+  (2.1), sonra abonelik metadata’sı (3.1.2), ancak üçüncü turda uygulamanın
+  **içeriği** (1.4.1). “Bu tur geçerse biter” varsaymak her seferinde yanlış
+  çıktı. İncelemenin iPad’de yapıldığı da not: cihaz ailesi iPhone olsa bile
+  Apple iPad’de açıp bakıyor.
+
 - **App Store: 1.0 İKİNCİ KEZ reddedildi — Guideline 3.1.2, Subscriptions (2026-08-26).**
   İlk ret (2.1, aşağıda) cevaplandı ve gönderim yenilendi; Apple aynı gün 19:08'de
   **başka bir gerekçeyle** reddetti. Resolution Center'daki metin:
