@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hesaplama kaynakları — Swiip</title>
+    <meta
+      name="description"
+      content="Swiip’in kalori, makro ve yük hesapları hangi yayımlanmış denklemlerden çıkıyor — kaynaklarıyla."
+    />
+    <meta name="theme-color" content="#F6F7F5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0E100F" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="varliklar/isaret.svg" type="image/svg+xml" />
+
+    <link rel="canonical" href="https://swiip.app/kaynaklar.html" />
+    <meta property="og:title" content="Hesaplama kaynakları — Swiip" />
+    <meta
+      property="og:description"
+      content="Swiip’in kalori, makro ve yük hesapları hangi yayımlanmış denklemlerden çıkıyor — kaynaklarıyla."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:url" content="https://swiip.app/kaynaklar.html" />
+    <meta property="og:site_name" content="Swiip" />
+    <meta property="og:image" content="https://swiip.app/varliklar/paylasim.png" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="500" />
+    <meta property="og:image:alt" content="Swiip — ölçüne göre antrenman ve beslenme koçu" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="stil.css" />
+    <link rel="stylesheet" href="belge.css" />
+  </head>
+
+  <body>
+    <a class="atla" href="#icerik">İçeriğe atla</a>
+
+    <!-- Marka işareti bir kez tanımlanıyor; kullanan yerler <use> ile çağırıyor.
+         Harici dosyaya <use href="dosya.svg#id"> tarayıcılarda güvenilir değil. -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
+      <symbol id="isaret" viewBox="0 0 100 100">
+        <mask id="m2f" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
+          <rect x="0" y="0" width="100" height="100" fill="white" />
+          <g stroke="black" stroke-linecap="butt">
+            <line x1="32.73" y1="31.69" x2="26.13" y2="30.05" stroke-width="1.8" />
+            <line x1="34.00" y1="28.20" x2="30.32" y2="26.40" stroke-width="1.4" />
+            <line x1="35.97" y1="25.04" x2="30.61" y2="20.85" stroke-width="1.8" />
+            <line x1="38.56" y1="22.36" x2="35.92" y2="19.22" stroke-width="1.4" />
+            <line x1="41.64" y1="20.28" x2="38.45" y2="14.28" stroke-width="1.8" />
+            <line x1="45.09" y1="18.89" x2="43.96" y2="14.95" stroke-width="1.4" />
+            <line x1="48.76" y1="18.24" x2="48.28" y2="11.46" stroke-width="1.8" />
+            <line x1="52.48" y1="18.37" x2="53.05" y2="14.31" stroke-width="1.4" />
+            <line x1="56.09" y1="19.27" x2="58.41" y2="12.88" stroke-width="1.8" />
+            <line x1="59.43" y1="20.90" x2="61.61" y2="17.43" stroke-width="1.4" />
+            <line x1="62.36" y1="23.20" x2="67.09" y2="18.30" stroke-width="1.8" />
+            <line x1="64.76" y1="26.05" x2="68.16" y2="23.75" stroke-width="1.4" />
+            <line x1="66.50" y1="29.33" x2="72.81" y2="26.78" stroke-width="1.8" />
+            <line x1="67.53" y1="32.91" x2="71.57" y2="32.20" stroke-width="1.4" />
+            <line x1="67.79" y1="36.62" x2="74.59" y2="36.86" stroke-width="1.8" />
+            <line x1="67.27" y1="40.31" x2="71.25" y2="41.30" stroke-width="1.4" />
+            <line x1="66.00" y1="43.80" x2="72.11" y2="46.78" stroke-width="1.8" />
+            <line x1="30.60" y1="91.50" x2="30.60" y2="83.70" stroke-width="1.9" />
+            <line x1="36.80" y1="91.50" x2="36.80" y2="86.90" stroke-width="1.5" />
+            <line x1="43.00" y1="91.50" x2="43.00" y2="83.70" stroke-width="1.9" />
+            <line x1="49.20" y1="91.50" x2="49.20" y2="86.90" stroke-width="1.5" />
+            <line x1="55.40" y1="91.50" x2="55.40" y2="83.70" stroke-width="1.9" />
+            <line x1="61.60" y1="91.50" x2="61.60" y2="86.90" stroke-width="1.5" />
+            <line x1="67.80" y1="91.50" x2="67.80" y2="83.70" stroke-width="1.9" />
+          </g>
+        </mask>
+        <g mask="url(#m2f)">
+          <path
+            d="M26.06 37.67 A24.0 24.0 0 1 1 64.11 55.42"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="13.0"
+          />
+          <path
+            d="M68.91 50.78 L31.10 82.00"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="13.0"
+            stroke-linecap="butt"
+          />
+          <rect x="22.0" y="78.50" width="52.0" height="13.0" fill="currentColor" />
+        </g>
+      </symbol>
+    </svg>
+
+    <header class="belge-bas">
+      <a class="belge-marka" href="index.html">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
+        <span>Swiip</span>
+      </a>
+    </header>
+
+    <main class="belge" id="icerik">
+      <p class="etiket">Hesaplama kaynakları</p>
+      <h1>Sayılar nereden geliyor</h1>
+      <p class="belge-lede">
+        Swiip’te hiçbir sayı yapay zekâya sorulmuyor. Kalori, makro ve yük hesaplarının hepsi
+        aşağıdaki yayımlanmış denklemlerden çıkıyor. Hangi denklemi neden seçtiğimizi de yazdık.
+      </p>
+      <p class="belge-tarih sayi">Son güncelleme: 27 Ağustos 2026</p>
+
+      <h2>Bazal metabolizma (BMR)</h2>
+
+      <h3>Mifflin-St Jeor</h3>
+      <p>
+        Vücut yağ oranın bilinmiyorsa bunu kullanıyoruz. Boy, kilo, yaş ve cinsiyetten dinlenme
+        enerji harcamasını tahmin eder.
+      </p>
+      <p class="belge-kaynak">
+        Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO. “A new predictive equation
+        for resting energy expenditure in healthy individuals.”
+        <em>The American Journal of Clinical Nutrition</em>, 1990;51(2):241–247.
+        <a href="https://doi.org/10.1093/ajcn/51.2.241" rel="noopener">doi:10.1093/ajcn/51.2.241</a>
+      </p>
+
+      <h3>Katch-McArdle</h3>
+      <p>
+        Yağ oranın biliniyorsa (fotoğraf analizinden ya da senin girdiğin değerden) bunu
+        kullanıyoruz: yağsız kütleyi doğrudan hesaba kattığı için aynı kiloda farklı kompozisyona
+        sahip iki kişiyi ayırt eder.
+      </p>
+      <p class="belge-kaynak">
+        McArdle WD, Katch FI, Katch VL.
+        <em>Exercise Physiology: Nutrition, Energy, and Human Performance.</em> 8. baskı. Wolters
+        Kluwer, 2015.
+      </p>
+
+      <h2>Günlük enerji harcaması (TDEE)</h2>
+      <p>
+        BMR, işinin ve antrenman sıklığının belirlediği bir fiziksel aktivite düzeyi (PAL)
+        çarpanıyla çarpılıyor.
+      </p>
+      <p class="belge-kaynak">
+        FAO/WHO/UNU.
+        <em>Human Energy Requirements: Report of a Joint FAO/WHO/UNU Expert Consultation.</em> Roma,
+        2004.
+        <a href="https://www.fao.org/4/y5686e/y5686e00.htm" rel="noopener">fao.org</a>
+      </p>
+      <p>
+        <strong>Neden tek sayı değil aralık gösteriyoruz:</strong> Mifflin-St Jeor’un bildirilen
+        standart hatası yaklaşık %10, aktivite çarpanı da bir tahmin. İkisi birleşince gerçek
+        harcaman hesaplanan değerin birkaç yüz kalori altında ya da üstünde olabilir. Tek bir sayı
+        yazmak, olmayan bir kesinlik vaat etmek olurdu.
+      </p>
+
+      <h2>Vücut yağ oranı tahmini</h2>
+      <p>
+        Fotoğraf ya da çevre ölçüsü yoksa, yağ oranı beden kütle indeksinden tahmin ediliyor. Bu en
+        kaba yöntem; bu yüzden sonucu her zaman aralık olarak gösteriyoruz.
+      </p>
+      <p class="belge-kaynak">
+        Deurenberg P, Weststrate JA, Seidell JC. “Body mass index as a measure of body fatness: age-
+        and sex-specific prediction formulas.” <em>British Journal of Nutrition</em>,
+        1991;65(2):105–114.
+        <a href="https://doi.org/10.1079/BJN19910073" rel="noopener">doi:10.1079/BJN19910073</a>
+      </p>
+
+      <h2>Protein ve yağ hedefleri</h2>
+      <p>
+        Protein, yağsız kütlenin kilogramı başına 2,0 g; kalori açığındayken 2,2 g. Açıkta yüksek
+        protein, kas kaybını sınırlayan en güçlü beslenme kaldıracı. Yağ hiçbir zaman vücut
+        ağırlığının kilogramı başına 0,6 g’ın altına inmiyor.
+      </p>
+      <p class="belge-kaynak">
+        Jäger R, Kerksick CM, Campbell BI, ve ark. “International Society of Sports Nutrition
+        Position Stand: protein and exercise.”
+        <em>Journal of the International Society of Sports Nutrition</em>, 2017;14:20.
+        <a href="https://doi.org/10.1186/s12970-017-0177-8" rel="noopener"
+          >doi:10.1186/s12970-017-0177-8</a
+        >
+      </p>
+      <p class="belge-kaynak">
+        Hector AJ, Phillips SM. “Protein Recommendations for Weight Loss in Elite Athletes.”
+        <em>International Journal of Sport Nutrition and Exercise Metabolism</em>,
+        2018;28(2):170–177.
+        <a href="https://doi.org/10.1123/ijsnem.2017-0273" rel="noopener"
+          >doi:10.1123/ijsnem.2017-0273</a
+        >
+      </p>
+
+      <h2>Kalori açığının sınırı</h2>
+      <p>
+        Açık hiçbir zaman günlük harcamanın belirli bir oranını geçmiyor. Hızlı kilo kaybı kas
+        kaybını, dinlenme metabolizmasının düşmesini ve toparlanma bozukluğunu beraberinde
+        getiriyor.
+      </p>
+      <p class="belge-kaynak">
+        Garthe I, Raastad T, Refsnes PE, Koivisto A, Sundgot-Borgen J. “Effect of two different
+        weight-loss rates on body composition and strength and power-related performance in elite
+        athletes.” <em>International Journal of Sport Nutrition and Exercise Metabolism</em>,
+        2011;21(2):97–104.
+        <a href="https://doi.org/10.1123/ijsnem.21.2.97" rel="noopener"
+          >doi:10.1123/ijsnem.21.2.97</a
+        >
+      </p>
+
+      <h2>Tek tekrar maksimum (1RM) tahmini</h2>
+      <p>
+        Kaldırdığın ağırlık ve tekrar sayısından tahmin ediliyor. Tahmin 12 tekrarın üstünde hızla
+        bozulduğu için girdiyi 12 ile sınırlıyoruz.
+      </p>
+      <p class="belge-kaynak">
+        Epley B. “Poundage Chart.” <em>Boyd Epley Workout.</em> Body Enterprises, Lincoln, NE, 1985.
+      </p>
+      <p class="belge-kaynak">
+        LeSuer DA, McCormick JH, Mayhew JL, Wasserstein RL, Arnold MD. “The accuracy of prediction
+        equations for estimating 1-RM performance in the bench press, squat, and deadlift.”
+        <em>Journal of Strength and Conditioning Research</em>, 1997;11(4):211–213.
+      </p>
+
+      <h2>Haftalık set hacmi</h2>
+      <p>
+        Kas grubu başına haftalık set sayısı antrenman yaşına göre belirleniyor ve haftalar içinde
+        kademeli artıyor. Üst sınırlar, hacim-kazanım ilişkisinin düzleştiği ve toparlanmanın
+        bozulmaya başladığı aralığa göre konuldu.
+      </p>
+      <p class="belge-kaynak">
+        Schoenfeld BJ, Ogborn D, Krieger JW. “Dose-response relationship between weekly resistance
+        training volume and increases in muscle mass: A systematic review and meta-analysis.”
+        <em>Journal of Sports Sciences</em>, 2017;35(11):1073–1082.
+        <a href="https://doi.org/10.1080/02640414.2016.1210197" rel="noopener"
+          >doi:10.1080/02640414.2016.1210197</a
+        >
+      </p>
+      <p class="belge-kaynak">
+        American College of Sports Medicine. “Progression Models in Resistance Training for Healthy
+        Adults.” <em>Medicine &amp; Science in Sports &amp; Exercise</em>, 2009;41(3):687–708.
+        <a href="https://doi.org/10.1249/MSS.0b013e3181915670" rel="noopener"
+          >doi:10.1249/MSS.0b013e3181915670</a
+        >
+      </p>
+
+      <h2>Bunlar birer tahmin</h2>
+      <p class="vurgu-kutu">
+        Yukarıdaki denklemlerin hepsi popülasyon ortalamalarından türetilmiş tahminlerdir; senin
+        gerçek değerlerin farklı olabilir. Swiip tıbbi cihaz değildir, teşhis koymaz ve tedavi
+        önermez. Bir sağlık sorunun varsa ya da bir ilaç kullanıyorsan, beslenme ve antrenman
+        planını hekiminle konuş.
+      </p>
+
+      <p class="belge-feragat">
+        Soru ve düzeltme: <a href="destek.html">destek</a> ·
+        <a href="gizlilik.html">gizlilik politikası</a>
+      </p>
+    </main>
+
+    <footer class="alt">
+      <div class="alt-ic">
+        <a class="alt-marka" href="index.html" aria-label="Swiip">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
+          <span>Swiip</span>
+        </a>
+        <p class="alt-slogan">Ölçüne göre.</p>
+      </div>
+    </footer>
+  </body>
+</html>

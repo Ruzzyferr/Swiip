@@ -17,3 +17,4 @@ export * from './tekUcus';
 export * from './disaAktarma';
 export * from './haftaDurumu';
 export * from './hareketAdi';
+export * from './kaynaklar';

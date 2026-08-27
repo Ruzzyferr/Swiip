@@ -20,7 +20,13 @@ import { describe, expect, it } from 'vitest';
 const SITE = join(import.meta.dirname, '..', '..', '..', 'apps', 'site');
 
 /** İndekslenmesi istenen sayfalar. `404.html` bilerek dışarıda. */
-const INDEKSLENEN = ['index.html', 'gizlilik.html', 'hesap-silme.html'];
+const INDEKSLENEN = [
+  'index.html',
+  'destek.html',
+  'kaynaklar.html',
+  'gizlilik.html',
+  'hesap-silme.html',
+];
 
 const oku = (dosya: string) => readFileSync(join(SITE, dosya), 'utf8');
 

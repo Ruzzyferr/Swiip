@@ -1179,6 +1179,34 @@ export const tr = {
       `Son iki haftanın gerçek kilo değişimine göre günlük hedefini ${fark > 0 ? '+' : ''}${fark} kcal güncelledik. Formül yanılır, veri yanılmaz.`,
   },
 
+  /*
+    Hesaplama kaynaklari — Apple 1.4.1 saglik bilgisi icin ATIF sart kosuyor
+    ve atifin "kolay bulunur" olmasini istiyor. Kunyelerin kendisi
+    `kaynaklar.ts` icinde; burada yalnizca her kaynagin NE ICIN kullanildigi.
+  */
+  kaynaklar: {
+    baslik: 'Hesaplama kaynakları',
+    lede:
+      'Swiip’te hiçbir sayı yapay zekâya sorulmuyor. Kalori, makro ve yük hesaplarının hepsi ' +
+      'aşağıdaki yayımlanmış denklemlerden çıkıyor.',
+    tahminUyarisi:
+      'Bu denklemlerin hepsi popülasyon ortalamalarından türetilmiş tahminlerdir; senin gerçek ' +
+      'değerlerin farklı olabilir. Bir sağlık sorunun varsa ya da ilaç kullanıyorsan planını ' +
+      'hekiminle konuş.',
+    webBaglantisi: 'Kaynakları web sitesinde aç',
+    aciklamalar: {
+      bmrMifflin: 'Yağ oranın bilinmiyorken dinlenme enerji harcaması (BMR)',
+      bmrKatch: 'Yağ oranın biliniyorken BMR — yağsız kütleyi hesaba katar',
+      tdeePal: 'Günlük enerji harcaması (TDEE) için aktivite çarpanı',
+      yagOrani: 'Fotoğraf ve çevre ölçüsü yokken vücut yağ oranı tahmini',
+      protein: 'Günlük protein hedefi ve açıkta yükseltilmesi',
+      kaloriAcigi: 'Kalori açığının üst sınırı',
+      birRm: 'Tek tekrar maksimum (1RM) tahmini ve başlangıç yükü',
+      hacim: 'Kas grubu başına haftalık set sayısı',
+      ilerleme: 'Progresif yüklenme ve deload sıklığı',
+    },
+  },
+
   saglik: {
     tibbiCihazDegil:
       'Swiip tıbbi cihaz değildir, teşhis koymaz ve tedavi önermez. Çıktılar tahmindir. Şikâyetin varsa hekimine danış.',
@@ -1300,6 +1328,7 @@ export const tr = {
       'Tüm kayıtların JSON dosyası olarak cihazına yazıldı ama paylaşım sayfası bu cihazda açılamıyor.',
     disaAktarilamadi: 'Verin hazırlanamadı. Biraz sonra tekrar deneyebilirsin.',
     saglikUyarisiBasligi: 'Sağlık uyarısı',
+    kaynaklarDugmesi: 'Hesaplama kaynakları',
     hesapBasligi: 'Hesap',
     dogrulandi: 'Doğrulandı',
     dogrulamaGovde:

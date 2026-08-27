@@ -392,6 +392,16 @@ export default function Ayarlar() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {metinler.saglik.tibbiCihazDegil}
           </Yazi>
+          {/*
+            Kaynaklar buraya, saglik uyarisinin YANINA konuldu.
+            Apple 1.4.1 atifin "kolay bulunur" olmasini sart kosuyor; kullanicinin
+            "bu sayi nereden cikti" diye bakacagi yer de burasi.
+          */}
+          <Dugme
+            baslik={a.kaynaklarDugmesi}
+            tur="ikincil"
+            onPress={() => router.push('/ayarlar/kaynaklar')}
+          />
         </Kart>
 
         <Kart>

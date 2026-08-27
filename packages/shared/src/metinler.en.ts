@@ -1103,6 +1103,29 @@ export const en: Metinler = {
       `Based on your real weight change over the last two weeks, we adjusted your daily target by ${fark > 0 ? '+' : ''}${fark} kcal. Formulas are wrong sometimes; your data is not.`,
   },
 
+  kaynaklar: {
+    baslik: 'Calculation sources',
+    lede:
+      'No number in Swiip is asked to an AI. Every calorie, macro and load figure comes from ' +
+      'the published equations below.',
+    tahminUyarisi:
+      'These equations are estimates derived from population averages; your real values may ' +
+      'differ. If you have a health condition or take medication, discuss your plan with your ' +
+      'doctor.',
+    webBaglantisi: 'Open the sources on the website',
+    aciklamalar: {
+      bmrMifflin: 'Resting energy expenditure (BMR) when your body fat is unknown',
+      bmrKatch: 'BMR when your body fat is known — accounts for lean mass',
+      tdeePal: 'Activity multiplier for total daily energy expenditure (TDEE)',
+      yagOrani: 'Body fat estimate when no photo or tape measurement exists',
+      protein: 'Daily protein target and its increase in a deficit',
+      kaloriAcigi: 'Upper bound on the calorie deficit',
+      birRm: 'One-rep max (1RM) estimate and starting load',
+      hacim: 'Weekly set count per muscle group',
+      ilerleme: 'Progressive overload and deload frequency',
+    },
+  },
+
   saglik: {
     tibbiCihazDegil:
       'Swiip is not a medical device. It does not diagnose and does not prescribe treatment. Its outputs are estimates. If you have a complaint, see your doctor.',
@@ -1225,6 +1248,7 @@ export const en: Metinler = {
       'All your records were written to your device as a JSON file, but the share sheet cannot open here.',
     disaAktarilamadi: 'Could not prepare your data. You can try again shortly.',
     saglikUyarisiBasligi: 'Health notice',
+    kaynaklarDugmesi: 'Calculation sources',
     hesapBasligi: 'Account',
     dogrulandi: 'Verified',
     dogrulamaGovde:

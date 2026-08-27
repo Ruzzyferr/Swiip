@@ -16,11 +16,13 @@ import { useYiginSecenekleri } from '../../src/gezinme/yiginSecenekleri';
  */
 export default function AyarlarDuzeni() {
   const secenekler = useYiginSecenekleri();
-  const m = useMetinler().bildirimAyarlari;
+  const metinler = useMetinler();
+  const m = metinler.bildirimAyarlari;
 
   return (
     <Stack screenOptions={secenekler}>
       <Stack.Screen name="bildirimler" options={{ title: m.sayfaBasligi }} />
+      <Stack.Screen name="kaynaklar" options={{ title: metinler.kaynaklar.baslik }} />
     </Stack>
   );
 }

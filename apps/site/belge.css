@@ -115,6 +115,26 @@
   color: var(--murekkep-silik);
 }
 
+/*
+  Kaynak künyesi — hesaplama kaynakları sayfası.
+
+  Apple 1.4.1 sağlık bilgisi için atıf istiyor ve atıfın "kolay bulunur" olmasını
+  şart koşuyor. Künye gövde metninden ayrılıyor ama silikleşmiyor: okunması gereken
+  bir şey, dipnot değil.
+*/
+.belge-kaynak {
+  margin: 0.6rem 0 1.6rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--cizgi);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--murekkep-yumusak, var(--murekkep-silik));
+}
+
+.belge-kaynak em {
+  font-style: italic;
+}
+
 /* Adım listesi — hesap silme yolu. */
 .adimlar {
   counter-reset: adim;
