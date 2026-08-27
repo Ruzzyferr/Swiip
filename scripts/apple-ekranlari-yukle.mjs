@@ -122,7 +122,11 @@ for (const set of setler.d.data) {
     const bitir = await cagir(`/appScreenshots/${kimlik}`, {
       method: 'PATCH',
       body: JSON.stringify({
-        data: { type: 'appScreenshots', id: kimlik, attributes: { uploaded: true, sourceFileChecksum: md5 } },
+        data: {
+          type: 'appScreenshots',
+          id: kimlik,
+          attributes: { uploaded: true, sourceFileChecksum: md5 },
+        },
       }),
     });
     console.log(`  yüklendi: ${ad}  ${bitir.k}`);
