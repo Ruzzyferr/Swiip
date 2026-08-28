@@ -189,6 +189,7 @@ export function Sayi({
   stil,
 }: Omit<BaslikProps, 'hizala'>) {
   const tema = useTema();
+  const satirda = useContext(SatirIcinde);
   const olcek = tema.tipografi.olcek[tur];
 
   return (
@@ -208,6 +209,8 @@ export function Sayi({
            * iddiasını taşıyan tek görsel ayrıntı buydu ve hiç var olmamıştı.
            */
           fontFamily: tema.tipografi.aileler.sayisal,
+          // Satır içindeyken daralsın; gerekçesi `SatirIcinde`de.
+          ...(satirda ? { flexShrink: 1 } : {}),
         },
         stil,
       ]}

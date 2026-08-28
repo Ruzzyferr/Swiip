@@ -405,6 +405,14 @@ kararı). Play sayacı hâlâ **1/12**.
   birden üretiyor; şerit yüksekliği set başına yazılı ve "içeriğe taşmasın" siniri
   ayrı ölçüldü (telefon 78/100, tablet 72/90).
 
+  **Çoklu görev (Slide Over) ayrıca denendi: 320x1180 pt.** İki taşma daha çıktı ve
+  ikisi de kod okunarak değil emulatörde görülerek bulundu:
+  `Sayi` satır içinde daralmıyordu (`Yazi` daralıyordu) ve "18 kg" kartın dışına
+  taşıyordu; program kartındaki iki bağlantı yan yana sığmıyordu. `Sayi` da artık
+  `SatirIcinde` bağlamını okuyor. İki satıra `sar` verildi — oralarda daralma
+  yanlış olurdu: biri sayıyı ortadan böler ("18" / "kg"), öteki metin değil iki
+  ayrı düğme.
+
   **Kilit:** `ipad.test.ts` (destek açık, dört yön, çoklu görev kapatılmamış) ve
   `tasmaKorumasi.test.ts`'e eklenen "her ekran sütun içinde" kuralı.
 

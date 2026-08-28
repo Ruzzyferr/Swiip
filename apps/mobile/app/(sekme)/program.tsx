@@ -265,7 +265,12 @@ export default function ProgramEkrani() {
             {m.nedenBuProgram}
           </Yazi>
           <Yazi renk="metinYumusak">{program.split.gerekce}</Yazi>
-          <Satir dagit="space-between">
+          {/*
+            `sar`: iki bağımsız bağlantı. Dar tuvalde (iPad Slide Over 320 pt)
+            yan yana sığmıyorlar ve ikincisi kartın dışına taşıyordu. Metin
+            daralması burada işe yaramaz — bunlar metin değil, iki ayrı düğme.
+          */}
+          <Satir dagit="space-between" sar>
             <Pressable
               onPress={() => router.push('/program/neden')}
               accessibilityRole="button"
@@ -435,7 +440,12 @@ function HareketKarti({
           <View style={{ flex: 1, gap: tema.bosluk.xs }}>
             <Yazi tur="baslik3">{ad}</Yazi>
 
-            <Satir arasi="lg" hizala="baseline">
+            {/*
+              `sar`: dar tuvalde ağırlık bloğu alt satıra insin. Daralma burada
+              sayıyı ortadan bölerdi ("18 kg" -> "18" / "kg"); satırın kendisi
+              inince sayı bütün kalıyor.
+            */}
+            <Satir arasi="lg" hizala="baseline" sar>
               <Sayi tur="baslik2">
                 {kalem.target_sets} × {kalem.target_reps_low}-{kalem.target_reps_high}
               </Sayi>
