@@ -10,8 +10,9 @@ import {
   Dugme,
   Etiket,
   Kart,
-  Sayi,
   Satir,
+  Sayi,
+  Sutun,
   Uyari,
   Yazi,
   Yukleniyor,
@@ -159,14 +160,14 @@ export default function Beslenme() {
     const profilEksik = hataKodu === 'profil_yok' || hataKodu === 'degerlendirme_yok';
     return (
       <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-        <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+        <Sutun>
           <BosDurum baslik={profilEksik ? m.hedefYokBaslik : m.hedefAlinamadi} govde={hata} />
           {profilEksik ? (
             <Dugme baslik={m.degerlendirmeyeGit} onPress={() => router.push('/degerlendirme')} />
           ) : (
             <Dugme baslik={genel.yeniden} onPress={() => void yukle()} />
           )}
-        </View>
+        </Sutun>
       </ScrollView>
     );
   }
@@ -175,7 +176,7 @@ export default function Beslenme() {
   if (hedef?.sayilar_gizli && hedef.porsiyon_rehberi) {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-        <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+        <Sutun>
           <Yazi tur="baslik1">{m.edBaslik}</Yazi>
           <Yazi renk="metinYumusak">{hedef.porsiyon_rehberi.ozet}</Yazi>
 
@@ -193,7 +194,7 @@ export default function Beslenme() {
           <Yazi tur="etiket" renk="metinSilik" hizala="center">
             {m.edSayiNotu}
           </Yazi>
-        </View>
+        </Sutun>
       </ScrollView>
     );
   }
@@ -202,7 +203,7 @@ export default function Beslenme() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-      <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+      <Sutun>
         <Yazi tur="baslik1">{m.bugun}</Yazi>
 
         {/*
@@ -412,7 +413,7 @@ export default function Beslenme() {
         ) : (
           <BosDurum baslik={m.bosKayitBaslik} govde={m.bosKayitGovde} />
         )}
-      </View>
+      </Sutun>
     </ScrollView>
   );
 }

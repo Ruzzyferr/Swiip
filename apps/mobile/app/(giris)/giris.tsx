@@ -45,7 +45,7 @@ export default function Giris() {
   return (
     <>
       <Stack.Screen options={{ headerShown: true, title: m.sayfaBasligi }} />
-      <Ekran>
+      <Ekran ortala>
         <Yazi tur="baslik1">{m.baslik}</Yazi>
 
         <View style={{ gap: tema.bosluk.sm }}>

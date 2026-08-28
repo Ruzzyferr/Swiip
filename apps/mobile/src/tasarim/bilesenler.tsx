@@ -275,6 +275,39 @@ export const OKUMA_GENISLIGI = 560;
  *    satırlar ekran boyunca uzamasın. Hiçbir telefon dikeyde 430 pt'yi geçmiyor,
  *    yani küçük tuvalde bu sınır hiç devreye girmiyor.
  */
+/**
+ * Okuma sütunu — içeriği ortalayan, genişliği sınırlı kap.
+ *
+ * `Ekran` bunu içinden kullanıyor. Ayrıca kendi `ScrollView`’ini kuran ekranlar
+ * (sekmeler: yenileme kontrolü, sohbet listesi, klavye kaçınma) doğrudan
+ * kullanıyor: `Ekran`a çeviremeyecek kadar farklılar ama sütunu onların da
+ * alması gerekiyor.
+ *
+ * NEDEN: iPad desteği açılınca tuval 820 pt oldu ve sütunsuz ekranlarda satırlar
+ * 110 karaktere uzadı. Emulatörde ölçüldü. Uzun satır “büyük ekranda çok içerik”
+ * değil, okunamayan içerik demek — Apple’ın Guideline 4 metni de tam bunu
+ * söylüyor: *“easy to read and interact with”*.
+ */
+export function Sutun({ children, stil }: { children: ReactNode; stil?: StyleProp<ViewStyle> }) {
+  const tema = useTema();
+  return (
+    <View
+      style={[
+        {
+          width: '100%',
+          maxWidth: OKUMA_GENISLIGI,
+          alignSelf: 'center',
+          padding: tema.bosluk.lg,
+          gap: tema.bosluk.lg,
+        },
+        stil,
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+
 export function Ekran({
   children,
   altBoslugu = true,
@@ -305,17 +338,15 @@ export function Ekran({
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
     >
-      <View
-        style={{
-          width: '100%',
-          maxWidth: OKUMA_GENISLIGI,
+      <Sutun
+        stil={{
+          padding: 0,
           flexGrow: 1,
-          gap: tema.bosluk.lg,
           justifyContent: ortala ? 'center' : undefined,
         }}
       >
         {children}
-      </View>
+      </Sutun>
     </ScrollView>
   );
 }

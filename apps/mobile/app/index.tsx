@@ -42,7 +42,7 @@ export default function Karsilama() {
     yer yokken kaydırıyor. Kural `tasmaKorumasi.test.ts` ile kilitli.
   */
   return (
-    <Ekran ustGuvenliAlan>
+    <Ekran ustGuvenliAlan ortala>
       <View style={{ gap: tema.bosluk.lg }}>
         <Isaret renk={tema.renk.aksan} />
 
@@ -75,8 +75,15 @@ export default function Karsilama() {
 
         `flexGrow` — `flex: 1` değil: içerik taştığında ayırıcı sıfıra çöküp yerini
         düğmelere bırakmalı, tuvali daha da büyütmemeli.
+
+        **`maxHeight` iPad için.** Tavansız bırakıldığında ayırıcı bütün artan alanı
+        yutuyor: 1180 pt'lik iPad tuvalinde künye ile düğmeler arasında 700 pt boşluk
+        kalıyordu ve ekran "büyütülmüş telefon uygulaması" gibi duruyordu. Tavan +
+        `Ekran ortala` ile blok bir bütün olarak ortalanıyor. Telefonda hiçbir şey
+        değişmiyor: orada artan alan zaten tavanın altında (ölçüldü, iPhone 15 Pro'da
+        ~87 pt).
       */}
-      <View style={{ flexGrow: 1, minHeight: tema.bosluk.xl }} />
+      <View style={{ flexGrow: 1, minHeight: tema.bosluk.xl, maxHeight: 96 }} />
 
       <View style={{ gap: tema.bosluk.md }}>
         <Dugme

@@ -38,13 +38,33 @@ except ImportError:
     sys.exit('Pillow gerekli:  python -m pip install Pillow')
 
 KOK = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-KAYNAK = os.path.join(KOK, 'magaza', 'play', 'ekranlar')
-HEDEF = os.path.join(KOK, 'magaza', 'appstore', 'ekranlar')
 
-# Durum cubugu 16-55 arasinda olculdu; 78 guvenli bir tavan.
-# Uygulama icerigi en erken y=121'de basliyor, yani icerige dokunmuyoruz.
-SERIT_YUKSEKLIGI = 78
-ICERIK_BASLANGICI = 100  # bu satirin altina asla dokunulmaz
+# Iki set uretiliyor: telefon ve tablet.
+#
+# Kaynaklar AYRI klasorlerde ve ikisi de Android emulatorunde cekildi, cunku
+# macOS yok. Play'e giden kopyada Android durum cubugu DOGRU olan; App Store'a
+# giden kopyada seridi uygulamanin kendi zemin rengiyle dolduruyoruz.
+#
+# Serit yuksekligi cihaza gore degisiyor, o yuzden set basina yaziliyor ve her
+# birinde "icerige tasmasin" siniri ayri. Olculdu:
+#   telefon (1320x2868): simgeler y<=55, icerik y=121'de basliyor
+#   tablet  (2048x2732): simgeler y<=45, icerik y=95'te basliyor
+SETLER = (
+    {
+        'ad': 'telefon',
+        'kaynak': os.path.join(KOK, 'magaza', 'play', 'ekranlar'),
+        'hedef': os.path.join(KOK, 'magaza', 'appstore', 'ekranlar'),
+        'serit': 78,
+        'icerik': 100,
+    },
+    {
+        'ad': 'tablet',
+        'kaynak': os.path.join(KOK, 'magaza', 'tablet', 'ekranlar'),
+        'hedef': os.path.join(KOK, 'magaza', 'appstore', 'ekranlar-ipad'),
+        'serit': 72,
+        'icerik': 90,
+    },
+)
 
 
 def zemin_rengi(im, serit):
@@ -61,33 +81,42 @@ def zemin_rengi(im, serit):
     return sayac.most_common(1)[0][0]
 
 
-def temizle(kaynak_yol, hedef_yol):
+def temizle(kaynak_yol, hedef_yol, serit, icerik):
     im = Image.open(kaynak_yol).convert('RGB')
     w, h = im.size
-    renk = zemin_rengi(im, SERIT_YUKSEKLIGI)
+    renk = zemin_rengi(im, serit)
 
     # Guvenlik: serit icerige tasmasin.
-    assert SERIT_YUKSEKLIGI < ICERIK_BASLANGICI, 'serit icerige tasiyor'
+    assert serit < icerik, 'serit icerige tasiyor'
 
-    im.paste(renk, (0, 0, w, SERIT_YUKSEKLIGI))
+    im.paste(renk, (0, 0, w, serit))
     im.save(hedef_yol, 'PNG', optimize=True)
     return w, h, renk
 
 
 def main():
-    if not os.path.isdir(KAYNAK):
-        sys.exit('kaynak klasor yok: %s' % KAYNAK)
-    os.makedirs(HEDEF, exist_ok=True)
+    for set_ in SETLER:
+        kaynak, hedef = set_['kaynak'], set_['hedef']
+        if not os.path.isdir(kaynak):
+            sys.exit('kaynak klasor yok: %s' % kaynak)
+        os.makedirs(hedef, exist_ok=True)
 
-    dosyalar = sorted(f for f in os.listdir(KAYNAK) if f.lower().endswith('.png'))
-    if not dosyalar:
-        sys.exit('kaynakta PNG yok')
+        dosyalar = sorted(f for f in os.listdir(kaynak) if f.lower().endswith('.png'))
+        if not dosyalar:
+            sys.exit('kaynakta PNG yok: %s' % kaynak)
 
-    for ad in dosyalar:
-        w, h, renk = temizle(os.path.join(KAYNAK, ad), os.path.join(HEDEF, ad))
-        print('%-20s %dx%d  serit=%dpx  zemin=#%02X%02X%02X' % (ad, w, h, SERIT_YUKSEKLIGI, *renk))
+        print('== %s ==' % set_['ad'])
+        for ad in dosyalar:
+            w, h, renk = temizle(
+                os.path.join(kaynak, ad), os.path.join(hedef, ad), set_['serit'], set_['icerik']
+            )
+            print(
+                '%-20s %dx%d  serit=%dpx  zemin=#%02X%02X%02X'
+                % (ad, w, h, set_['serit'], *renk)
+            )
+        print('%d goruntu -> %s' % (len(dosyalar), hedef))
+        print('')
 
-    print('\n%d goruntu uretildi -> %s' % (len(dosyalar), HEDEF))
 
 
 if __name__ == '__main__':

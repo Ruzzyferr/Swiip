@@ -10,8 +10,9 @@ import {
   Etiket,
   Gorsel,
   Kart,
-  Sayi,
   Satir,
+  Sayi,
+  Sutun,
   Uyari,
   Yazi,
   Yukleniyor,
@@ -239,7 +240,7 @@ export default function ProgramEkrani() {
         />
       }
     >
-      <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+      <Sutun>
         {durum === 'cevrimdisi' ? (
           <Uyari
             tur="uyari"
@@ -384,7 +385,7 @@ export default function ProgramEkrani() {
         <Yazi tur="etiket" renk="metinSilik" hizala="center">
           {m.duzenlemeUcretsiz}
         </Yazi>
-      </View>
+      </Sutun>
     </ScrollView>
   );
 }

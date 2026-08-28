@@ -10,11 +10,13 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import {
+  OKUMA_GENISLIGI,
   BosDurum,
   Dugme,
   Etiket,
   Kart,
   Satir,
+  Sutun,
   Uyari,
   Yazi,
   Yukleniyor,
@@ -161,11 +163,11 @@ export default function Koc() {
   if (kilit) {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-        <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+        <Sutun>
           <BosDurum baslik={m.kapaliBaslik} govde={kilit} />
           <Dugme baslik={m.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
           <Dugme baslik={m.geri} tur="sessiz" onPress={() => setKilit(null)} />
-        </View>
+        </Sutun>
       </ScrollView>
     );
   }
@@ -176,8 +178,13 @@ export default function Koc() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={90}
     >
+      {/*
+        Sohbet de okuma sutununa giriyor. iPad'de tuval 820 pt; sutunsuz birakilirsa
+        her mesaj balonu ekran boyunca uzuyor ve sohbet okunmaz hale geliyor.
+      */}
       <ScrollView
         ref={kaydirma}
+        style={{ width: '100%', maxWidth: OKUMA_GENISLIGI, alignSelf: 'center' }}
         contentContainerStyle={{ padding: tema.bosluk.lg, gap: tema.bosluk.md }}
       >
         {mesajlar.length === 0 ? (
@@ -260,51 +267,55 @@ export default function Koc() {
         {gonderiliyor ? <Yukleniyor metin={m.dusunuyor} /> : null}
       </ScrollView>
 
+      {/*
+        Ayirici cizgi TAM GENISLIKTE, icerik sutunda. Cizgiyi de daraltmak
+        genis ekranda cubugu havada duran bir kutuya cevirirdi.
+      */}
       <View
         style={{
-          padding: tema.bosluk.md,
-          gap: tema.bosluk.sm,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: tema.renk.cizgi,
           backgroundColor: tema.renk.yuzey,
         }}
       >
-        {kalan !== null ? (
-          <Yazi tur="etiket" renk="metinSilik">
-            {kalan > 0 ? m.kalanMesaj(kalan) : toplamHak === 0 ? m.kocKapali : m.kotaBitti}
-          </Yazi>
-        ) : null}
-        <Satir arasi="sm">
-          <TextInput
-            value={girdi}
-            onChangeText={setGirdi}
-            placeholder={m.girisAlani}
-            placeholderTextColor={tema.renk.metinSilik}
-            multiline
-            accessibilityLabel={m.girdiErisim}
-            style={{
-              flex: 1,
-              minHeight: tema.dokunmaHedefi,
-              maxHeight: 120,
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: tema.renk.kenar,
-              borderRadius: tema.yaricap.md,
-              paddingHorizontal: tema.bosluk.md,
-              paddingTop: tema.bosluk.sm,
-              fontSize: 16,
-              fontFamily: tema.tipografi.aileler.govde,
-              color: tema.renk.metin,
-              backgroundColor: tema.renk.zemin,
-            }}
-          />
-          <Dugme
-            baslik={m.gonder}
-            onPress={() => void gonder()}
-            tamGenislik={false}
-            pasif={girdi.trim() === '' || !kocAcik}
-            yukleniyor={gonderiliyor}
-          />
-        </Satir>
+        <Sutun stil={{ padding: tema.bosluk.md, gap: tema.bosluk.sm }}>
+          {kalan !== null ? (
+            <Yazi tur="etiket" renk="metinSilik">
+              {kalan > 0 ? m.kalanMesaj(kalan) : toplamHak === 0 ? m.kocKapali : m.kotaBitti}
+            </Yazi>
+          ) : null}
+          <Satir arasi="sm">
+            <TextInput
+              value={girdi}
+              onChangeText={setGirdi}
+              placeholder={m.girisAlani}
+              placeholderTextColor={tema.renk.metinSilik}
+              multiline
+              accessibilityLabel={m.girdiErisim}
+              style={{
+                flex: 1,
+                minHeight: tema.dokunmaHedefi,
+                maxHeight: 120,
+                borderWidth: StyleSheet.hairlineWidth,
+                borderColor: tema.renk.kenar,
+                borderRadius: tema.yaricap.md,
+                paddingHorizontal: tema.bosluk.md,
+                paddingTop: tema.bosluk.sm,
+                fontSize: 16,
+                fontFamily: tema.tipografi.aileler.govde,
+                color: tema.renk.metin,
+                backgroundColor: tema.renk.zemin,
+              }}
+            />
+            <Dugme
+              baslik={m.gonder}
+              onPress={() => void gonder()}
+              tamGenislik={false}
+              pasif={girdi.trim() === '' || !kocAcik}
+              yukleniyor={gonderiliyor}
+            />
+          </Satir>
+        </Sutun>
       </View>
     </KeyboardAvoidingView>
   );

@@ -8,8 +8,9 @@ import {
   BosDurum,
   Dugme,
   Kart,
-  Sayi,
   Satir,
+  Sayi,
+  Sutun,
   Uyari,
   Yazi,
   Yukleniyor,
@@ -102,7 +103,7 @@ export default function Ilerleme() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-      <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+      <Sutun>
         {/*
           `hizala="stretch"`: iki dugme esit yukseklikte.
           Varsayilan `center` ile "Fotograf karsilastir" iki satira sarip digerinden
@@ -229,7 +230,7 @@ export default function Ilerleme() {
         ) : (
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
         )}
-      </View>
+      </Sutun>
     </ScrollView>
   );
 }

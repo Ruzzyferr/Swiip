@@ -17,8 +17,9 @@ import {
   Dugme,
   Etiket,
   Kart,
-  Sayi,
   Satir,
+  Sayi,
+  Sutun,
   Uyari,
   Yazi,
 } from '../../src/tasarim/bilesenler';
@@ -206,7 +207,7 @@ export default function Ayarlar() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
-      <View style={{ padding: tema.bosluk.lg, gap: tema.bosluk.lg }}>
+      <Sutun>
         {/* --- İPTAL EN ÜSTTE --- */}
         {abonelik && abonelik.plan !== 'ucretsiz' ? (
           <Kart>
@@ -489,7 +490,7 @@ export default function Ayarlar() {
         {islemHatasi ? <Uyari tur="tehlike" govde={islemHatasi} /> : null}
 
         <Uyari govde={a.oyunlastirmaNotu} />
-      </View>
+      </Sutun>
     </ScrollView>
   );
 }

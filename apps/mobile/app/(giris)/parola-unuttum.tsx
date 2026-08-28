@@ -83,7 +83,7 @@ export default function ParolaUnuttum() {
   return (
     <>
       <Stack.Screen options={{ headerShown: true, title: m.sayfaBasligi }} />
-      <Ekran>
+      <Ekran ortala>
         {adim === 'eposta' ? (
           <>
             <Yazi tur="baslik1">{m.baslik}</Yazi>

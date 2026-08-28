@@ -147,3 +147,31 @@ describe('satır içi metin taşmıyor', () => {
     expect(kaynak).toMatch(/sar\s*\?\s*\{\s*flexWrap/);
   });
 });
+
+/**
+ * Okuma sütunu HER ekranda.
+ *
+ * iPad desteği açılınca tuval 820 pt (dikey) ve 1180 pt (yatay) oldu. `Ekran`
+ * kullanan ekranlar sütunu kaptan alıyor; kendi `ScrollView`'ini kuran beş sekme
+ * almıyordu ve orada satırlar 110 karaktere uzuyordu — emulatörde ölçüldü.
+ *
+ * Sütun `Sutun` bileşeninde tek yerde tanımlı; `Ekran` de onu kullanıyor. Bu test
+ * her ekranın ikisinden birine girmesini şart koşuyor.
+ */
+describe('geniş tuvalde okuma sütunu', () => {
+  it.each(EKRANLAR.map((y) => [y.slice(APP.length + 1), y]))('%s sütun içinde', (_ad, yol) => {
+    expect(
+      /<(Ekran|Sutun)\b/.test(kod(yol)),
+      'Bu ekran okuma sütununa girmiyor: iPad tuvalinde (820-1180 pt) satırlar ' +
+        'ekran boyunca uzar ve okunmaz. <Ekran> ya da <Sutun> kullan.',
+    ).toBe(true);
+  });
+
+  it('sütun genişliği tek yerde tanımlı', () => {
+    const kaynak = kod(join(TASARIM, 'bilesenler.tsx'));
+    expect(kaynak).toMatch(/export const OKUMA_GENISLIGI/);
+    expect(kaynak).toMatch(/export function Sutun/);
+    // `Ekran` sütunu kendisi yeniden kurmasın; tek tanım kalsın.
+    expect((kaynak.match(/maxWidth: OKUMA_GENISLIGI/g) || []).length).toBe(1);
+  });
+});

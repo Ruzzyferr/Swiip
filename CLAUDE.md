@@ -373,6 +373,51 @@ kararı). Play sayacı hâlâ **1/12**.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
+- **iPad ARTIK GERÇEKTEN DESTEKLENİYOR (2026-08-28).** `supportsTablet` `false`'tan
+  `true`'ya alındı. Kapalı olması uygulamayı iPad'den **gizlemiyordu** — iPad onu
+  iPhone uyumluluk penceresinde çalıştırıyor ve dört inceleme turunun **dördünde de**
+  cihaz iPad'di. Guideline 4 reddi tam o pencereden geldi.
+
+  Yön: iPhone dikey kalıyor, iPad **dört yönü** de destekliyor
+  (`UISupportedInterfaceOrientations~ipad`). Çoklu görev (Split View / Slide Over)
+  bunu şart koşuyor; yalnız dikey bırakılan bir iPad uygulaması hem doğrulamada
+  uyarı alıyor hem de "iPad kullanıcısı için beklendiği gibi çalışmıyor" sayılıyor.
+  `UIRequiresFullScreen` **yazılmadı** — o, çoklu görevi kapatmak demek.
+
+  **Okuma sütunu (`Sutun`, 560 pt).** iPad tuvali 820 pt (dikey) ve 1180 pt (yatay).
+  `Ekran` kullanan ekranlar sütunu kaptan alıyordu; kendi `ScrollView`'ini kuran beş
+  sekme almıyordu ve orada satırlar **110 karaktere** uzuyordu — emulatörde ölçüldü.
+  Sütun tek bileşende tanımlı, `Ekran` de onu kullanıyor.
+
+  **Karşılama ekranında ayırıcıya tavan kondu.** Tavansız `flexGrow` bütün artan
+  alanı yutuyor: 1180 pt'de künye ile düğmeler arasında 700 pt boşluk kalıyordu ve
+  ekran "büyütülmüş telefon uygulaması" gibi duruyordu. `maxHeight: 96` + `ortala`
+  ile blok bir bütün olarak ortalanıyor. Telefonda artan alan zaten tavanın altında
+  (iPhone 15 Pro'da ~87 pt ölçüldü), yani orada hiçbir şey değişmiyor.
+  Kısa form ekranları (giriş, kayıt, parola) da `ortala` aldı.
+
+  **Ekran görüntüleri.** App Store, iPad'de çalışan bir uygulamadan **13 inç seti**
+  istiyor (2048x2732 ya da 2064x2752). Emulatör `wm size 2048x2732` + `density 320`
+  ile tam 1024x1366 pt'ye kuruldu ve altı ekran çekildi. Ham kopya
+  `magaza/tablet/ekranlar/` (Play tablet yuvası için doğru olan bu), App Store
+  kopyası `magaza/appstore/ekranlar-ipad/` — durum çubuğu şeridi uygulamanın kendi
+  zemin rengiyle dolduruldu. `scripts/appstore-ekranlari-uret.py` artık iki seti
+  birden üretiyor; şerit yüksekliği set başına yazılı ve "içeriğe taşmasın" siniri
+  ayrı ölçüldü (telefon 78/100, tablet 72/90).
+
+  **Kilit:** `ipad.test.ts` (destek açık, dört yön, çoklu görev kapatılmamış) ve
+  `tasmaKorumasi.test.ts`'e eklenen "her ekran sütun içinde" kuralı.
+
+  **Doğrulandı (emulatörde, dört tuvalde):** iPad 13" 1024x1366, iPad 11" 820x1180
+  dikey ve 1180x820 **yatay**, iPhone 15 Pro 393x852, iPhone SE 375x667 ve
+  320x568 + %130 yazı tipi. Giriş yapılıp beş sekme, paywall, kaynaklar ekranı ve
+  sağlık kapısı tek tek gezildi.
+
+  **Emulatörün ağı yoktu; API `adb reverse` ile tünellendi.** Geliştirme yedeği
+  zaten `http://127.0.0.1:3311`'e gidiyor (`api.ts`), yani ana makinede o porta
+  konan küçük bir vekil üretim API'sini emulatöre veriyor. Bu, girişin arkasındaki
+  ekranları görmenin tek yoluydu.
+
 - **App Store: 1.0 DÖRDÜNCÜ KEZ reddedildi — Guideline 4, Design (2026-08-28).**
   İlk üç turun üçü de kapandı (metadata, abonelik metadata'sı, içerik/atıf) ve Apple
   bu kez **düzene** baktı. Metin: *"Parts of the app's user interface were crowded,
