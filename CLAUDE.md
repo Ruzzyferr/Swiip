@@ -373,6 +373,42 @@ kararı). Play sayacı hâlâ **1/12**.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
+- **Gönderildi: build 20, iPad dahil (2026-08-28 17:17 UTC).** Altı öğe —
+  sürüm + abonelik grubu + dört abonelik — `WAITING_FOR_REVIEW`. Gönderim öncesi
+  11 maddelik denetimin hepsi yeşil; iki ekran seti de 6/6 `COMPLETE`
+  (`APP_IPHONE_67` ve `APP_IPAD_PRO_3GEN_129`).
+
+  **Öğrenilenler:**
+  - iPad ekran seti **sürüm incelemedeyken oluşturulamıyor**
+    (*"Can't Create Screenshot Set while In Review"*). Önce gönderimi iptal et.
+  - Geçerli tür adı `APP_IPAD_PRO_3GEN_129`. `APP_IPAD_13` diye bir değer YOK —
+    API 409 `ATTRIBUTE.TYPE` ile reddediyor.
+  - Gönderimi iptal etmek anında bitmiyor: durum önce `CANCELING`, sonra sürüm
+    `DEVELOPER_REJECTED` oluyor. Build'i ancak o zaman bağlayabiliyorsun.
+  - `scripts/apple-ekranlari-yukle.mjs` artık iki seti de yönetiyor, eksik seti
+    kendisi oluşturuyor ve `--set=<tür>` ile tek set işlenebiliyor.
+
+  **Elle bakılan ama DEĞİŞTİRİLMEYENLER (5. katman taraması):**
+  - **App Privacy** tam ve yayımlanmış: 8 veri türü, hepsi "App Functionality"
+    (biri "Analytics"), hiçbiri izleme için. Sağlık uygulaması için doğru beyan.
+  - **Gizlilik bildirimi (`PrivacyInfo.xcprivacy`)** eklenmedi: bağımlılıklar
+    kendi bildirimlerini taşıyor ve build 12-20'nin hepsi ITMS-91053 almadan
+    yüklendi. Doğrulanmamış bir bildirim eklemek ITMS-91055/91056 riski demek.
+  - **2.3.3 (ekran görüntüsü "kullanımda" olmalı):** ilk görüntü karşılama
+    ekranı. Apple bu seti 1.4.1/1.5/2.3.10 turunda **inceledi** ve yalnızca
+    Android durum çubuğuna itiraz etti — yani içeriği geçti. Değiştirmek yeni
+    risk açardı.
+  - **Erişilebilirlik beyanı (App Accessibility)** boş bırakıldı. İsteğe bağlı ve
+    gönderimi engellemiyor. Ölçümle destekleyebildiğimiz iki özellik var
+    (kontrast ve koyu arayüz); VoiceOver ve "Larger Text" için Apple "tüm yaygın
+    görevler bu özellikle tamamlanabilmeli" diyor ve bunu gerçek cihaz olmadan
+    uçtan uca doğrulayamadık. Doğrulanmamış bir erişilebilirlik iddiası, boş
+    bırakmaktan kötüdür.
+  - **Kontrast ölçüldü ve kilitlendi:** `kontrast.test.ts` her iki temada metin
+    /zemin çiftlerini WCAG AA'ya (4.5) karşı sınıyor. En zayıf çift açık temada
+    5.37, koyu temada 6.07. Palet bu depoda birkaç kez elle ayarlandı; artık
+    sessizce eşiğin altına inemez.
+
 - **iPad ARTIK GERÇEKTEN DESTEKLENİYOR (2026-08-28).** `supportsTablet` `false`'tan
   `true`'ya alındı. Kapalı olması uygulamayı iPad'den **gizlemiyordu** — iPad onu
   iPhone uyumluluk penceresinde çalıştırıyor ve dört inceleme turunun **dördünde de**

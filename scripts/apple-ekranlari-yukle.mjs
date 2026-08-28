@@ -22,8 +22,31 @@ import { basename, join } from 'node:path';
 import { createSign } from 'node:crypto';
 
 const APP = '6803979374';
-const KLASOR = join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar');
 const YAZ = process.argv.includes('--yaz');
+
+/** `--set APP_IPAD_PRO_3GEN_129` ile tek set islenir; verilmezse hepsi. */
+const SECILEN = (process.argv.find((a) => a.startsWith('--set=')) || '').slice(6);
+
+/**
+ * Hangi ekran boyutu hangi klasorden beslenir.
+ *
+ * iPad seti 2026-08-28'de eklendi: `supportsTablet` acilinca App Store 13 inc
+ * seti ZORUNLU kiliyor. Gecerli tur adi `APP_IPAD_PRO_3GEN_129` (2048x2732);
+ * `APP_IPAD_13` diye bir deger YOK (API 409 ile reddediyor, denendi).
+ *
+ * Set yoksa olusturuluyor. Dikkat: surum INCELEMEDEYKEN set olusturulamiyor
+ * ("Can't Create Screenshot Set while In Review") -- once gonderimi iptal et.
+ */
+const SETLER = [
+  {
+    tur: 'APP_IPHONE_67',
+    klasor: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar'),
+  },
+  {
+    tur: 'APP_IPAD_PRO_3GEN_129',
+    klasor: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar-ipad'),
+  },
+];
 
 const b = (g) =>
   Buffer.from(g).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -61,21 +84,49 @@ const loc = await cagir(`/appStoreVersions/${surum.id}/appStoreVersionLocalizati
 const yerel = loc.d.data[0];
 console.log('dil  :', yerel.attributes.locale);
 
-const setler = await cagir(`/appStoreVersionLocalizations/${yerel.id}/appScreenshotSets`);
-if (!setler.d.data?.length) {
-  console.error('Ekran görüntüsü seti yok.');
-  process.exit(1);
-}
+const mevcutSetler = await cagir(`/appStoreVersionLocalizations/${yerel.id}/appScreenshotSets`);
+const setEsleme = new Map(
+  (mevcutSetler.d.data || []).map((x) => [x.attributes.screenshotDisplayType, x.id]),
+);
+console.log('mevcut setler:', [...setEsleme.keys()].join(', ') || '(yok)');
 
-const dosyalar = readdirSync(KLASOR)
-  .filter((f) => f.toLowerCase().endsWith('.png'))
-  .sort();
-console.log('yerel dosya:', dosyalar.length, '→', KLASOR);
+for (const { tur, klasor } of SETLER) {
+  if (SECILEN && tur !== SECILEN) continue;
+  const dosyalar = readdirSync(klasor)
+    .filter((f) => f.toLowerCase().endsWith('.png'))
+    .sort();
+  console.log(`\n=== ${tur} — ${dosyalar.length} dosya (${klasor})`);
 
-for (const set of setler.d.data) {
-  const tur = set.attributes.screenshotDisplayType;
-  const mevcut = await cagir(`/appScreenshotSets/${set.id}/appScreenshots?limit=20`);
-  console.log(`\nset ${tur}: ${(mevcut.d.data || []).length} mevcut görüntü`);
+  let setId = setEsleme.get(tur);
+  if (!setId) {
+    if (!YAZ) {
+      console.log('  set yok; --yaz ile oluşturulacak');
+      continue;
+    }
+    const olustur = await cagir('/appScreenshotSets', {
+      method: 'POST',
+      body: JSON.stringify({
+        data: {
+          type: 'appScreenshotSets',
+          attributes: { screenshotDisplayType: tur },
+          relationships: {
+            appStoreVersionLocalization: {
+              data: { type: 'appStoreVersionLocalizations', id: yerel.id },
+            },
+          },
+        },
+      }),
+    });
+    if (olustur.k >= 400) {
+      console.error('  SET OLUŞTURULAMADI:', olustur.k, JSON.stringify(olustur.d).slice(0, 240));
+      continue;
+    }
+    setId = olustur.d.data.id;
+    console.log('  set oluşturuldu:', setId);
+  }
+
+  const mevcut = await cagir(`/appScreenshotSets/${setId}/appScreenshots?limit=20`);
+  console.log(`  ${(mevcut.d.data || []).length} mevcut görüntü`);
 
   if (!YAZ) {
     console.log(`  silinecek: ${(mevcut.d.data || []).length}, yüklenecek: ${dosyalar.length}`);
@@ -88,7 +139,7 @@ for (const set of setler.d.data) {
   }
 
   for (const ad of dosyalar) {
-    const veri = readFileSync(join(KLASOR, ad));
+    const veri = readFileSync(join(klasor, ad));
 
     const olustur = await cagir('/appScreenshots', {
       method: 'POST',
@@ -96,9 +147,7 @@ for (const set of setler.d.data) {
         data: {
           type: 'appScreenshots',
           attributes: { fileName: basename(ad), fileSize: veri.length },
-          relationships: {
-            appScreenshotSet: { data: { type: 'appScreenshotSets', id: set.id } },
-          },
+          relationships: { appScreenshotSet: { data: { type: 'appScreenshotSets', id: setId } } },
         },
       }),
     });
@@ -108,9 +157,7 @@ for (const set of setler.d.data) {
     }
 
     const kimlik = olustur.d.data.id;
-    const parcalar = olustur.d.data.attributes.uploadOperations || [];
-
-    for (const p of parcalar) {
+    for (const p of olustur.d.data.attributes.uploadOperations || []) {
       const dilim = veri.subarray(p.offset, p.offset + p.length);
       const basliklar = {};
       for (const h of p.requestHeaders || []) basliklar[h.name] = h.value;
@@ -131,14 +178,10 @@ for (const set of setler.d.data) {
     });
     console.log(`  yüklendi: ${ad}  ${bitir.k}`);
   }
+
+  const son = await cagir(`/appScreenshotSets/${setId}/appScreenshots?limit=20`);
+  const durum = (son.d.data || []).map((g) => g.attributes.assetDeliveryState?.state ?? '?');
+  console.log(`  sette şimdi: ${durum.length} görüntü — ${durum.join(', ')}`);
 }
 
-if (YAZ) {
-  const son = await cagir(`/appScreenshotSets/${setler.d.data[0].id}/appScreenshots?limit=20`);
-  console.log('\nsette şimdi:', (son.d.data || []).length, 'görüntü');
-  for (const g of son.d.data || []) {
-    console.log('  ', g.attributes.fileName, '|', g.attributes.assetDeliveryState?.state ?? '?');
-  }
-} else {
-  console.log('\n(deneme modu — hiçbir şey değişmedi; --yaz ile uygula)');
-}
+if (!YAZ) console.log('\n(deneme modu — hiçbir şey değişmedi; --yaz ile uygula)');
