@@ -25,12 +25,14 @@ function dogrusal(kanal: number): number {
 
 function parlaklik(onaltilik: string): number {
   const s = onaltilik.replace('#', '');
-  const [r, g, b] = [0, 2, 4].map((i) => dogrusal(parseInt(s.slice(i, i + 2), 16)));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  // Diziden yıkarak almak `noUncheckedIndexedAccess` altında `undefined` üretiyor.
+  const kanal = (basla: number) => dogrusal(parseInt(s.slice(basla, basla + 2), 16));
+  return 0.2126 * kanal(0) + 0.7152 * kanal(2) + 0.0722 * kanal(4);
 }
 
 export function kontrastOrani(a: string, b: string): number {
-  const [x, y] = [parlaklik(a), parlaklik(b)];
+  const x = parlaklik(a);
+  const y = parlaklik(b);
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 
