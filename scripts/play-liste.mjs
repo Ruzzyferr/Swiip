@@ -102,14 +102,33 @@ const gorseller = [
   { tur: 'icon', yol: 'magaza/play/ikon-512.png' },
   { tur: 'featureGraphic', yol: 'magaza/play/one-cikan-1024x500.png' },
 ];
-const ekranDizini = join(kok, 'magaza/play/ekranlar');
-if (existsSync(ekranDizini)) {
-  for (const dosya of readdirSync(ekranDizini)
+const ekranlariEkle = (dizin, tur) => {
+  const tam = join(kok, dizin);
+  if (!existsSync(tam)) return;
+  for (const dosya of readdirSync(tam)
     .filter((d) => /\.(png|jpg|jpeg)$/i.test(d))
     .sort()) {
-    gorseller.push({ tur: 'phoneScreenshots', yol: `magaza/play/ekranlar/${dosya}` });
+    gorseller.push({ tur, yol: `${dizin}/${dosya}` });
   }
-}
+};
+
+ekranlariEkle('magaza/play/ekranlar', 'phoneScreenshots');
+
+/*
+  Tablet görüntüleri.
+
+  Play, büyük ekran yuvaları boşken uygulamayı tablet ve Chromebook
+  koleksiyonlarında geri plana atıyor; telefon görüntüsünü tablet yuvasına
+  koymak ise gerilmiş görünüyor ve mağaza kalite puanını düşürüyor.
+
+  Kaynak `magaza/tablet/ekranlar/` — iPad seti için çekilen HAM kopya. Orada
+  Android durum çubuğu duruyor ve Play için DOĞRU olan bu; App Store kopyasında
+  şerit siliniyor (`scripts/appstore-ekranlari-uret.py`).
+
+  Aynı görüntü iki yuvaya da giriyor: 2048x2732 hem 7 hem 10 inç için geçerli.
+*/
+ekranlariEkle('magaza/tablet/ekranlar', 'sevenInchScreenshots');
+ekranlariEkle('magaza/tablet/ekranlar', 'tenInchScreenshots');
 
 // Aynı türü ikinci kez yüklerken önce mevcutları silmek gerekiyor, yoksa birikiyorlar.
 const silinen = new Set();
