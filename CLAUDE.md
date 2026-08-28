@@ -433,6 +433,12 @@ kararı). Play sayacı hâlâ **1/12**.
   çalışmıyordu, giriş yapılamadı. `flexShrink` değişikliği yalnızca taşma anında
   devreye girdiği için risk düşük ama **gözle bakılmadı**.
 
+  **Gönderildi (2026-08-28 14:34 UTC):** build 19 sürüme bağlandı, reddedilen
+  gönderim iptal edildi, altı öğe — sürüm + abonelik grubu + dört abonelik — tek
+  gönderimde `WAITING_FOR_REVIEW`. Resolution Center'a ayrıca cevap yazıldı:
+  kusurun ne olduğu, neden olduğu (uyumluluk penceresi) ve hangi tuvalde
+  doğrulandığı. İnceleyicinin aynı ekranı tekrar açması gerekiyor.
+
   **Ölçülen ders — güncellendi:** Apple her turda **tek bir katmanı** görüyor.
   Metadata (2.1) → abonelik metadata'sı (3.1.2) → içerik/atıf (1.4.1) → **düzen (4)**.
   İncelemenin **iPad'de** yapılması artık bir tesadüf değil, bir desen: cihaz ailesi
