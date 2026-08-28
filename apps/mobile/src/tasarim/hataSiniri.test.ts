@@ -45,12 +45,33 @@ describe('HataSiniri bileşeni', () => {
    * Tema bir kanca; sınıf bileşeninde çağrılamaz. Ekranı ayrı bir işlev bileşenine
    * almak hem bunu çözüyor hem de hata ekranının koyu temada koyu kalmasını
    * sağlıyor — sabit renk yazılsaydı koyu temada beyaz bir sayfa patlardı.
+   *
+   * Önce burada doğrudan `useTema()` aranıyordu. Ekran `Ekran` kabına alınınca
+   * (2026-08-28, Apple Guideline 4) o çağrı gereksizleşti: zemini ve kenar
+   * boşluklarını artık kap veriyor. Aranan şey çağrının kendisi değil, KURAL —
+   * sabit renk yok, kanca sınıfın dışında.
    */
-  it('hata ekranı ayrı bir işlev bileşeni ve temayı oradan okuyor', () => {
+  it('hata ekranı ayrı bir işlev bileşeni ve temayı kaptan alıyor', () => {
     expect(sinir).toMatch(/function HataEkrani\(/);
-    expect(sinir).toContain('useTema()');
+    expect(sinir).toMatch(/<Ekran\b/);
     // Sınıfın kendisi kanca çağırmıyor.
     expect(sinir).not.toMatch(/class HataSiniri[\s\S]*useTema\(/);
+  });
+
+  /**
+   * Son çıkış kırpılamaz.
+   *
+   * "Yeniden dene" düğmesi görünmezse kullanıcının uygulamayı silmekten başka yolu
+   * kalmıyor. Ekran düz bir `View` idi; hata metni dile ve yazı tipi ölçeğine göre
+   * uzuyor ve küçük tuvalde düğme dışarıda kalabiliyordu.
+   */
+  it('hata ekranı kaydırılabilir bir kapta', () => {
+    expect(sinir).not.toMatch(/kaydirilabilir/);
+    expect(sinir, 'başlık yok — üst boşluğu kap vermeli').toMatch(/<Ekran[^>]*ustGuvenliAlan/);
+  });
+
+  it('sabit renk yazılmamış', () => {
+    expect(sinir, 'koyu temada beyaz sayfa patlar').not.toMatch(/#[0-9a-fA-F]{6}/);
   });
 });
 

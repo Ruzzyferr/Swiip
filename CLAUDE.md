@@ -373,6 +373,72 @@ kararı). Play sayacı hâlâ **1/12**.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
+- **App Store: 1.0 DÖRDÜNCÜ KEZ reddedildi — Guideline 4, Design (2026-08-28).**
+  İlk üç turun üçü de kapandı (metadata, abonelik metadata'sı, içerik/atıf) ve Apple
+  bu kez **düzene** baktı. Metin: *"Parts of the app's user interface were crowded,
+  laid out, or displayed in a way that made it difficult to use... Specifically, the
+  buttons and texts were not visible."* Cihaz yine **iPad Air 11-inch (M3)**,
+  iPadOS 26.6.1, sürüm 1.0 build 18. Ekli ekran görüntüsü karşılama ekranıydı.
+
+  **Kusur gerçekti ve tuvalı emulatörde birebir yeniden üretildi.** Uygulama iPhone
+  ailesinde; iPad onu **iPhone uyumluluk penceresinde** çalıştırıyor ve o pencere
+  **375x667 pt** — modern bir iPhone'un (393x852) çok altında. `app/index.tsx` düz bir
+  `View` idi: künye dört maddeyle bu yüksekliği aşıyor, "Başla" alttan kesiliyor,
+  **"Hesabım var" hiç görünmüyor** ve kaydırma da yok. Yani iPad'den gelen bir
+  kullanıcının giriş yapması imkânsızdı.
+
+  **Bu sınıfın DÖRDÜNCÜ örneğiydi.** `degerlendirme/kapi.tsx` tam bunu bir kez
+  yaşayıp düzeltilmişti ve düzeltmenin yorumu hâlâ o dosyada duruyor — ama kural
+  hiçbir yerde **kilitlenmediği** için `blok-sonu.tsx`, `index.tsx` ve `HataSiniri.tsx`
+  kırpmaya devam etti. Yorum bir kural değildir; kuralı test tutar.
+
+  **Yapısal çözüm — kap artık kırpamıyor:**
+
+  - `Ekran`'ın `kaydirilabilir={false}` kaçış kapısı **kaldırıldı**. Kullandığı iki
+    yerin ikisi de kusurluydu; kural kadar hızlı bozulan bir seçenek seçenek değil.
+  - `contentContainerStyle` artık `flexGrow: 1`. Yer varken kap tuvali dolduruyor
+    (içindeki `flex: 1` ayırıcı çalışıyor, düğmeler dibe yaslı), yer yokken büyüyüp
+    **kaydırılıyor**. İkisinin arası — kırpma — artık mümkün değil.
+  - Dikey ortalama isteyen ekranlar için `ortala`. Dışa `justifyContent: 'center'`
+    bir `View` sarmak aynı şey değildi: o, içerik taştığında kaydırmıyor.
+  - `OKUMA_GENISLIGI = 560` — geniş tuvalde satırlar ekran boyunca uzamasın. Dikeyde
+    en geniş iPhone 430 pt, yani telefonda hiç devreye girmiyor.
+  - **Yatay taşma** ayrı bir kusur olarak çıktı (kod okunarak değil, emulatörde
+    görülerek): 320 dp genişlikte %130 yazı tipiyle "Nasıl çalışır" kartında süre
+    etiketi **"15 saniy"** diye kesiliyordu. React Native'de bir `<Text>` yatay bir
+    kabın içinde daralmıyor, taşıyor. `Yazi` artık bir `Satir` içindeyken
+    `flexShrink: 1` alıyor (`SatirIcinde` bağlamı).
+
+  **Bir tuzak, tekrar kurulmasın:** ara çözüm olarak `Satir`'a `flexWrap: 'wrap'`
+  varsayılan yapıldı ve YANLIŞ çıktı. **Sarma daralmayı etkisiz kılıyor**: Yoga önce
+  satırı kırıyor, daralmaya sıra gelmiyor. Sığmayan başlık metin olarak sarmak yerine
+  bir öğe olarak alt satıra düşüp numara dairesinden kopuyordu. `sar` yine isteğe
+  bağlı ve yalnızca metin olmayan çok öğeli satırlar için.
+
+  **Kilitler:** `tasmaKorumasi.test.ts` (her ekran kaydıran bir kap kullanıyor,
+  kaçış kapısı yok, `flexGrow`/`maxWidth`/`flexShrink` yerinde, sarma varsayılan
+  değil) ve genişletilen `guvenliAlan.test.ts`.
+
+  `guvenliAlan.test.ts`'in kendisi de kusurluydu: yalnızca ekranın **kendi dosyasında**
+  `headerShown: false` arıyordu. Karşılama ekranının başlığını `app/_layout.tsx`
+  gizliyor — yani o ekran hiç taranmamıştı ve üst boşluğu elle `32 pt` yazılmıştı
+  (çentikli iPhone'da üst kenar 59 pt). Artık **en yakın** `_layout.tsx` de okunuyor.
+
+  **Doğrulama koddan değil cihazdan:** Android emulatörü `wm size 750x1334` +
+  `wm density 320` ile tam **375x667 dp**'ye ayarlanıp önce kusur yeniden üretildi,
+  sonra düzeltme görüldü. Ayrıca 320x568 dp + %130 yazı tipi ve normal telefon
+  (1080x2400) denendi; her üçünde de iki düğme de ulaşılabilir.
+
+  **Doğrulanamayan:** girişin arkasındaki ekranlar. Emulatörün ağı (qemu NAT/DNS)
+  çalışmıyordu, giriş yapılamadı. `flexShrink` değişikliği yalnızca taşma anında
+  devreye girdiği için risk düşük ama **gözle bakılmadı**.
+
+  **Ölçülen ders — güncellendi:** Apple her turda **tek bir katmanı** görüyor.
+  Metadata (2.1) → abonelik metadata'sı (3.1.2) → içerik/atıf (1.4.1) → **düzen (4)**.
+  İncelemenin **iPad'de** yapılması artık bir tesadüf değil, bir desen: cihaz ailesi
+  iPhone olsa bile Apple iPad'de açıyor ve uygulamayı **375x667'lik uyumluluk
+  penceresinde** görüyor. Yeni bir ekran çizildiğinde ölçülecek tuval o.
+
 - **App Store: 1.0 ÜÇÜNCÜ KEZ reddedildi — 1.4.1 + 1.5 + 2.3.10 (2026-08-27).**
   İlk iki ret metadata’ydı; bu sefer Apple uygulamayı GERÇEKTEN inceledi
   (Review Device: **iPad Air 11-inch (M3)**, sürüm 1.0 build 17) ve **üç ayrı**

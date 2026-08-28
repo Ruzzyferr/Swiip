@@ -64,7 +64,14 @@ function Adim({
   return (
     <Kart>
       <Satir dagit="space-between" hizala="flex-start">
-        <Satir arasi="md">
+        {/*
+          `esnek` — yani `flex: 1`. Olmadan bu iç satır kendi doğal genişliğini
+          alıyor ve sağdaki süre etiketini kartın dışına itiyordu: 320 dp'de
+          %130 yazı tipiyle "15 saniye" ekranda "15 saniy" diye kesiliyordu.
+          Daralınca başlık METİN olarak sarıyor — satırın kendisi sarmıyor,
+          yani numara dairesi başlığın yanında kalıyor.
+        */}
+        <Satir arasi="md" hizala="flex-start" esnek>
           <View
             style={{
               width: 28,

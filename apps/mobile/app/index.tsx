@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
-import { Dugme, Yazi, Yukleniyor } from '../src/tasarim/bilesenler';
+import { Dugme, Ekran, Yazi, Yukleniyor } from '../src/tasarim/bilesenler';
 import { useTema } from '../src/tasarim/tema';
 import { useMetinler, useOturum } from '../src/durum/Oturum';
 import { Isaret } from '../src/marka/Isaret';
@@ -29,16 +29,20 @@ export default function Karsilama() {
     );
   }
 
+  /*
+    Kap `Ekran` — düz bir `View` DEĞİL.
+
+    Apple 2026-08-28'de tam bu ekran yüzünden Guideline 4 ile reddetti:
+    *"the buttons and texts were not visible"*, inceleme cihazı iPad Air 11".
+    iPad'in iPhone uyumluluk penceresi uygulamaya **375x667 pt** veriyor; künye
+    dört maddeyle birlikte bu yüksekliği aşıyor ve kaydırmayan bir `View`
+    içinde "Başla" ile "Hesabım var" ekranın altında kalıyordu.
+
+    `Ekran` yer varken tuvali dolduruyor (ayırıcı çalışıyor, düğmeler dibe yaslı),
+    yer yokken kaydırıyor. Kural `tasmaKorumasi.test.ts` ile kilitli.
+  */
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: tema.renk.zemin,
-        padding: tema.bosluk.xl,
-        paddingTop: tema.bosluk.xxl,
-        paddingBottom: tema.bosluk.xxl,
-      }}
-    >
+    <Ekran ustGuvenliAlan>
       <View style={{ gap: tema.bosluk.lg }}>
         <Isaret renk={tema.renk.aksan} />
 
@@ -49,12 +53,12 @@ export default function Karsilama() {
           </Yazi>
         </View>
         {/*
-        Maddeler bir künye satırı olarak duruyor.
+          Maddeler bir künye satırı olarak duruyor.
 
-        Dört madde ekranın üst üçte birine sıkışıyor, altında yedi yüz piksel boşluk
-        kalıyordu; o boşluk "odak" değil "yarım kalmış" okuyordu. Künye hem alanı
-        gerçek içerikle dolduruyor hem de ürünün ne olduğunu tek bakışta söylüyor.
-      */}
+          Dört madde ekranın üst üçte birine sıkışıyor, altında yedi yüz piksel boşluk
+          kalıyordu; o boşluk "odak" değil "yarım kalmış" okuyordu. Künye hem alanı
+          gerçek içerikle dolduruyor hem de ürünün ne olduğunu tek bakışta söylüyor.
+        */}
         <View style={{ marginTop: tema.bosluk.sm }}>
           {metinler.giris.maddeler.map((madde, i) => (
             <Madde key={madde.etiket} etiket={madde.etiket} metin={madde.metin} ilk={i === 0} />
@@ -68,8 +72,11 @@ export default function Karsilama() {
         `space-between` içerik bloklarını iki uca itiyor ve ARADA iki ayrı boşluk
         bırakıyordu; ekran hem üstten hem ortadan boş görünüyordu. Nefes almasını
         istediğimiz tek yer eylemin hemen öncesi.
+
+        `flexGrow` — `flex: 1` değil: içerik taştığında ayırıcı sıfıra çöküp yerini
+        düğmelere bırakmalı, tuvali daha da büyütmemeli.
       */}
-      <View style={{ flex: 1, minHeight: tema.bosluk.xl }} />
+      <View style={{ flexGrow: 1, minHeight: tema.bosluk.xl }} />
 
       <View style={{ gap: tema.bosluk.md }}>
         <Dugme
@@ -82,7 +89,7 @@ export default function Karsilama() {
           onPress={() => router.push('/(giris)/giris')}
         />
       </View>
-    </View>
+    </Ekran>
   );
 }
 

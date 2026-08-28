@@ -26,7 +26,7 @@ export default function Kaynaklar() {
   };
 
   return (
-    <Ekran kaydirilabilir>
+    <Ekran>
       <Yazi tur="govde" renk="metinYumusak">
         {m.lede}
       </Yazi>

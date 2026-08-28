@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -57,6 +57,24 @@ function yaziOlcegi(): number {
   return Math.min(PixelRatio.getFontScale(), 1.6);
 }
 
+/**
+ * "Bir satırın içindeyim" bilgisi.
+ *
+ * React Native'de bir `<Text>` yatay bir kabın içinde varsayılan olarak DARALMIYOR
+ * (`flexShrink: 0`): sığmayınca sarmak yerine kabı taşırıyor ve kırpılıyor. Bu, bu
+ * depoda somut bir kusur olarak görüldü — "Nasıl çalışır" kartında süre etiketi
+ * 320 dp genişlikte "15 saniy" diye kesiliyordu.
+ *
+ * `Satir` sarıyor, yani hiçbir şey artık kırpılmıyor. Ama sarma METNİ değil ÖĞEYİ
+ * alt satıra indiriyor: başlık, yanındaki numara dairesinden kopup altına düşüyor.
+ * Doğrusu metnin kendi içinde sarması.
+ *
+ * Bu yüzden daralma bir bağlamla veriliyor: `Yazi` yalnızca bir `Satir` içindeyken
+ * `flexShrink: 1` alıyor. Her yerde açmak istemedik — yüksekliği sabit bir dikey
+ * kapta daralan metin bu kez dikeyde kırpılırdı.
+ */
+const SatirIcinde = createContext(false);
+
 export function Yazi({
   children,
   tur = 'govde',
@@ -66,6 +84,7 @@ export function Yazi({
   numberOfLines,
 }: BaslikProps) {
   const tema = useTema();
+  const satirda = useContext(SatirIcinde);
   const olcek = tema.tipografi.olcek[tur];
   const baslikMi = tur === 'dev' || tur.startsWith('baslik');
 
@@ -94,6 +113,8 @@ export function Yazi({
            * gerçek bir grotesk kesim değildi.
            */
           fontFamily: baslikMi ? tema.tipografi.aileler.baslik : tema.tipografi.aileler.govde,
+          // Satır içindeyken metin sarsın; satırı taşırıp kırpılmasın.
+          ...(satirda ? { flexShrink: 1 } : {}),
           ...(hizala ? { textAlign: hizala } : {}),
         },
         stil,
@@ -201,6 +222,19 @@ export function Sayi({
 // ---------------------------------------------------------------------------
 
 /**
+ * Okuma sütununun üst sınırı (pt).
+ *
+ * Satır uzunluğu okunabilirliğin ölçüsü: 45-75 karakter aralığının üstünde göz
+ * satır başını kaybediyor. Gövde metnimizin genişliğinde 560 pt yaklaşık 70
+ * karaktere denk geliyor.
+ *
+ * Dikeydeki en geniş iPhone 430 pt — yani telefonda bu sınır hiçbir zaman
+ * devreye girmiyor. Yalnızca geniş tuvalde (iPad, yatay, bölünmüş ekran)
+ * iş görüyor ve orada da bir şey daraltmıyor: yayılmayı durduruyor.
+ */
+export const OKUMA_GENISLIGI = 560;
+
+/**
  * Ekran kabı — güvenli alanı bilen tek yer.
  *
  * `SafeAreaProvider` kökte takılıydı ama **hiçbir ekran kenar boşluklarını okumuyordu.**
@@ -221,47 +255,67 @@ export function Sayi({
  *
  * Alt kenar boşluğu her durumda ekleniyor: jest çubuğunun altında kalan içerik,
  * dokunulamayan içeriktir.
+ *
+ * **Kap HER ZAMAN kaydırır — kapatma yolu yok.** Önce `kaydirilabilir={false}` vardı
+ * ve kullanıldığı iki yerin ikisi de kusurluydu. Apple 2026-08-28'de Guideline 4 ile
+ * reddetti: iPad'in iPhone uyumluluk penceresi uygulamaya **375x667 pt** veriyor,
+ * karşılama ekranı o yüksekliğe sığmayınca iki düğme de ekranın dışında kalıyordu.
+ * Aynı sınıf büyük yazı tipinde ve iPhone SE'de de çıkar; tek tuvalı düzeltmek
+ * yetmez, kabın kendisi kırpamaz olmalı.
+ *
+ * Üç garanti veriyor:
+ *
+ *  - **`flexGrow: 1`** — yer varken içerik kabı tuvali dolduruyor, yani içindeki
+ *    `flex: 1` ayırıcı çalışıyor ve alt düğmeler dibe yaslı duruyor. Yer yokken
+ *    kap büyüyor ve **kaydırılıyor**. İkisinin arası — kırpma — mümkün değil.
+ *  - **`ortala`** — dikey ortalama isteyen ekranlar için. Dışına
+ *    `justifyContent: 'center'` bir `View` sarmak aynı şey değil: o, içerik
+ *    taştığında kaydırmıyor.
+ *  - **`OKUMA_GENISLIGI`** — geniş tuvalde (yatay telefon, iPad, bölünmüş ekran)
+ *    satırlar ekran boyunca uzamasın. Hiçbir telefon dikeyde 430 pt'yi geçmiyor,
+ *    yani küçük tuvalde bu sınır hiç devreye girmiyor.
  */
 export function Ekran({
   children,
-  kaydirilabilir = true,
   altBoslugu = true,
   ustGuvenliAlan = false,
+  ortala = false,
 }: {
   children: ReactNode;
-  kaydirilabilir?: boolean;
   altBoslugu?: boolean;
   /** Ekranın gezinme başlığı yoksa true: üst kenar boşluğunu bu kap verir. */
   ustGuvenliAlan?: boolean;
+  /** Yer varken içeriği dikeyde ortalar; yer yokken normal kaydırmaya döner. */
+  ortala?: boolean;
 }) {
   const tema = useTema();
   const kenar = useSafeAreaInsets();
   const ustEk = ustGuvenliAlan ? kenar.top : 0;
 
-  const icerik = (
-    <View
-      style={{
-        padding: tema.bosluk.lg,
-        paddingTop: tema.bosluk.lg + ustEk,
-        paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + kenar.bottom,
-        gap: tema.bosluk.lg,
-      }}
-    >
-      {children}
-    </View>
-  );
-
-  if (!kaydirilabilir) {
-    return <View style={{ flex: 1, backgroundColor: tema.renk.zemin }}>{icerik}</View>;
-  }
-
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: tema.renk.zemin }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        alignItems: 'center',
+        padding: tema.bosluk.lg,
+        paddingTop: tema.bosluk.lg + ustEk,
+        paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + kenar.bottom,
+      }}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
     >
-      {icerik}
+      <View
+        style={{
+          width: '100%',
+          maxWidth: OKUMA_GENISLIGI,
+          flexGrow: 1,
+          gap: tema.bosluk.lg,
+          justifyContent: ortala ? 'center' : undefined,
+        }}
+      >
+        {children}
+      </View>
     </ScrollView>
   );
 }
@@ -353,13 +407,16 @@ export function Satir({
   arasi = 'sm',
   hizala = 'center',
   dagit,
-  sar,
+  esnek = false,
+  sar = false,
 }: {
   children: ReactNode;
   arasi?: keyof Tema['bosluk'];
   hizala?: ViewStyle['alignItems'];
   dagit?: ViewStyle['justifyContent'];
-  /** Dar ekranda alt satira insin. Cok ogeli satirlarda ezilmeyi onler. */
+  /** Başka bir satırın içindeyken daralsın — taşan öğeyi dışarı itmesin. */
+  esnek?: boolean;
+  /** Metin olmayan çok öğeli satırlarda alt satıra insin. */
   sar?: boolean;
 }) {
   const tema = useTema();
@@ -369,11 +426,24 @@ export function Satir({
         flexDirection: 'row',
         alignItems: hizala,
         gap: tema.bosluk[arasi],
-        ...(sar ? { flexWrap: 'wrap' } : {}),
+        /*
+          Sarma İSTEĞE BAĞLI, daralma varsayılan.
+
+          Bir aralık sarma varsayılan yapıldı ve YANLIŞ çıktı: Yoga önce satırı
+          kırıyor, daralmaya sıra gelmiyor. Yani sığmayan bir başlık metin olarak
+          sarmak yerine bir öğe olarak alt satıra düşüyordu — yanındaki numara
+          dairesinden kopuyordu. Emülatörde görüldü.
+
+          Metnin kırpılmamasını sağlayan şey sarma değil, `Yazi`nın satır içinde
+          aldığı `flexShrink: 1` (bkz. `SatirIcinde`). `sar` yalnızca metin olmayan
+          çok öğeli satırlar için duruyor.
+        */
+        ...(sar ? { flexWrap: 'wrap' as const } : {}),
+        ...(esnek ? { flex: 1 } : {}),
         ...(dagit ? { justifyContent: dagit } : {}),
       }}
     >
-      {children}
+      <SatirIcinde.Provider value={true}>{children}</SatirIcinde.Provider>
     </View>
   );
 }

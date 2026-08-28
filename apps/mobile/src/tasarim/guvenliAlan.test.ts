@@ -1,5 +1,5 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /**
@@ -29,10 +29,34 @@ function tsxDosyalari(dizin: string): string[] {
   });
 }
 
-/** Kendi dosyasında başlığını gizleyen ekranlar. */
+/**
+ * Başlığı gizlenmiş ekranlar.
+ *
+ * Başlık İKİ yerden gizlenebiliyor ve bu test uzun süre yalnızca birine bakıyordu:
+ * ekranın kendi dosyasına. Oysa `app/_layout.tsx` de `<Stack.Screen name="index"
+ * options={{ headerShown: false }} />` diyor — yani karşılama ekranının başlığı
+ * gizliydi ama bu tarama onu HİÇ görmedi. O ekran da güvenli alanı okumuyordu:
+ * üst boşluk elle `tema.bosluk.xxl` (32 pt) yazılmıştı, çentikli bir iPhone'da üst
+ * kenar boşluğu 59 pt.
+ *
+ * Yetkili olan **en yakın** `_layout.tsx`: kök düzen `degerlendirme` gibi bütün bir
+ * dizini gizliyor, ama o dizinin kendi düzeni başlıkları ekran ekran yeniden
+ * tanımlıyor. Bu yüzden yalnızca dosyanın bir üstündeki düzene bakılıyor.
+ */
+function baslikGizli(yol: string): boolean {
+  if (/headerShown:\s*false/.test(readFileSync(yol, 'utf8'))) return true;
+
+  const duzen = join(dirname(yol), '_layout.tsx');
+  if (!existsSync(duzen)) return false;
+
+  const ad = basename(yol, '.tsx');
+  const bildirim = new RegExp(`name="${ad}"[^>]*headerShown:\\s*false`);
+  return bildirim.test(readFileSync(duzen, 'utf8'));
+}
+
 const BASLIKSIZ = tsxDosyalari(APP)
   .filter((yol) => !yol.endsWith('_layout.tsx'))
-  .filter((yol) => /headerShown:\s*false/.test(readFileSync(yol, 'utf8')));
+  .filter(baslikGizli);
 
 describe('başlıksız ekranlarda güvenli alan', () => {
   it('başlığını gizleyen ekran var — test boşa dönmüyor', () => {

@@ -1,7 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { View } from 'react-native';
-import { Dugme, Yazi } from './bilesenler';
-import { useTema } from './tema';
+import { Dugme, Ekran, Yazi } from './bilesenler';
 
 /**
  * Çizim sırasında hata olursa beyaz ekran yerine anlaşılır bir ekran.
@@ -42,22 +40,23 @@ function HataEkrani({
   metinler: Ozellikler['metinler'];
   yeniden: () => void;
 }) {
-  const tema = useTema();
+  /*
+    Kap `Ekran` — düz bir `View` DEĞİL.
 
+    Burası uygulamanın son çıkışı: "Yeniden dene" düğmesi görünmezse kullanıcının
+    uygulamayı silmekten başka yolu kalmaz. Düz `View` içerik sığmayınca kırpıyordu
+    ve bu ekranın uzunluğu sabit değil — hata metni dile göre, yazı tipi ölçeği
+    kullanıcı ayarına göre değişiyor. `kapi.tsx` ile aynı gerekçe, aynı çözüm.
+
+    `ustGuvenliAlan`: bu ekran gezinme yığınının DIŞINDA çiziliyor, yani üst boşluğu
+    verecek bir başlık yok. Yoksa başlık çentiğin altında kalır.
+  */
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: tema.renk.zemin,
-        justifyContent: 'center',
-        padding: tema.bosluk.lg,
-        gap: tema.bosluk.md,
-      }}
-    >
+    <Ekran ustGuvenliAlan ortala>
       <Yazi tur="baslik1">{metinler.baslik}</Yazi>
       <Yazi renk="metinYumusak">{metinler.govde}</Yazi>
       <Dugme baslik={metinler.yeniden} onPress={yeniden} />
-    </View>
+    </Ekran>
   );
 }
 

@@ -1,7 +1,5 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { View } from 'react-native';
 import { Dugme, Ekran, Kart, Yazi } from '../../src/tasarim/bilesenler';
-import { useTema } from '../../src/tasarim/tema';
 import { useMetinler } from '../../src/durum/Oturum';
 
 /**
@@ -14,7 +12,6 @@ import { useMetinler } from '../../src/durum/Oturum';
 type KapiTipi = 'yas' | 'gebelik' | 'kardiyak' | 'yeme_bozuklugu';
 
 export default function Kapi() {
-  const tema = useTema();
   const metinler = useMetinler();
   const k = metinler.kapiEkrani;
   const { tip, kalan } = useLocalSearchParams<{ tip: KapiTipi; kalan?: string }>();
@@ -79,38 +76,39 @@ export default function Kapi() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View style={{ flex: 1, backgroundColor: tema.renk.zemin, justifyContent: 'center' }}>
-        {/*
-          Kaydırılabilir: bu ekran bir SERT KAPI ve üzerindeki tek çıkış düğmesi her
-          zaman ulaşılabilir olmalı. `kaydirilabilir={false}` bir `View` çiziyordu;
-          büyük yazı tipinde ya da küçük ekranda uzun sağlık metni taşınca "Anladım"
-          düğmesi ekranın dışında kalıyordu — kullanıcı kapının önünde kilitleniyordu.
-        */}
-        <Ekran ustGuvenliAlan>
-          <Yazi tur="baslik1">{icerik.baslik}</Yazi>
-          <Yazi renk="metinYumusak">{icerik.govde}</Yazi>
+      {/*
+        Kaydırılabilir: bu ekran bir SERT KAPI ve üzerindeki tek çıkış düğmesi her
+        zaman ulaşılabilir olmalı. `kaydirilabilir={false}` bir `View` çiziyordu;
+        büyük yazı tipinde ya da küçük ekranda uzun sağlık metni taşınca "Anladım"
+        düğmesi ekranın dışında kalıyordu — kullanıcı kapının önünde kilitleniyordu.
 
-          <Kart>
-            <Yazi tur="kucuk" renk="metinSilik">
-              {k.duraklama}
-            </Yazi>
-          </Kart>
+        Dikey ortalamayı da kap veriyor. Dışına sarılan `justifyContent: 'center'`
+        `View` hiçbir işe yaramıyordu: içindeki `Ekran` zaten `flex: 1`.
+      */}
+      <Ekran ustGuvenliAlan ortala>
+        <Yazi tur="baslik1">{icerik.baslik}</Yazi>
+        <Yazi renk="metinYumusak">{icerik.govde}</Yazi>
 
-          {icerik.eylem ? (
-            <Dugme baslik={icerik.eylem} onPress={() => router.push('/(sekme)/ayarlar')} />
-          ) : null}
+        <Kart>
+          <Yazi tur="kucuk" renk="metinSilik">
+            {k.duraklama}
+          </Yazi>
+        </Kart>
 
-          <Dugme
-            baslik={icerik.geriDon}
-            tur={icerik.eylem ? 'sessiz' : 'birincil'}
-            onPress={() => {
-              if (ilerle()) return;
-              if (icerik.devamEdilebilir) router.back();
-              else router.replace('/');
-            }}
-          />
-        </Ekran>
-      </View>
+        {icerik.eylem ? (
+          <Dugme baslik={icerik.eylem} onPress={() => router.push('/(sekme)/ayarlar')} />
+        ) : null}
+
+        <Dugme
+          baslik={icerik.geriDon}
+          tur={icerik.eylem ? 'sessiz' : 'birincil'}
+          onPress={() => {
+            if (ilerle()) return;
+            if (icerik.devamEdilebilir) router.back();
+            else router.replace('/');
+          }}
+        />
+      </Ekran>
     </>
   );
 }

@@ -1,7 +1,5 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { View } from 'react-native';
 import { Dugme, Ekran, Kart, Yazi } from '../../src/tasarim/bilesenler';
-import { useTema } from '../../src/tasarim/tema';
 import { buyukHarf } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 
@@ -13,7 +11,6 @@ import { useDil, useMetinler } from '../../src/durum/Oturum';
  */
 
 export default function BlokSonu() {
-  const tema = useTema();
   const degerlendirme = useMetinler().degerlendirme;
   const m = degerlendirme.blokSonu;
   const dil = useDil();
@@ -32,16 +29,16 @@ export default function BlokSonu() {
         cihaz): kart sonu 96 px, diğer her ekran 48 px.
 
         Zaten seyrek olan bir ekranın bir de içeri kaçmış görünmesinin sebebi buydu.
+
+        Dikey ortalama da BURADA verilmiyor. Önce dışa `justifyContent: 'center'`
+        bir `View` sarılıp içine `<Ekran kaydirilabilir={false}>` konuyordu; o
+        kurulum içerik taştığında kaydırmıyor, KIRPIYOR. Blok sonu metni sunucudan
+        geliyor ve uzunluğu değişken — uzun bir metinde "Devam et" düğmesi ekranın
+        dışında kalıyordu ve değerlendirme orada kilitleniyordu. `ortala` yer varken
+        ortalıyor, yer yokken kaydırıyor.
       */}
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: tema.renk.zemin,
-          justifyContent: 'center',
-        }}
-      >
-        <Ekran ustGuvenliAlan kaydirilabilir={false}>
-          {/*
+      <Ekran ustGuvenliAlan ortala>
+        {/*
             Etiket HAM BLOK ANAHTARI değil, bölüm harfi.
 
             `{m.bolum} {blok}` yazıyordu ve ekranda "BÖLÜM K" çıkıyordu: `K` bir
@@ -54,22 +51,21 @@ export default function BlokSonu() {
             Harf artık orada olduğu gibi bölüm ADININ baş harfinden geliyor, yani
             hemen altındaki başlıkla aynı kelimeye bağlanıyor.
           */}
-          <Yazi tur="etiket" renk="aksan">
-            {m.bolum} {buyukHarf(baslik.slice(0, 1), dil)}
-          </Yazi>
-          <Yazi tur="baslik1">{baslik}</Yazi>
+        <Yazi tur="etiket" renk="aksan">
+          {m.bolum} {buyukHarf(baslik.slice(0, 1), dil)}
+        </Yazi>
+        <Yazi tur="baslik1">{baslik}</Yazi>
 
-          <Kart vurgulu>
-            <Yazi tur="baslik3">{metin}</Yazi>
-          </Kart>
+        <Kart vurgulu>
+          <Yazi tur="baslik3">{metin}</Yazi>
+        </Kart>
 
-          <Yazi tur="kucuk" renk="metinSilik">
-            {m.dipnot}
-          </Yazi>
+        <Yazi tur="kucuk" renk="metinSilik">
+          {m.dipnot}
+        </Yazi>
 
-          <Dugme baslik={degerlendirme.devamEtDugmesi} onPress={() => router.back()} />
-        </Ekran>
-      </View>
+        <Dugme baslik={degerlendirme.devamEtDugmesi} onPress={() => router.back()} />
+      </Ekran>
     </>
   );
 }
