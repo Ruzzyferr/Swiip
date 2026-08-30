@@ -1,3 +1,5 @@
+import { dilCozumle, metinleriAl } from '@swiip/shared';
+
 /**
  * E-posta gönderimi.
  *
@@ -113,31 +115,22 @@ export function httpPostaci(secenekler: HttpPostaciSecenekleri): Postaci {
  * bir dokunuş fırsatı değil. Bağlantı yerine kod gönderiyoruz — kod, tıklama alışkanlığı
  * kazandırmadığı için kimlik avına karşı daha dayanıklı.
  */
-export function parolaSifirlamaPostasi(alici: string, kod: string, dakika: number): Posta {
-  return {
-    alici,
-    konu: 'Swiip parola sıfırlama kodun',
-    govde: [
-      `Parolanı sıfırlamak için kodun: ${kod}`,
-      '',
-      `Kod ${dakika} dakika geçerli.`,
-      '',
-      'Bu isteği sen yapmadıysan bir şey yapmana gerek yok; parolan değişmedi.',
-      'Kimse senden bu kodu istemeyecek. Biz de istemeyiz.',
-    ].join('\n'),
-  };
+export function parolaSifirlamaPostasi(
+  alici: string,
+  kod: string,
+  dakika: number,
+  locale?: string | null,
+): Posta {
+  const m = metinleriAl(dilCozumle(locale)).postalar.parolaSifirlama;
+  return { alici, konu: m.konu, govde: m.govde({ kod, dakika }) };
 }
 
-export function epostaDogrulamaPostasi(alici: string, kod: string, dakika: number): Posta {
-  return {
-    alici,
-    konu: 'Swiip e-posta doğrulama kodun',
-    govde: [
-      `E-posta adresini doğrulamak için kodun: ${kod}`,
-      '',
-      `Kod ${dakika} dakika geçerli.`,
-      '',
-      'Doğrulama, hesabını kaybettiğinde geri almanı sağlar. Zorunlu değil ama öneririz.',
-    ].join('\n'),
-  };
+export function epostaDogrulamaPostasi(
+  alici: string,
+  kod: string,
+  dakika: number,
+  locale?: string | null,
+): Posta {
+  const m = metinleriAl(dilCozumle(locale)).postalar.epostaDogrulama;
+  return { alici, konu: m.konu, govde: m.govde({ kod, dakika }) };
 }

@@ -253,6 +253,31 @@ export const en: Metinler = {
       kidemli: 'Seasoned',
     },
   },
+  postalar: {
+    parolaSifirlama: {
+      konu: 'Your Swiip password reset code',
+      govde: (d: Record<string, string | number>) =>
+        [
+          `Your code to reset your password: ${d.kod}`,
+          '',
+          `The code is valid for ${d.dakika} minutes.`,
+          '',
+          'If you did not request this, you need to do nothing; your password has not changed.',
+          'Nobody will ask you for this code. Neither will we.',
+        ].join('\n'),
+    },
+    epostaDogrulama: {
+      konu: 'Your Swiip email verification code',
+      govde: (d: Record<string, string | number>) =>
+        [
+          `Your code to verify your email address: ${d.kod}`,
+          '',
+          `The code is valid for ${d.dakika} minutes.`,
+          '',
+          'Verification lets you recover your account if you lose access. Optional, but we recommend it.',
+        ].join('\n'),
+    },
+  },
   apiHatalari: {
     magaza_disi_yukseltme: () =>
       'Plans are changed only through the store. Purchases happen inside the app.',
@@ -324,6 +349,30 @@ export const en: Metinler = {
     tanima_kotasi_doldu: (d: Record<string, string | number>) =>
       `You have used this month's photo recognitions (${d.hak}). It resets on ` +
       `${gunMetni(d.yenilenme, 'en')}. Manual entry and barcode stay unlimited in the meantime.`,
+    plan_yetersiz: () =>
+      'Daily calorie and macro targets are open from the Basic plan on. Food logging stays ' +
+      'free and unlimited.',
+    gecersiz_kimlik: () => 'Email or password is incorrect.',
+    cok_fazla_istek: () => 'Too many attempts. Try again in a minute.',
+    gecersiz_istek: () => 'Something is off in what you entered; check it and try again.',
+    sunucu_hatasi: () => 'Something went wrong. You can try again.',
+    ai_kapali: () => 'This feature is unavailable right now. You can search and add it manually.',
+    kapi_engeli: () => 'Some assessment questions are unanswered, so I cannot build a program yet.',
+    kapi_yas: () => 'Swiip is for ages 18 and over.',
+    gecersiz_cevap: () => 'That answer could not be saved; check your choice and try again.',
+    parola_kisa: (d: Record<string, string | number>) =>
+      `Your password must be at least ${d.asgari} characters. Length helps more than complexity.`,
+    parola_yaygin: () =>
+      'That password is very common. Pick something memorable but not guessable.',
+    parola_cesitlilik: () =>
+      'Use at least two different character types: lowercase, uppercase, digit or symbol.',
+    tdee_kilo_verisi_yetersiz: () => 'Two weeks of weight data are needed for this adjustment.',
+    tdee_kayit_yetersiz: (d: Record<string, string | number>) =>
+      'At least 10 days of food logs in the last two weeks are needed for this adjustment. ' +
+      `You have ${d.gun} so far.`,
+    sifirlama_kodu_gonderildi: () =>
+      'If an account exists for this address, a reset code has been sent. Check your inbox ' +
+      'and your spam folder.',
   },
   /** Render-error screen. A page that explains itself instead of a blank one. */
   hataEkrani: {

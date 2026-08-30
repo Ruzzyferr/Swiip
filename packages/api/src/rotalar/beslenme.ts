@@ -428,6 +428,8 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
     if (kilolar.length < 2) {
       return {
         duzeltildi: false,
+        // Metin koddan kuruluyor; `mesaj` yalnizca yedek. Bkz. `hatalar.ts`.
+        kod: 'tdee_kilo_verisi_yetersiz',
         mesaj: 'Düzeltme için en az iki haftalık kilo verisi gerekiyor.',
       };
     }
@@ -459,6 +461,8 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
     if (gunlukToplam.length < 10) {
       return {
         duzeltildi: false,
+        kod: 'tdee_kayit_yetersiz',
+        degerler: { gun: gunlukToplam.length },
         mesaj:
           'Düzeltme için son iki haftada en az 10 günlük beslenme kaydı gerekiyor. ' +
           `Şu an ${gunlukToplam.length} gün var.`,

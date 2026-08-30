@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { sunucuMetni } from '../../src/veri/sunucuMetni';
 import { StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { Dugme, Ekran, Kart, Uyari, Yazi } from '../../src/tasarim/bilesenler';
@@ -16,6 +17,8 @@ import { useMetinler } from '../../src/durum/Oturum';
 type Adim = 'eposta' | 'kod';
 
 interface IstekYaniti {
+  /** Metin koddan kuruluyor; `mesaj` yalnızca yedek. Bkz. `sunucuMetni`. */
+  kod?: string;
   mesaj: string;
   gecerlilik_dakika: number;
 }
@@ -54,7 +57,7 @@ export default function ParolaUnuttum() {
         govde: { email: email.trim() },
         yetkisiz: true,
       });
-      setBilgi(yanit.mesaj);
+      setBilgi(sunucuMetni(yanit, metinler) ?? yanit.mesaj);
       setAdim('kod');
     } catch (h) {
       setHata(h instanceof ApiHatasi ? h.mesaj : m.istekHatasi);

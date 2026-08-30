@@ -79,6 +79,18 @@ export async function parolaKarsilastir(parola: string, hash: string): Promise<b
 export interface ParolaGucSonucu {
   gecerli: boolean;
   mesaj?: string;
+  /**
+   * Hangi kural ihlal edildi.
+   *
+   * Uc kural da tek bir `zayif_parola` kodunu paylasiyordu. Istemci metni koddan
+   * kuruyor (bkz. `hatalar.ts`), yani tek kod tek metne cevrilebiliyordu: ceviri
+   * "parolan zayif" demek zorunda kaliyor, hangi kuralin ihlal edildigini
+   * soyleyemiyordu. Ingilizce kullaniciya "en az 10 karakter" yerine "parolan zayif"
+   * demek olculebilir bicimde daha az yardimci.
+   */
+  kod?: 'parola_kisa' | 'parola_yaygin' | 'parola_cesitlilik';
+  /** Cumleye giren sayilar; ceviri bunlari kendi dilinde yerlestirir. */
+  degerler?: Record<string, string | number>;
 }
 
 const ASGARI_UZUNLUK = 10;
@@ -102,6 +114,8 @@ export function parolaGucKontrolu(parola: string): ParolaGucSonucu {
     return {
       gecerli: false,
       mesaj: `Parolan en az ${ASGARI_UZUNLUK} karakter olmalı. Uzunluk, karmaşıklıktan daha çok işe yarar.`,
+      kod: 'parola_kisa',
+      degerler: { asgari: ASGARI_UZUNLUK },
     };
   }
 
@@ -111,6 +125,7 @@ export function parolaGucKontrolu(parola: string): ParolaGucSonucu {
       gecerli: false,
       mesaj:
         'Bu parola çok yaygın kullanılıyor. Aklında kalacak ama tahmin edilmeyecek bir şey seç.',
+      kod: 'parola_yaygin',
     };
   }
 
@@ -123,6 +138,7 @@ export function parolaGucKontrolu(parola: string): ParolaGucSonucu {
       gecerli: false,
       mesaj:
         'Parolanda en az iki farklı karakter türü olsun: küçük harf, büyük harf, rakam veya işaret.',
+      kod: 'parola_cesitlilik',
     };
   }
 

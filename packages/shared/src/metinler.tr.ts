@@ -258,6 +258,42 @@ export const tr = {
       kidemli: 'Kıdemli',
     },
   },
+  /**
+   * E-posta metinleri.
+   *
+   * Hata mesajlarindan farkli olarak bunlar SUNUCUDA cevriliyor: kullanici e-postayi
+   * gelen kutusunda okuyor, arada istemci yok. Sunucunun dili bilmesi gerekiyor ve
+   * `users.locale` bunu zaten tasiyor.
+   *
+   * Sade tutuluyor: kimlik dogrulama e-postasina pazarlama koymayiz. Bag yerine kod
+   * gonderiyoruz -- kod tiklama aliskanligi kazandirmadigi icin kimlik avina daha
+   * dayanikli.
+   */
+  postalar: {
+    parolaSifirlama: {
+      konu: 'Swiip parola sıfırlama kodun',
+      govde: (d: Record<string, string | number>) =>
+        [
+          `Parolanı sıfırlamak için kodun: ${d.kod}`,
+          '',
+          `Kod ${d.dakika} dakika geçerli.`,
+          '',
+          'Bu isteği sen yapmadıysan bir şey yapmana gerek yok; parolan değişmedi.',
+          'Kimse senden bu kodu istemeyecek. Biz de istemeyiz.',
+        ].join('\n'),
+    },
+    epostaDogrulama: {
+      konu: 'Swiip e-posta doğrulama kodun',
+      govde: (d: Record<string, string | number>) =>
+        [
+          `E-posta adresini doğrulamak için kodun: ${d.kod}`,
+          '',
+          `Kod ${d.dakika} dakika geçerli.`,
+          '',
+          'Doğrulama, hesabını kaybettiğinde geri almanı sağlar. Zorunlu değil ama öneririz.',
+        ].join('\n'),
+    },
+  },
   apiHatalari: {
     magaza_disi_yukseltme: () =>
       'Plan yalnızca mağaza üzerinden değiştirilir. Satın alma uygulamadan yapılır.',
@@ -332,6 +368,43 @@ export const tr = {
     tanima_kotasi_doldu: (d: Record<string, string | number>) =>
       `Bu ayki fotoğraf tanıma hakkın doldu (${d.hak}). ${gunMetni(d.yenilenme, 'tr')} tarihinde ` +
       'sıfırlanır. Bu arada manuel giriş ve barkod sınırsız.',
+    /*
+      Asagidakiler ISTEMCI SOZLUGUNDE YOKTU ve sunucunun Turkce mesajina dusuyordu.
+      Olculdu (2026-08-31): sunucu 48 kod firlatiyor, 36'si kapsanmisti. Kalan 12'si
+      Ingilizce arayuzde Turkce cikiyordu -- biri (`plan_yetersiz`) Beslenme ekraninda
+      goruldu: sayfanin tamami Ingilizce, ortadaki paragraf Turkce.
+    */
+    plan_yetersiz: () =>
+      'Günlük kalori ve makro hedefi Temel plandan itibaren açık. Yemek kaydın ücretsiz ve ' +
+      'sınırsız çalışmaya devam ediyor.',
+    gecersiz_kimlik: () => 'E-posta veya parola hatalı.',
+    cok_fazla_istek: () => 'Çok fazla deneme yapıldı. Bir dakika sonra tekrar dene.',
+    gecersiz_istek: () => 'Girdiğin bilgilerde bir sorun var; kontrol edip tekrar dene.',
+    sunucu_hatasi: () => 'Bir şeyler ters gitti. Tekrar deneyebilirsin.',
+    ai_kapali: () => 'Bu özellik şu an kullanılamıyor. Elle arayıp ekleyebilirsin.',
+    kapi_engeli: () => 'Değerlendirmedeki bazı sorular cevaplanmadığı için program üretemiyorum.',
+    kapi_yas: () => 'Swiip 18 yaş ve üzeri için.',
+    gecersiz_cevap: () => 'Bu cevap kaydedilemedi; seçimini kontrol edip tekrar dene.',
+    /*
+      Parola kurallari UC AYRI kod.
+
+      Ucu de `zayif_parola` kodunu paylasiyordu ve tek kod tek metne cevrilebiliyor:
+      ceviri hangi kuralin ihlal edildigini soyleyemezdi. Kullaniciya "parolan zayif"
+      demek, "en az 10 karakter olmali" demekten olculebilir bicimde daha az yardimci.
+    */
+    parola_kisa: (d: Record<string, string | number>) =>
+      `Parolan en az ${d.asgari} karakter olmalı. Uzunluk, karmaşıklıktan daha çok işe yarar.`,
+    parola_yaygin: () =>
+      'Bu parola çok yaygın kullanılıyor. Aklında kalacak ama tahmin edilmeyecek bir şey seç.',
+    parola_cesitlilik: () =>
+      'Parolanda en az iki farklı karakter türü olsun: küçük harf, büyük harf, rakam veya işaret.',
+    tdee_kilo_verisi_yetersiz: () => 'Düzeltme için en az iki haftalık kilo verisi gerekiyor.',
+    tdee_kayit_yetersiz: (d: Record<string, string | number>) =>
+      'Düzeltme için son iki haftada en az 10 günlük beslenme kaydı gerekiyor. ' +
+      `Şu an ${d.gun} gün var.`,
+    sifirlama_kodu_gonderildi: () =>
+      'Bu adrese kayıtlı bir hesap varsa sıfırlama kodu gönderildi. Gelen kutunu ve ' +
+      'gereksiz klasörünü kontrol et.',
   },
   /** Çizim hatası ekranı. Beyaz ekran yerine ne olduğunu söyleyen bir sayfa. */
   hataEkrani: {

@@ -106,7 +106,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     }
 
     const guc = parolaGucKontrolu(govde.parola);
-    if (!guc.gecerli) throw HataliIstek(guc.mesaj!, 'zayif_parola');
+    if (!guc.gecerli) throw HataliIstek(guc.mesaj!, guc.kod ?? 'zayif_parola', guc.degerler);
 
     const mevcut = await db
       .select({ id: users.id })
@@ -247,7 +247,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     const { email } = sifirlamaIstegiSemasi.parse(istek.body);
 
     const [kullanici] = await db
-      .select({ id: users.id, email: users.email })
+      .select({ id: users.id, email: users.email, locale: users.locale })
       .from(users)
       .where(sql`lower(${users.email}) = lower(${email})`)
       .limit(1);
@@ -275,7 +275,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       });
 
       const sonuc = await app.postaci.gonder(
-        parolaSifirlamaPostasi(kullanici.email, kod, KOD_OMRU_DAKIKA),
+        parolaSifirlamaPostasi(kullanici.email, kod, KOD_OMRU_DAKIKA, kullanici.locale),
       );
       if (!sonuc.gonderildi) {
         istek.log.warn({ sebep: sonuc.sebep }, 'parola sıfırlama postası gönderilemedi');
@@ -284,6 +284,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
 
     return {
       durum: 'gonderildi',
+      kod: 'sifirlama_kodu_gonderildi',
       mesaj:
         'Bu adrese kayıtlı bir hesap varsa sıfırlama kodu gönderildi. Gelen kutunu ve ' +
         'gereksiz klasörünü kontrol et.',
@@ -295,7 +296,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     const govde = sifirlamaSemasi.parse(istek.body);
 
     const guc = parolaGucKontrolu(govde.yeni_parola);
-    if (!guc.gecerli) throw HataliIstek(guc.mesaj!, 'zayif_parola');
+    if (!guc.gecerli) throw HataliIstek(guc.mesaj!, guc.kod ?? 'zayif_parola', guc.degerler);
 
     const [kullanici] = await db
       .select({ id: users.id })
@@ -345,7 +346,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
 
   app.post('/eposta-dogrula-gonder', { preHandler: app.kimlikDogrula }, async (istek) => {
     const [kullanici] = await db
-      .select({ email: users.email, dogrulandi: users.email_dogrulandi_at })
+      .select({ email: users.email, dogrulandi: users.email_dogrulandi_at, locale: users.locale })
       .from(users)
       .where(eq(users.id, istek.kullaniciId))
       .limit(1);
@@ -374,7 +375,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     });
 
     const sonuc = await app.postaci.gonder(
-      epostaDogrulamaPostasi(kullanici.email, kod, KOD_OMRU_DAKIKA),
+      epostaDogrulamaPostasi(kullanici.email, kod, KOD_OMRU_DAKIKA, kullanici.locale),
     );
     if (!sonuc.gonderildi) {
       istek.log.warn({ sebep: sonuc.sebep }, 'doğrulama postası gönderilemedi');

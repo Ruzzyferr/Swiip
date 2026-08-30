@@ -21,6 +21,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { islemHatasiMetni, yerelGun } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { sunucuMetni } from '../../src/veri/sunucuMetni';
 
 /**
  * Günlük beslenme özeti ve kayıt (F5.8, F5.10, F5.11).
@@ -42,6 +43,8 @@ interface HedefCevabi {
     barkod: boolean;
     yemek_tanima: boolean;
   };
+  /** Sunucu metni koddan kuruluyor; `mesaj` yalnızca yedek. Bkz. `sunucuMetni`. */
+  kod?: string;
   mesaj?: string;
   porsiyon_rehberi?: PorsiyonRehberi;
 }
@@ -72,7 +75,8 @@ interface BesinSonucu {
 
 export default function Beslenme() {
   const tema = useTema();
-  const m = useMetinler().beslenme;
+  const tumMetinler = useMetinler();
+  const m = tumMetinler.beslenme;
   const genel = useMetinler().genel;
   /*
     `toISOString()` UTC gunu verir. Turkiye UTC+3: gece 00:00-03:00 arasi girilen
@@ -82,6 +86,8 @@ export default function Beslenme() {
   const bugun = yerelGun();
 
   const [hedef, setHedef] = useState<HedefCevabi | null>(null);
+  /* Kilit metni sunucunun Türkçe yedeğinden değil, kodundan kuruluyor. */
+  const kilitMetni = sunucuMetni(hedef, tumMetinler);
   const [gun, setGun] = useState<GunCevabi | null>(null);
   const [hazir, setHazir] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
@@ -219,7 +225,7 @@ export default function Beslenme() {
             <Sayi tur="dev" renk="aksan">
               {gun.toplam.kalori}
             </Sayi>
-            {hedef.mesaj ? <Yazi renk="metinYumusak">{hedef.mesaj}</Yazi> : null}
+            {kilitMetni ? <Yazi renk="metinYumusak">{kilitMetni}</Yazi> : null}
           </Kart>
         ) : null}
 

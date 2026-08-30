@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { sunucuMetni } from '../../src/veri/sunucuMetni';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
@@ -80,12 +81,18 @@ export default function Ilerleme() {
     }
     setKilo('');
 
-    const uyum = await istek<{ duzeltildi: boolean; mesaj: string }>('/v1/beslenme/tdee-uyumla', {
+    const uyum = await istek<{
+      duzeltildi: boolean;
+      kod?: string;
+      degerler?: Record<string, string | number>;
+      mesaj: string;
+    }>('/v1/beslenme/tdee-uyumla', {
       yontem: 'POST',
       govde: {},
     }).catch(() => null);
 
-    if (uyum) setTdeeMesaji(uyum.mesaj);
+    // Metin koddan kuruluyor; sunucunun Türkçe `mesaj` alanı yalnızca yedek.
+    if (uyum) setTdeeMesaji(sunucuMetni(uyum, metinler) ?? uyum.mesaj);
     void yukle();
   };
 
