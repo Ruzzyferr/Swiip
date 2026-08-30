@@ -346,6 +346,60 @@ konunca yeşile. Yakalamayan bir kilit, olmayan bir kilittir.
 (8), `tasmaKorumasi.test.ts`'e eklenen tam ekran kuralı (34) ve `motor.test.ts`'e
 eklenen iki koşul testi. Toplam **127 dosya / 2143 test** yeşil.
 
+## 2026-08-30 yayını: 1.0.1 gönderildi, sunucu dağıtıldı
+
+Yukarıdaki yedi düzeltme aynı gün üç yere birden çıktı.
+
+**App Store · 1.0.1 incelemede.** Gönderim `WAITING_FOR_REVIEW`, build **23** bağlı,
+`releaseType: AFTER_APPROVAL` — Apple onaylar onaylamaz kendiliğinden canlıya çıkıyor,
+ayrıca bir düğmeye basılmıyor.
+
+**Aciliyetin sebebi:** 1.0 `READY_FOR_SALE` idi, yani "hiçbir yeni kullanıcı program
+alamıyor" kusuru canlıdaydı. Bir sürümün onaylanmış olması, içindekinin çalıştığı
+anlamına gelmiyor — dört inceleme turunun hiçbiri o kusuru görmedi, çünkü inceleyici
+hazır bir hesapla giriyor ve değerlendirmeyi baştan doldurmuyor.
+
+Gönderim öncesi denetlenenler (hepsi 1.0'dan devralınmıştı, yeniden kurmak gerekmedi):
+sürüm notları (731 karakter, geri okundu), inceleme bilgileri (demo hesap + 3.991
+karakterlik notlar), ekran görüntüleri (`APP_IPHONE_67` 6/6 ve
+`APP_IPAD_PRO_3GEN_129` 6/6, hepsi `COMPLETE`), dört aboneliğin de `APPROVED` olması.
+Abonelikler zaten onaylı olduğu için gönderime **yalnızca sürüm ögesi** eklendi —
+3.1.2 turundaki altı ögelik gönderim burada gerekmiyor.
+
+**Play · yalnızca kapalı test.** `alpha` izinde **vc=17 / 1.0.1** yayında. Üretim izine
+**bilerek dokunulmadı**: Google'ın "12 testçi × 14 gün" şartı duruyor ve sayaç 1/12'de.
+Liste tarafı üretime hazır (6+6+6 ekran görüntüsü, ikon, öne çıkan görsel, iletişim
+bilgileri) — sayaç dolduğunda promosyon tek adım.
+
+**Sunucu dağıtıldı:** `673ef40` → `ee14ad9` (16 commit). Soru bankası değiştiği için
+gerekliydi; `conditionalOn` sayısı sunucuda 4'ten 6'ya çıktı.
+
+**Dağıtım DIŞARIDAN doğrulandı** — betiğin "başarılı" çıktısına değil canlıya bakarak.
+Bu depoda aynı sınıf kusur üç kez yakalandı (göçmen imajı, yedek görevi, Caddy), o
+yüzden kontrol listesi sabit:
+
+| Kontrol | Sonuç |
+|---|---|
+| `/opt/swiip/SURUM` = `git rev-parse HEAD` | eşleşiyor |
+| `/saglik` `/` `/gizlilik.html` `/destek.html` `/kaynaklar.html` `/hesap-silme.html` | hepsi 200 |
+| `/bulunmayan-sayfa` `/.env` | 404 |
+| Site dosyalarının md5'i depodakiyle | altısı da aynı |
+| Konteynerler | dördü de ayakta, `api` ve `postgres` healthy |
+| Sunucudaki soru bankası | `conditionalOn` 6 |
+
+**İşlevsel duman testi (canlı API, gerçek hesap):** giriş 200, 33 cevap kayıtlı,
+`sonraki_soru: null`, **`B5 = "Ailem"` ve B7 kayıtlı DEĞİL** — yeni koşul mantığı
+sunucuda da işliyor. `/v1/program/aktif` 200: 1. hafta, `full_body`.
+
+**Öğrenilen (küçük ama tekrarlıyor):**
+
+- Yerelde `lint` + `typecheck` koşturmak YETMİYOR; CI ayrıca `format:check` çalıştırıyor
+  ve bir tur oradan kırmızıya düştü. Python ile yazılan her dosya prettier'dan
+  geçirilmeli. Tam denetim: `npm run format:check && npm run lint && npm run typecheck && npm test`.
+- `scripts/sunucu-dagit.sh` Git Bash'te `mktemp -d` yüzünden düşüyor: üretilen MSYS
+  yolunu Windows `git archive` ikilisi yazamıyor. Çözüm dağıtımdan önce
+  `export TMPDIR="C:/Users/<kullanıcı>/AppData/Local/Temp"`.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
@@ -545,7 +599,9 @@ kararı). Play sayacı hâlâ **1/12**.
 - Posta `bilgi@send.swiip.app` üzerinden gidiyor (Resend, eu-west-1). Kök `swiip.app`
   Resend'de başka bir takıma kayıtlı ve devralınamıyor — gönderen adresi bu yüzden alt
   alan adı. Uçtan uca denendi: kod e-postayla ulaştı, parola değişti.
-- **Gönderildi: build 20, iPad dahil (2026-08-28 17:17 UTC).** Altı öğe —
+- **Gönderildi: build 20, iPad dahil (2026-08-28 17:17 UTC).** _Bu gönderim 1.0 olarak
+  onaylandı ve yayına girdi; güncel gönderim 1.0.1 / build 23 — bkz. "2026-08-30
+  yayını". Aşağıdaki öğrenilenler hâlâ geçerli._ Altı öğe —
   sürüm + abonelik grubu + dört abonelik — `WAITING_FOR_REVIEW`. Gönderim öncesi
   11 maddelik denetimin hepsi yeşil; iki ekran seti de 6/6 `COMPLETE`
   (`APP_IPHONE_67` ve `APP_IPAD_PRO_3GEN_129`).
