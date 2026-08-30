@@ -541,6 +541,17 @@ export const tr = {
     kaldiginYer: 'Kaldığın yer bulunuyor',
     tamamBaslik: 'Değerlendirme tamam',
     tamamGovde: 'Bütün soruları cevapladın. Şimdi vücut analizine geçiyoruz.',
+    /*
+      Cevaplara DÖNÜŞ YOLU.
+
+      Değerlendirme bitince koşucu bu ekranda kalıyor ve cetvel çizilmiyordu; yani
+      cevaplanmış bir soruyu değiştirmenin hiçbir yolu yoktu. Ayarlardaki
+      "Değerlendirmeyi güncelle" de buraya çıkıyor, yani orada da yoktu.
+
+      Bedeli sadece rahatsızlık değil: yanlış dokunulan bir güvenlik sorusu (kardiyak
+      bayrak) programı kalıcı olarak kapatıyor ve kullanıcının düzeltme yolu kalmıyor.
+    */
+    cevaplariGozdenGecir: 'Cevaplarımı gözden geçir',
     devamEtDugmesi: 'Devam et',
     cevrimdisiNotu: 'Bağlantı yok — cevapların cihazında tutuluyor, bağlanınca gönderilecek.',
     soruyuAtla: 'Bu soruyu atla',
@@ -610,8 +621,13 @@ export const tr = {
       max_kg: 'En ağır',
     },
     ekipman: {
-      onDoldurmaOnerisi: (salon: string) =>
-        `${salon} salonlarında genelde bulunan ekipmanı işaretleyebiliriz. Sonra istediğini kaldırırsın.`,
+      /*
+        Parametre bir SALON ADI değil, E1 cevabı ("Spor salonu" / "Karma").
+        Şablon "${salon} salonlarında" idi ve ekranda "Spor salonu salonlarında"
+        çıkıyordu. Metin artık konumu tekrar etmiyor.
+      */
+      onDoldurmaOnerisi: () =>
+        'Salonlarda genelde bulunan ekipmanı işaretleyebiliriz. Sonra istediğini kaldırırsın.',
       salonumaGoreDoldur: 'Salonuma göre doldur',
       secili: (adet: number) => `${adet} ekipman seçili`,
       temizle: 'Temizle',
@@ -661,17 +677,27 @@ export const tr = {
     blokSonu: {
       bolum: 'BÖLÜM',
       varsayilanBaslik: 'Bu bölüm tamam',
+      /**
+       * Kart sonu başlığı — anahtarlar `data/sorular.json` blok kimlikleri.
+       *
+       * Değerlendirme sekiz karta indirilirken kimlikler değişti (`S`→`G`, `A` artık
+       * "Ağrı ve kısıt", `Y`/`T`/`F` kalktı) ama bu harita eski kimliklerde kaldı.
+       * Sonuç ölçüldü: sekiz kartın ikisi (`G` ve `M`) haritada hiç yoktu ve genel
+       * yedeğe ("Bu bölüm tamam") düşüyordu, `A` ise artık sormadığı bir şeyi
+       * duyuruyordu ("Antrenman geçmişin çıkarıldı"). Kart sonu geri bildirimi terke
+       * karşı en güçlü kozumuz; yedeğe düşen bir başlık o kozu harcıyor.
+       *
+       * `blokSonuBasliklari.test.ts` haritanın bloklarla birebir örtüşmesini kilitliyor.
+       */
       basliklar: {
         K: 'Temel bilgilerin alındı',
+        G: 'Sağlık taraması tamam',
+        A: 'Ağrı ve kısıtların not edildi',
         H: 'Hedefini not ettik',
-        A: 'Antrenman geçmişin çıkarıldı',
-        S: 'Sağlık taraması tamam',
         E: 'Ekipmanın kaydedildi',
         Z: 'Program yapın belirlendi',
-        Y: 'Toparlanma kapasiten hesaplandı',
         B: 'Beslenme çerçeven çıktı',
-        T: 'Tercihlerin işlendi',
-        F: 'Ölçülerin alındı',
+        M: 'Mutfak düzenin alındı',
       },
       dipnot: 'Bu, verdiğin cevaplardan hesaplandı. Sonraki bölümlerde daha da netleşecek.',
     },

@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Dugme, Ekran, Kart, Yazi } from '../../src/tasarim/bilesenler';
-import { buyukHarf } from '@swiip/shared';
+import { buyukHarf, SORU_BANKASI } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**
@@ -14,8 +14,25 @@ export default function BlokSonu() {
   const degerlendirme = useMetinler().degerlendirme;
   const m = degerlendirme.blokSonu;
   const dil = useDil();
-  const { blok, metin } = useLocalSearchParams<{ blok: string; metin: string }>();
+  const { blok, metin, son } = useLocalSearchParams<{
+    blok: string;
+    metin: string;
+    son?: string;
+  }>();
   const baslik = m.basliklar[(blok ?? '') as keyof typeof m.basliklar] ?? m.varsayilanBaslik;
+  /**
+   * Harf CETVELLE aynı kaynaktan: bölümün adı.
+   *
+   * Burada `baslik.slice(0, 1)` yazıyordu — yani harf, bölümün adından değil bu
+   * ekranın MÜJDE cümlesinden geliyordu. Ölçüldü: "Sen" kartı "BÖLÜM T" ("Temel
+   * bilgilerin alındı"), "Güvenlik" kartı "BÖLÜM B" ("Bu bölüm tamam"), "Takvim"
+   * kartı "BÖLÜM P" ("Program yapın belirlendi") diyordu. Cetvel ise aynı anda
+   * S / G / T gösteriyor: kullanıcı aynı kart için iki farklı harf görüyordu.
+   *
+   * `Cetvel.tsx` bu hatayı bir kez yaşayıp `blok.title`'a bağlanmıştı; düzeltme
+   * buraya uğramamış. Artık ikisi de `SORU_BANKASI` başlığını okuyor.
+   */
+  const bolumAdi = SORU_BANKASI.blocks.find((b) => b.id === blok)?.title ?? baslik;
 
   return (
     <>
@@ -52,7 +69,7 @@ export default function BlokSonu() {
             hemen altındaki başlıkla aynı kelimeye bağlanıyor.
           */}
         <Yazi tur="etiket" renk="aksan">
-          {m.bolum} {buyukHarf(baslik.slice(0, 1), dil)}
+          {m.bolum} {buyukHarf(bolumAdi.slice(0, 1), dil)}
         </Yazi>
         <Yazi tur="baslik1">{baslik}</Yazi>
 
@@ -64,7 +81,18 @@ export default function BlokSonu() {
           {m.dipnot}
         </Yazi>
 
-        <Dugme baslik={degerlendirme.devamEtDugmesi} onPress={() => router.back()} />
+        {/*
+          Son kartta geri DÖNÜLMEZ.
+
+          `router.back()` tek yoldu ve son bloğun geri bildiriminden sonra kullanıcıyı
+          değerlendirme koşucusuna geri atıyordu; orada cevaplanacak soru kalmadığı
+          için "Değerlendirme tamam" diye ikinci bir ara ekran çıkıyor ve akış iki
+          kez "devam et" dedirtiyordu. Son kart artık doğrudan vücut analizine geçiyor.
+        */}
+        <Dugme
+          baslik={degerlendirme.devamEtDugmesi}
+          onPress={() => (son === '1' ? router.replace('/fotograf/gizlilik') : router.back())}
+        />
       </Ekran>
     </>
   );

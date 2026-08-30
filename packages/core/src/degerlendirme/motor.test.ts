@@ -122,7 +122,6 @@ describe('gorunurSorular — dallanma', () => {
 
     expect(ev).toContain('E5a');
     expect(ev).toContain('E6');
-    expect(ev).toContain('E7');
 
     const salon = gorunurSorular({ E1: 'Spor salonu' }).map((s) => s.id);
     expect(salon).not.toContain('E5a');
@@ -133,7 +132,44 @@ describe('gorunurSorular — dallanma', () => {
     const karma = gorunurSorular({ E1: 'Karma' }).map((s) => s.id);
 
     expect(karma).toContain('E5a');
-    expect(karma).toContain('E7');
+  });
+
+  /**
+   * Dumbbell aralığı, dumbbell'ı OLANA sorulur.
+   *
+   * Önce yalnızca E1'in dalıydı: "Ev" ya da "Karma" diyen herkese soruluyordu —
+   * ekipman listesinde dumbbell işaretlememiş olsa bile. Koşul artık iki parçalı:
+   * (evde ya da karma) VE listede dumbbell var. Salonda hiç sorulmuyor; orada rack
+   * tam kabul ediliyor.
+   */
+  it('E7 hem konuma hem dumbbell işaretine bağlı', () => {
+    const kes = (c: Parameters<typeof gorunurSorular>[0]) =>
+      gorunurSorular(c).map((s) => s.id);
+
+    expect(kes({ E1: 'Ev', E3: ['Dumbbell', 'Direnç bandı'] })).toContain('E7');
+    expect(kes({ E1: 'Karma', E3: ['Dumbbell'] })).toContain('E7');
+
+    // Evde ama dumbbell yok.
+    expect(kes({ E1: 'Ev', E3: ['Direnç bandı'] })).not.toContain('E7');
+    // Dumbbell var ama salonda — orada rack tam sayılıyor.
+    expect(kes({ E1: 'Spor salonu', E3: ['Dumbbell'] })).not.toContain('E7');
+  });
+
+  /**
+   * Pişirme süresi, yemeği KENDİ pişirene sorulur.
+   *
+   * Koşulsuzdu: "yemeğimi ailem yapıyor" diyen kullanıcıya bir alt satırda "yemeğe
+   * günde kaç dakika ayırabilirsin" soruluyordu. Kullanıcı bunu bir mantık hatası
+   * olarak bildirdi ve haklıydı — tarif karmaşıklığı tavanı yalnızca kendisi
+   * pişiriyorsa anlamlı.
+   */
+  it('B7 yalnızca yemeği kendi hazırlayana sorulur', () => {
+    const kes = (b5: string) => gorunurSorular({ B5: b5 }).map((s) => s.id);
+
+    expect(kes('Kendim')).toContain('B7');
+    expect(kes('Karışık')).toContain('B7');
+    expect(kes('Ailem')).not.toContain('B7');
+    expect(kes('Dışarıdan alıyorum')).not.toContain('B7');
   });
 
   it('vücut haritasında işaretlenen her bölge için soru seti tekrarlanır', () => {
