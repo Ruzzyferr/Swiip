@@ -37,16 +37,36 @@ const SECILEN = (process.argv.find((a) => a.startsWith('--set=')) || '').slice(6
  * Set yoksa olusturuluyor. Dikkat: surum INCELEMEDEYKEN set olusturulamiyor
  * ("Can't Create Screenshot Set while In Review") -- once gonderimi iptal et.
  */
-const SETLER = [
-  {
-    tur: 'APP_IPHONE_67',
-    klasor: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar'),
+const KLASORLER = {
+  tr: {
+    APP_IPHONE_67: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar'),
+    APP_IPAD_PRO_3GEN_129: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar-ipad'),
   },
-  {
-    tur: 'APP_IPAD_PRO_3GEN_129',
-    klasor: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar-ipad'),
+  'en-US': {
+    APP_IPHONE_67: join(import.meta.dirname, '..', 'magaza', 'appstore', 'ekranlar-en'),
+    APP_IPAD_PRO_3GEN_129: join(
+      import.meta.dirname,
+      '..',
+      'magaza',
+      'appstore',
+      'ekranlar-ipad-en',
+    ),
   },
-];
+};
+
+/*
+  Dil ARTIK SECILIYOR.
+
+  Once `loc.d.data[0]` yaziliyordu: tek yerellestirme varken dogru, on bir dil
+  eklendikten sonra hangi dile yazacagi sansa kalmis olurdu. Uygulama 175 ulkeye
+  aciliyor ve her yerellestirmenin kendi ekran goruntusu var.
+*/
+const DIL = (process.argv.find((a) => a.startsWith('--dil=')) || '--dil=tr').split('=')[1];
+const SETLER = Object.entries(KLASORLER[DIL] ?? {}).map(([tur, klasor]) => ({ tur, klasor }));
+if (SETLER.length === 0) {
+  console.error(`Bu dil icin klasor tanimli degil: ${DIL}`);
+  process.exit(2);
+}
 
 const b = (g) =>
   Buffer.from(g).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -80,8 +100,12 @@ const sv = await cagir(`/apps/${APP}/appStoreVersions?limit=1`);
 const surum = sv.d.data[0];
 console.log('sürüm:', surum.attributes.versionString, '|', surum.attributes.appStoreState);
 
-const loc = await cagir(`/appStoreVersions/${surum.id}/appStoreVersionLocalizations`);
-const yerel = loc.d.data[0];
+const loc = await cagir(`/appStoreVersions/${surum.id}/appStoreVersionLocalizations?limit=50`);
+const yerel = loc.d.data.find((x) => x.attributes.locale === DIL);
+if (!yerel) {
+  console.error(`Surumde ${DIL} yerellestirmesi yok. Once metinleri ekle.`);
+  process.exit(2);
+}
 console.log('dil  :', yerel.attributes.locale);
 
 const mevcutSetler = await cagir(`/appStoreVersionLocalizations/${yerel.id}/appScreenshotSets`);

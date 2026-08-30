@@ -64,6 +64,23 @@ SETLER = (
         'serit': 72,
         'icerik': 90,
     },
+    # Ingilizce setler. App Store yerellestirme BASINA ekran goruntusu istiyor;
+    # Turkce set 175 ulkeye acilan bir uygulamada yabanci kullaniciya bir sey
+    # anlatmiyor. Ayni tuvaller, arayuz Ingilizce.
+    {
+        'ad': 'telefon-en',
+        'kaynak': os.path.join(KOK, 'magaza', 'en', 'ekranlar'),
+        'hedef': os.path.join(KOK, 'magaza', 'appstore', 'ekranlar-en'),
+        'serit': 78,
+        'icerik': 100,
+    },
+    {
+        'ad': 'tablet-en',
+        'kaynak': os.path.join(KOK, 'magaza', 'en', 'tablet'),
+        'hedef': os.path.join(KOK, 'magaza', 'appstore', 'ekranlar-ipad-en'),
+        'serit': 72,
+        'icerik': 90,
+    },
 )
 
 
