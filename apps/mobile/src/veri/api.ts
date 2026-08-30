@@ -1,13 +1,7 @@
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
-import {
-  apiHataMetni,
-  dilCozumle,
-  metinleriAl,
-  tekUcus,
-  varsayilanDil,
-  type Dil,
-} from '@swiip/shared';
+import { cihazDili } from '../durum/cihazDili';
+import { apiHataMetni, dilCozumle, metinleriAl, tekUcus, type Dil } from '@swiip/shared';
 
 /**
  * Ağ katmanının bildiği dil.
@@ -16,13 +10,24 @@ import {
  * `locale` alanını yükledikçe burayı güncelliyor. Oturum açılmamışsa varsayılan Türkçe —
  * hata metni her durumda bir dilde çıkıyor.
  */
-let aktif: Dil = varsayilanDil;
+/*
+  Dil TEMBEL çözülüyor — modül yüklenirken değil, ilk kullanıldığında.
+
+  Önce `varsayilanDil` (Türkçe) yazıyordu: oturum açılmadan önce oluşan her ağ hatası —
+  "İnternet yok", "Geçersiz e-posta" — dünyanın her yerinde Türkçe çıkıyordu.
+
+  Düzeltirken `let aktif = cihazDili()` yazıldı ve `ReferenceError: Property 'cihazDili'
+  doesn't exist` alındı: Metro modülü yarı yüklenmiş veriyor. `diller.ts` aynı tuzağı
+  bir kez yaşamış ve orada da yazıyor. Modül başında iş yapmamak hem bu sınıfı hem de
+  gereksiz açılış maliyetini birden kaldırıyor.
+*/
+let aktif: Dil | null = null;
 
 export function agDiliniAyarla(locale?: string | null): void {
   aktif = dilCozumle(locale);
 }
 
-const aktifDil = (): Dil => aktif;
+const aktifDil = (): Dil => aktif ?? cihazDili();
 
 /**
  * API istemcisi.

@@ -23,6 +23,7 @@ import { disaAktarmaArtiklariniSil } from '../veri/disaAktar';
 import { magaza } from '../odeme/magaza';
 import { bildirimleriKapat, bildirimleriKur } from '../bildirim/zamanlayici';
 import { ANAHTARLAR, oku } from '../veri/onbellek';
+import { cihazDili, kayitDili } from './cihazDili';
 
 /**
  * Oturum durumu. Uygulamanın tek küresel durumu budur; gerisi ekranların kendi içinde.
@@ -176,9 +177,16 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
 
   const kayitOl = useCallback(
     async (girdi: KayitGirdisi) => {
+      /*
+        `locale` GÖNDERİLİYOR.
+
+        Sunucu bu alanı gövdede beklerken varsayılanı `tr-TR`. Uygulama hiç
+        göndermediği için dünyanın her yerinde açılan her hesap Türkçe doğuyordu —
+        kullanıcı hiçbir yerde Türkçe seçmemiş olsa bile.
+      */
       const cevap = await istek<OturumCevabi>('/v1/kimlik/kayit', {
         yontem: 'POST',
-        govde: girdi,
+        govde: { ...girdi, locale: kayitDili() },
         yetkisiz: true,
       });
       await tokenlariKaydet(cevap.erisim_token, cevap.yenileme_token);
@@ -245,14 +253,23 @@ export function useSayilarGizli(): boolean {
 }
 
 /**
- * Arayüz dili kullanıcının `locale` alanından gelir; oturum açılmamışsa varsayılan Türkçe.
+ * Arayüz dili kullanıcının `locale` alanından gelir; yoksa CİHAZIN dilinden.
  *
- * Cihaz dilini otomatik almıyoruz: Türkiye'de İngilizce telefon kullanan çok kişi var ve
- * uygulamanın Türkçe içeriğini görmek istiyorlar. Dil, kullanıcının açık tercihidir.
+ * Burada eskiden şöyle yazıyordu: "Cihaz dilini otomatik almıyoruz: Türkiye'de İngilizce
+ * telefon kullanan çok kişi var ve uygulamanın Türkçe içeriğini görmek istiyorlar."
+ * Türkiye'ye satılan bir ürün için doğru bir karardı.
+ *
+ * Global açılımda tersine döndü. Ölçüldü: oturum açılmamış arayüz HER cihazda Türkçe
+ * çiziliyordu — yani 175 ülkeye açıldığımızda Almanya'daki kullanıcı, mağaza sayfası
+ * Almanca olsa bile, uygulamayı açtığı anda Türkçe bir karşılama ekranı görecekti.
+ *
+ * Açık tercih hâlâ en üstte: `locale` alanı varsa cihaz dili hiç okunmuyor. Değişen tek
+ * şey, tercihin YOKLUĞUNDA ne olacağı. Ayrıntı ve desteklenmeyen dil kuralı için
+ * `cihazDili.ts`.
  */
 export function useDil(): Dil {
   const { kullanici } = useOturum();
-  return dilCozumle(kullanici?.locale);
+  return kullanici?.locale ? dilCozumle(kullanici.locale) : cihazDili();
 }
 
 export function useMetinler(): Metinler {
