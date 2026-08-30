@@ -488,6 +488,59 @@ dili olmayan mağazada İngilizceye değil **birincil dile** düşüyor.
 Onay geldiğinde sıra: `primaryLocale` → `en-US`, sonra 175 ülke. İkisi de tek betik:
 `scratchpad/global-ac.mjs --yaz`.
 
+### Düzeltme: 175 ülke AÇILDI — ve API bir kez yalan söyledi
+
+Yukarıda "ülke listesi API'den değiştirilemiyor, konsol gerekiyor" yazıyordu. Yarısı
+doğru, yarısı yanlış — ve yanlış olan kısım öğrenilmeye değer.
+
+API'nin verdiği yanıtlar:
+
+```
+POST /v2/appAvailabilities  (gerçek bölge kodlarıyla)
+  409 ENTITY_ERROR.INCLUDED.INVALID_ID
+      "the id must be a local id with the format ${local-id}"
+
+POST /v2/appAvailabilities  (yerel kimliklerle: ${TUR}, ${DEU}, …)
+  409 ENTITY_ERROR.RELATIONSHIP.INVALID
+      "An 'appAvailabilities' with a relationship to 'apps' … already exists."
+
+PATCH /v2/appAvailabilities/{id}          403  "does not allow 'UPDATE'"
+PATCH …/relationships/territoryAvailabilities  403  "does not allow 'REPLACE'"
+PATCH /v2/territoryAvailabilities/{id}    404  "path does not match a defined resource"
+```
+
+Beş isteğin beşi de hata döndü ve hemen sonraki okuma **1/175** dedi. "Yapılamıyor"
+sonucu buradan çıktı.
+
+**Ama yaklaşık on dakika sonra 175/175 oldu.** Arada yapılan tek şey konsolun
+Pricing and Availability sayfasını AÇMAKTI — ve o sayfa `1 Available · 174 Processing`
+yazıyordu. Yani ikinci POST (yerel kimlikli olan) **kabul edilmiş, işi kuyruğa almış**
+ve yalnızca "kayıt zaten var" kısmı için 409 dönmüştü. Yazma asenkron uygulandı.
+
+Ders: bu uçta 409, "hiçbir şey olmadı" demek değil. Yazma denemesinden sonra **hemen**
+okumak yanlış cevap veriyor; konsoldaki `Processing` sayacı gerçeği söylüyor. Doğrulama
+birkaç dakika sonra tekrarlanmalı.
+
+**Dışarıdan doğrulandı** (`itunes.apple.com/lookup`, mağaza başına): US, GB, DE, FR, ES,
+IT, RU, RO, PL, NL, JP, TR — hepsinde bulunuyor. BR o an henüz yayılmamıştı; katalog
+yayılımı mağaza başına birkaç dakika sürüyor.
+
+### Bilinen ve KABUL EDİLEN geçici durum
+
+`primaryLocale` hâlâ `tr` ve değiştirilemiyor (canlı 1.0'a yerelleştirme eklenemediği
+için). Sonucu ölçüldü — ABD mağazasında şu an:
+
+```
+ad       : Swiip
+sürüm    : 1.0
+açıklama : "Çoğu uygulama sekiz soru sorup program üretir…"   <-- Türkçe
+```
+
+Yani Türkiye dışındaki kullanıcı Türkçe bir ürün sayfası görüyor. Bu, ülkeler açılırken
+bilinen bir bedeldi ve kullanıcı bilerek kabul etti. **1.0.1 onaylandığı anda kendiliğinden
+düzeliyor**: o sürümde 11 dil var, ABD `en-US` görecek. Ardından `primaryLocale` da
+`en-US` yapılabilir ve kalan ~160 mağazanın yedeği Türkçe olmaktan çıkar.
+
 ### Play
 
 Kapalı test `alpha` izinde **vc=19 / 1.0.1** yayında. Üretim izine dokunulmadı —
