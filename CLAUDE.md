@@ -400,6 +400,109 @@ sunucuda da işliyor. `/v1/program/aktif` 200: 1. hafta, `full_body`.
   yolunu Windows `git archive` ikilisi yazamıyor. Çözüm dağıtımdan önce
   `export TMPDIR="C:/Users/<kullanıcı>/AppData/Local/Temp"`.
 
+## 2026-08-31: uluslararası açılım — ölçüldü, yapıldı, biri Apple'a takıldı
+
+Hedef: dünyanın herhangi bir yerindeki bir kullanıcı uygulamayı **bulabilsin** ve
+indirince **anlayabilsin**. Bu, sanıldığından fazla katman istedi.
+
+### Önce yanlış ölçtüm, düzeltildi
+
+"Sunucuda 108 elle yazılmış Türkçe metin var" dedim ve kullanıcıdan hepsini çevirmek
+için onay istedim. Yanlıştı: `hatalar.ts`'in başındaki mimariyi hesaba katmamıştım —
+**sunucu `kod` yolluyor, istemci metni kendi sözlüğünden kuruyor**, Türkçe mesaj
+yalnızca yedek. Doğru ölçüm: 48 koddan 36'sı kapsanmış, **12'si açıkta**.
+
+Ders: bir sayı vermeden önce o sayının neyi ölçtüğünü doğrula. 108, "Türkçe karakter
+içeren string" sayısıydı; sorulan soru "kullanıcıya Türkçe çıkan metin" idi.
+
+### Kapatılan sızıntılar
+
+| Katman | Bulgu | Çözüm |
+|---|---|---|
+| Hata kodları | 48'in 12'si sözlükte yok | 51/53 kapsandı; kalan 2 yönetim ucu |
+| Parola kuralları | Üç kural tek kod paylaşıyor | Üç ayrı kod — çeviri hangi kuralı söylüyor |
+| 200 yanıtları | `mesaj` ekrana ham basılıyor | `sunucuMetni.ts` — beş ekran tek yerden |
+| E-postalar | Elle yazılmış Türkçe | Sunucuda `users.locale` ile çevriliyor |
+| Arayüz dili | Giriş öncesi HER cihazda Türkçe | Cihaz dili okunuyor (`cihazDili.ts`) |
+| Kayıt | Her hesap `tr-TR` doğuyordu | Cihaz dili gönderiliyor |
+
+Biri emülatörde gözle görüldü: İngilizce hesapla açılan Beslenme ekranının tamamı
+İngilizce, ortadaki paragraf Türkçe (`plan_yetersiz`). Kusur sessizdi çünkü **yedek
+çalışıyor** — ekran çizilir, hata olmaz, kimse uyarmaz.
+
+**Bir tuzak:** dil `api.ts` içinde modül başında çözülüyordu ve
+`ReferenceError: Property cihazDili does not exist` verdi — Metro modülü yarı yüklenmiş
+veriyor. `diller.ts` aynı tuzağı bir kez yaşayıp belgelemiş. Dil artık **tembel**
+çözülüyor.
+
+### Site: bayat ve tek dilli
+
+İki kusur, ikisi de sessiz:
+
+1. **Ana sayfa yalan söylüyordu.** Uygulama 29 Ağustos'tan beri App Store'da canlı ama
+   site hâlâ *"Yayına çıkınca haber ver"* deyip e-posta topluyordu ve **hiçbir mağaza
+   bağlantısı yoktu.** İndirebilecek bir ziyaretçiyi kapıda çevirmek.
+2. **Altı sayfa da `<html lang="tr">`.** Apple inceleme sırasında Support URL ve Privacy
+   Policy URL'sini tıklıyor — 1.0 bir kez 1.5'ten reddedilmişti.
+
+Altı sayfanın İngilizce karşılığı yazıldı (`en/`), iki yönlü `hreflang` + `x-default`,
+kullanıcının tıklayabileceği dil geçişi, `xhtml:link` ile iki dilli sitemap. Marka SVG'si
+ve CSS Türkçe sayfalardan birebir; değişen yalnız metin. Akademik künyeler çevrilmedi —
+o karar `CLAUDE.md`'de zaten yazılıydı.
+
+İki bayat mağaza ifadesi de düzeltildi: hesap silme ve gizlilik *"abonelik Google Play
+tarafında"* diyordu, oysa uygulama App Store'da.
+
+### App Store: 11 dil
+
+`1.0.1` + **build 25**, `WAITING_FOR_REVIEW`, `AFTER_APPROVAL`.
+
+en-US · de-DE · fr-FR · es-ES · it · pt-BR · ru · ro · pl · nl-NL · tr — her biri
+**kendi dilinde** isim, altbaşlık, anahtar kelime, açıklama ve sürüm notu. İngilizce
+ekran görüntüleri (6 telefon + 6 tablet) emülatörde çekilip yüklendi.
+
+**Anahtar kelime seçimi ölçümle yapıldı, tahminle değil.** Türkiye'de orta sıradaki
+uygulamalar head terimlere isimlerine o kelimeyi koyarak giriyor — "Diyetkolik - Kalori
+Hesaplama" `kalori`de 6., yalnızca 909 oyla. Bu yüzden isim artık
+"Swiip: Antrenman ve Beslenme".
+
+**Bir yanlış yol, kayda geçsin:** rekabeti ölçüp `bel fıtığı egzersiz` (0 oy) ve
+`sakatlık sonrası spor` (0 sonuç) gibi terimleri "boş alan" diye önerdim. Kullanıcı
+haklı olarak reddetti: rakip olmamasının en yaygın sebebi o aramanın **yapılmaması**.
+Talep ölçülmeden rekabet ölçmek yanıltıyor — ve ürün bir rehab uygulaması değil.
+Elimizdeki araçla arama hacmi görülemiyor; onun yeri Apple Search Ads Keyword Planner.
+
+### Kalan iki iş — Apple'ın kısıtı
+
+**`primaryLocale` hâlâ `tr` ve 175 ülke hâlâ kapalı.** İkisi de bilerek beklemede:
+
+Apple, birincil dili değiştirmek için **her sürümde** o dilin ekran görüntülerini şart
+koşuyor (`MISSING_SCREENSHOTS_PRIMARY_LOCALE`). Canlı olan 1.0'a yerelleştirme
+eklenemiyor (*"Cannot create localization after the app version has..."*). Yani
+`primaryLocale` ancak **1.0.1 yayına girdikten sonra** İngilizce yapılabiliyor.
+
+Sırayı bozmak zararlı olurdu: `primaryLocale` Türkçeyken 175 ülke açılsa, kendi dilinde
+yerelleştirmesi olmayan ~160 mağaza **Türkçe** bir ürün sayfası görürdü. Apple kendi
+dili olmayan mağazada İngilizceye değil **birincil dile** düşüyor.
+
+Onay geldiğinde sıra: `primaryLocale` → `en-US`, sonra 175 ülke. İkisi de tek betik:
+`scratchpad/global-ac.mjs --yaz`.
+
+### Play
+
+Kapalı test `alpha` izinde **vc=19 / 1.0.1** yayında. Üretim izine dokunulmadı —
+12 testçi × 14 gün şartı kullanıcının kendi işi.
+
+### Kilitler
+
+`hataKodlari.test.ts` (105) sunucunun fırlattığı her kodun iki sözlükte de karşılığını
+ve e-posta şablonlarında elle yazılmış konu satırı olmamasını şart koşuyor.
+`siteUluslararasi.test.ts` (46) her sayfanın İngilizce karşılığını, İngilizce sayfalarda
+Türkçe kelime kalmamasını, iki yönlü hreflang'i, dil geçişini, sitemap eşlemesini ve
+mağaza bağlantısının varlığını kilitliyor.
+
+**129 dosya / 2294 test** yeşil.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
