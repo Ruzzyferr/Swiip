@@ -143,8 +143,7 @@ describe('gorunurSorular — dallanma', () => {
    * tam kabul ediliyor.
    */
   it('E7 hem konuma hem dumbbell işaretine bağlı', () => {
-    const kes = (c: Parameters<typeof gorunurSorular>[0]) =>
-      gorunurSorular(c).map((s) => s.id);
+    const kes = (c: Parameters<typeof gorunurSorular>[0]) => gorunurSorular(c).map((s) => s.id);
 
     expect(kes({ E1: 'Ev', E3: ['Dumbbell', 'Direnç bandı'] })).toContain('E7');
     expect(kes({ E1: 'Karma', E3: ['Dumbbell'] })).toContain('E7');
