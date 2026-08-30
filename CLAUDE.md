@@ -326,6 +326,26 @@ kullanıcının gördüğü şey 2. ve 3. kusurlardı — sıçrayan liste ve kl
 kalan alan "taşıyor" diye okunuyor. Yine de bu madde **kapanmış sayılmamalı**;
 kullanıcı hangi soruda gördüğünü söylerse o tuval birebir kurulabilir.
 
+### Bir kilit daha: tam ekran düz `View`
+
+Tur sırasında bulunan son şey: Program sekmesinin "Henüz programın yok" dalı düz bir
+`View` ile çiziliyordu. `tasmaKorumasi.test.ts` DOSYA düzeyinde baktığı için
+kaçırmıştı — dosyada başka bir yerde `ScrollView` geçiyor. O ekranda üç değişken
+metin var (biri sunucudan gelen üretim hatası) ve dar tuvalde "Değerlendirmeye dön"
+kırpılabiliyordu: kullanıcının programsız kaldığı yerde ÇIKIŞ YOLU.
+
+Yeni kural her tam ekran `View`in **kendi gövdesini** (eşleşen `</View>`e kadar)
+okuyor ve içinde yükleniyor göstergesi ya da kaydıran bir kap arıyor. İlk iki deneme
+sabit uzunlukta pencere kullanıyordu ve ikisi de yanlıştı; geniş olanı kusuru
+**akladı**. Kural, kusur bilerek geri konarak sınandı: kırmızıya düştü, düzeltme geri
+konunca yeşile. Yakalamayan bir kilit, olmayan bir kilittir.
+
+### Kalan kilitler
+
+`degerlendirmeAkisi.test.ts` (14), `klavye.test.ts` (7), `blokSonuBasliklari.test.ts`
+(8), `tasmaKorumasi.test.ts`'e eklenen tam ekran kuralı (34) ve `motor.test.ts`'e
+eklenen iki koşul testi. Toplam **127 dosya / 2143 test** yeşil.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:

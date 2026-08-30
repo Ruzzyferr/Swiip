@@ -7,6 +7,7 @@ import {
   Ayirac,
   BosDurum,
   Dugme,
+  Ekran,
   Etiket,
   Gorsel,
   Kart,
@@ -205,15 +206,16 @@ export default function ProgramEkrani() {
        *
        * Metin ve iki düğme üstte toplanıyor, altta yedi yüz piksel boşluk kalıyordu.
        * Boşluk tek yerde ve eylemden ÖNCE: içerik yukarıda, eylem elin altında.
+       *
+       * Kap `Ekran` — düz bir `View` idi ve kırpıyordu. Burada üç değişken metin var
+       * (boş durum gövdesi, üretim hatası, iki düğme başlığı); üretim hatası sunucudan
+       * geliyor ve uzunluğu bilinmiyor. 320 dp'lik tuvalde büyük yazı tipiyle
+       * "Değerlendirmeye dön" ekranın dışında kalabiliyordu — yani kullanıcının
+       * programsız kaldığı ekranda ÇIKIŞ YOLU kırpılıyordu. `tasmaKorumasi.test.ts`
+       * dosya düzeyinde baktığı için yakalayamıyor: dosyada `ScrollView` geçiyor, ama
+       * bu erken dönüşte kullanılmıyordu.
        */
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: tema.renk.zemin,
-          padding: tema.bosluk.lg,
-          paddingBottom: tema.bosluk.xxl,
-        }}
-      >
+      <Ekran>
         <View style={{ gap: tema.bosluk.md }}>
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
           {uretimHatasi ? <Uyari tur="tehlike" govde={uretimHatasi} /> : null}
@@ -229,7 +231,7 @@ export default function ProgramEkrani() {
             onPress={() => router.push('/degerlendirme')}
           />
         </View>
-      </View>
+      </Ekran>
     );
   }
 
