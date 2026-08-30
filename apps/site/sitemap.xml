@@ -1,42 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Yalnızca gerçekten var olan ve indekslenmesi istenen üç sayfa.
+  Iki dilli site haritasi.
 
-  `404.html` bilerek yok: hata sayfası indekslenmez. `/v1/*` ve `/saglik` de yok;
-  onlar robots.txt'te ayrıca kapatılı.
-
-  `lastmod` elle güncellenir. Otomatik üretmek için bir betik yazmak, üç sayfalık
-  bir sitede çözdüğünden fazla bakım üretirdi.
+  Her sayfanin iki surumu var ve `xhtml:link` ile birbirine bagli. Bu olmadan arama
+  motoru Ingilizce sayfalari Turkce olanin kopyasi sayabiliyor ve yalnizca birini
+  indeksliyor -- 175 ulkeye acilan bir uygulamada bu, Ingilizce sayfalarin hic
+  gorunmemesi demek.
 -->
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://swiip.app/</loc>
-    <lastmod>2026-08-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/" />
+  </url>
+  <url>
+    <loc>https://swiip.app/en/</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/" />
   </url>
   <url>
     <loc>https://swiip.app/destek.html</loc>
-    <lastmod>2026-08-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/destek.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/support.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/support.html" />
   </url>
   <url>
-    <loc>https://swiip.app/kaynaklar.html</loc>
-    <lastmod>2026-08-27</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://swiip.app/en/support.html</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/destek.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/support.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/support.html" />
   </url>
   <url>
     <loc>https://swiip.app/gizlilik.html</loc>
-    <lastmod>2026-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/gizlilik.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/privacy.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/privacy.html" />
+  </url>
+  <url>
+    <loc>https://swiip.app/en/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/gizlilik.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/privacy.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/privacy.html" />
   </url>
   <url>
     <loc>https://swiip.app/hesap-silme.html</loc>
-    <lastmod>2026-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/hesap-silme.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/delete-account.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/delete-account.html" />
+  </url>
+  <url>
+    <loc>https://swiip.app/en/delete-account.html</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/hesap-silme.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/delete-account.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/delete-account.html" />
+  </url>
+  <url>
+    <loc>https://swiip.app/kaynaklar.html</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/kaynaklar.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/sources.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/sources.html" />
+  </url>
+  <url>
+    <loc>https://swiip.app/en/sources.html</loc>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://swiip.app/kaynaklar.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://swiip.app/en/sources.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://swiip.app/en/sources.html" />
   </url>
 </urlset>

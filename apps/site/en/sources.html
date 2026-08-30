@@ -1,31 +1,39 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Hesaplama kaynakları — Swiip</title>
+    <title>Calculation sources — Swiip</title>
     <meta
       name="description"
-      content="Swiip’in kalori, makro ve yük hesapları hangi yayımlanmış denklemlerden çıkıyor — kaynaklarıyla."
+      content="The published equations behind every calorie, macro and load calculation in Swiip, with journals and DOIs."
     />
     <meta name="theme-color" content="#F6F7F5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0E100F" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="varliklar/isaret.svg" type="image/svg+xml" />
+    <link rel="icon" href="../varliklar/isaret.svg" type="image/svg+xml" />
 
-    <link rel="canonical" href="https://swiip.app/kaynaklar.html" />
-    <meta property="og:title" content="Hesaplama kaynakları — Swiip" />
+    <link rel="canonical" href="https://swiip.app/en/sources.html" />
+    <link rel="alternate" hreflang="en" href="https://swiip.app/en/sources.html" />
+    <link rel="alternate" hreflang="tr" href="https://swiip.app/kaynaklar.html" />
+    <link rel="alternate" hreflang="x-default" href="https://swiip.app/en/sources.html" />
+
+    <meta property="og:title" content="Calculation sources — Swiip" />
     <meta
       property="og:description"
-      content="Swiip’in kalori, makro ve yük hesapları hangi yayımlanmış denklemlerden çıkıyor — kaynaklarıyla."
+      content="The published equations behind every calorie, macro and load calculation in Swiip, with journals and DOIs."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="tr_TR" />
-    <meta property="og:url" content="https://swiip.app/kaynaklar.html" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="tr_TR" />
+    <meta property="og:url" content="https://swiip.app/en/sources.html" />
     <meta property="og:site_name" content="Swiip" />
     <meta property="og:image" content="https://swiip.app/varliklar/paylasim.png" />
     <meta property="og:image:width" content="1024" />
     <meta property="og:image:height" content="500" />
-    <meta property="og:image:alt" content="Swiip — ölçüne göre antrenman ve beslenme koçu" />
+    <meta
+      property="og:image:alt"
+      content="Swiip — a training and nutrition coach that explains itself"
+    />
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -34,19 +42,12 @@
       href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="stil.css" />
-    <link rel="stylesheet" href="belge.css" />
-    <link rel="alternate" hreflang="tr" href="https://swiip.app/kaynaklar.html" />
-    <link rel="alternate" hreflang="en" href="https://swiip.app/en/sources.html" />
-    <link rel="alternate" hreflang="x-default" href="https://swiip.app/en/sources.html" />
-    <meta property="og:locale:alternate" content="en_US" />
+    <link rel="stylesheet" href="../stil.css" />
+    <link rel="stylesheet" href="../belge.css" />
   </head>
-
   <body>
-    <a class="atla" href="#icerik">İçeriğe atla</a>
+    <a class="atla" href="#icerik">Skip to content</a>
 
-    <!-- Marka işareti bir kez tanımlanıyor; kullanan yerler <use> ile çağırıyor.
-         Harici dosyaya <use href="dosya.svg#id"> tarayıcılarda güvenilir değil. -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
       <symbol id="isaret" viewBox="0 0 100 100">
         <mask id="m2f" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
@@ -102,24 +103,24 @@
         <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
         <span>Swiip</span>
       </a>
-      <a class="belge-dil" href="en/sources.html" hreflang="en" lang="en">English</a>
+      <a class="belge-dil" href="../kaynaklar.html" hreflang="tr" lang="tr">Türkçe</a>
     </header>
 
     <main class="belge" id="icerik">
-      <p class="etiket">Hesaplama kaynakları</p>
-      <h1>Sayılar nereden geliyor</h1>
+      <p class="etiket">Calculation sources</p>
+      <h1>Where the numbers come from</h1>
       <p class="belge-lede">
-        Swiip’te hiçbir sayı yapay zekâya sorulmuyor. Kalori, makro ve yük hesaplarının hepsi
-        aşağıdaki yayımlanmış denklemlerden çıkıyor. Hangi denklemi neden seçtiğimizi de yazdık.
+        No number in Swiip is asked of an AI. Every calorie, macro and load calculation comes from
+        the published equations below. We also wrote down why we picked each one.
       </p>
-      <p class="belge-tarih sayi">Son güncelleme: 27 Ağustos 2026</p>
+      <p class="belge-tarih sayi">Last updated: 31 August 2026</p>
 
-      <h2>Bazal metabolizma (BMR)</h2>
+      <h2>Basal metabolic rate (BMR)</h2>
 
       <h3>Mifflin-St Jeor</h3>
       <p>
-        Vücut yağ oranın bilinmiyorsa bunu kullanıyoruz. Boy, kilo, yaş ve cinsiyetten dinlenme
-        enerji harcamasını tahmin eder.
+        Used when your body fat percentage is unknown. It estimates resting energy expenditure from
+        height, weight, age and sex.
       </p>
       <p class="belge-kaynak">
         Mifflin MD, St Jeor ST, Hill LA, Scott BJ, Daugherty SA, Koh YO. “A new predictive equation
@@ -130,20 +131,20 @@
 
       <h3>Katch-McArdle</h3>
       <p>
-        Yağ oranın biliniyorsa (fotoğraf analizinden ya da senin girdiğin değerden) bunu
-        kullanıyoruz: yağsız kütleyi doğrudan hesaba kattığı için aynı kiloda farklı kompozisyona
-        sahip iki kişiyi ayırt eder.
+        Used when your body fat percentage is known (from photo analysis or a value you entered):
+        because it accounts for lean mass directly, it tells apart two people of the same weight
+        with different composition.
       </p>
       <p class="belge-kaynak">
         McArdle WD, Katch FI, Katch VL.
-        <em>Exercise Physiology: Nutrition, Energy, and Human Performance.</em> 8. baskı. Wolters
+        <em>Exercise Physiology: Nutrition, Energy, and Human Performance.</em> 8th edition. Wolters
         Kluwer, 2015.
       </p>
 
-      <h2>Günlük enerji harcaması (TDEE)</h2>
+      <h2>Total daily energy expenditure (TDEE)</h2>
       <p>
-        BMR, işinin ve antrenman sıklığının belirlediği bir fiziksel aktivite düzeyi (PAL)
-        çarpanıyla çarpılıyor.
+        BMR is multiplied by a physical activity level (PAL) factor determined by your job and
+        training frequency.
       </p>
       <p class="belge-kaynak">
         FAO/WHO/UNU.
@@ -152,16 +153,16 @@
         <a href="https://www.fao.org/4/y5686e/y5686e00.htm" rel="noopener">fao.org</a>
       </p>
       <p>
-        <strong>Neden tek sayı değil aralık gösteriyoruz:</strong> Mifflin-St Jeor’un bildirilen
-        standart hatası yaklaşık %10, aktivite çarpanı da bir tahmin. İkisi birleşince gerçek
-        harcaman hesaplanan değerin birkaç yüz kalori altında ya da üstünde olabilir. Tek bir sayı
-        yazmak, olmayan bir kesinlik vaat etmek olurdu.
+        <strong>Why we show a range and not a single number:</strong> the reported standard error of
+        Mifflin-St Jeor is around 10%, and the activity factor is itself an estimate. Together, your
+        real expenditure can be a few hundred calories above or below the calculated value. Writing
+        a single number would promise a precision that does not exist.
       </p>
 
-      <h2>Vücut yağ oranı tahmini</h2>
+      <h2>Body fat estimation</h2>
       <p>
-        Fotoğraf ya da çevre ölçüsü yoksa, yağ oranı beden kütle indeksinden tahmin ediliyor. Bu en
-        kaba yöntem; bu yüzden sonucu her zaman aralık olarak gösteriyoruz.
+        With no photo and no circumference measurements, body fat is estimated from body mass index.
+        This is the coarsest method, which is why the result is always shown as a range.
       </p>
       <p class="belge-kaynak">
         Deurenberg P, Weststrate JA, Seidell JC. “Body mass index as a measure of body fatness: age-
@@ -170,11 +171,11 @@
         <a href="https://doi.org/10.1079/BJN19910073" rel="noopener">doi:10.1079/BJN19910073</a>
       </p>
 
-      <h2>Protein ve yağ hedefleri</h2>
+      <h2>Protein and fat targets</h2>
       <p>
-        Protein, yağsız kütlenin kilogramı başına 2,0 g; kalori açığındayken 2,2 g. Açıkta yüksek
-        protein, kas kaybını sınırlayan en güçlü beslenme kaldıracı. Yağ hiçbir zaman vücut
-        ağırlığının kilogramı başına 0,6 g’ın altına inmiyor.
+        Protein is 2.0 g per kilogram of lean mass, and 2.2 g while in a calorie deficit. In a
+        deficit, high protein is the strongest nutritional lever against muscle loss. Fat never goes
+        below 0.6 g per kilogram of body weight.
       </p>
       <p class="belge-kaynak">
         Jäger R, Kerksick CM, Campbell BI, ve ark. “International Society of Sports Nutrition
@@ -193,11 +194,10 @@
         >
       </p>
 
-      <h2>Kalori açığının sınırı</h2>
+      <h2>The limit on the calorie deficit</h2>
       <p>
-        Açık hiçbir zaman günlük harcamanın belirli bir oranını geçmiyor. Hızlı kilo kaybı kas
-        kaybını, dinlenme metabolizmasının düşmesini ve toparlanma bozukluğunu beraberinde
-        getiriyor.
+        The deficit never exceeds a set share of daily expenditure. Fast weight loss brings muscle
+        loss, a drop in resting metabolism and impaired recovery with it.
       </p>
       <p class="belge-kaynak">
         Garthe I, Raastad T, Refsnes PE, Koivisto A, Sundgot-Borgen J. “Effect of two different
@@ -211,8 +211,8 @@
 
       <h2>Tek tekrar maksimum (1RM) tahmini</h2>
       <p>
-        Kaldırdığın ağırlık ve tekrar sayısından tahmin ediliyor. Tahmin 12 tekrarın üstünde hızla
-        bozulduğu için girdiyi 12 ile sınırlıyoruz.
+        Estimated from the weight you lifted and the number of repetitions. Because the estimate
+        degrades quickly above 12 repetitions, we cap the input at 12.
       </p>
       <p class="belge-kaynak">
         Epley B. “Poundage Chart.” <em>Boyd Epley Workout.</em> Body Enterprises, Lincoln, NE, 1985.
@@ -223,11 +223,11 @@
         <em>Journal of Strength and Conditioning Research</em>, 1997;11(4):211–213.
       </p>
 
-      <h2>Haftalık set hacmi</h2>
+      <h2>Weekly set volume</h2>
       <p>
-        Kas grubu başına haftalık set sayısı antrenman yaşına göre belirleniyor ve haftalar içinde
-        kademeli artıyor. Üst sınırlar, hacim-kazanım ilişkisinin düzleştiği ve toparlanmanın
-        bozulmaya başladığı aralığa göre konuldu.
+        Weekly sets per muscle group are set by training age and increase gradually over the weeks.
+        The upper bounds follow the range where the volume-to-gain relationship flattens and
+        recovery starts to suffer.
       </p>
       <p class="belge-kaynak">
         Schoenfeld BJ, Ogborn D, Krieger JW. “Dose-response relationship between weekly resistance
@@ -247,15 +247,15 @@
 
       <h2>Bunlar birer tahmin</h2>
       <p class="vurgu-kutu">
-        Yukarıdaki denklemlerin hepsi popülasyon ortalamalarından türetilmiş tahminlerdir; senin
-        gerçek değerlerin farklı olabilir. Swiip tıbbi cihaz değildir, teşhis koymaz ve tedavi
-        önermez. Bir sağlık sorunun varsa ya da bir ilaç kullanıyorsan, beslenme ve antrenman
-        planını hekiminle konuş.
+        Every equation above is an estimate derived from population averages; your real values may
+        differ. Swiip is not a medical device, does not diagnose and does not prescribe treatment.
+        If you have a health condition or take medication, discuss your nutrition and training plan
+        with your doctor.
       </p>
 
       <p class="belge-feragat">
-        Soru ve düzeltme: <a href="destek.html">destek</a> ·
-        <a href="gizlilik.html">gizlilik politikası</a>
+        Questions and corrections: <a href="support.html">support</a> ·
+        <a href="privacy.html">privacy policy</a>
       </p>
     </main>
 
@@ -265,7 +265,16 @@
           <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
           <span>Swiip</span>
         </a>
-        <p class="alt-slogan">Ölçüne göre.</p>
+        <p class="alt-slogan">Made to fit. And made to explain.</p>
+        <p class="alt-feragat">
+          Swiip is not a medical device and does not diagnose. The numbers it gives are estimates.
+          If you have a health concern, talk to your doctor.
+        </p>
+        <p class="alt-feragat">
+          <a href="privacy.html">Privacy</a> · <a href="support.html">Support</a> ·
+          <a href="delete-account.html">Delete account</a> · <a href="sources.html">Sources</a> ·
+          <a href="../index.html" hreflang="tr" lang="tr">Türkçe</a>
+        </p>
       </div>
     </footer>
   </body>

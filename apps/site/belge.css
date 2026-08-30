@@ -8,9 +8,47 @@
    Taksimat rayı bu sayfalarda yok; onlar tek bir konu, ölçülecek bir yol değil.
    ===================================================================== */
 
+/*
+  Baslik iki ogeli: marka solda, dil gecisi sagda.
+
+  Site tek dilken tek ogeliydi. Ingilizce surumler eklendiginde diger dile ulasmanin
+  hicbir yolu yoktu; `hreflang` arama motoruna yariyor, kullaniciya degil.
+*/
 .belge-bas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   padding: clamp(1.25rem, 3vw, 2.5rem) var(--ic-bosluk);
   border-bottom: 1px solid var(--cizgi);
+}
+
+.belge-dil {
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--murekkep-silik, #6b7280);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  /* Dokunma hedefi metnin sinirlarindan buyuk olsun. */
+  padding-inline: 0.15rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.belge-dil:hover,
+.belge-dil:focus-visible {
+  color: var(--aksan, #14615a);
+}
+
+.alt-dil {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+}
+
+.alt-dil a {
+  color: inherit;
 }
 
 .belge-marka {

@@ -1121,3 +1121,18 @@ code {
   font-size: 0.85rem;
   color: var(--murekkep-silik);
 }
+
+/*
+  Alt bilgideki dil geçişi.
+
+  `belge.css` yalnızca belge sayfalarında yükleniyor; ana sayfa onu almıyor.
+  Kural iki yerde de gerekli, yoksa ana sayfadaki bağlantı biçimsiz kalır.
+*/
+.alt-dil {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+}
+
+.alt-dil a {
+  color: inherit;
+}

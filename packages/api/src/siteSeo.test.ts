@@ -50,8 +50,16 @@ describe('arama motoru dosyaları', () => {
 
   it('sitemap.xml var ve geçerli kök etikete sahip', () => {
     expect(existsSync(join(SITE, 'sitemap.xml')), 'sitemap.xml yok').toBe(true);
+    /*
+      `xhtml` ad alanı da kabul ediliyor.
+
+      Kalıp kök etiketin `>` ile BİTMESİNİ şart koşuyordu. Site iki dilli olunca
+      sitemap'e `xhtml:link` ile hreflang eşlemesi girdi ve o ad alanı kök etikete
+      eklenmek zorunda. Onsuz arama motoru Türkçe ve İngilizce sayfaları birbirinin
+      kopyası sayıp yalnızca birini indeksleyebiliyor.
+    */
     expect(oku('sitemap.xml')).toMatch(
-      /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/,
+      /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9"/,
     );
   });
 

@@ -36,6 +36,10 @@
     <meta name="m2f-api" content="" />
 
     <link rel="stylesheet" href="stil.css" />
+    <link rel="alternate" hreflang="tr" href="https://swiip.app/" />
+    <link rel="alternate" hreflang="en" href="https://swiip.app/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://swiip.app/en/" />
+    <meta property="og:locale:alternate" content="en_US" />
   </head>
 
   <body>
@@ -122,8 +126,19 @@
             doğduğu yazar.
           </p>
 
+          <!--
+            Uygulama 29 Ağustos 2026'da App Store'da yayına girdi. Burası o güne kadar
+            "yayına çıkınca haber ver" diyordu ve e-posta topluyordu: uygulama
+            indirilebilir haldeyken siteyi ziyaret eden kişiye "henüz yok" demek,
+            kazanılmış bir kullanıcıyı kapıda çevirmek demekti.
+          -->
           <div class="tepe-eylem">
-            <a class="dugme dugme-ana" href="#haber">Yayına çıkınca haber ver</a>
+            <a
+              class="dugme dugme-ana"
+              href="https://apps.apple.com/tr/app/id6803979374"
+              rel="noopener"
+              >App Store'dan indir</a
+            >
             <a class="dugme dugme-yan" href="#nasil">Nasıl kurulduğunu gör</a>
           </div>
         </div>
@@ -403,9 +418,10 @@
       <!-- ================================================================= -->
       <section class="bolum bolum-haber" id="haber" data-bolum="Haber">
         <div class="haber-ic">
-          <h2>Yayına çıkınca tek bir e-posta göndeririz.</h2>
+          <h2>Android sürümü için tek bir e-posta göndeririz.</h2>
           <p class="bolum-lede">
-            Bülten değil. Uygulama mağazada olduğunda bir kez yazarız, sonra listeden düşersin.
+            iPhone sürümü App Store'da. Android sürümü kapalı testte; Google Play'de yayına
+            girdiğinde bir kez yazarız, sonra listeden düşersin. Bülten değil.
           </p>
 
           <form class="haber-form" id="haber-form" novalidate>
@@ -425,8 +441,8 @@
             <label class="onay">
               <input type="checkbox" id="riza" name="riza" required />
               <span>
-                Yalnızca yayın haberi için e-postamın saklanmasına izin veriyorum. İstediğim zaman
-                silinmesini isteyebilirim.
+                Yalnızca Android yayın haberi için e-postamın saklanmasına izin veriyorum. İstediğim
+                zaman silinmesini isteyebilirim.
               </span>
             </label>
 
@@ -490,6 +506,10 @@
           <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
           <span>Swiip</span>
         </a>
+
+        <p class="alt-dil">
+          <a href="en/" hreflang="en" lang="en">English</a>
+        </p>
 
         <p class="alt-slogan">Ölçüne göre. Made to fit, and made to explain.</p>
 
