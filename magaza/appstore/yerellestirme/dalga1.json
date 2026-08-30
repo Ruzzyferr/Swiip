@@ -1,0 +1,57 @@
+{
+  "en-US": {
+    "isim": "Swiip: Workout & Calories",
+    "altbaslik": "AI coach for gym and diet",
+    "kelimeler": "fitness,exercise,tracker,counter,macro,protein,meal,muscle,weight,plan,program,home,gym,nutrition"
+  },
+  "de-DE": {
+    "isim": "Swiip: Training & Kalorien",
+    "altbaslik": "KI-Coach für Sport und Diät",
+    "kelimeler": "fitness,übung,tracker,zähler,makro,protein,mahlzeit,muskel,abnehmen,plan,zuhause,studio,ernährung"
+  },
+  "fr-FR": {
+    "isim": "Swiip : Sport et Calories",
+    "altbaslik": "Coach IA sport et nutrition",
+    "kelimeler": "fitness,exercice,suivi,compteur,macro,protéine,repas,muscle,poids,plan,maison,salle,minceur"
+  },
+  "es-ES": {
+    "isim": "Swiip: Rutinas y Calorías",
+    "altbaslik": "Entrenador IA y nutrición",
+    "kelimeler": "fitness,ejercicio,contador,macro,proteína,comida,músculo,peso,plan,casa,gimnasio,dieta,adelgazar"
+  },
+  "it": {
+    "isim": "Swiip: Allenamento e Calorie",
+    "altbaslik": "Coach IA per palestra e dieta",
+    "kelimeler": "fitness,esercizio,contatore,macro,proteine,pasto,muscoli,peso,piano,casa,palestra,dimagrire"
+  },
+  "pt-BR": {
+    "isim": "Swiip: Treino e Calorias",
+    "altbaslik": "Treinador IA e nutrição",
+    "kelimeler": "fitness,exercício,contador,macro,proteína,refeição,músculo,peso,plano,casa,academia,emagrecer"
+  },
+  "ru": {
+    "isim": "Swiip: Тренировки и калории",
+    "altbaslik": "ИИ-тренер и питание",
+    "kelimeler": "фитнес,упражнения,счётчик,макросы,белок,еда,мышцы,вес,план,дом,зал,похудение,диета"
+  },
+  "ro": {
+    "isim": "Swiip: Antrenament & Calorii",
+    "altbaslik": "Antrenor AI și nutriție",
+    "kelimeler": "fitness,exercitii,contor,macro,proteine,masa,muschi,greutate,plan,acasa,sala,slabit,dieta"
+  },
+  "pl": {
+    "isim": "Swiip: Trening i Kalorie",
+    "altbaslik": "Trener AI i dieta",
+    "kelimeler": "fitness,ćwiczenia,licznik,makro,białko,posiłek,mięśnie,waga,plan,dom,siłownia,odchudzanie"
+  },
+  "nl-NL": {
+    "isim": "Swiip: Training & Calorieën",
+    "altbaslik": "AI-coach sport en voeding",
+    "kelimeler": "fitness,oefening,teller,macro,eiwit,maaltijd,spieren,gewicht,plan,thuis,sportschool,afvallen"
+  },
+  "tr": {
+    "isim": "Swiip: Antrenman ve Beslenme",
+    "altbaslik": "Kalori, diyet ve fitness koçu",
+    "kelimeler": "spor,egzersiz,program,plan,takip,sayaç,makro,protein,öğün,kas,kilo,zayıflama,evde,vücut,form"
+  }
+}
