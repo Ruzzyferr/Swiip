@@ -1,12 +1,15 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Image,
+  Keyboard,
   PixelRatio,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
   type StyleProp,
   type TextStyle,
@@ -311,6 +314,48 @@ export function Sutun({ children, stil }: { children: ReactNode; stil?: StylePro
   );
 }
 
+/**
+ * Odaklı alanın klavyeye bu kadar yaklaşmasına izin verilir.
+ *
+ * 16 denendi ve alanın alt kenarı klavyenin kenarına yapışıyordu — metin okunuyor
+ * ama kutu yarım görünüyor. 28, bir satırlık alanın tamamını klavyenin üstünde
+ * bırakıyor.
+ */
+const KLAVYE_PAYI = 28;
+
+/**
+ * Klavye yüksekliği — yalnızca Android'de.
+ *
+ * iOS'ta `automaticallyAdjustKeyboardInsets` işi hem inset hem de odaklı alanı
+ * görünüre kaydırma olarak natif tarafta yapıyor; oraya bir de elle dolgu eklemek
+ * boşluğu ikiye katlardı.
+ *
+ * Android'de o kanca yok. Eskiden `adjustResize` pencereyi daraltıyor ve kaydırma
+ * kabı kendiliğinden küçülüyordu — ama uygulama `targetSdkVersion 36` ile
+ * derleniyor ve Android 15'ten (API 35) itibaren pencere kenardan kenara açılıyor,
+ * `adjustResize` artık pencereyi daraltmıyor. Yani kap ekranın tamamı kadar kalıyor,
+ * içeriğin altı klavyenin ARKASINDA kalıyor ve oraya kaydırmak da mümkün olmuyor:
+ * kaydırma, içeriğin sonu kabın sonuna geldiğinde bitiyor, kabın sonu ise klavyenin
+ * altında.
+ */
+function useKlavyeYuksekligi(): number {
+  const [yukseklik, setYukseklik] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const acildi = Keyboard.addListener('keyboardDidShow', (olay) =>
+      setYukseklik(olay.endCoordinates.height),
+    );
+    const kapandi = Keyboard.addListener('keyboardDidHide', () => setYukseklik(0));
+    return () => {
+      acildi.remove();
+      kapandi.remove();
+    };
+  }, []);
+
+  return yukseklik;
+}
+
 export function Ekran({
   children,
   altBoslugu = true,
@@ -328,29 +373,112 @@ export function Ekran({
   const kenar = useSafeAreaInsets();
   const ustEk = ustGuvenliAlan ? kenar.top : 0;
 
+  const kaydirma = useRef<ScrollView>(null);
+  const kap = useRef<View>(null);
+  const kaydirmaY = useRef(0);
+  const klavye = useKlavyeYuksekligi();
+
+  /**
+   * Odaklanılan alanı klavyenin üstüne taşı.
+   *
+   * Kabı daraltmak alanı ULAŞILABİLİR yapıyor ama oraya kendiliğinden gitmiyor:
+   * kullanıcının dokunduğu kutu gözünün önünden kayboluyor ve yazdığını göremiyor.
+   * Emülatörde ölçüldü — "Vazgeçemeyeceğin yiyecek ne?" alanına yazılan metin
+   * ekranda hiçbir yerde görünmüyordu.
+   *
+   * Ölçü `Dimensions`'tan DEĞİL, kabın kendi kenarından alınıyor. Önce
+   * `Dimensions.get('window').height - klavye` ile hesaplanıyordu ve tutarlı biçimde
+   * 15 dp eksik kalıyordu: klavyenin bildirdiği yükseklik ile pencere yüksekliği
+   * aynı koordinat uzayında değil (gezinme çubuğu payı ikisinde farklı sayılıyor).
+   * Kap zaten tam görünür alan kadar daraltıldığı için ALT KENARI, klavyenin üstünün
+   * ta kendisi. Ölçülen şeyi ölçmek, iki ölçüyü birbirinden çıkarmaktan sağlam.
+   */
+  useEffect(() => {
+    if (klavye === 0) return;
+    const girdi = TextInput.State.currentlyFocusedInput();
+    const liste = kaydirma.current;
+    const dis = kap.current;
+    if (!girdi || !liste || !dis) return;
+
+    /*
+      Bir kare bekleniyor: ölçüm, kap klavye kadar daraltıldıktan SONRA alınmalı.
+      Aynı işlemede ölçülürse hem kabın kenarı hem kaydırma tavanı eski değerdir.
+    */
+    /*
+      Bekleme `requestAnimationFrame` DEĞİL, kısa bir zamanlayıcı.
+
+      Tek kare yetmedi: ölçüm bazen kap daraltılmadan önce alınıyor ve kaydırma
+      eksik kalıyordu. `keyboardDidShow` klavyenin tamamen açıldığını söylüyor;
+      kalan tek yarış kendi yeniden çizimimiz ve o bu süre içinde bitiyor.
+    */
+    const zamanlayici = setTimeout(() => {
+      dis.measureInWindow((_kx, kapY, _kg, kapYukseklik) => {
+        girdi.measureInWindow((_x, y, _genislik, yukseklik) => {
+          /*
+            Kabın GÖRÜNÜR alt kenarı = kutunun altı eksi klavye payı.
+
+            Önce doğrudan `kapY + kapYukseklik` kullanılıyordu ve tutarlı biçimde
+            eksik kaydırıyordu: `paddingBottom` bir görünümün kendi kutusunu
+            küçültmez, İÇİNDEKİNİ küçültür. Yani ölçülen alt kenar hâlâ ekranın
+            dibiydi, klavyenin üstü değil.
+          */
+          const kapAlt = kapY + kapYukseklik - klavye;
+          const tasma = y + yukseklik + KLAVYE_PAYI - kapAlt;
+          if (tasma > 0) liste.scrollTo({ y: kaydirmaY.current + tasma, animated: true });
+        });
+      });
+    }, 120);
+    return () => clearTimeout(zamanlayici);
+  }, [klavye]);
+
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: tema.renk.zemin }}
-      contentContainerStyle={{
-        flexGrow: 1,
-        alignItems: 'center',
-        padding: tema.bosluk.lg,
-        paddingTop: tema.bosluk.lg + ustEk,
-        paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + kenar.bottom,
-      }}
-      contentInsetAdjustmentBehavior="automatic"
-      keyboardShouldPersistTaps="handled"
-    >
-      <Sutun
-        stil={{
-          padding: 0,
+    /*
+      Klavye kadar DARALAN kap.
+
+      Önce klavye payı `contentContainerStyle`'ın alt dolgusuna ekleniyordu ve
+      yetmedi: dolgu içeriği uzatıyor ama kabın kendisi ekranın tamamı kadar
+      kaldığı için kaydırmanın tavanı da değişmiyor — alan klavyenin kenarında
+      yarım kalıyordu (emülatörde ölçüldü: 35 dp eksik).
+
+      Kabı daraltmak `adjustResize`'ın eskiden yaptığı şeyin ta kendisi: görünür
+      alan gerçekten klavyenin üstünde kalıyor, kaydırma oraya erişebiliyor ve
+      Android'in "odaklanan çocuğu görünüre kaydır" davranışı da yeniden doğru
+      ölçüyle çalışıyor.
+
+      iOS'ta `klavye` her zaman 0 — orada işi `automaticallyAdjustKeyboardInsets`
+      yapıyor ve bu sarmalayıcı hiçbir şey değiştirmiyor.
+    */
+    <View ref={kap} style={{ flex: 1, backgroundColor: tema.renk.zemin, paddingBottom: klavye }}>
+      <ScrollView
+        ref={kaydirma}
+        style={{ flex: 1, backgroundColor: tema.renk.zemin }}
+        contentContainerStyle={{
           flexGrow: 1,
-          justifyContent: ortala ? 'center' : undefined,
+          alignItems: 'center',
+          padding: tema.bosluk.lg,
+          paddingTop: tema.bosluk.lg + ustEk,
+          paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + (klavye > 0 ? 0 : kenar.bottom),
         }}
+        contentInsetAdjustmentBehavior="automatic"
+        /* iOS: inset ve odaklı alana kaydırma natif tarafta. */
+        automaticallyAdjustKeyboardInsets
+        keyboardShouldPersistTaps="handled"
+        onScroll={(olay) => {
+          kaydirmaY.current = olay.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
       >
-        {children}
-      </Sutun>
-    </ScrollView>
+        <Sutun
+          stil={{
+            padding: 0,
+            flexGrow: 1,
+            justifyContent: ortala ? 'center' : undefined,
+          }}
+        >
+          {children}
+        </Sutun>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -443,6 +571,7 @@ export function Satir({
   dagit,
   esnek = false,
   sar = false,
+  stil,
 }: {
   children: ReactNode;
   arasi?: keyof Tema['bosluk'];
@@ -452,15 +581,18 @@ export function Satir({
   esnek?: boolean;
   /** Metin olmayan çok öğeli satırlarda alt satıra insin. */
   sar?: boolean;
+  /** İçeriğiyle birlikte büyüyüp küçülmemesi gereken satırlar için (örn. sabit yükseklik). */
+  stil?: StyleProp<ViewStyle>;
 }) {
   const tema = useTema();
   return (
     <View
-      style={{
-        flexDirection: 'row',
-        alignItems: hizala,
-        gap: tema.bosluk[arasi],
-        /*
+      style={[
+        {
+          flexDirection: 'row',
+          alignItems: hizala,
+          gap: tema.bosluk[arasi],
+          /*
           Sarma İSTEĞE BAĞLI, daralma varsayılan.
 
           Bir aralık sarma varsayılan yapıldı ve YANLIŞ çıktı: Yoga önce satırı
@@ -472,10 +604,12 @@ export function Satir({
           aldığı `flexShrink: 1` (bkz. `SatirIcinde`). `sar` yalnızca metin olmayan
           çok öğeli satırlar için duruyor.
         */
-        ...(sar ? { flexWrap: 'wrap' as const } : {}),
-        ...(esnek ? { flex: 1 } : {}),
-        ...(dagit ? { justifyContent: dagit } : {}),
-      }}
+          ...(sar ? { flexWrap: 'wrap' as const } : {}),
+          ...(esnek ? { flex: 1 } : {}),
+          ...(dagit ? { justifyContent: dagit } : {}),
+        },
+        stil,
+      ]}
     >
       <SatirIcinde.Provider value={true}>{children}</SatirIcinde.Provider>
     </View>

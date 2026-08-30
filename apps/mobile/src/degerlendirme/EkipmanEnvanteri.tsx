@@ -76,6 +76,9 @@ function DAR_SET(): string[] {
   ];
 }
 
+/** Dışlayıcı seçenek: diğerleriyle bir arada duramaz. */
+const VUCUT_AGIRLIGI = 'Hiçbiri, vücut ağırlığı';
+
 export interface EkipmanEnvanteriProps {
   soru: Soru;
   deger: unknown;
@@ -92,28 +95,57 @@ export function EkipmanEnvanteri({ soru, deger, onDegisim, konum }: EkipmanEnvan
   const onDolduSet = konum ? KONUM_SETLERI[konum] : undefined;
 
   const degistir = (secenek: string) => {
-    if (secenek === 'Hiçbiri, vücut ağırlığı') {
+    if (secenek === VUCUT_AGIRLIGI) {
       onDegisim(secili.includes(secenek) ? [] : [secenek]);
       return;
     }
-    const temiz = secili.filter((s) => s !== 'Hiçbiri, vücut ağırlığı');
+    const temiz = secili.filter((s) => s !== VUCUT_AGIRLIGI);
     onDegisim(temiz.includes(secenek) ? temiz.filter((s) => s !== secenek) : [...temiz, secenek]);
   };
 
   return (
     <View style={{ gap: tema.bosluk.md }}>
-      {onDolduSet && secili.length === 0 ? (
+      {/*
+        Öneri bloğu SEÇİM YAPILINCA KAYBOLMUYOR.
+
+        Koşulu `secili.length === 0` idi: ilk kutucuğa dokunulduğu anda uyarı ve
+        düğme (birlikte 261 px) yok oluyor, ızgaranın tamamı parmağın altından
+        yukarı kayıyordu. Emülatörde ölçüldü — "Barbell ve plaka" sonra "Dumbbell"
+        seçmeye çalışan kullanıcı "Barbell ve plaka" ile "Leg press"i işaretlemiş
+        oluyordu. Kullanıcının "tek bir tane seçebiliyorum" dediği kusur buydu;
+        seçim mantığı doğruydu, zemin kayıyordu.
+
+        Kural: bir listenin ÜSTÜNDEKİ hiçbir şey, o listeye verilen cevap yüzünden
+        belirip kaybolmaz.
+
+        Düğme artık ezmiyor, EKLİYOR: elle işaretlenmiş ekipman kaybolmadan salon
+        seti üstüne biniyor. Kaybolan bir kısayolu geri getirmenin yolu yoktu;
+        kalıcı olunca "aslında standart salon setini de ekle" demek de mümkün oldu.
+      */}
+      {onDolduSet ? (
         <View style={{ gap: tema.bosluk.sm }}>
-          <Uyari govde={m.onDoldurmaOnerisi(konum ?? '')} />
+          <Uyari govde={m.onDoldurmaOnerisi()} />
           <Dugme
             baslik={m.salonumaGoreDoldur}
             tur="ikincil"
-            onPress={() => onDegisim(onDolduSet)}
+            onPress={() =>
+              // "Hiçbiri" ile salon seti bir arada duramaz; birleştirme onu düşürüyor.
+              onDegisim([
+                ...new Set([...secili.filter((s) => s !== VUCUT_AGIRLIGI), ...onDolduSet]),
+              ])
+            }
           />
         </View>
       ) : null}
 
-      <Satir dagit="space-between">
+      {/*
+        Sayaç satırının yüksekliği SABİT.
+
+        "Temizle" yalnızca seçim varken çıkıyor ve dokunma hedefi 44 px; satır ilk
+        seçimde 20 px'ten 44'e büyüyüp ızgarayı 24 px aşağı itiyordu. Aynı sınıf
+        kusurun küçük hali — ölçüyü satıra vererek kapatıyoruz.
+      */}
+      <Satir dagit="space-between" stil={{ minHeight: tema.dokunmaHedefi }}>
         <Yazi tur="kucuk" renk="metinSilik">
           {m.secili(secili.length)}
         </Yazi>

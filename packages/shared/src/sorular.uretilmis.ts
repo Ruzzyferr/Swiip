@@ -490,13 +490,11 @@ export const SORU_BANKASI: SoruBankasi = {
           "branch": {
             "Ev": [
               "E5a",
-              "E6",
-              "E7"
+              "E6"
             ],
             "Karma": [
               "E5a",
-              "E6",
-              "E7"
+              "E6"
             ],
             "Açık hava": [
               "E6"
@@ -583,7 +581,6 @@ export const SORU_BANKASI: SoruBankasi = {
           "id": "E7",
           "text": "Dumbbell ağırlık aralığın",
           "type": "measure",
-          "conditional": true,
           "fields": [
             "min_kg",
             "max_kg"
@@ -591,7 +588,15 @@ export const SORU_BANKASI: SoruBankasi = {
           "drives": [
             "yuk_ilerleme_tavani",
             "varyant_degisimi"
-          ]
+          ],
+          "conditionalOn": {
+            "E1": [
+              "Ev",
+              "Karma"
+            ],
+            "E3": "Dumbbell"
+          },
+          "not": "Ev/karma VE E3 içinde dumbbell varsa sorulur. Önce yalnızca E1 dalıyla açılıyordu: evde çalışan ama dumbbell işaretlememiş kullanıcıya da ağırlık aralığı soruluyordu. Salonda sorulmaz — orada rack tam kabul edilir."
         },
         {
           "id": "E4",
@@ -999,7 +1004,14 @@ export const SORU_BANKASI: SoruBankasi = {
           ],
           "drives": [
             "tarif_karmasiklik_tavani"
-          ]
+          ],
+          "conditionalOn": {
+            "B5": [
+              "Kendim",
+              "Karışık"
+            ]
+          },
+          "not": "B5 \"Ailem\" ya da \"Dışarıdan alıyorum\" ise sorulmaz. Bir zamanlar koşulsuzdu: yemeğini ailesinin yaptığını söyleyen kullanıcıya bir alt satırda \"yemeğe kaç dakika ayırabilirsin\" soruluyordu. Tarif karmaşıklığı tavanı zaten yalnızca kullanıcı pişiriyorsa anlamlı."
         },
         {
           "id": "B8",

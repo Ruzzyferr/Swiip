@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { router } from 'expo-router';
 import { hareketBul, kgMetni } from '@swiip/core';
@@ -7,6 +7,7 @@ import {
   Ayirac,
   BosDurum,
   Dugme,
+  Ekran,
   Etiket,
   Gorsel,
   Kart,
@@ -134,31 +135,61 @@ export default function ProgramEkrani() {
     void yukle();
   }, [yukle]);
 
-  const uret = async () => {
-    setDurum('yukleniyor');
-    setUretimHatasi(null);
-    try {
-      await istek('/v1/program/uret', { yontem: 'POST', govde: { hafta: 1 } });
-      await yukle();
-    } catch (hata) {
-      setDurum('yok');
+  const uret = useCallback(
+    async (otomatik = false) => {
+      setDurum('yukleniyor');
+      setUretimHatasi(null);
+      try {
+        await istek('/v1/program/uret', { yontem: 'POST', govde: { hafta: 1 } });
+        await yukle();
+      } catch (hata) {
+        setDurum('yok');
 
-      if (hata instanceof ApiHatasi && hata.durum === 403) {
-        router.push({ pathname: '/degerlendirme/kapi', params: { tip: 'kardiyak' } });
-        return;
+        /*
+          Kapı ekranı yalnızca kullanıcı DÜĞMEYE bastığında açılır.
+
+          Otomatik denemede açılsaydı, kardiyak bayrağı olan kullanıcı Program
+          sekmesine her girdiğinde uyarı ekranı yüzüne açılırdı. Otomatik deneme
+          sessizdir: sebebi sayfanın içinde yazar, kullanıcı isterse düğmeye basar.
+        */
+        if (hata instanceof ApiHatasi && hata.durum === 403 && !otomatik) {
+          router.push({ pathname: '/degerlendirme/kapi', params: { tip: 'kardiyak' } });
+          return;
+        }
+
+        /**
+         * Sebebi söylüyoruz.
+         *
+         * Önce yalnızca 403 ele alınıyordu; diğer her hata sessizce yutuluyordu. Kullanıcı
+         * "Programımı hesapla"ya basıyor, hiçbir şey olmuyor ve neden olmadığını
+         * öğrenemiyor. Sunucu sebebi zaten söylüyor ("önce değerlendirmeyi tamamla");
+         * göstermemek, bilgiyi elimizde tutmak.
+         */
+        setUretimHatasi(hata instanceof ApiHatasi ? hata.mesaj : m.uretilemedi);
       }
+    },
+    [m.uretilemedi, yukle],
+  );
 
-      /**
-       * Sebebi söylüyoruz.
-       *
-       * Önce yalnızca 403 ele alınıyordu; diğer her hata sessizce yutuluyordu. Kullanıcı
-       * "Programımı hesapla"ya basıyor, hiçbir şey olmuyor ve neden olmadığını
-       * öğrenemiyor. Sunucu sebebi zaten söylüyor ("önce değerlendirmeyi tamamla");
-       * göstermemek, bilgiyi elimizde tutmak.
-       */
-      setUretimHatasi(hata instanceof ApiHatasi ? hata.mesaj : m.uretilemedi);
-    }
-  };
+  /**
+   * Değerlendirmesi biten kullanıcı BOŞ EKRANLA karşılaşmaz.
+   *
+   * Vücut analizi ekranındaki "Programımı gör" doğrudan bu sekmeye getiriyor ve
+   * program henüz üretilmemiş olduğu için kullanıcı "Henüz programın yok" yazısı
+   * ve bir düğmeyle karşılaşıyordu. Sekiz kartı ve vücut analizini bitirmiş birine
+   * "programını görmek için şuraya bas" demek, emeğinin karşılığını bir dokunuş
+   * daha arkasına saklamak.
+   *
+   * Deneme MOUNT BAŞINA BİR KEZ: başarısız olursa (değerlendirme eksik, kapı açık,
+   * ağ yok) sebep sayfada yazıyor ve elle deneme düğmesi yerinde duruyor. Döngü
+   * yok — `denendi` ikinci denemeyi kapatıyor.
+   */
+  const denendi = useRef(false);
+  useEffect(() => {
+    if (durum !== 'yok' || denendi.current) return;
+    denendi.current = true;
+    void uret(true);
+  }, [durum, uret]);
 
   if (durum === 'yukleniyor') {
     return (
@@ -175,15 +206,16 @@ export default function ProgramEkrani() {
        *
        * Metin ve iki düğme üstte toplanıyor, altta yedi yüz piksel boşluk kalıyordu.
        * Boşluk tek yerde ve eylemden ÖNCE: içerik yukarıda, eylem elin altında.
+       *
+       * Kap `Ekran` — düz bir `View` idi ve kırpıyordu. Burada üç değişken metin var
+       * (boş durum gövdesi, üretim hatası, iki düğme başlığı); üretim hatası sunucudan
+       * geliyor ve uzunluğu bilinmiyor. 320 dp'lik tuvalde büyük yazı tipiyle
+       * "Değerlendirmeye dön" ekranın dışında kalabiliyordu — yani kullanıcının
+       * programsız kaldığı ekranda ÇIKIŞ YOLU kırpılıyordu. `tasmaKorumasi.test.ts`
+       * dosya düzeyinde baktığı için yakalayamıyor: dosyada `ScrollView` geçiyor, ama
+       * bu erken dönüşte kullanılmıyordu.
        */
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: tema.renk.zemin,
-          padding: tema.bosluk.lg,
-          paddingBottom: tema.bosluk.xxl,
-        }}
-      >
+      <Ekran>
         <View style={{ gap: tema.bosluk.md }}>
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
           {uretimHatasi ? <Uyari tur="tehlike" govde={uretimHatasi} /> : null}
@@ -192,14 +224,14 @@ export default function ProgramEkrani() {
         <View style={{ flex: 1, minHeight: tema.bosluk.xl }} />
 
         <View style={{ gap: tema.bosluk.sm }}>
-          <Dugme baslik={m.programimiHesapla} onPress={() => void uret()} />
+          <Dugme baslik={m.programimiHesapla} onPress={() => void uret(false)} />
           <Dugme
             baslik={m.degerlendirmeyeDon}
             tur="sessiz"
             onPress={() => router.push('/degerlendirme')}
           />
         </View>
-      </View>
+      </Ekran>
     );
   }
 

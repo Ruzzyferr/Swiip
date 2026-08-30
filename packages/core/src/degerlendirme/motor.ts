@@ -147,8 +147,12 @@ function soruGorunur(soru: Soru, cevaplar: Cevaplar, acilanlar: AcilanSorular): 
         if (cevaplandiMi(cevaplar, bagimliId)) return false;
         continue;
       }
+      // Beklenen bir dizi ise VEYA; anahtarlar arasında ise hep VE.
+      const secenekler = Array.isArray(beklenen) ? beklenen : [beklenen];
       const cevap = cevaplar[bagimliId];
-      const eslesti = Array.isArray(cevap) ? cevap.includes(beklenen) : cevap === beklenen;
+      const eslesti = secenekler.some((s) =>
+        Array.isArray(cevap) ? cevap.includes(s) : cevap === s,
+      );
       if (!eslesti) return false;
     }
     return true;

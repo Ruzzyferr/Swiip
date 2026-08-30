@@ -175,3 +175,76 @@ describe('geniş tuvalde okuma sütunu', () => {
     expect((kaynak.match(/maxWidth: OKUMA_GENISLIGI/g) || []).length).toBe(1);
   });
 });
+
+/**
+ * Tam ekran düz `View` yalnızca YÜKLENİYOR göstergesi için.
+ *
+ * Dosya düzeyindeki tarama bir deliği açık bırakmıştı: bir ekranın erken dönüş dalı
+ * kaydırmayan bir kapla çizilebiliyor ve dosyada başka bir yerde `ScrollView` geçtiği
+ * için tarama yeşil kalıyordu. Program sekmesinin "Henüz programın yok" dalı tam
+ * böyleydi ve orada üç değişken metin var — biri sunucudan gelen üretim hatası.
+ * 320 dp'lik tuvalde büyük yazı tipiyle "Değerlendirmeye dön" ekranın dışında
+ * kalabiliyordu: yani kullanıcının programsız kaldığı ekranda ÇIKIŞ YOLU kırpılıyordu.
+ *
+ * Tek meşru istisna yükleniyor göstergesi: tek satır, sabit yükseklik, kaydırmaya
+ * ihtiyacı yok.
+ */
+describe('tam ekran kaplar kaydırıyor', () => {
+  const TAM_EKRAN = /<View\s+style=\{\{\s*flex: 1,\s*backgroundColor: tema\.renk\.zemin/g;
+
+  /**
+   * Bir `<View>`in KENDİ gövdesi — kapanış etiketine kadar.
+   *
+   * Önce sabit uzunlukta bir pencere kullanıldı ve iki yönden de yanlış çalıştı:
+   * dar pencere değerlendirme koşucusunun kabını (cetvel önce geliyor, `<Ekran>`
+   * sonra) yanlışlıkla suçluyordu; geniş pencere ise dosyanın İLERİSİNDEKİ bir
+   * `ScrollView`i görüp gerçek kusuru aklıyordu. İkincisi daha kötü: yakalamayan
+   * bir kilit, olmayan bir kilittir — bilerek bozup denendi ve testi kırmadı.
+   *
+   * Artık gövde gerçekten eşleşen `</View>`e kadar okunuyor.
+   */
+  function govdesi(kaynak: string, baslangic: number): string {
+    const acilisSonu = kaynak.indexOf('>', baslangic);
+    if (acilisSonu === -1) return kaynak.slice(baslangic);
+
+    let derinlik = 1;
+    let i = acilisSonu + 1;
+    while (i < kaynak.length && derinlik > 0) {
+      const kapanis = kaynak.indexOf('</View>', i);
+      const acilis = kaynak.indexOf('<View', i);
+      if (kapanis === -1) return kaynak.slice(baslangic);
+
+      if (acilis !== -1 && acilis < kapanis) {
+        // Kendinden kapanan `<View ... />` derinliği artırmıyor.
+        const etiketSonu = kaynak.indexOf('>', acilis);
+        if (etiketSonu !== -1 && kaynak[etiketSonu - 1] !== '/') derinlik += 1;
+        i = etiketSonu === -1 ? acilis + 5 : etiketSonu + 1;
+        continue;
+      }
+
+      derinlik -= 1;
+      i = kapanis + 7;
+    }
+    return kaynak.slice(baslangic, i);
+  }
+
+  it.each(EKRANLAR.map((y) => [y.slice(APP.length + 1), y]))(
+    '%s tam ekran düz View kullanmıyor',
+    (_ad, yol) => {
+      const kaynak = kod(yol);
+      const suclu: string[] = [];
+
+      for (const eslesme of kaynak.matchAll(TAM_EKRAN)) {
+        const govde = govdesi(kaynak, eslesme.index ?? 0);
+        const yukleniyor = /<Yukleniyor/.test(govde);
+        if (!yukleniyor && !KAYDIRAN.test(govde)) suclu.push(govde.slice(0, 90));
+      }
+
+      expect(
+        suclu,
+        'Tam ekran düz bir `View` içeriği kırpar. Yükleniyor göstergesi dışında ' +
+          '`<Ekran>` (ya da bir kaydıran kap) kullan.',
+      ).toEqual([]);
+    },
+  );
+});

@@ -500,6 +500,7 @@ export const en: Metinler = {
     kaldiginYer: 'Finding where you left off',
     tamamBaslik: 'Assessment complete',
     tamamGovde: 'You answered every question. Now on to the body analysis.',
+    cevaplariGozdenGecir: 'Review my answers',
     devamEtDugmesi: 'Continue',
     cevrimdisiNotu:
       'No connection — your answers are held on this device and will be sent once you are back online.',
@@ -549,8 +550,8 @@ export const en: Metinler = {
       max_kg: 'Heaviest',
     },
     ekipman: {
-      onDoldurmaOnerisi: (salon: string) =>
-        `We can tick the equipment ${salon} gyms usually have. You can remove anything afterwards.`,
+      onDoldurmaOnerisi: () =>
+        'We can tick the equipment gyms usually have. You can remove anything afterwards.',
       salonumaGoreDoldur: 'Fill in from my gym',
       secili: (adet: number) => `${adet} selected`,
       temizle: 'Clear',
@@ -602,15 +603,13 @@ export const en: Metinler = {
       varsayilanBaslik: 'This section is done',
       basliklar: {
         K: 'We have your basics',
+        G: 'Health screening complete',
+        A: 'Your pain and limits are noted',
         H: 'Your goal is noted',
-        A: 'Your training history is mapped',
-        S: 'Health screening complete',
         E: 'Your equipment is recorded',
         Z: 'Your program structure is set',
-        Y: 'Your recovery capacity is calculated',
         B: 'Your nutrition framework is ready',
-        T: 'Your preferences are applied',
-        F: 'Your measurements are in',
+        M: 'Your kitchen setup is in',
       },
       dipnot: 'This was computed from your answers. It gets sharper with each remaining section.',
     },

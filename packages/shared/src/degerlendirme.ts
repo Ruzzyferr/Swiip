@@ -60,8 +60,18 @@ export interface Soru {
   required?: boolean;
   /** Varsayılan olarak gizli; bir branch tarafından açılır. */
   conditional?: boolean;
-  /** Başka bir sorunun cevabına bağlı görünürlük: { K2: 'Kadın' }. */
-  conditionalOn?: Record<string, string>;
+  /**
+   * Başka bir sorunun cevabına bağlı görünürlük: `{ K2: 'Kadın' }`.
+   *
+   * Anahtarlar VE ile, bir anahtarın dizi değeri VEYA ile okunur:
+   * `{ E1: ['Ev', 'Karma'], E3: 'Dumbbell' }` = "(evde ya da karma) VE dumbbell var".
+   *
+   * Dizi desteği sonradan geldi. Öncesinde her bağımlılık tek bir değere
+   * eşitlenebiliyordu ve iki değerden birini kabul eden bir koşul yazmanın tek yolu
+   * `branch` idi — o da VE kuramıyor. Sonuç: "evde çalışıyorsan dumbbell aralığın ne"
+   * sorusu, dumbbell'ı hiç işaretlememiş kullanıcıya da soruluyordu.
+   */
+  conditionalOn?: Record<string, string | string[]>;
   /** Cevap anahtarla eşleşirse listedeki sorular görünür olur. */
   branch?: Record<string, string[]>;
   /** Bodymap'te seçilen her bölge için tekrarlanan sorular. */

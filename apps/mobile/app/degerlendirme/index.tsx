@@ -17,10 +17,8 @@ import {
   blokBolumleri,
   blokHatalari,
   blokSorulari,
-  cevaplandiMi,
   gosterilecekBlokId,
   istegeBaglilariAtla,
-  zorunlulariBitti,
   zorunluSayisi,
 } from '../../src/degerlendirme/akis';
 import { Cetvel } from '../../src/tasarim/Cetvel';
@@ -79,6 +77,20 @@ export default function Degerlendirme() {
   const gonderilmis = useRef<Cevaplar>({});
 
   /**
+   * Kullanıcıya GÖSTERİLMİŞ kapı tipleri.
+   *
+   * Sunucu her `/cevap` yanıtında o an AÇIK olan bütün kapıları döndürüyor — yeni
+   * tetiklenenleri değil. Ekran da her kapı gördüğünde kapı sayfasını açıyordu.
+   * Sonuç: kardiyak bayrağa bir kez "Evet" diyen kullanıcı, kalan YEDİ kartın
+   * her birinin sonunda aynı "Önce doktor onayı" ekranını yeniden görüyordu.
+   *
+   * Kapı hâlâ atlanamaz — sunucudaki `program_engelli` / `kayit_engelli` yerinde
+   * duruyor ve bu küme yalnızca EKRANIN tekrarını engelliyor, kapının kendisini
+   * değil. Uyarıyı yedi kez tekrarlamak onu güçlendirmiyor; okunmaz yapıyor.
+   */
+  const gosterilenKapilar = useRef<Set<string>>(new Set());
+
+  /**
    * Ekranda duran soru.
    *
    * Bir zamanlar gösterilen soru doğrudan `sonrakiSoru(cevaplar)` idi ve kullanıcı bir
@@ -127,15 +139,28 @@ export default function Degerlendirme() {
   /**
    * "İsteğe bağlıları sonra cevaplayacağım" satırının yeri.
    *
-   * Bloğun zorunluları bitmeden çıkmıyor — daha erken çıksa zorunlu soruyu da
-   * atlatıyormuş gibi okunurdu. Yeri de rastgele değil: cevapsız kalan İLK isteğe
-   * bağlı sorunun hemen üstü, yani kullanıcının "bunların hepsini mi dolduracağım"
-   * dediği an. Sayfanın dibindeki bir düğmeyi o an göremiyor.
+   * Yeri rastgele değil: bloğun İLK isteğe bağlı sorusunun hemen üstü, yani
+   * kullanıcının "bunların hepsini mi dolduracağım" dediği an. Sayfanın dibindeki
+   * bir düğmeyi o an göremiyor.
+   *
+   * KURAL — bozulmasın: bu satırın yeri CEVAPLARA BAKMAZ.
+   *
+   * Önce iki koşulu birden taşıyordu: zorunlular bitmemişse hiç çıkmıyor, çıkınca da
+   * "cevapsız kalan ilk isteğe bağlı sorunun" üstüne konuyordu. İkisi de her cevapta
+   * yeniden hesaplanıyor, yani satır bir cevapta beliriyor, bir sonrakinde yer
+   * değiştiriyor ya da kayboluyordu — ve altındaki bütün sorular onunla birlikte
+   * kayıyordu.
+   *
+   * Emülatörde ölçüldü: "Ağrı ve kısıt" kartında ilk şıkka dokunulduğu anda satır
+   * (310 px) yok oluyor ve liste parmağın altından yukarı kayıyor; ikinci dokunuş
+   * ÜÇ SIRA aşağıdaki şıkka gidiyor. Kullanıcının "çoklu seçimde tek bir tane
+   * seçebiliyorum" dediği şey buydu — seçim mantığı doğruydu, zemin kayıyordu.
+   *
+   * Artık satır blok açıldığı anda yerindedir ve orada kalır. Zorunlular bitmemişken
+   * basılırsa `ilerle` zaten doğrulamaya takılıp "N zorunlu soru eksik" diyor; yani
+   * kapı hâlâ kapalı, sadece kapının yeri artık oynamıyor.
    */
-  const atlamaSirasi = useMemo(() => {
-    if (!blokId || !zorunlulariBitti(cevaplar, blokId)) return -1;
-    return sorular.findIndex((soru) => !soru.required && !cevaplandiMi(cevaplar, soru));
-  }, [blokId, cevaplar, sorular]);
+  const atlamaSirasi = useMemo(() => sorular.findIndex((soru) => !soru.required), [sorular]);
   const bolumSirasi = useMemo(
     () => Math.max(1, bolumler.findIndex((b) => b.id === blokId) + 1),
     [bolumler, blokId],
@@ -192,6 +217,35 @@ export default function Degerlendirme() {
     },
     [m.gecersizCevap],
   );
+
+  /**
+   * Değerlendirmeyi sunucuda kapatır. Başarılıysa `true`.
+   *
+   * Değerlendirmeyi kapatan TEK yol burası; iki çağıranı var (akışın sonu ve
+   * "Değerlendirme tamam" yedek ekranı) ve ikisinin de bunu atlaması bir zamanlar
+   * kullanıcıyı programsız bırakıyordu. Yedek ekranın düğmesi doğrudan fotoğraf
+   * akışına atlıyordu: force-quit sonrası tekrar açan kullanıcı da aynı çukura
+   * düşüyordu.
+   */
+  const tamamla = useCallback(async (): Promise<boolean> => {
+    try {
+      await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
+      /*
+        Taslak SILINIYOR.
+        Cihazdaki taslak, birlestirmede sunucunun uzerine biniyor (cevrimdisi
+        cevaplanan sorular kaybolmasin diye — dogru karar). Ama tamamlandiktan
+        sonra hic temizlenmiyordu: ayarlardan "Degerlendirmeyi guncelle" deyip yeni
+        surum acan kullanicinin karsisina aylar oncesinin taslagi cikiyor ve
+        sunucudaki taze cevaplari eziyordu.
+      */
+      await sil(ANAHTARLAR.degerlendirmeTaslagi);
+      return true;
+    } catch {
+      // Tamamlanmadan ilerlemek, profilsiz bir kullanici yaratir: program uretilemez.
+      setHata(islemHatasiMetni('degerlendirme_tamamla', dil));
+      return false;
+    }
+  }, [dil]);
 
   /**
    * Blogu kaydeder ve bir sonrakine gecer.
@@ -270,9 +324,33 @@ export default function Degerlendirme() {
         doktor_onayi_bekle: 2,
         sayilari_gizle: 3,
       };
-      const kapilar = [...(sonuc?.kapi_durumu.kapilar ?? [])].sort(
-        (a, b) => (AGIRLIK[a.eylem] ?? 9) - (AGIRLIK[b.eylem] ?? 9),
-      );
+      const kapilar = [...(sonuc?.kapi_durumu.kapilar ?? [])]
+        .filter((k) => !gosterilenKapilar.current.has(k.tip))
+        .sort((a, b) => (AGIRLIK[a.eylem] ?? 9) - (AGIRLIK[b.eylem] ?? 9));
+      for (const kapi of kapilar) gosterilenKapilar.current.add(kapi.tip);
+
+      const sonrasi = sonrakiSoru(tamamlanmis);
+      setAktifBlokId(sonrasi?.blok_id);
+
+      /**
+       * TAMAMLAMA YÖNLENDİRMEDEN ÖNCE — sırası hayati.
+       *
+       * Bu çağrı en sonda, iki `return`'ün ardındaydı. Son blok da geri bildirim
+       * üretiyor (`sorular.json`: M -> "Haftalık öğün planın ..."), yani akış her
+       * zaman kart sonu dalına girip `return` ediyordu ve `/tamamla` HİÇ
+       * ÇAĞRILMIYORDU. Ağdan doğrulandı: sekiz `POST /cevap`, sıfır `/tamamla`.
+       *
+       * Kullanıcı için sonucu şuydu — sekiz kartı da doldurup vücut analizini de
+       * geçtikten sonra Program sekmesi "Henüz programın yok · Önce değerlendirmeyi
+       * tamamla" diyor, "Programımı hesapla" ise `POST /program/uret` -> 400
+       * alıyordu. Değerlendirmeye dönmek de kurtarmıyordu: cevaplanacak soru
+       * kalmadığı için "Değerlendirme tamam" ekranı çıkıyor, onun düğmesi de
+       * yalnızca fotoğraf akışına atıyordu. Yeni kullanıcı KİLİTLİ kalıyordu.
+       *
+       * Kural: yönlendirme kararından önce sunucu tarafı bitirilir. Aşağıdaki üç
+       * dalın hangisine girilirse girilsin değerlendirme kapanmış olur.
+       */
+      if (!sonrasi && !(await tamamla())) return;
 
       if (kapilar.length > 0) {
         router.push({
@@ -288,41 +366,22 @@ export default function Degerlendirme() {
         return;
       }
 
-      const sonrasi = sonrakiSoru(tamamlanmis);
-      setAktifBlokId(sonrasi?.blok_id);
-
       if (sonuc?.blok_geri_bildirimi) {
         router.push({
           pathname: '/degerlendirme/blok-sonu',
           params: {
             blok: sonuc.blok_geri_bildirimi.blok_id,
             metin: sonuc.blok_geri_bildirimi.metin,
+            // Son kart geri dönmez, doğrudan vücut analizine geçer.
+            ...(sonrasi ? {} : { son: '1' }),
           },
         });
         return;
       }
 
-      if (!sonrasi) {
-        try {
-          await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
-          /*
-            Taslak SILINIYOR.
-            Cihazdaki taslak, birlestirmede sunucunun uzerine biniyor (cevrimdisi
-            cevaplanan sorular kaybolmasin diye — dogru karar). Ama tamamlandiktan
-            sonra hic temizlenmiyordu: ayarlardan "Degerlendirmeyi guncelle" deyip yeni
-            surum acan kullanicinin karsisina aylar oncesinin taslagi cikiyor ve
-            sunucudaki taze cevaplari eziyordu.
-          */
-          await sil(ANAHTARLAR.degerlendirmeTaslagi);
-        } catch {
-          // Tamamlanmadan ilerlemek, profilsiz bir kullanici yaratir: program uretilemez.
-          setHata(islemHatasiMetni('degerlendirme_tamamla', dil));
-          return;
-        }
-        router.replace('/fotograf/gizlilik');
-      }
+      if (!sonrasi) router.replace('/fotograf/gizlilik');
     },
-    [blokId, cevaplar, dil, kaydet, m.eksikZorunlu],
+    [blokId, cevaplar, kaydet, m.eksikZorunlu, tamamla],
   );
 
   if (!hazir) {
@@ -346,7 +405,51 @@ export default function Degerlendirme() {
       <Ekran ustGuvenliAlan>
         <Yazi tur="baslik1">{m.tamamBaslik}</Yazi>
         <Yazi renk="metinYumusak">{m.tamamGovde}</Yazi>
-        <Dugme baslik={m.devamEtDugmesi} onPress={() => router.replace('/fotograf/gizlilik')} />
+        {hata ? (
+          <Yazi tur="kucuk" renk="tehlike">
+            {hata}
+          </Yazi>
+        ) : null}
+        {/*
+          Bu düğme de değerlendirmeyi KAPATIYOR.
+
+          Eskiden yalnızca fotoğraf akışına atıyordu. Akışın kendisi `/tamamla`
+          çağırmayı atladığında (bkz. `ilerle`) burası son çıkıştı ve o da
+          çağırmadığı için kullanıcı programsız kalıyordu. Artık iki yol da aynı
+          `tamamla`'dan geçiyor; sunucu kapanmadan fotoğraf adımına geçilmiyor.
+        */}
+        <Dugme
+          baslik={m.devamEtDugmesi}
+          yukleniyor={kaydediliyor}
+          onPress={() => {
+            void (async () => {
+              setKaydediliyor(true);
+              const oldu = await tamamla();
+              setKaydediliyor(false);
+              if (oldu) router.replace('/fotograf/gizlilik');
+            })();
+          }}
+        />
+        {/*
+          Cevaplara dönüş yolu.
+
+          Bu ekran çıkmazdı: değerlendirme bitince cetvel çizilmiyor ve cevaplanmış
+          bir soruyu değiştirmenin hiçbir yolu kalmıyordu. Ayarlardaki
+          "Değerlendirmeyi güncelle" de buraya çıkıyor, yani orada da yoktu.
+
+          Bedeli rahatsızlıktan ibaret değil: yanlış dokunulan tek bir güvenlik
+          sorusu (kardiyak bayrak) program üretimini kalıcı olarak kapatıyor ve
+          kullanıcının düzeltmesi imkânsız hale geliyordu.
+
+          İlk bölümü seçmek yeterli: `gosterilecekBlokId` seçili bloğu, soruları
+          cevaplanmış olsa da gösteriyor — böylece cetvel geri geliyor ve kullanıcı
+          istediği karta dokunabiliyor.
+        */}
+        <Dugme
+          baslik={m.cevaplariGozdenGecir}
+          tur="sessiz"
+          onPress={() => setAktifBlokId(bolumler[0]?.id)}
+        />
       </Ekran>
     );
   }

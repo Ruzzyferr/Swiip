@@ -174,6 +174,178 @@ brand/                    Logo dosyaları (SVG, currentColor kullanır)
 
 ---
 
+## 2026-08-30: gerçek kullanıcı turu — yedi kusur, hepsi emülatörde bulundu
+
+Kullanıcı App Store onayından sonra uygulamayı kendi telefonunda denedi ve altı kusur
+bildirdi. Hepsi tek tek emülatörde **tıklanarak** yeniden üretildi (kod okunarak
+değil), kök nedeni ölçüldü, düzeltildi ve tekrar tıklanarak doğrulandı. Tur sırasında
+bir yedinci kusur daha çıktı.
+
+**Yöntem — bir daha bu şekilde bakılsın:** `uiautomator dump` ile her ekranın düğüm
+sınırları okundu. Bu, "şuraya dokundum, sonra ne oldu" sorusunu piksel olarak
+yanıtlıyor ve ekran görüntüsüne bakarak fark edilemeyecek şeyleri yakalıyor. API
+çağrıları da geçici bir Node vekiliyle kaydedildi; "hangi istek gitti, hangisi
+gitmedi" oradan görüldü — 1. kusur böyle çıktı.
+
+### 1. Değerlendirme sunucuda HİÇ kapanmıyordu — yeni kullanıcı kilitli kalıyordu
+
+En ağırı buydu. `ilerle` içinde `/v1/degerlendirme/tamamla` çağrısı iki `return`'ün
+ardındaydı. Son blok da geri bildirim üretiyor (`sorular.json`: `M` → "Haftalık öğün
+planın …"), yani akış her zaman kart sonu dalına girip `return` ediyordu.
+
+Ağdan doğrulandı: **sekiz `POST /cevap`, sıfır `/tamamla`.**
+
+Kullanıcı için sonucu: sekiz kartı ve vücut analizini bitirdikten sonra Program sekmesi
+"Henüz programın yok · Önce değerlendirmeyi tamamla" diyor, "Programımı hesapla"
+`POST /program/uret` → **400** alıyordu. Değerlendirmeye dönmek de kurtarmıyordu:
+cevaplanacak soru kalmadığı için "Değerlendirme tamam" ekranı çıkıyor, onun düğmesi de
+yalnızca fotoğraf akışına atıyordu. **Çıkış yoktu.**
+
+Düzeltme: tamamlama yönlendirme kararından ÖNCE, tek bir `tamamla()` yardımcısında.
+Yedek ekranın düğmesi de aynı yoldan geçiyor. `degerlendirmeAkisi.test.ts` sırayı
+kilitliyor (`await tamamla()` indeksi ilk `router.push`'tan küçük olmalı).
+
+### 2. Çoklu seçimde "tek bir tane seçebiliyorum" — seçim değil, ZEMİN kayıyordu
+
+Kullanıcının tarifi buydu ve seçim mantığı doğruydu. Sorun şu: bir listenin ÜSTÜNDEKİ
+bir blok, o listeye verilen cevap yüzünden beliriyor ya da kayboluyordu.
+
+| Yer | Ne oluyordu | Sıçrama |
+|---|---|---|
+| `degerlendirme/index.tsx` atlama satırı | ilk şıkka dokununca satır yok oluyor | **310 px** |
+| `EkipmanEnvanteri` ön doldurma bloğu | ilk kutucuğa dokununca uyarı+düğme yok oluyor | **261 px** |
+
+Emülatörde birebir üretildi: "Bel fıtığı" sonra "Boyun fıtığı"ya dokunan kullanıcı
+**"Bel fıtığı" + "Osteoporoz"** işaretliyordu. "Barbell ve plaka" sonra "Dumbbell"e
+dokunan **"Barbell ve plaka" + "Leg press"** işaretliyordu.
+
+**Kural — bozulmasın:** bir listenin üstündeki hiçbir şey, o listeye verilen cevap
+yüzünden belirip kaybolmaz. Atlama satırının yeri artık **cevaplara bakmıyor** (bloğun
+ilk isteğe bağlı sorusunun üstü, blok açıldığı anda orada). Ön doldurma bloğu hiç
+kaybolmuyor; düğmesi de artık ezmiyor, **ekliyor**. Sayaç satırına sabit yükseklik
+verildi ("Temizle" belirince 24 px itiyordu — aynı sınıfın küçüğü).
+
+Düzeltme sonrası ölçüm: sıçrama **310 px → 5 px** (o 5 px seçili kenarlığın
+kalınlaşması, kaçınılmaz).
+
+### 3. Klavye içeriği örtüyordu — iki katmanlı
+
+`Ekran` klavyeyi hiç hesaba katmıyordu. Emülatörde: "Yemiyorum" kartının dibindeki
+"Vazgeçemeyeceğin yiyecek ne?" alanına yazılan metin **ekranda hiçbir yerde
+görünmüyordu.**
+
+- **Android:** `targetSdkVersion 36` ile derleniyoruz ve Android 15'ten (API 35) beri
+  pencere kenardan kenara açılıyor — `adjustResize` artık pencereyi daraltmıyor. Kap
+  ekranın tamamı kadar kalınca içeriğin altı klavyenin arkasında kalıyor ve **oraya
+  kaydırmak da mümkün olmuyor**: kaydırma, içeriğin sonu kabın sonuna geldiğinde
+  bitiyor, kabın sonu ise klavyenin altında.
+- **iOS:** `ScrollView` klavyeyi zaten hiç umursamıyor. App Store'a giden derleme buydu.
+
+Düzeltme: iOS'ta `automaticallyAdjustKeyboardInsets`; Android'de kabın **kendisi**
+klavye kadar daraltılıyor ve odaklı alan görünüre kaydırılıyor.
+
+**Üç tuzak, tekrar kurulmasın:**
+
+1. Alt dolguya pay eklemek YETMİYOR — dolgu içeriği uzatır, kaydırmanın tavanını
+   yükseltmez. Kabın kendisi daralmalı.
+2. `paddingBottom` bir görünümün KENDİ kutusunu küçültmez. `measureInWindow` ile
+   ölçülen alt kenardan klavye payı ayrıca düşülmeli; yoksa kaydırma tutarlı biçimde
+   eksik kalıyor.
+3. Ölçüm beklemeli (~120 ms): kap daraltılmadan ölçülürse hem kenar hem kaydırma
+   tavanı eski değerdir.
+
+`klavye.test.ts` bunları kilitliyor ve çözümün ekran başına çoğalmasını yasaklıyor
+(tek istisna `koc.tsx`).
+
+### 4. Kart sonu geri bildirimi — sekizde üçü bozuktu
+
+Bu dosya kart sonunu "terke karşı en güçlü kozumuz" diye tanımlıyor. Ölçüldüğünde:
+
+- Bölüm harfi bölümün ADINDAN değil, ekranın müjde cümlesinden türüyordu. Cetvel "S"
+  derken kart sonu **"BÖLÜM T"**, cetvel "G" derken **"BÖLÜM B"**, cetvel "T" derken
+  **"BÖLÜM P"** diyordu. Aynı kart için iki farklı harf.
+- Başlık haritası eski blok kimliklerinde kalmıştı: `G` (Güvenlik) ve `M` (Mutfak)
+  haritada **hiç yoktu** ve genel yedeğe düşüyordu ("Bu bölüm tamam"). `A` ise artık
+  sormadığı bir şeyi duyuruyordu ("Antrenman geçmişin çıkarıldı" — o kart "Ağrı ve
+  kısıt"). Haritada karşılığı olmayan dört ölü anahtar (`S`, `Y`, `T`, `F`) duruyordu.
+
+Harf artık cetvelle **aynı kaynaktan** (`SORU_BANKASI` blok başlığı).
+`blokSonuBasliklari.test.ts` haritayı bankaya bağlıyor: iki yönlü, iki dilde.
+
+### 5. "Önce doktor onayı" HER kart sonunda çıkıyordu
+
+Kullanıcının cümlesi: *"her sayfada bana doktor onayı diyor beni acayip sinir etti,
+kendi uygulamamı silecek kadar sinirlendim."* Haklıydı.
+
+Sunucu her `/cevap` yanıtında o an AÇIK olan bütün kapıları döndürüyor — yeni
+tetiklenenleri değil. Ekran da her kapı gördüğünde sayfayı açıyordu. Kardiyak bayrağa
+bir kez "Evet" diyen kullanıcı kalan yedi kartın her birinin sonunda aynı ekranı
+görüyordu.
+
+Düzeltme: kapı tipi başına bir kez (oturum içinde). **Kapı zayıflamadı** — sunucudaki
+`program_engelli` / `kayit_engelli` yerinde; süzülen şey yalnızca EKRANIN tekrarı.
+Doğrulandı: bayrak açıkken A → H → E → T kartlarının hiçbirinde tekrar çıkmadı,
+`POST /program/uret` ise hâlâ **403** dönüyor ve sebebi sayfada yazıyor.
+
+### 6. "Yemeğimi ailem yapıyor" diyene pişirme süresi soruluyordu
+
+`B7` koşulsuzdu. Aynı sınıftan ikinci bir tane daha bulundu: `E7` ("Dumbbell ağırlık
+aralığın") yalnızca `E1`in dalıydı, yani evde çalışan ama dumbbell işaretlememiş
+kullanıcıya da soruluyordu.
+
+İkisi de tek bir koşul biçimiyle çözülüyor ama `conditionalOn` tek değer kabul
+ediyordu. Dizi desteği eklendi: **anahtarlar arasında VE, bir anahtarın dizi değeri
+içinde VEYA.** Artık `E7: { E1: ['Ev','Karma'], E3: 'Dumbbell' }` yazılabiliyor.
+
+### 7. (Tur sırasında çıktı) Bitmiş değerlendirmede tek bir cevap değiştirilemiyordu
+
+Değerlendirme bitince koşucu "Değerlendirme tamam" ekranında kalıyor ve cetvel
+çizilmiyordu. Ayarlardaki **"Değerlendirmeyi güncelle"** de aynı ekrana çıkıyordu —
+yani cevabı düzeltmenin hiçbir yolu yoktu.
+
+Bedeli rahatsızlıktan ibaret değil: 2. kusur yüzünden yanlış şıkka dokunmak ÇOK
+kolaydı ve yanlış işaretlenen tek bir kardiyak soru program üretimini **kalıcı olarak**
+kapatıyordu. Kapanış ekranına "Cevaplarımı gözden geçir" eklendi; cetvel geri geliyor.
+
+### Ayrıca: program artık kendiliğinden üretiliyor
+
+Vücut analizindeki "Programımı gör" doğrudan Program sekmesine getiriyor ve program
+henüz üretilmemiş olduğu için kullanıcı boş ekranla karşılaşıyordu. Sekiz kartı ve
+vücut analizini bitirmiş birine "programını görmek için bir de şuraya bas" demek,
+emeğinin karşılığını bir dokunuş arkasına saklamak. Artık mount başına **bir kez**
+otomatik deneniyor; başarısız olursa sebep sayfada yazıyor ve elle düğme yerinde
+duruyor. Otomatik denemede kapı ekranı yüze açılmıyor — yoksa kardiyak bayraklı
+kullanıcı sekmeye her girdiğinde uyarıyla karşılaşırdı.
+
+### Yatay taşma: ARANDI, BULUNAMADI
+
+Kullanıcının ilk maddesi "bazı sorular ekranın dışına taşıyor"du. Sekiz kartın hepsi
+**320x569 dp**'de %130 ve %200 yazı tipiyle, ayrıca 411x914 dp'de tarandı; hiçbir
+düğüm ekran genişliğini aşmadı (`uiautomator` sınırlarıyla ölçüldü). Muhtemel açıklama:
+kullanıcının gördüğü şey 2. ve 3. kusurlardı — sıçrayan liste ve klavyenin arkasında
+kalan alan "taşıyor" diye okunuyor. Yine de bu madde **kapanmış sayılmamalı**;
+kullanıcı hangi soruda gördüğünü söylerse o tuval birebir kurulabilir.
+
+### Bir kilit daha: tam ekran düz `View`
+
+Tur sırasında bulunan son şey: Program sekmesinin "Henüz programın yok" dalı düz bir
+`View` ile çiziliyordu. `tasmaKorumasi.test.ts` DOSYA düzeyinde baktığı için
+kaçırmıştı — dosyada başka bir yerde `ScrollView` geçiyor. O ekranda üç değişken
+metin var (biri sunucudan gelen üretim hatası) ve dar tuvalde "Değerlendirmeye dön"
+kırpılabiliyordu: kullanıcının programsız kaldığı yerde ÇIKIŞ YOLU.
+
+Yeni kural her tam ekran `View`in **kendi gövdesini** (eşleşen `</View>`e kadar)
+okuyor ve içinde yükleniyor göstergesi ya da kaydıran bir kap arıyor. İlk iki deneme
+sabit uzunlukta pencere kullanıyordu ve ikisi de yanlıştı; geniş olanı kusuru
+**akladı**. Kural, kusur bilerek geri konarak sınandı: kırmızıya düştü, düzeltme geri
+konunca yeşile. Yakalamayan bir kilit, olmayan bir kilittir.
+
+### Kalan kilitler
+
+`degerlendirmeAkisi.test.ts` (14), `klavye.test.ts` (7), `blokSonuBasliklari.test.ts`
+(8), `tasmaKorumasi.test.ts`'e eklenen tam ekran kuralı (34) ve `motor.test.ts`'e
+eklenen iki koşul testi. Toplam **127 dosya / 2143 test** yeşil.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
