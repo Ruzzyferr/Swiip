@@ -677,6 +677,92 @@ vermiyor. Sessiz gelir kaybı. Eklendi, dağıtıldı, dışarıdan doğrulandı
 **İki platform da hâlâ "Limited ad serving":** Android'de AdMob kaydı Play listesine
 bağlı değil (üretim bekliyor), iOS'ta Google'ın `app-ads.txt`'i taraması gerekiyor.
 
+## 2026-09-01: 1.1.0 — reklamlar, YAZIO seviyesinde kalori ekranı
+
+**App Store: 1.1.0 + build 33 `WAITING_FOR_REVIEW`, `AFTER_APPROVAL`.**
+**Play: kapalı test `alpha` izinde vc=27 / 1.1.0.**
+
+### Gönderimi engelleyen kusur — ve API'nin söylemediği şey
+
+Gönderim iki kez `409` ile reddedildi:
+
+    STATE_ERROR.ENTITY_STATE_INVALID: appStoreVersions ... is not in valid state.
+    "This resource cannot be reviewed, please check associated errors to see why."
+
+API sebebi SÖYLEMİYOR. Ekran görüntüleri, sürüm notları (11/11), demo hesap, yaş
+derecelendirmesi, dışa aktarım uyumu, App Information yerelleştirmeleri — hepsi tek
+tek elendi, hepsi temizdi. Sebep yalnızca **konsolda** göründü:
+
+> Your app contains `NSUserTrackingUsageDescription`, indicating that it may request
+> permission to track users. To submit for review, update your App Privacy response
+> to indicate that data collected from this app will be used for tracking purposes,
+> or update your app binary and upload a new build.
+
+`expo-tracking-transparency` "ileride lazım olur" diye kurulmuştu ve **hiçbir
+dosyadan çağrılmıyordu**; yalnızca eklenti yapılandırması Info.plist'e o anahtarı
+yazıyordu. İki yol vardı ve biri yalan olurdu — beyanı "izliyoruz" yapmak.
+İzlemiyoruz. Paket kaldırıldı.
+
+**İki ders:**
+
+1. Kullanılmayan bir izin metni zararsız değil. Apple ikiliyi okuyup beyanla
+   çelişkiyi gönderim anında yakalıyor.
+2. **Bu uçta konsolun mesajı API'den daha bilgili.** API "geçersiz durum" deyip
+   susuyor. Bir sonraki `409`'da önce konsola bakılmalı; API ile aramak zaman yakar.
+
+### Reklamlar
+
+Üç sekmede banner (Beslenme'de kalori kartının altında, Program'da "Neden bu
+program"ın altında, İlerleme'de "Bugünkü kilon"un altında) ve öğün onayından SONRA
+tam ekran (günde 3, arada ≥4 dk).
+
+**Banner yüksekliği SABİT (60 dp).** Sayfa ortasındaki bir bloğun reklam yüklenince
+büyümesi, bu depodaki 2. kusurun aynısı olurdu. Cihazda ölçüldü: "Hedefin nasıl
+hesaplandı" kartı reklamdan önce y=1524, sonra y=1524 — **kayma 0 px**. Bedeli
+kabul edildi: reklam dolmazsa orada boş bir şerit kalıyor.
+
+**Ödeyen hiçbir koşulda reklam görmüyor**, 22 test tutuyor. Karar sunucudan
+(`haklar.reklam`); bilinmiyorsa reklam YOK. Koç, Ayarlar, ödeme, değerlendirme ve
+fotoğraf ekranları reklamsız — cihazda tek tek doğrulandı.
+
+**Kişiselleştirme kapalı** (`requestNonPersonalizedAdsOnly`): bir sağlık
+uygulamasında "Data Used to Track You" beyanının bedeli, eCPM farkından ağır.
+
+### Kalori ekranı
+
+Ücretsiz katmana kalori/makro hedefi ve barkod açıldı (ikisi de bize sıfıra mal
+oluyor). Eklenenler: **takvim gezinme** (geçmiş günler; geleceğe gidilemiyor),
+**kalan kalori** ("2087 kcal kaldı"; aşımda cümle değişiyor), **öğün gruplaması**
+(varsayılanı saatten türeyen dört seçenekli seçici), **su takibi** (hedef EFSA'nın
+yeterli alım değerinden, künyesi `kaynaklar.ts`'te).
+
+### Emülatörde doğrulandı
+
+Ücretsiz hesapla, 393x873 dp'de, her adımda ekran görüntüsü ve `uiautomator` düğüm
+sınırlarıyla: hedef ve makrolar görünüyor, barkod açık, tanıma Pro'da, takvim
+`GET /gun/2026-08-30` atıyor, su 250→500 ml, banner düzeni bozmuyor, tam ekran
+reklam kayıttan SONRA açılıyor.
+
+**İki otomasyon tuzağı:** klavye açıkken yapılan kaydırmayı Gboard kaydırarak yazma
+sanıyor; ve klavye düzeni kaydırdığı için önceden hesaplanan koordinat şaşıyor.
+Her dokunuştan önce yeniden ölçülmeli.
+
+### Play yükleyicisi
+
+Bir CI koşusu `400 FAILED_PRECONDITION — "This edit has expired"` ile düştü.
+Düzenleme 70 saniyede geçersizleşmişti: Play'de aynı uygulama için açılan her yeni
+düzenleme öncekini geçersiz kılıyor ve o sırada başka bir yerden durum sorgusu
+yapılmıştı. **Play'de "okuma" gibi görünen iş bile düzenleme nesnesi yaratıyor.**
+`play-yukle.mjs` artık çakışmada yeni düzenleme açıp tekrar deniyor.
+
+### Reklam SDK sürümü
+
+`npx expo install` **16.5.0** kurdu ve iki platformda da derleme kırıldı
+(`generateCodegenSchemaFromJavaScript`). v16 daha yeni bir RN codegen'i varsayıyor;
+biz RN 0.76.5'teyiz. `expo install` bu pakette uyumluluk kaydı tutmuyor —
+"expo install kullandım, o hâlde uyumludur" varsayımı geçerli değil. 14.11.0'a
+inildi ve yerelde `assembleDebug` ile doğrulandı.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
