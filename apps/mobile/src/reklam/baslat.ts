@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import mobileAds, { AdsConsent, MaxAdContentRating } from 'react-native-google-mobile-ads';
 
 /**
@@ -68,14 +67,26 @@ export async function reklamlariBaslat(): Promise<void> {
 }
 
 /**
- * iOS izleme izni (ATT).
+ * ATT (izleme izni) KURULU DEĞİL — ve bu bir eksiklik değil, gereklilik.
  *
- * ÇAĞRILMIYOR ve bu bilinçli: izin istemek yalnızca IDFA ile izleme yapacaksak
- * anlamlı. Kişiselleştirme kapalıyken ATT sormak, kullanıcıya hiçbir karşılığı
- * olmayan bir izin penceresi göstermek olurdu — Apple da bunu "gereksiz istem"
- * sayıyor.
+ * `expo-tracking-transparency` bir süre "ileride lazım olur" diye kuruluydu. Hiçbir
+ * dosyadan çağrılmıyordu ama eklenti yapılandırması Info.plist'e
+ * `NSUserTrackingUsageDescription` yazıyordu ve App Store gönderimi tam bu yüzden
+ * reddedildi:
  *
- * Eklenti yine de kurulu: kişiselleştirme açılmak istenirse tek çağrı yeter ve
- * `NSUserTrackingUsageDescription` metni `app.json`'da hazır.
+ *   "Your app contains NSUserTrackingUsageDescription, indicating that it may request
+ *    permission to track users. To submit for review, update your App Privacy response
+ *    to indicate that data collected from this app will be used for tracking purposes,
+ *    or update your app binary and upload a new build."
+ *
+ * İki yol vardı ve biri yalan olurdu: beyanı "izliyoruz" yapmak. İzlemiyoruz —
+ * reklamlar kişiselleştirilmemiş, IDFA hiç istenmiyor. Doğru olan, kullanılmayan
+ * anahtarı ikiliden çıkarmaktı.
+ *
+ * DERS: kullanılmayan bir izin metni zararsız değil. Apple ikiliyi okuyor ve beyanla
+ * çelişkiyi gönderim anında yakalıyor — üstelik API'nin verdiği hata
+ * ("not in valid state") sebebi söylemiyor, yalnızca konsol söylüyor.
+ *
+ * Kişiselleştirme bir gün açılırsa sıra şu: önce App Privacy'de izleme beyan edilir,
+ * sonra paket kurulur, sonra izin istenir. Tersi her seferinde bir tur yakar.
  */
-export const IZLEME_IZNI_ISTENMIYOR = Platform.OS === 'ios';

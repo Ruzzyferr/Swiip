@@ -106,3 +106,64 @@ describe('uygulama kimlikleri tek yerde tutuluyor', () => {
     ).toBe(true);
   });
 });
+
+/**
+ * İkili ile App Privacy beyanı ÇELİŞMEZ.
+ *
+ * `expo-tracking-transparency` bir süre "ileride lazım olur" diye kuruluydu. Hiçbir
+ * dosyadan çağrılmıyordu ama eklenti yapılandırması Info.plist'e
+ * `NSUserTrackingUsageDescription` yazıyordu. App Store gönderimi tam bu yüzden
+ * engellendi:
+ *
+ *   "Your app contains NSUserTrackingUsageDescription, indicating that it may request
+ *    permission to track users. To submit for review, update your App Privacy response
+ *    to indicate that data collected from this app will be used for tracking purposes,
+ *    or update your app binary and upload a new build."
+ *
+ * İki yol vardı ve biri yalan olurdu: beyanı "izliyoruz" yapmak. İzlemiyoruz —
+ * reklamlar kişiselleştirilmemiş (`requestNonPersonalizedAdsOnly`), IDFA hiç
+ * istenmiyor. Doğrusu kullanılmayan anahtarı ikiliden çıkarmaktı.
+ *
+ * **Kusur SESSİZDİ ve pahalıydı:** API yalnızca "not in valid state" diyor, sebebi
+ * söylemiyor; sebebi yalnızca konsol gösteriyor. Bir derleme turu buna gitti.
+ *
+ * Kural: ATT paketi ancak kod GERÇEKTEN izin isterse kurulur, ve o gün önce App
+ * Privacy'de izleme beyan edilir.
+ */
+describe('izleme izni ile beyan çelişmiyor', () => {
+  const KAYNAKLAR = [
+    join(KOK, 'src', 'reklam', 'baslat.ts'),
+    join(KOK, 'src', 'reklam', 'ReklamBanner.tsx'),
+    join(KOK, 'src', 'reklam', 'gecisReklami.ts'),
+  ]
+    .map((y) => readFileSync(y, 'utf8'))
+    .join(String.fromCharCode(10));
+
+  it('ATT paketi bağımlılıklarda yok', () => {
+    expect(
+      BAGIMLILIKLAR['expo-tracking-transparency'],
+      'Paket kurulu olduğunda eklentisi Info.plist’e NSUserTrackingUsageDescription ' +
+        'yazıyor ve App Store gönderimi "izleme beyan et ya da ikiliyi değiştir" ' +
+        'diyerek engelliyor.',
+    ).toBeUndefined();
+  });
+
+  it('app.json izleme izni metni taşımıyor', () => {
+    const ham = readFileSync(join(KOK, 'app.json'), 'utf8');
+    expect(ham.includes('NSUserTrackingUsageDescription')).toBe(false);
+    expect(ham.includes('userTrackingPermission')).toBe(false);
+    expect(
+      ham.includes('userTrackingUsageDescription'),
+      'AdMob eklentisi de bu alanı kabul ediyor ve aynı anahtarı yazar.',
+    ).toBe(false);
+  });
+
+  it('kod izin istemiyor — kişiselleştirme kapalı', () => {
+    expect(KAYNAKLAR.includes('requestTrackingPermissionsAsync')).toBe(false);
+    expect(
+      KAYNAKLAR.includes('requestNonPersonalizedAdsOnly: true'),
+      'İzin istenmiyorsa reklam da kişiselleştirilmemiş olmalı; aksi hâlde beyan ' +
+        'ile davranış ayrışır.',
+    ).toBe(true);
+  });
+});
