@@ -84,3 +84,51 @@ describe('site yönlendirmesi', () => {
     }
   });
 });
+
+/**
+ * `app-ads.txt` yerinde ve doğru.
+ *
+ * IAB Tech Lab'in yetkili satıcı beyanı: "Swiip'in reklam envanterini kimler
+ * satabilir". Programatik alıcılar satın almadan önce bunu tarıyor; dosya yoksa
+ * ya da satıcıyı listelemiyorsa envanter YETKİSİZ sayılıyor ve çoğu alıcı teklif
+ * vermiyor.
+ *
+ * Eksikliği bu yüzden sessiz bir gelir kaybı: reklam gösterilir, hata görünmez,
+ * yalnızca doluluk ve eCPM düşer. AdMob konsolu da uygulama doğrulamasını buna
+ * bağlıyor — 2026-08-31'de iOS girdisi açılırken tam bu yüzden "Couldn't complete
+ * app verification" alındı.
+ *
+ * Alan adı mağaza listesindeki geliştirici sitesiyle aynı olmalı; App Store'daki
+ * pazarlama adresi `https://swiip.app` (ASC'den okundu).
+ */
+describe('app-ads.txt', () => {
+  const YOL = join(SITE, 'app-ads.txt');
+
+  it('dosya var', () => {
+    expect(existsSync(YOL), 'app-ads.txt yok: envanter yetkisiz sayılır').toBe(true);
+  });
+
+  it('AdMob yayıncı kimliğini DIRECT olarak beyan ediyor', () => {
+    const satirlar = readFileSync(YOL, 'utf8')
+      .split(String.fromCharCode(10))
+      .map((r) => r.trim())
+      .filter((r) => r && !r.startsWith('#'));
+
+    expect(satirlar.length, 'beyan satırı yok').toBeGreaterThan(0);
+
+    const admob = satirlar.find((r) => r.startsWith('google.com,'));
+    expect(admob, 'google.com satırı yok').toBeDefined();
+
+    const parcalar = admob!.split(',').map((p) => p.trim());
+    expect(parcalar[0]).toBe('google.com');
+    expect(parcalar[1], 'yayıncı kimliği AdMob hesabıyla aynı olmalı').toBe('pub-2953141598487358');
+    expect(parcalar[2]).toBe('DIRECT');
+    // Google'ın sertifika yetkilisi kimliği; sabit ve zorunlu.
+    expect(parcalar[3]).toBe('f08c47fec0942fa0');
+  });
+
+  /** Caddy `.txt` köküne servis ediyor mu — `robots.txt` zaten aynı yoldan çıkıyor. */
+  it('site kökünden servis ediliyor', () => {
+    expect(existsSync(join(SITE, 'robots.txt')), 'robots.txt yoksa kıyas bozulur').toBe(true);
+  });
+});

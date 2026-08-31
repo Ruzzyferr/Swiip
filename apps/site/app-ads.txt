@@ -1,0 +1,15 @@
+# app-ads.txt - IAB Tech Lab yetkili satici beyani
+#
+# Bu dosya "Swiip'in reklam envanterini kimler satabilir" sorusunun cevabi.
+# Programatik alicilar satin almadan once bu dosyayi tariyor; dosya yoksa ya da
+# saticiyi listelemiyorsa envanter YETKISIZ sayiliyor ve cogu alici teklif vermiyor.
+#
+# Yani eksikligi sessiz bir gelir kaybi: reklam gosterilir, doluluk ve eCPM duser,
+# hicbir yerde hata gorunmez. AdMob konsolu da uygulama dogrulamasini bu dosyaya
+# bagliyor ("Couldn't complete app verification").
+#
+# Alan adi, magaza listesindeki gelistirici web sitesiyle AYNI olmali (swiip.app).
+# Hem App Store hem Google Play tarafi bu tek dosyayi okuyor; yayinci kimligi ayni.
+#
+# Bicim: <reklam sistemi>, <yayinci kimligi>, <iliski>, <sertifika yetkilisi kimligi>
+google.com, pub-2953141598487358, DIRECT, f08c47fec0942fa0
