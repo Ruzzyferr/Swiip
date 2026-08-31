@@ -23,6 +23,7 @@ import { ApiHatasi, istek } from '../../src/veri/api';
 import { ANAHTARLAR, oku, okuYas, yaz } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 import { hareketGorseli } from '../../src/veri/hareketMedyasi.uretilmis';
+import { ReklamBanner } from '../../src/reklam/ReklamBanner';
 
 /**
  * 1. GÜN AÇILIŞI — ürünün tamamının kazanıldığı veya kaybedildiği ekran.
@@ -422,6 +423,12 @@ export default function ProgramEkrani() {
         <Yazi tur="etiket" renk="metinSilik" hizala="center">
           {m.duzenlemeUcretsiz}
         </Yazi>
+
+        {/*
+          Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte; reklam
+          gelmezse sayfa düzeni hiç değişmiyor.
+        */}
+        <ReklamBanner />
       </Sutun>
     </ScrollView>
   );

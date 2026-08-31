@@ -5,6 +5,8 @@ import { OturumSaglayici, useMetinler } from '../src/durum/Oturum';
 import { HataSiniri } from '../src/tasarim/HataSiniri';
 import { useYiginSecenekleri } from '../src/gezinme/yiginSecenekleri';
 import { useTema } from '../src/tasarim/tema';
+import { ReklamSaglayici } from '../src/reklam/ReklamHakki';
+import { reklamlariBaslat } from '../src/reklam/baslat';
 import { yaziTipleriHazirMi } from '../src/tasarim/yazitipi';
 /**
  * Yalnızca yan etkisi için: modül yüklenince bildirim sunum işleyicisi kuruluyor.
@@ -15,6 +17,19 @@ import { yaziTipleriHazirMi } from '../src/tasarim/yazitipi';
  * açılışta yükleniyor.
  */
 import '../src/bildirim/zamanlayici';
+
+/**
+ * Reklam SDK'sı ve onay akışı, modül yüklenirken bir kez.
+ *
+ * Kök düzende çağrılıyor çünkü onayın (AB'de UMP formu) reklamdan ÖNCE alınması
+ * gerekiyor; ilk banner çizildiğinde başlatmaya kalkmak, onay alınmadan istek
+ * atma riski demek. Başlatma hiçbir koşulda hata fırlatmıyor: reklamın
+ * başarısızlığı uygulamayı açmamazlık edemez.
+ *
+ * Ödeyen kullanıcıda da çalışıyor ve bu zararsız: SDK yalnızca hazırlanıyor,
+ * hiçbir reklam ÇİZİLMİYOR — çizim kararı `ReklamHakki` sunucudan geliyor.
+ */
+void reklamlariBaslat();
 
 export default function KokDuzen() {
   /**
@@ -34,7 +49,14 @@ export default function KokDuzen() {
           olsun diye. Sağlayıcının kendisi patlarsa zaten uygulama açılmıyor demektir
           ve orada gösterilecek bir ekran da yok.
         */}
-        <SinirliYigin />
+        {/*
+          Reklam hakkı oturumun İÇİNDE: hangi kullanıcının planına bakılacağını
+          bilmek için önce oturum gerekiyor. Dışarı alınırsa çıkış yapan kullanıcının
+          hakkı yenilenmez ve bir sonraki kullanıcı ötekinin planıyla açılır.
+        */}
+        <ReklamSaglayici>
+          <SinirliYigin />
+        </ReklamSaglayici>
       </OturumSaglayici>
     </SafeAreaProvider>
   );

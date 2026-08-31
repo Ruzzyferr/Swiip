@@ -21,6 +21,7 @@ import { istek } from '../../src/veri/api';
 import { hareketAdi, islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 import { kisaTarihMetni } from '@swiip/shared';
+import { ReklamBanner } from '../../src/reklam/ReklamBanner';
 
 /**
  * İlerleme (F: kilo/ölçü, hareket bazlı gelişim).
@@ -237,6 +238,12 @@ export default function Ilerleme() {
         ) : (
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
         )}
+
+        {/*
+          Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte; reklam
+          gelmezse sayfa düzeni hiç değişmiyor.
+        */}
+        <ReklamBanner />
       </Sutun>
     </ScrollView>
   );

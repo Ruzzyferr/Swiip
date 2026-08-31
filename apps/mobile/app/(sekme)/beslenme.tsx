@@ -22,6 +22,9 @@ import { ApiHatasi, istek } from '../../src/veri/api';
 import { islemHatasiMetni, yerelGun } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { sunucuMetni } from '../../src/veri/sunucuMetni';
+import { ReklamBanner } from '../../src/reklam/ReklamBanner';
+import { useReklamHakki } from '../../src/reklam/ReklamHakki';
+import { gecisReklamiGoster, gecisReklamiHazirla } from '../../src/reklam/gecisReklami';
 
 /**
  * Günlük beslenme özeti ve kayıt (F5.8, F5.10, F5.11).
@@ -419,6 +422,13 @@ export default function Beslenme() {
         ) : (
           <BosDurum baslik={m.bosKayitBaslik} govde={m.bosKayitGovde} />
         )}
+
+        {/*
+          Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte. Üstte
+          olsaydı bu depodaki 2. kusurun aynısını kurardı: bir listenin üstünde
+          belirip kaybolan blok, altındaki her şeyi parmağın altından kaydırıyor.
+        */}
+        <ReklamBanner />
       </Sutun>
     </ScrollView>
   );
@@ -453,6 +463,16 @@ function MakroCubugu({ ad, mevcut, hedef }: { ad: string; mevcut: number; hedef:
 }
 
 function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) {
+  const { goster: reklamGoster } = useReklamHakki();
+
+  /*
+   * Reklam ÖNCEDEN yükleniyor: gösterileceği anda yüklemeye başlamak kullanıcıyı
+   * boş ekranda bekletir. Ekran açıldığında hazırlanıyor, kayıt anında hazır.
+   */
+  useEffect(() => {
+    if (reklamGoster) gecisReklamiHazirla();
+  }, [reklamGoster]);
+
   const tema = useTema();
   const m = useMetinler().beslenme;
   const genel = useMetinler().genel;
@@ -481,6 +501,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
 
   const ekle = async () => {
     if (!secili) return;
+    let basarili = true;
     await istek('/v1/beslenme/kayit', {
       yontem: 'POST',
       govde: {
@@ -492,6 +513,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
     }).catch(() => {
       // Sessiz başarısızlık, kullanıcının yemeği eklediğini sanmasına yol açar.
       setEkleHatasi(islemHatasiMetni('yemek_ekle', dil));
+      basarili = false;
       return null;
     });
 
@@ -500,6 +522,21 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
     setMiktar('1');
     setPorsiyon(null);
     onEklendi();
+
+    /*
+     * Tam ekran reklam KAYITTAN SONRA ve yalnızca kayıt BAŞARILIYSA.
+     *
+     * `docs/rakip-analizi.md`, 1★ / 8 beğeni: "kaydet tuşuna basıyorum, kaydetmek
+     * yerine reklam çıkıyor." O cümledeki iki kusur da burada yok — kullanıcı
+     * ödemişse `reklamGoster` zaten false, ve reklam kaydın yerine geçmiyor:
+     * kayıt tamamlandı, ekran temizlendi, liste tazelendi; reklam ondan sonra.
+     *
+     * Başarısız kayıtta reklam yok: kullanıcı hatayı okuyacak, üstüne reklam
+     * bindirmek hatayı gizlemek olur.
+     *
+     * Beklenmiyor (`void`): reklamın yüklenmesi kullanıcının akışını tutamaz.
+     */
+    if (basarili) void gecisReklamiGoster(reklamGoster);
   };
 
   return (

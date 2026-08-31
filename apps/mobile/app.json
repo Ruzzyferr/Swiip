@@ -80,6 +80,20 @@
             "kotlinVersion": "1.9.25"
           }
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-2953141598487358~8715281071",
+          "iosAppId": "ca-app-pub-2953141598487358~5056357841",
+          "delayAppMeasurementInit": true
+        }
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "Sana daha alakali reklamlar gosterebilmemiz icin. Izin vermezsen de uygulamanin tamami calismaya devam eder; yalnizca reklamlar genel olur."
+        }
       ]
     ],
     "experiments": {
