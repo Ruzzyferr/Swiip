@@ -20,6 +20,7 @@ export * from './program/semalar';
 export * from './program/program';
 export * from './ilerleme/ilerleme';
 export * from './beslenme/beslenme';
+export * from './beslenme/su';
 export * from './vucut/vucut';
 export * from './degerlendirme/motor';
 export * from './degerlendirme/keskinlestirme';

@@ -358,6 +358,26 @@ export const food_logs = pgTable(
   (t) => [index('food_logs_user_gun_idx').on(t.user_id, t.gun)],
 );
 
+/**
+ * Günlük su takibi — günde tek satır.
+ *
+ * Her bardağı ayrı satır yazmak da mümkündü ama bu ekranın tek sorusu "bugün ne
+ * kadar içtim"; ayrı satırlar o soruyu her okumada bir toplama işine çevirir ve
+ * karşılığında kimsenin sormadığı bir soruyu cevaplar.
+ */
+export const water_logs = pgTable(
+  'water_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    user_id: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    gun: date('gun').notNull(),
+    ml: integer('ml').notNull().default(0),
+  },
+  (t) => [uniqueIndex('water_user_gun_idx').on(t.user_id, t.gun)],
+);
+
 export const weight_logs = pgTable(
   'weight_logs',
   {

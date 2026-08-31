@@ -50,6 +50,8 @@ interface HedefCevabi {
   kod?: string;
   mesaj?: string;
   porsiyon_rehberi?: PorsiyonRehberi;
+  /** EFSA yeterli alımından türeyen günlük içecek hedefi; ücretsizde de açık. */
+  su_hedefi_ml?: number;
 }
 
 interface GunCevabi {
@@ -67,6 +69,8 @@ interface GunCevabi {
   }>;
   toplam: { kalori: number; protein_g: number; yag_g: number; karbonhidrat_g: number } | null;
   sayilar_gizli: boolean;
+  /** Bugün içilen toplam. ED modunda da geliyor: su bir enerji ölçüsü değil. */
+  su_ml?: number;
 }
 
 interface BesinSonucu {
@@ -424,6 +428,23 @@ export default function Beslenme() {
         )}
 
         {/*
+          Su kartı listenin ALTINDA.
+
+          Üstte olsaydı, "bir bardak ekle"ye her dokunuşta sayı değişip yüksekliği
+          oynayabilir ve altındaki yemek listesini kaydırırdı — bu depoda 2. kusur
+          tam olarak oydu. Altta olunca kartın kendi içindeki değişim kimseyi
+          itmiyor.
+        */}
+        {hedef?.su_hedefi_ml ? (
+          <SuKarti
+            gun={bugun}
+            suMl={gun?.su_ml ?? 0}
+            hedefMl={hedef.su_hedefi_ml}
+            onDegisti={(ml) => setGun((onceki) => (onceki ? { ...onceki, su_ml: ml } : onceki))}
+          />
+        ) : null}
+
+        {/*
           Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte. Üstte
           olsaydı bu depodaki 2. kusurun aynısını kurardı: bir listenin üstünde
           belirip kaybolan blok, altındaki her şeyi parmağın altından kaydırıyor.
@@ -650,6 +671,95 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
           <Dugme baslik={m.vazgec} tur="sessiz" onPress={() => setSecili(null)} />
         </View>
       ) : null}
+    </Kart>
+  );
+}
+
+/**
+ * Su kartı.
+ *
+ * YAZIO paritesinde kalan son eksikti. Hedef EFSA'nın yeterli alım değerinden
+ * türüyor; künyesi `kaynaklar.ts`'te (`suEfsa`) ve Ayarlar > Kaynaklar'dan
+ * görülebiliyor — kaynaksız bir sağlık sayısı, Apple'ın 1.4.1 ile bir kez
+ * reddettiği şeydi. Kart o yüzden kaynağı bir satırla söylüyor.
+ *
+ * **ED modunda da görünür.** ED kapısı kalori ve makro sayılarını gizliyor; su bir
+ * enerji ölçüsü değil ve gizlemek kullanıcıyı korumuyor, yalnızca zararsız bir
+ * alışkanlığı da elinden alıyor.
+ *
+ * **İyimser güncelleme yok.** Sayı sunucudan dönen değerle yazılıyor: artırma
+ * veritabanında yapıldığı için doğru toplam yalnızca orada biliniyor. İki hızlı
+ * dokunuşta istemci kendi sayısını tutmaya kalksa, sunucudaki gerçekten sapardı.
+ */
+function SuKarti({
+  gun,
+  suMl,
+  hedefMl,
+  onDegisti,
+}: {
+  gun: string;
+  suMl: number;
+  hedefMl: number;
+  onDegisti: (ml: number) => void;
+}) {
+  const m = useMetinler().beslenme;
+  const tema = useTema();
+  const [gonderiliyor, setGonderiliyor] = useState(false);
+
+  const degistir = async (ekleMl: number) => {
+    if (gonderiliyor) return;
+    setGonderiliyor(true);
+    try {
+      const cevap = await istek<{ ml: number }>('/v1/beslenme/su', {
+        yontem: 'POST',
+        govde: { ekle_ml: ekleMl, gun },
+      });
+      onDegisti(cevap.ml);
+    } catch {
+      // Sessizce geç: su kaydı başarısız olursa sayı olduğu yerde kalır, uygulama bozulmaz.
+    } finally {
+      setGonderiliyor(false);
+    }
+  };
+
+  const oran = hedefMl > 0 ? Math.min(1, suMl / hedefMl) : 0;
+
+  return (
+    <Kart>
+      <Yazi tur="etiket" renk="aksan">
+        {m.suEtiketi}
+      </Yazi>
+      <Satir arasi="xs" hizala="baseline">
+        <Sayi tur="dev" renk="aksan">
+          {suMl}
+        </Sayi>
+        <Yazi tur="kucuk" renk="metinSilik">
+          {m.suPayda(hedefMl)}
+        </Yazi>
+      </Satir>
+
+      <View
+        style={{
+          height: 4,
+          backgroundColor: tema.renk.yuzeyIkincil,
+          borderRadius: 2,
+          overflow: 'hidden',
+        }}
+      >
+        <View style={{ width: `${oran * 100}%`, height: 4, backgroundColor: tema.renk.aksan }} />
+      </View>
+
+      <Satir arasi="sm">
+        <Dugme baslik={m.suBardakEkle} onPress={() => void degistir(250)} />
+        {suMl > 0 ? (
+          <Dugme baslik={m.suGeriAl} tur="sessiz" onPress={() => void degistir(-250)} />
+        ) : null}
+      </Satir>
+
+      {/* Kaynağı söylemek zorunlu: sayı bir sağlık tavsiyesi. */}
+      <Yazi tur="kucuk" renk="metinSilik">
+        {m.suKaynak}
+      </Yazi>
     </Kart>
   );
 }

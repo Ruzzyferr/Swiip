@@ -2,10 +2,18 @@ import { and, desc, eq, gte, sql } from 'drizzle-orm';
 import { aramaAnahtari, KATLANAN, KATLANMIS, veriYereli } from '@swiip/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { beslenmeHedefiHesapla, porsiyonRehberi, tdeeDuzelt } from '@swiip/core';
+import { beslenmeHedefiHesapla, porsiyonRehberi, suHedefiMl, tdeeDuzelt } from '@swiip/core';
 import type { Profil } from '@swiip/shared';
 import { Bulunamadi, HataliIstek } from '../hatalar';
-import { food_logs, foods, profiles, subscriptions, users, weight_logs } from '../db/sema';
+import {
+  food_logs,
+  foods,
+  profiles,
+  subscriptions,
+  users,
+  water_logs,
+  weight_logs,
+} from '../db/sema';
 import { planHaklari, type Plan } from '../servisler/haklar';
 import { planGecerliMi } from '../servisler/planOku';
 
@@ -193,7 +201,19 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       };
     }
 
-    return { ed_modu: profil.ed_modu, sayilar_gizli: false, hedef: nihai, kilitler };
+    return {
+      ed_modu: profil.ed_modu,
+      sayilar_gizli: false,
+      hedef: nihai,
+      kilitler,
+      /*
+       * Su hedefi ÜCRETSİZ ve kilitsiz: EFSA'nın yeterli alım değerinden türeyen
+       * sabit bir sayı, bize hiçbir maliyeti yok. Künyesi `kaynaklar.ts`'te
+       * (`suEfsa`) ve Ayarlar'daki Kaynaklar ekranından görülebiliyor — kaynaksız
+       * sağlık sayısı, Apple'ın 1.4.1 ile bir kez reddettiği şeydi.
+       */
+      su_hedefi_ml: suHedefiMl(profil.cinsiyet),
+    };
   });
 
   app.get('/besin/ara', { preHandler: app.kimlikDogrula }, async (istek) => {
@@ -330,6 +350,13 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       .where(and(eq(food_logs.user_id, istek.kullaniciId), eq(food_logs.gun, gun)))
       .orderBy(food_logs.logged_at);
 
+    const [su] = await db
+      .select({ ml: water_logs.ml })
+      .from(water_logs)
+      .where(and(eq(water_logs.user_id, istek.kullaniciId), eq(water_logs.gun, gun)))
+      .limit(1);
+    const suMl = su?.ml ?? 0;
+
     const toplam = kayitlar.reduce<BesinDegeri>(
       (t, k) => {
         const h = k.hesaplanan as BesinDegeri;
@@ -364,6 +391,14 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       toplam: sayilarGizli ? null : yuvarlaBesin(toplam),
       sayilar_gizli: sayilarGizli,
       ogun_sayisi: kayitlar.length,
+      /*
+       * Su ED modunda da görünüyor.
+       *
+       * ED kapısı KALORİ ve makro sayılarını gizliyor; su bir enerji ölçüsü değil ve
+       * gizlemek kullanıcıyı korumuyor, yalnızca zararsız bir alışkanlığı da elinden
+       * alıyor. `sayilar_gizli` bu alanı etkilemiyor.
+       */
+      su_ml: suMl,
     };
   });
 
@@ -375,6 +410,63 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       .where(and(eq(food_logs.id, id), eq(food_logs.user_id, istek.kullaniciId)));
 
     return { durum: 'silindi' };
+  });
+
+  /**
+   * Su kaydı — EKLE ya da AYARLA.
+   *
+   * `ekle` bir bardağın üstüne bir bardak koyar; `ayarla` günün toplamını yazar.
+   * İkisi ayrı çünkü arayüzde iki farklı hareket var: "+ bir bardak" ve düzeltme.
+   * Yalnızca `ayarla` olsaydı istemci önce okumak zorunda kalırdı ve arka arkaya iki
+   * dokunuş birbirini eziyordu.
+   *
+   * Toplam asla eksiye düşmüyor: yanlışlıkla eklenen bardağı geri almak için `ekle`
+   * negatif de olabilir, ama sonuç sıfırda kırpılıyor.
+   */
+  app.post('/su', { preHandler: app.kimlikDogrula }, async (istek) => {
+    const govde = z
+      .object({
+        ekle_ml: z.number().int().min(-2000).max(2000).optional(),
+        ayarla_ml: z.number().int().min(0).max(20000).optional(),
+        gun: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/)
+          .optional(),
+      })
+      .refine((g) => g.ekle_ml !== undefined || g.ayarla_ml !== undefined, {
+        message: 'ekle_ml ya da ayarla_ml gerekli',
+      })
+      .parse(istek.body);
+
+    const gun = govde.gun ?? bugunISO();
+
+    if (govde.ayarla_ml !== undefined) {
+      await db
+        .insert(water_logs)
+        .values({ user_id: istek.kullaniciId, gun, ml: govde.ayarla_ml })
+        .onConflictDoUpdate({
+          target: [water_logs.user_id, water_logs.gun],
+          set: { ml: govde.ayarla_ml },
+        });
+      return { durum: 'kaydedildi', gun, ml: govde.ayarla_ml };
+    }
+
+    /*
+     * Artırma VERİTABANINDA yapılıyor (`greatest(0, ml + n)`), okuyup yazarak değil.
+     * Okuyup yazmak, iki hızlı dokunuşta yarış demek: ikisi de aynı eski değeri okur
+     * ve biri kaybolur. Kullanıcı iki bardak ekleyip birini görür.
+     */
+    const artis = govde.ekle_ml ?? 0;
+    const [satir] = await db
+      .insert(water_logs)
+      .values({ user_id: istek.kullaniciId, gun, ml: Math.max(0, artis) })
+      .onConflictDoUpdate({
+        target: [water_logs.user_id, water_logs.gun],
+        set: { ml: sql`greatest(0, ${water_logs.ml} + ${artis})` },
+      })
+      .returning({ ml: water_logs.ml });
+
+    return { durum: 'kaydedildi', gun, ml: satir?.ml ?? 0 };
   });
 
   app.post('/kilo', { preHandler: app.kimlikDogrula }, async (istek) => {

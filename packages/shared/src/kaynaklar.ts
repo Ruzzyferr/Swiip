@@ -105,4 +105,12 @@ export const KAYNAKLAR: readonly Kaynak[] = [
       'Medicine & Science in Sports & Exercise, 2009;41(3):687–708.',
     baglanti: 'https://doi.org/10.1249/MSS.0b013e3181915670',
   },
+  {
+    anahtar: 'suEfsa',
+    kunye:
+      'EFSA Panel on Dietetic Products, Nutrition and Allergies (NDA). ' +
+      '“Scientific Opinion on Dietary Reference Values for water.” ' +
+      'EFSA Journal, 2010;8(3):1459.',
+    baglanti: 'https://doi.org/10.2903/j.efsa.2010.1459',
+  },
 ] as const;
