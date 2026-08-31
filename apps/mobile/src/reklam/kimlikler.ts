@@ -27,31 +27,31 @@ const TEST = {
 };
 
 /**
- * Üretim birimleri.
+ * Üretim birimleri — iki platform da kayıtlı (2026-08-31).
  *
- * iOS HENÜZ YOK: 2026-08-31'de AdMob konsolunda Swiip'in yalnızca Android girdisi
- * vardı (Cheep ve Conversa'nın ikisi de iki platformda kayıtlı, Swiip değil). iOS
- * girdisi açılıp kendi birimleri üretilene kadar burada `null` duruyor ve
- * `birimKimligi` test kimliğine düşüyor.
+ * iOS girdisi o gün açıldı; öncesinde AdMob'da Swiip'in yalnızca Android kaydı vardı.
  *
- * `null` bilinçli bir işaret: "bakıldı, yok" demek. Buraya Android'in kimliğini
- * yazmak iki platformun gelirini tek birimde toplar ve raporu okunamaz hale getirir.
+ * **Bir tuzak, tekrar kurulmasın:** AdMob'un uygulama aramasında "Swiip" yazmak
+ * BAŞKA bir uygulamayı döndürüyor — App Store'da `Swiip.io` adlı, geliştiricisi
+ * `SWIIP` olan bir uygulama var. Doğru kayıt yalnızca App Store URL'iyle aranınca
+ * geliyor (geliştirici `Ruzgar Bulut`, mağaza kimliği `6803979374`). İsimle arayıp
+ * ilk sonuca tıklamak, gelirimizi bir yabancının uygulamasına bağlardı.
  */
 const URETIM: { banner: Record<string, string | null>; gecis: Record<string, string | null> } = {
   banner: {
     android: 'ca-app-pub-2953141598487358/9667478087',
-    ios: null,
+    ios: 'ca-app-pub-2953141598487358/5547312433',
   },
   gecis: {
     android: 'ca-app-pub-2953141598487358/4038842921',
-    ios: null,
+    ios: 'ca-app-pub-2953141598487358/1440651665',
   },
 };
 
 /** Uygulama kimliği — `app.json` içindeki eklenti yapılandırmasıyla aynı olmalı. */
 export const UYGULAMA_KIMLIGI = {
   android: 'ca-app-pub-2953141598487358~8715281071',
-  ios: null,
+  ios: 'ca-app-pub-2953141598487358~5056357841',
 } as const;
 
 /**
