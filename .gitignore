@@ -30,3 +30,4 @@ Swiip-YEDEK/
 # CI kosucusunun magaza anahtarlari — sirlardan uretiliyor, asla commit edilmez
 apps/mobile/play.json
 apps/mobile/asc.p8
+scratchpad/
