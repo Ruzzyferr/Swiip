@@ -143,8 +143,13 @@ describe('kota tüketimi — istemci beyanına güvenilmez', () => {
  * kullanıcıya verdiğimiz söz tutulmaz.
  *
  * Kural: **planlar arasında farklılaşan her hak bir yerde uygulanmalı.** Her plana aynı
- * değeri veren bayraklar (manuel giriş, program düzenleme, reklamsızlık) muaf; onlar bir
+ * değeri veren bayraklar (manuel giriş, program düzenleme, kalori hedefi) muaf; onlar bir
  * kapı değil, yazılı bir taahhüt.
+ *
+ * 2026-08-31'de iki alan YER DEĞİŞTİRDİ ve bu testin kendisi o yüzden var:
+ * `kalori_makro_hedefi` kapıydı, taahhüt oldu (ücretsize açıldı); `reklam` taahhüttü,
+ * kapı oldu (ücretsizde açık, ödemelide kapalı). Kapı olan bir hakkın bir yerde
+ * OKUNMASI şart — okunmayan kapı, tutulmayan bir sözdür.
  */
 /**
  * Hak yardımcıları da kullanılmalı.
@@ -202,7 +207,7 @@ describe('hak tablosu gerçekten uygulanıyor', () => {
 
   /** Değişmeyen alanlar da kayıt altında: sessizce farklılaşırlarsa test kırılır. */
   it('taahhüt alanları her planda aynı kalıyor', () => {
-    for (const alan of ['manuel_kalori', 'program_duzenleme', 'reklam'] as const) {
+    for (const alan of ['manuel_kalori', 'program_duzenleme', 'kalori_makro_hedefi'] as const) {
       const degerler = new Set(Object.values(HAK_TABLOSU).map((h) => JSON.stringify(h[alan])));
 
       expect(degerler.size, alan).toBe(1);

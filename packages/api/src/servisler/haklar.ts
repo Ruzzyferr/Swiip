@@ -27,7 +27,22 @@ export interface Haklar {
   koc_mesaji_aylik: number;
   yemek_tanima_aylik: number;
   program_duzenleme: 'sinirsiz';
-  reklam: false;
+  /**
+   * Bu plan reklam GORUR mu.
+   *
+   * Uzun sure her planda `false` idi ve paywall'daki "Reklam ve upsell yok" satiri
+   * bos bir vaatti: ucretsizde de reklam olmayinca odemenin getirdigi bir sey degildi.
+   *
+   * `docs/rakip-analizi.md` olctu: Turkiye'nin en yuksek puanli iki fitness uygulamasi
+   * (4,87) ucretsiz ve REKLAMLI; abonelikli olan her uygulama 3,2-3,8 bandinda.
+   * Yasak olan reklam degil, **odeyene reklam gostermek** (EatBetter: "3 aylik aldim,
+   * kaydet'e basiyorum reklam cikiyor" - 1*, 8 begeni).
+   *
+   * Bu yuzden alan bir TAAHHUT degil bir KAPI: ucretsizde acik, odemelide kapali.
+   * Istemci bunu kendi plan bilgisinden turetmez; `GET /v1/abonelik/durum` yaniti
+   * tek dogruluk kaynagidir.
+   */
+  reklam: boolean;
 }
 
 export const HAK_TABLOSU: Record<Plan, Haklar> = {
@@ -40,14 +55,28 @@ export const HAK_TABLOSU: Record<Plan, Haklar> = {
     gorunur_gun_sayisi: 1,
     manuel_kalori: true,
     seans_geri_bildirimi: false,
-    kalori_makro_hedefi: false,
+    /**
+     * Hedef ve barkod ÜCRETSİZ — ikisi de bize sıfıra mal oluyor.
+     *
+     * Hedef deterministik bir formül (Mifflin-St Jeor + aktivite çarpanı), barkod ise
+     * Open Food Facts. İkisinde de AI yok, marjinal maliyet yok.
+     *
+     * Kilitliyken ücretsiz kullanıcı yemeğini kaydedebiliyor ama kaç kaloride olması
+     * gerektiğini bilmiyordu: defter var, hedef yok. "kalori hesaplama" aramasından
+     * gelen kullanıcı ilk beş dakikada duvara çarpıyordu ve `rakip-analizi.md`'nin
+     * ölçtüğü şey tam bu — 5 yıldızlı yorumlarda en sık geçen övgü kelimesi "ücretsiz".
+     *
+     * Duvar artık bizim maliyet ürettiğimiz yerde: yemek tanıma (görsel AI), koç (AI),
+     * öğün planı ve kaydırma (koçluk ürünü).
+     */
+    kalori_makro_hedefi: true,
     ogun_plani: false,
     kaydirmali_ogun: false,
-    barkod: false,
+    barkod: true,
     koc_mesaji_aylik: 0,
     yemek_tanima_aylik: 0,
     program_duzenleme: 'sinirsiz',
-    reklam: false,
+    reklam: true,
   },
   temel: {
     ad: 'Temel',

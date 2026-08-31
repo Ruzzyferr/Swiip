@@ -226,7 +226,7 @@ describe('ED kapısı paywall’ın önünde', () => {
  *
  * **Manuel giriş kapanmıyor.** Ücretsizin çekirdek vaadi o.
  */
-describe('ücretsiz planda kalori hedefi kilidi', () => {
+describe('ücretsiz planda kalori hedefi AÇIK', () => {
   let ucretsiz: string;
 
   beforeAll(async () => {
@@ -235,7 +235,18 @@ describe('ücretsiz planda kalori hedefi kilidi', () => {
 
   const basliklar = () => ({ authorization: `Bearer ${ucretsiz}` });
 
-  it('ücretsiz kullanıcıya günlük hedef sayıları verilmiyor', async () => {
+  /**
+   * 2026-08-31: kilit KALKTI ve bu blok tersine çevrildi.
+   *
+   * Hedef deterministik bir formül (Mifflin-St Jeor + aktivite çarpanı) — bize sıfıra
+   * mal oluyor. Kilitliyken ücretsiz kullanıcının defteri vardı ama neyi hedeflediğini
+   * bilmiyordu: sayı yazıyor, hiçbir şey ifade etmiyordu. "kalori hesaplama"
+   * aramasından gelen kullanıcı ilk beş dakikada duvara çarpıyordu.
+   *
+   * `docs/rakip-analizi.md`: 5 yıldızlı yorumlarda en sık geçen övgü kelimesi
+   * "ücretsiz"; en yüksek puanlı iki uygulama (4,87) ücretsiz ve reklamlı.
+   */
+  it('ücretsiz kullanıcı günlük hedefini ve makrolarını görüyor', async () => {
     const cevap = await app.inject({
       method: 'GET',
       url: '/v1/beslenme/hedef',
@@ -243,17 +254,23 @@ describe('ücretsiz planda kalori hedefi kilidi', () => {
     });
 
     expect(cevap.statusCode).toBe(200);
-    expect(cevap.json().hedef_kilidi).toBe(true);
-    expect(cevap.json().hedef).toBeUndefined();
+    expect(cevap.json().hedef_kilidi).toBeUndefined();
+
+    const hedef = cevap.json().hedef;
+    expect(hedef, 'ücretsiz kullanıcıya hedef verilmiyor').toBeDefined();
+    expect(hedef.kalori).toBeGreaterThan(0);
+    expect(hedef.protein_g).toBeGreaterThan(0);
   });
 
-  it('kilidin nedeni ve açılış yolu cevapta yazıyor', async () => {
+  /** Duvar bizim maliyet ürettiğimiz yerde kalıyor; hedefin yanında değil. */
+  it('ücretli özellikler hâlâ kilitli görünüyor', async () => {
     const govde = (
       await app.inject({ method: 'GET', url: '/v1/beslenme/hedef', headers: basliklar() })
     ).json();
 
-    expect(govde.kod).toBe('plan_yetersiz');
-    expect(govde.mesaj.length).toBeGreaterThan(10);
+    expect(govde.kilitler.yemek_tanima, 'yemek tanıma görsel AI — ücretli kalmalı').toBe(true);
+    expect(govde.kilitler.ogun_plani).toBe(true);
+    expect(govde.kilitler.barkod, 'barkod ücretsize açıldı').toBe(false);
   });
 
   /** Ücretsizin çekirdek vaadi: yemek kaydı çalışmaya devam eder. */

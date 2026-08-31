@@ -68,10 +68,17 @@ describe('kısayol kilitleri', () => {
 
     const kilitler = hedefAl(token).then((c) => c.json().kilitler);
 
+    /*
+     * `barkod` 2026-08-31'de ücretsize AÇILDI ve bu satır o kararın kaydı.
+     * Barkod Open Food Facts'e gidiyor: AI yok, marjinal maliyet yok. Kilitlemenin
+     * bize kazandırdığı bir şey yoktu, kaybettirdiği şey kalori takibinin çekirdek
+     * eylemiydi. Duvar bizim maliyet ürettiğimiz yerde kalıyor: yemek tanıma (görsel
+     * AI) ve öğün planı/kaydırma (koçluk ürünü).
+     */
     expect(await kilitler).toEqual({
       ogun_plani: true,
       kaydirmali_ogun: true,
-      barkod: true,
+      barkod: false,
       yemek_tanima: true,
     });
   });
@@ -107,7 +114,16 @@ describe('kısayol kilitleri', () => {
 
     const govde = (await hedefAl(token)).json();
 
-    expect(govde.hedef_kilidi).toBe(true);
+    /*
+     * `hedef_kilidi` artık HİÇBİR planda çıkmıyor: kalori/makro hedefi üç katmanda da
+     * açık. Hedef deterministik bir formül — kilitliyken ücretsiz kullanıcının defteri
+     * vardı ama neyi hedeflediğini bilmiyordu.
+     *
+     * Bu satır "kilit kalktı" diye silinmedi, çünkü testin asıl derdi başka: `kilitler`
+     * alanının `hedef_kilidi`nden TÜRETİLMEDİĞİNİ göstermek. Hedef açıkken kilitlerin
+     * hâlâ dolu gelmesi, o bağımsızlığın en temiz kanıtı.
+     */
+    expect(govde.hedef_kilidi).toBeUndefined();
     expect(govde.kilitler).toBeDefined();
     /*
      * `barkod` ve `yemek_tanima` sonradan eklendi: beslenme sekmesindeki
