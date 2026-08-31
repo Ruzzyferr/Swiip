@@ -17,13 +17,30 @@ import { useTema } from '../tasarim/tema';
  *  3. Reklam yüklenmiş olmalı (`yuklendi`) — yüklenmeden yer ayırmak, dolmayan bir
  *     boşluk bırakıyor ve listenin altında sebepsiz bir delik gibi duruyor.
  *
- * **Yer kaplamıyor.** Bileşen yüklenene kadar `height: 0`; yani reklam gelmezse
- * sayfa düzeni hiç değişmiyor. Önceden yer ayırıp sonra doldurmak, kullanıcı
- * kaydırırken içeriğin zıplamasına yol açardı — bu depoda 2. kusur tam olarak
- * buydu ve "bir listenin üstündeki hiçbir şey belirip kaybolmaz" kuralı oradan
- * doğdu. Banner listenin ALTINDA olduğu için oradaki kuralı bozmuyor, ama aynı
- * disiplin burada da geçerli.
+ * **Yükseklik SABİT — reklam gelse de gelmese de.**
+ *
+ * Banner artık sayfanın ortasında duruyor (kalori kartının altında, "Neden bu
+ * program"ın altında, "Bugünkü kilon"un altında). Orada yüksekliğin değişmesi,
+ * altındaki kartların reklam yüklendiği anda aşağı zıplaması demek — kullanıcı tam
+ * o sırada okuyor ya da bir düğmeye uzanıyor olabilir.
+ *
+ * Bu depoda 2. kusur tam olarak buydu: bir bloğun belirip kaybolması listeyi 310 px
+ * kaydırıyor ve kullanıcı yanlış şıkka dokunuyordu. Kural oradan doğdu ve reklam
+ * onu bozmuyor: yer BAŞTAN ayrılıyor.
+ *
+ * Bedeli dürüstçe söylenmeli: reklam dolmazsa orada boş bir şerit kalıyor. Doluluk
+ * oranı düşükken bu görünür bir maliyet — ama alternatifi, içeriğin parmağın
+ * altından kaymasıydı.
  */
+/**
+ * Ayrılan yükseklik.
+ *
+ * `ANCHORED_ADAPTIVE_BANNER` telefon genişliklerinde 50-60 dp arasında geliyor;
+ * 60 hepsini kapsıyor ve reklam kabın içinde ortalanıyor. Sabit bir sayı, çünkü
+ * ölçüp sonra büyümek zıplamanın ta kendisi.
+ */
+const BANNER_YUKSEKLIGI = 60;
+
 export function ReklamBanner() {
   const { goster, bilindi } = useReklamHakki();
   const [yuklendi, setYuklendi] = useState(false);
@@ -35,9 +52,11 @@ export function ReklamBanner() {
     <View
       style={{
         alignItems: 'center',
-        marginTop: yuklendi ? tema.bosluk.md : 0,
-        height: yuklendi ? undefined : 0,
+        justifyContent: 'center',
+        marginVertical: tema.bosluk.md,
+        height: BANNER_YUKSEKLIGI,
         overflow: 'hidden',
+        opacity: yuklendi ? 1 : 0,
       }}
     >
       <BannerAd

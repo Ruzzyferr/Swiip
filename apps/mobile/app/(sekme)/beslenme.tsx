@@ -364,6 +364,15 @@ export default function Beslenme() {
           </Kart>
         ) : null}
 
+        {/*
+          Banner kalori kartının hemen ALTINDA.
+
+          Yüksekliği SABİT (bkz. `ReklamBanner`): reklam yüklendiğinde altındaki
+          "Hedefin nasıl hesaplandı" kartı ve "Yemek ekle" düğmesi zıplamasın.
+          Sayfanın ortasındaki bir bloğun büyümesi, bu depoda 2. kusurun ta kendisi.
+        */}
+        <ReklamBanner />
+
         {h?.uyari ? <Uyari tur="uyari" govde={h.uyari} /> : null}
 
         {h ? (
@@ -564,13 +573,6 @@ export default function Beslenme() {
             onDegisti={(ml) => setGun((onceki) => (onceki ? { ...onceki, su_ml: ml } : onceki))}
           />
         ) : null}
-
-        {/*
-          Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte. Üstte
-          olsaydı bu depodaki 2. kusurun aynısını kurardı: bir listenin üstünde
-          belirip kaybolan blok, altındaki her şeyi parmağın altından kaydırıyor.
-        */}
-        <ReklamBanner />
       </Sutun>
     </ScrollView>
   );

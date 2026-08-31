@@ -96,11 +96,31 @@ describe('banner üç koşul sağlanmadan çizilmiyor', () => {
     ).toBe(true);
   });
 
-  it('yüklenmeden yer kaplamıyor', () => {
+  /**
+   * Yükseklik SABİT — kural TERSİNE ÇEVRİLDİ ve sebebi yerleşim.
+   *
+   * Banner önce listelerin en altındaydı ve yüklenene kadar sıfır yükseklikteydi;
+   * altında hiçbir şey olmadığı için büyümesi kimseyi itmiyordu. 2026-08-31'de
+   * sayfanın ORTASINA taşındı (kalori kartının, "Neden bu program"ın ve "Bugünkü
+   * kilon"un altına). Orada sıfırdan büyümek, reklam yüklendiği anda altındaki
+   * kartları ve düğmeleri aşağı atmak demek — bu depoda 2. kusur tam olarak buydu
+   * ve kullanıcı yanlış şıkka dokunuyordu.
+   *
+   * Bedeli kabul edildi: reklam dolmazsa orada boş bir şerit kalıyor.
+   */
+  it('yüksekliği SABİT — reklam yüklenince içerik zıplamıyor', () => {
     expect(
-      BANNER.includes('height: yuklendi ? undefined : 0'),
-      'Önceden yer ayırmak, reklam gelmezse sayfanın dibinde sebepsiz bir boşluk ' +
-        'bırakır; gelince de içerik zıplar.',
+      BANNER.includes('height: BANNER_YUKSEKLIGI'),
+      'Yükseklik reklamın yüklenmesine bağlıysa, sayfanın ortasındaki banner ' +
+        'yüklendiği anda altındaki her şeyi aşağı atar.',
+    ).toBe(true);
+    expect(
+      BANNER.includes('height: yuklendi'),
+      'Yükseklik `yuklendi` durumuna bağlanmış: içerik zıplar.',
+    ).toBe(false);
+    expect(
+      BANNER.includes('opacity: yuklendi ? 1 : 0'),
+      'Yüklenmemiş reklam görünmemeli ama YERİ durmalı.',
     ).toBe(true);
   });
 
@@ -199,17 +219,16 @@ describe('reklam yerleşimi bilinen üç sekmede', () => {
     expect(kod(join(APP, '(sekme)', ad))).toMatch(/<ReklamBanner \/>/);
   });
 
-  it('banner her zaman listenin ALTINDA', () => {
-    for (const ad of SEKMELER) {
-      const kaynak = kod(join(APP, '(sekme)', ad));
-      const banner = kaynak.indexOf('<ReklamBanner />');
-      const sutunKapanis = kaynak.indexOf('</Sutun>', banner);
-      expect(banner, `${ad}: banner yok`).toBeGreaterThan(-1);
-      expect(
-        sutunKapanis - banner,
-        `${ad}: banner listenin ortasında. Bu depoda 2. kusur tam buydu — bir listenin ` +
-          'üstünde belirip kaybolan blok, altındaki her şeyi parmağın altından kaydırıyor.',
-      ).toBeLessThan(200);
-    }
+  /**
+   * Ekran başına TEK banner.
+   *
+   * Konum artık sayfanın ortasında ve bu güvenli, çünkü yükseklik sabit. Ama sayı
+   * serbest bırakılırsa ekran reklam panosuna döner; bir ekranda iki banner,
+   * "uygun yerlere koyalım"ın kaçınılmaz sonraki adımı.
+   */
+  it.each(SEKMELER)('%s ekranında tek banner var', (ad) => {
+    const kaynak = kod(join(APP, '(sekme)', ad));
+    const sayi = (kaynak.match(/<ReklamBanner \/>/g) ?? []).length;
+    expect(sayi, `${ad}: ${sayi} banner. Ekran başına bir tane.`).toBe(1);
   });
 });

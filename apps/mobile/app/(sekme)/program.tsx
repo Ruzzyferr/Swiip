@@ -321,6 +321,15 @@ export default function ProgramEkrani() {
           </Satir>
         </Kart>
 
+        {/*
+          Banner "Neden bu program" kartının hemen ALTINDA.
+
+          Yüksekliği SABİT (bkz. `ReklamBanner`): reklam yüklendiğinde altındaki
+          uyarılar ve gün kartı zıplamasın. Sayfanın ortasındaki bir bloğun
+          büyümesi, bu depoda 2. kusurun ta kendisi.
+        */}
+        <ReklamBanner />
+
         {program.uyarilar.map((uyari, i) => (
           <Uyari key={i} tur="uyari" govde={uyari} />
         ))}
@@ -428,7 +437,6 @@ export default function ProgramEkrani() {
           Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte; reklam
           gelmezse sayfa düzeni hiç değişmiyor.
         */}
-        <ReklamBanner />
       </Sutun>
     </ScrollView>
   );

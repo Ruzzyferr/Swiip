@@ -177,6 +177,15 @@ export default function Ilerleme() {
           <Uyari baslik={m.edBaslik} govde={m.edGovde} />
         )}
 
+        {/*
+          Banner "Bugünkü kilon" kartının hemen ALTINDA.
+
+          Yüksekliği SABİT: reklam yüklendiğinde altındaki grafik ve seri kartları
+          zıplamasın. ED modunda kartın yerini uyarı alıyor; banner yine altında ve
+          yine sabit yükseklikte — konumu içeriğe göre değişmiyor.
+        */}
+        <ReklamBanner />
+
         {hata ? <Uyari tur="tehlike" govde={hata} /> : null}
         {tdeeMesaji ? <Uyari govde={tdeeMesaji} /> : null}
 
@@ -243,7 +252,6 @@ export default function Ilerleme() {
           Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte; reklam
           gelmezse sayfa düzeni hiç değişmiyor.
         */}
-        <ReklamBanner />
       </Sutun>
     </ScrollView>
   );
