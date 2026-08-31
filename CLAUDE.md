@@ -556,6 +556,94 @@ mağaza bağlantısının varlığını kilitliyor.
 
 **129 dosya / 2294 test** yeşil.
 
+## 2026-08-31: reklamlar geldi — ücretsiz katman YAZIO seviyesine çıktı
+
+Reklam kararının gerekçesi bu deponun kendi araştırmasında yazılıydı ve uzun süre yanlış
+okundu. `docs/rakip-analizi.md`:
+
+> Türkiye'nin en yüksek puanlı iki fitness uygulaması (4,87) **ücretsiz ve reklamlı**.
+> Abonelikli olan her uygulama 3,2-3,8 bandında sıkışmış. Bu ürün kalitesi farkı değil,
+> **iş modeli farkı.** 5 yıldızlı yorumlarda en sık geçen övgü kelimesi: "ücretsiz".
+
+Kilitli kural reklamı değil, **ödeyene reklam göstermeyi** yasaklıyor.
+
+### Ücretsiz katman: hedef ve barkod açıldı
+
+`kalori_makro_hedefi` ve `barkod` ücretsize verildi. İkisi de bize **sıfıra** mal oluyor:
+hedef deterministik bir formül, barkod Open Food Facts. Kilitliyken ücretsiz
+kullanıcının defteri vardı ama neyi hedeflediğini bilmiyordu.
+
+Duvar artık yalnızca AI maliyeti ürettiğimiz yerde: yemek tanıma, koç, öğün planı.
+
+`reklam` alanı **taahhütten kapıya** dönüştü (`boolean`); `kalori_makro_hedefi` ters
+yöne gitti, kapıdan taahhüde.
+
+### Yerleşim
+
+Üç sekmenin (Beslenme, İlerleme, Program) liste ALTINDA banner; öğün onayından SONRA tam
+ekran, günde 3 ve arasında ≥4 dakika. Değerlendirme, vücut fotoğrafı, ödeme ekranı ve
+koç **reklamsız** — testle kapalı.
+
+### Kişiselleştirme KAPALI — bilinçli
+
+Daha yüksek eCPM getirirdi ama Apple App Privacy'de "Data Used to Track You" açmak
+gerekirdi. Şu anki beyan 8 veri türü, hepsi App Functionality, hiçbiri izleme için.
+Fotoğrafı sunucuya bile yazmayan bir ürünün izleme açması tutarsız olurdu.
+
+### Play beyanları DEĞİŞTİ — eski not artık yanlış
+
+Aşağıda "Advertising ID beyanı **Hayır** — pakette AD_ID izni ve gms.ads yok" yazıyor ve
+gerekçesi *"kullanan bir SDK olsa izin manifeste birleşirdi"* idi. Artık birleşiyor:
+`play-services-ads` 25.4.0 AD_ID iznini kendi manifestinde taşıyor. Manifestte izin
+varken "Hayır" demek uygulamanın **kaldırılma** sebebi.
+
+Üçü de panelden yapıldı ve **geri okunarak** doğrulandı:
+
+| Beyan | Eski | Yeni |
+|---|---|---|
+| Advertising ID | Hayır | **Evet** + Advertising / Fraud prevention |
+| Ads | "reklam içermiyor" | **"Contains ads"** |
+| Data safety | "No data shared" | **Device or other IDs** · toplanan + paylaşılan · zorunlu · Advertising + Fraud |
+
+Data safety doğrulaması CSV **yeniden dışa aktarılarak** yapıldı; dokuz alanın dokuzu da
+beklenen değerde ve **Personalization set edilmemiş**.
+
+**İki tuzak:**
+
+1. `Import from CSV` çalışmadı. Dosya yüklendi ("successfully uploaded"), Import'a
+   basıldı, ama Save etkinleşmedi ve sayfa yenilenince sihirbaz 1. adıma döndü — yani
+   hiçbir şey kaydedilmemişti. Form elle yüründü. Bu uçta "yüklendi" mesajı
+   "uygulandı" demek değil.
+2. Kutucuklara sırayla tıklarken **DOM kayıyor**: 6'ya (Fraud prevention) tıklandı,
+   7 (Personalization) işaretlendi. Kişiselleştirme tam da beyan etmememiz gereken şey.
+   Her tıklamadan sonra durum geri okunmalı.
+
+### AdMob
+
+iOS girdisi 2026-08-31'de açıldı; öncesinde yalnızca Android kayıtlıydı.
+
+```
+Android uygulama  ca-app-pub-2953141598487358~8715281071
+Android banner    ca-app-pub-2953141598487358/9667478087
+Android geçiş     ca-app-pub-2953141598487358/4038842921
+iOS uygulama      ca-app-pub-2953141598487358~5056357841
+iOS banner        ca-app-pub-2953141598487358/5547312433
+iOS geçiş         ca-app-pub-2953141598487358/1440651665
+```
+
+**AdMob aramasında "Swiip" yazmak BAŞKA bir uygulamayı döndürüyor** — App Store'da
+`Swiip.io` adlı, geliştiricisi `SWIIP` olan bir uygulama var. Doğru kayıt yalnızca App
+Store URL'iyle aranınca geliyor (geliştirici `Ruzgar Bulut`, mağaza kimliği
+`6803979374`). İsimle arayıp ilk sonuca tıklamak gelirimizi bir yabancının uygulamasına
+bağlardı.
+
+**`app-ads.txt` hiç yoktu** ve `swiip.app/app-ads.txt` 404 dönüyordu. IAB'nin yetkili
+satıcı beyanı: dosya yoksa programatik alıcılar envanteri yetkisiz sayıp teklif
+vermiyor. Sessiz gelir kaybı. Eklendi, dağıtıldı, dışarıdan doğrulandı.
+
+**İki platform da hâlâ "Limited ad serving":** Android'de AdMob kaydı Play listesine
+bağlı değil (üretim bekliyor), iOS'ta Google'ın `app-ads.txt`'i taraması gerekiyor.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
