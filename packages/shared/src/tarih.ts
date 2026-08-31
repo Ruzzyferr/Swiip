@@ -76,3 +76,27 @@ export function yerelHaftaBasi(tarih: Date = new Date()): string {
   d.setDate(d.getDate() - kaydir);
   return yerelGun(d);
 }
+
+/**
+ * `YYYY-MM-DD` gününü N gün kaydırır — yerel takvimde.
+ *
+ * Tarihe `Date.parse` ile bakıp gün eklemek UTC'ye kaçıyor ve yaz saati geçişlerinde
+ * bir günü atlıyor ya da tekrarlıyor. Yerel bileşenlerden `Date` kurup `setDate`
+ * kullanmak, ayın ve yılın taşmasını da doğru yapıyor (31 Ağustos + 1 = 1 Eylül).
+ */
+export function gunKaydir(gun: string, adim: number): string {
+  const [yil, ay, g] = gun.split('-').map(Number);
+  const d = new Date(yil!, (ay ?? 1) - 1, g ?? 1);
+  d.setDate(d.getDate() + adim);
+  return yerelGun(d);
+}
+
+/** Verilen gün bugün mü — ikisi de yerel takvimden. */
+export function bugunMu(gun: string): boolean {
+  return gun === yerelGun();
+}
+
+/** Verilen gün gelecekte mi; ileri gitme düğmesi bunu okuyor. */
+export function gelecekMi(gun: string): boolean {
+  return gun > yerelGun();
+}

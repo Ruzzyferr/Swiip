@@ -4,6 +4,8 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   {
     ignores: [
+      // Gecici betikler: depoya girmiyor (.gitignore), lint de tarmamali.
+      'scratchpad/**',
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',

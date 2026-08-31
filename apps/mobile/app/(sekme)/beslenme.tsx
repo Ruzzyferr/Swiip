@@ -19,7 +19,14 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { islemHatasiMetni, yerelGun } from '@swiip/shared';
+import {
+  bugunMu,
+  gelecekMi,
+  gunKaydir,
+  islemHatasiMetni,
+  kisaTarihMetni,
+  yerelGun,
+} from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { sunucuMetni } from '../../src/veri/sunucuMetni';
 import { ReklamBanner } from '../../src/reklam/ReklamBanner';
@@ -82,15 +89,25 @@ interface BesinSonucu {
 
 export default function Beslenme() {
   const tema = useTema();
+  const dil = useDil();
   const tumMetinler = useMetinler();
   const m = tumMetinler.beslenme;
+  const ogunAdlari = tumMetinler.ogun.ogunAdlari;
   const genel = useMetinler().genel;
   /*
     `toISOString()` UTC gunu verir. Turkiye UTC+3: gece 00:00-03:00 arasi girilen
     yemek DUNE yaziliyor ve "Bugun" listesinden kayboluyordu — kalori takibinde en
     sik kacirilan ogun tam da o.
   */
-  const bugun = yerelGun();
+  /*
+    Seçili gün — artık sabit "bugün" değil.
+
+    Kullanıcı geçmiş günlere bakabiliyor: "hangi gün ne kadar yemişim" sorusunun
+    cevabı bir kalori takipçisinin varlık sebebi. Gelecek günlere gidilemiyor;
+    henüz yenmemiş bir öğünü kaydetmek defterin anlamını bozar.
+  */
+  const [secilenGun, setSecilenGun] = useState(yerelGun());
+  const bugun = secilenGun;
 
   const [hedef, setHedef] = useState<HedefCevabi | null>(null);
   /* Kilit metni sunucunun Türkçe yedeğinden değil, kodundan kuruluyor. */
@@ -217,7 +234,68 @@ export default function Beslenme() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
       <Sutun>
-        <Yazi tur="baslik1">{m.bugun}</Yazi>
+        {/*
+          Tarih gezinme.
+
+          Satır HER ZAMAN burada ve yüksekliği sabit: belirip kaybolan bir blok,
+          altındaki listeyi parmağın altından kaydırır (bu depoda 2. kusur).
+          "Sonraki gün" gelecekte devre dışı — henüz yenmemiş öğün kaydedilmez.
+        */}
+        <Satir dagit="space-between" hizala="center">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={m.oncekiGun}
+            onPress={() => setSecilenGun((g) => gunKaydir(g, -1))}
+            hitSlop={12}
+            style={{
+              minWidth: tema.dokunmaHedefi,
+              minHeight: tema.dokunmaHedefi,
+              justifyContent: 'center',
+            }}
+          >
+            <Yazi tur="baslik3" renk="aksan">
+              {'‹'}
+            </Yazi>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={m.buguneDon}
+            onPress={() => setSecilenGun(yerelGun())}
+            hitSlop={12}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              minHeight: tema.dokunmaHedefi,
+              justifyContent: 'center',
+            }}
+          >
+            <Yazi tur="baslik1">
+              {bugunMu(secilenGun)
+                ? m.bugun
+                : kisaTarihMetni(new Date(`${secilenGun}T00:00:00`), dil)}
+            </Yazi>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={m.sonrakiGun}
+            disabled={gelecekMi(gunKaydir(secilenGun, 1))}
+            onPress={() => setSecilenGun((g) => gunKaydir(g, 1))}
+            hitSlop={12}
+            style={{
+              minWidth: tema.dokunmaHedefi,
+              minHeight: tema.dokunmaHedefi,
+              justifyContent: 'center',
+              alignItems: 'flex-end',
+              opacity: gelecekMi(gunKaydir(secilenGun, 1)) ? 0.25 : 1,
+            }}
+          >
+            <Yazi tur="baslik3" renk="aksan">
+              {'›'}
+            </Yazi>
+          </Pressable>
+        </Satir>
 
         {/*
           Hedef kilitliyken bile günün toplamı gösteriliyor. Ücretsizin çekirdek vaadi
@@ -255,6 +333,24 @@ export default function Beslenme() {
                 {m.kaloriPayda(h.kalori)}
               </Yazi>
             </Satir>
+
+            {/*
+              KALAN kalori.
+
+              "0 / 2231" tek başına yarım bir cevap: kullanıcının gün içinde sorduğu
+              soru "ne kadar yedim" değil, "daha ne kadar yiyebilirim". Çıkarmayı
+              kullanıcıya yaptırmak, ölçüm gösteren bir arayüzde yapılacak en tuhaf
+              şey.
+
+              Aşıldığında sayı EKSİYE düşmüyor, cümle değişiyor: "-140 kcal kaldı"
+              matematiksel olarak doğru ama okunmuyor; "140 kcal aşıldı" okunuyor.
+              Ceza dili yok — yalnızca ölçü.
+            */}
+            <Yazi tur="kucuk" renk={gun.toplam.kalori > h.kalori ? 'metinYumusak' : 'aksan'}>
+              {gun.toplam.kalori > h.kalori
+                ? m.asimKalori(gun.toplam.kalori - h.kalori)
+                : m.kalanKalori(h.kalori - gun.toplam.kalori)}
+            </Yazi>
 
             <View style={{ gap: tema.bosluk.sm, marginTop: tema.bosluk.sm }}>
               <MakroCubugu ad={m.protein} mevcut={gun.toplam.protein_g} hedef={h.protein_g} />
@@ -393,34 +489,59 @@ export default function Beslenme() {
               Silme de buradaydı eksik: sunucuda `DELETE /v1/beslenme/kayit/:id` vardı ama
               arayüzde hiçbir yerden çağrılmıyordu. Yanlış girilen bir kalori kalıcıydı.
             */}
-            {gun.kayitlar.map((kayit) => (
-              <Satir key={kayit.id} dagit="space-between">
-                <View style={{ flex: 1 }}>
-                  <Yazi tur="kucuk">{kayit.ad ?? m.adsizKalem}</Yazi>
-                  <Yazi tur="etiket" renk="metinSilik">
-                    {miktarMetni(kayit.quantity, kayit.porsiyon_adi)}
+            {ogunGruplari(gun.kayitlar).map(({ ogun, kayitlar, kalori }) => (
+              <View key={ogun ?? 'yok'} style={{ gap: tema.bosluk.xs }}>
+                {/*
+                  Öğün başlığı ve o öğünün toplamı.
+
+                  Kayıtlar düz bir liste olarak akıyordu; kullanıcı "akşam ne kadar
+                  yedim" sorusunu ancak satırları gözüyle toplayarak cevaplayabiliyordu.
+                  Öğün bilgisi zaten kaydediliyordu (`food_logs.ogun`), yalnızca
+                  gösterilmiyordu.
+                */}
+                <Satir dagit="space-between" hizala="baseline">
+                  <Yazi tur="etiket" renk="aksan">
+                    {ogun
+                      ? (ogunAdlari[
+                          OGUN_METIN_ANAHTARI[ogun as keyof typeof OGUN_METIN_ANAHTARI] ??
+                            (ogun as keyof typeof ogunAdlari)
+                        ] ?? ogun)
+                      : m.ogunYok}
                   </Yazi>
-                </View>
-                <Satir>
-                  <Sayi tur="kucuk">{kayit.hesaplanan.kalori} kcal</Sayi>
-                  <Pressable
-                    onPress={() => kaydiSil(kayit.id)}
-                    accessibilityRole="button"
-                    accessibilityLabel={m.kaydiSilErisim(kayit.ad ?? m.adsizKalem)}
-                    hitSlop={12}
-                    style={{
-                      minWidth: tema.dokunmaHedefi,
-                      minHeight: tema.dokunmaHedefi,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Yazi tur="kucuk" renk="metinSilik">
-                      {m.sil}
-                    </Yazi>
-                  </Pressable>
+                  <Sayi tur="etiket" renk="metinSilik">
+                    {kalori}
+                  </Sayi>
                 </Satir>
-              </Satir>
+                {kayitlar.map((kayit) => (
+                  <Satir key={kayit.id} dagit="space-between">
+                    <View style={{ flex: 1 }}>
+                      <Yazi tur="kucuk">{kayit.ad ?? m.adsizKalem}</Yazi>
+                      <Yazi tur="etiket" renk="metinSilik">
+                        {miktarMetni(kayit.quantity, kayit.porsiyon_adi)}
+                      </Yazi>
+                    </View>
+                    <Satir>
+                      <Sayi tur="kucuk">{kayit.hesaplanan.kalori} kcal</Sayi>
+                      <Pressable
+                        onPress={() => kaydiSil(kayit.id)}
+                        accessibilityRole="button"
+                        accessibilityLabel={m.kaydiSilErisim(kayit.ad ?? m.adsizKalem)}
+                        hitSlop={12}
+                        style={{
+                          minWidth: tema.dokunmaHedefi,
+                          minHeight: tema.dokunmaHedefi,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Yazi tur="kucuk" renk="metinSilik">
+                          {m.sil}
+                        </Yazi>
+                      </Pressable>
+                    </Satir>
+                  </Satir>
+                ))}
+              </View>
             ))}
           </Kart>
         ) : (
@@ -455,6 +576,44 @@ export default function Beslenme() {
   );
 }
 
+/**
+ * Kayıtları öğüne göre gruplar ve her grubun kalori toplamını verir.
+ *
+ * Sıra SABİT (kahvaltı → öğle → akşam → ara), kayıt sırasına göre değil: kullanıcı
+ * gününe her baktığında aynı düzeni görmeli. Öğünü olmayan kayıtlar en sonda kendi
+ * başlığı altında toplanıyor — düşürmek, kullanıcının girdiği bir kalorinin listeden
+ * kaybolması demek olurdu.
+ */
+const OGUN_SIRASI = ['kahvalti', 'ogle', 'aksam', 'ara'] as const;
+
+function ogunGruplari(
+  kayitlar: GunCevabi['kayitlar'],
+): Array<{ ogun: string | null; kayitlar: GunCevabi['kayitlar']; kalori: number }> {
+  const kova = new Map<string, GunCevabi['kayitlar']>();
+  for (const k of kayitlar) {
+    const anahtar = k.ogun ?? '';
+    const mevcut = kova.get(anahtar);
+    if (mevcut) mevcut.push(k);
+    else kova.set(anahtar, [k]);
+  }
+
+  const sirali = [...OGUN_SIRASI.filter((o) => kova.has(o))];
+  const bilinmeyenler = [...kova.keys()].filter(
+    (a) => a !== '' && !OGUN_SIRASI.includes(a as (typeof OGUN_SIRASI)[number]),
+  );
+  const anahtarlar: string[] = [...sirali, ...bilinmeyenler];
+  if (kova.has('')) anahtarlar.push('');
+
+  return anahtarlar.map((a) => {
+    const grup = kova.get(a) ?? [];
+    return {
+      ogun: a === '' ? null : a,
+      kayitlar: grup,
+      kalori: grup.reduce((t, k) => t + (k.hesaplanan.kalori ?? 0), 0),
+    };
+  });
+}
+
 function MakroCubugu({ ad, mevcut, hedef }: { ad: string; mevcut: number; hedef: number }) {
   const tema = useTema();
   const oran = hedef > 0 ? Math.min(100, (mevcut / hedef) * 100) : 0;
@@ -484,6 +643,7 @@ function MakroCubugu({ ad, mevcut, hedef }: { ad: string; mevcut: number; hedef:
 }
 
 function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) {
+  const ogunAdlari = useMetinler().ogun.ogunAdlari;
   const { goster: reklamGoster } = useReklamHakki();
 
   /*
@@ -502,6 +662,18 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
   const [secili, setSecili] = useState<BesinSonucu | null>(null);
   const [miktar, setMiktar] = useState('1');
   const [porsiyon, setPorsiyon] = useState<string | null>(null);
+  /*
+    Öğün seçimi, varsayılanı SAATTEN.
+
+    Öğün alanı sunucuda hep vardı (`food_logs.ogun`) ama arayüz hiç sormuyordu; her
+    kayıt "Öğün seçilmemiş" altına düşüyor ve "akşam ne kadar yedim" sorusu
+    cevapsız kalıyordu.
+
+    Varsayılanı boş bırakmak da olmazdı: kullanıcıya her kayıtta bir soru daha
+    sormak, üç dokunuşluk bir işi dörde çıkarır. Saatten tahmin çoğu zaman doğru,
+    yanlışsa tek dokunuşla değişiyor.
+  */
+  const [ogun, setOgun] = useState<string>(() => ogunTahmini(new Date()));
   const [ekleHatasi, setEkleHatasi] = useState<string | null>(null);
   const dil = useDil();
 
@@ -529,6 +701,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
         food_id: secili.id,
         miktar: Number(miktar.replace(',', '.')) || 1,
         portion_id: porsiyon,
+        ogun,
         gun,
       },
     }).catch(() => {
@@ -664,6 +837,32 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
             </View>
           </Satir>
 
+          {/* Öğün seçimi: dört seçenek, biri her zaman seçili. */}
+          <Satir arasi="xs" sar>
+            {(['kahvalti', 'ogle', 'aksam', 'ara'] as const).map((o) => (
+              <Pressable
+                key={o}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: ogun === o }}
+                onPress={() => setOgun(o)}
+                style={{
+                  paddingHorizontal: tema.bosluk.md,
+                  paddingVertical: tema.bosluk.sm,
+                  borderRadius: tema.yaricap.sm,
+                  borderWidth: ogun === o ? 2 : 1,
+                  borderColor: ogun === o ? tema.renk.aksan : tema.renk.kenar,
+                  backgroundColor: ogun === o ? tema.renk.aksanZemin : 'transparent',
+                  minHeight: tema.dokunmaHedefi,
+                  justifyContent: 'center',
+                }}
+              >
+                <Yazi tur="kucuk" renk={ogun === o ? 'aksan' : 'metinYumusak'}>
+                  {ogunAdlari[OGUN_METIN_ANAHTARI[o]]}
+                </Yazi>
+              </Pressable>
+            ))}
+          </Satir>
+
           <Etiket metin={m.evOlcusuEtiketi} tur="aksan" />
           {ekleHatasi ? <Uyari tur="tehlike" govde={ekleHatasi} /> : null}
 
@@ -673,6 +872,35 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
       ) : null}
     </Kart>
   );
+}
+
+/**
+ * Öğün kodu → sözlük anahtarı.
+ *
+ * Sunucu `ara` gönderiyor (`food_logs.ogun` zod şeması), sözlükte karşılığı
+ * `ara_ogun`. İkisini birbirine bu harita bağlıyor; doğrudan indekslemek `ara`
+ * anahtarında sessizce ham kodu bastırırdı.
+ */
+const OGUN_METIN_ANAHTARI = {
+  kahvalti: 'kahvalti',
+  ogle: 'ogle',
+  aksam: 'aksam',
+  ara: 'ara_ogun',
+} as const;
+
+/**
+ * Saatten öğün tahmini.
+ *
+ * Sınırlar Türkiye'nin yaygın öğün saatlerine göre ve bilerek geniş: 05-11 kahvaltı,
+ * 11-16 öğle, 16-22 akşam, kalanı ara öğün. Amaç doğru tahmin etmek değil, çoğu
+ * zaman doğru olup kullanıcıyı bir dokunuştan kurtarmak.
+ */
+function ogunTahmini(simdi: Date): string {
+  const saat = simdi.getHours();
+  if (saat >= 5 && saat < 11) return 'kahvalti';
+  if (saat >= 11 && saat < 16) return 'ogle';
+  if (saat >= 16 && saat < 22) return 'aksam';
+  return 'ara';
 }
 
 /**
