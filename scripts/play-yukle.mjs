@@ -99,26 +99,55 @@ if (komut === 'dene') {
   const boyut = statSync(aabYolu).size;
   console.log(`  paket: ${aabYolu} (${(boyut / 1024 / 1024).toFixed(1)} MB)`);
 
-  const duzenleme = await cagir(t, `/applications/${PAKET}/edits`, { method: 'POST' });
-  console.log(`  düzenleme: ${duzenleme.id}`);
+  /**
+   * Düzenleme ÇAKIŞMASINA dayanıklı yükleme.
+   *
+   * 2026-08-31'de CI şu hatayla düştü:
+   *
+   *   400 FAILED_PRECONDITION
+   *   "This edit has expired, please create a new Edit."
+   *
+   * Düzenleme 21:26:05'te açıldı, 74,9 MB'lık paket yüklenirken 21:27:15'te
+   * geçersizleşti — yani 70 saniyede. Süre dolmasından değil: Play'de aynı uygulama
+   * için AÇILAN HER YENİ DÜZENLEME öncekini geçersiz kılıyor ve o sırada başka bir
+   * yerden (yerel bir durum betiği) düzenleme açılmıştı.
+   *
+   * Ders: Play'de "okuma" gibi görünen bir iş bile düzenleme nesnesi yaratıyor;
+   * yayın sırasında paralel bir sorgu yüklemeyi öldürebiliyor. Bunu tamamen
+   * engellemek elimizde değil (başka bir makineden de gelebilir), o yüzden yükleme
+   * yeniden deniyor: yeni düzenleme aç, paketi tekrar gönder.
+   *
+   * Yeniden deneme paketi İKİ KEZ yüklemez: ilk denemede yükleme tamamlanmadan
+   * hata alınıyor, yani ortada yarım kalmış bir sürüm yok.
+   */
+  let duzenleme;
+  let yuklemeGovde;
 
-  const yukleme = await fetch(
-    `https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/${PAKET}/edits/${duzenleme.id}/bundles?uploadType=media`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${t}`,
-        'Content-Type': 'application/octet-stream',
-        'Content-Length': String(boyut),
+  for (let deneme = 1; deneme <= 3; deneme++) {
+    duzenleme = await cagir(t, `/applications/${PAKET}/edits`, { method: 'POST' });
+    console.log(`  düzenleme: ${duzenleme.id}${deneme > 1 ? ` (${deneme}. deneme)` : ''}`);
+
+    const yukleme = await fetch(
+      `https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/${PAKET}/edits/${duzenleme.id}/bundles?uploadType=media`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${t}`,
+          'Content-Type': 'application/octet-stream',
+          'Content-Length': String(boyut),
+        },
+        body: readFileSync(aabYolu),
       },
-      body: readFileSync(aabYolu),
-    },
-  );
-  const yuklemeGovde = await yukleme.json();
-  if (!yukleme.ok) {
-    throw new Error(
-      `Yükleme başarısız ${yukleme.status}: ${JSON.stringify(yuklemeGovde).slice(0, 400)}`,
     );
+    yuklemeGovde = await yukleme.json();
+    if (yukleme.ok) break;
+
+    const metin = JSON.stringify(yuklemeGovde);
+    const cakisma = yukleme.status === 400 && /expired|FAILED_PRECONDITION/i.test(metin);
+    if (!cakisma || deneme === 3) {
+      throw new Error(`Yükleme başarısız ${yukleme.status}: ${metin.slice(0, 400)}`);
+    }
+    console.log(`  düzenleme geçersizleşti (başka bir düzenleme açılmış) — yeniden deneniyor`);
   }
   const surumKodu = yuklemeGovde.versionCode;
   console.log(`  yüklendi — versionCode ${surumKodu}, sha1 ${yuklemeGovde.sha1}`);

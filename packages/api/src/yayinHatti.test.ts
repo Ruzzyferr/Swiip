@@ -181,3 +181,46 @@ describe('sırlar depoya sızmıyor', () => {
     }
   });
 });
+
+/**
+ * Play yüklemesi düzenleme çakışmasına dayanıklı.
+ *
+ * 2026-08-31'de CI şu hatayla düştü ve 18 dakikalık bir derleme çöpe gitti:
+ *
+ *   400 FAILED_PRECONDITION — "This edit has expired, please create a new Edit."
+ *
+ * Düzenleme 70 saniye sonra geçersizleşmişti. Süre dolmasından değil: Play'de aynı
+ * uygulama için açılan HER YENİ DÜZENLEME öncekini geçersiz kılıyor ve o sırada
+ * başka bir yerden bir durum sorgusu yapılmıştı. Play'de "okuma" gibi görünen iş
+ * bile düzenleme nesnesi yaratıyor.
+ *
+ * Bunu tamamen engellemek elimizde değil — sorgu başka bir makineden de gelebilir.
+ * O yüzden koruma yükleyicinin kendisinde: çakışmada yeni düzenleme açıp tekrar
+ * dene.
+ */
+describe('Play yükleyici çakışmaya dayanıklı', () => {
+  const YUKLEYICI = oku('scripts/play-yukle.mjs');
+
+  it('yükleme yeniden deneniyor', () => {
+    expect(
+      /for \(let deneme = 1; deneme <= 3; deneme\+\+\)/.test(YUKLEYICI),
+      'Tek denemede düşen bir yükleme, paralel bir sorgu yüzünden 18 dakikalık ' +
+        'derlemeyi çöpe atıyor.',
+    ).toBe(true);
+  });
+
+  it('her denemede YENİ düzenleme açılıyor', () => {
+    const dongu = YUKLEYICI.slice(YUKLEYICI.indexOf('for (let deneme'));
+    expect(
+      dongu.indexOf("edits`, { method: 'POST' }"),
+      'Aynı düzenlemeyle tekrar denemek aynı hatayı verir; geçersizleşen nesne odur.',
+    ).toBeGreaterThan(-1);
+  });
+
+  it('yalnızca çakışma hatasında tekrar deniyor', () => {
+    expect(
+      /expired\|FAILED_PRECONDITION/.test(YUKLEYICI),
+      'Her hatada tekrar denemek, gerçek bir sorunu üç kez tekrarlayıp gizler.',
+    ).toBe(true);
+  });
+});
