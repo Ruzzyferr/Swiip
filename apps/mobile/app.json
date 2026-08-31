@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/acilis.png",
       "resizeMode": "contain",
-      "backgroundColor": "#F6F7F5"
+      "backgroundColor": "#ECEEED"
     },
     "ios": {
       "supportsTablet": true,
