@@ -618,6 +618,39 @@ beklenen değerde ve **Personalization set edilmemiş**.
    7 (Personalization) işaretlendi. Kişiselleştirme tam da beyan etmememiz gereken şey.
    Her tıklamadan sonra durum geri okunmalı.
 
+### Apple tarafı tamamlandı (2026-08-31, aynı gün)
+
+**1.0.1 onaylandı ve canlıya girdi** (`READY_FOR_SALE`), yani oturum boyunca bekleyen
+iki iş de açıldı.
+
+**`primaryLocale` → `en-US` yapıldı.** Artık kendi dili olmayan mağazaların yedeği
+İngilizce. Dışarıdan doğrulandı: US/DE/FR kendi dillerinde; IN/ID/TH/VN İngilizce
+yedeğe geçmiş; JP/KR/CN ölçüm anında hâlâ Türkçeydi — katalog yayılımı mağaza başına
+zaman alıyor, ülke açılışında da aynısı olmuştu.
+
+**Türkiye etkilenmedi.** İlk ölçüm Türk mağazasını İngilizce gösterdi ve bir an
+gerileme sanıldı; `lang=tr_tr` ile bakılınca "Swiip: Antrenman ve Beslenme" ve Türkçe
+açıklama çıktı. `itunes.apple.com/lookup` dil parametresi verilmediğinde **birincil
+dili** döndürüyor — ölçüm biçiminin yarattığı bir yanılsamaydı, gerçek bir kusur değil.
+
+**Bir tuzak, ülke açılışındakinin aynısı:** `PATCH primaryLocale` hatasız döndü, hemen
+sonraki okuma hâlâ `tr` dedi ve betik **"YAZILAMADI"** bastı. 45 saniye sonra alan
+`en-US`'ti. Yazma kabul edilip ASENKRON uygulanıyor. `scripts/apple-birincil-dil.mjs`
+artık altı kez, onar saniye arayla okuyor — tek okuma bu uçlarda doğrulama değil,
+yanlış negatif üreticisi.
+
+**App Privacy güncellendi: 8 → 10 veri türü.** Eklenenler `Device ID` ve
+`Advertising Data`; ikisi de:
+
+- amaç **Third-Party Advertising** (Product Personalization DEĞİL — kişiselleştirme kapalı)
+- **kimliğe bağlı değil**
+- **izleme için kullanılmıyor**
+
+Geri okundu: ürün sayfasında **"Data Used to Track You" bölümü YOK**. Apple'ın kendi
+metni bunu doğruluyor: *"If you plan to request access to the advertising identifier
+(IDFA), you must indicate ... that you collect Device IDs and use them for tracking
+purposes."* IDFA istemiyoruz, ATT istemi yok; beyan tutarlı.
+
 ### AdMob
 
 iOS girdisi 2026-08-31'de açıldı; öncesinde yalnızca Android kayıtlıydı.

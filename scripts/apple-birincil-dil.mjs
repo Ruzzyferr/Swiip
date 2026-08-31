@@ -108,12 +108,35 @@ await apple(`/apps/${UYG}`, {
   }),
 });
 
-/* Geri okumadan "oldu" denmez. */
-const sonra = await apple(`/apps/${UYG}?fields[apps]=primaryLocale`);
-const son = sonra.data.attributes.primaryLocale;
-console.log(`\nDOĞRULAMA: birincil dil = ${son}`);
-if (son !== HEDEF) {
-  console.log('YAZILAMADI — alan eski değerinde.');
+/*
+ * Geri okumadan "oldu" denmez — ama HEMEN okumak da yanlış cevap veriyor.
+ *
+ * 2026-08-31'de ölçüldü: PATCH hatasız döndü, hemen sonraki okuma hâlâ `tr` dedi ve
+ * betik "YAZILAMADI" bastı. 45 saniye sonra alan `en-US`'ti. Yani yazma kabul edilip
+ * ASENKRON uygulanıyor.
+ *
+ * Aynı desen bu depoda bir kez daha yaşandı: ülke açarken beş isteğin beşi de hata
+ * döndü, hemen sonraki okuma 1/175 dedi, on dakika sonra 175/175 oldu. Bu uçlarda
+ * "hemen oku" bir doğrulama değil, yanlış negatif üreticisi.
+ */
+async function dogrula(deneme = 6, bekleme = 10_000) {
+  for (let i = 1; i <= deneme; i++) {
+    const sonra = await apple(`/apps/${UYG}?fields[apps]=primaryLocale`);
+    const son = sonra.data.attributes.primaryLocale;
+    if (son === HEDEF) {
+      console.log(`\nDOĞRULAMA (${i}. okuma): birincil dil = ${son}`);
+      return true;
+    }
+    if (i < deneme) {
+      console.log(`  ${i}. okuma hâlâ ${son} — ${bekleme / 1000} sn bekleniyor`);
+      await new Promise((c) => setTimeout(c, bekleme));
+    }
+  }
+  return false;
+}
+
+if (!(await dogrula())) {
+  console.log('\nYAZILAMADI — alan eski değerinde kaldı.');
   process.exit(1);
 }
 console.log(`Tamam. Kendi dili olmayan mağazalar artık ${HEDEF} görecek.`);
