@@ -7,9 +7,9 @@
     <meta name="description" content="This page is not here." />
     <meta name="theme-color" content="#F6F7F5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0E100F" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="../varliklar/isaret.svg" type="image/svg+xml" />
+    <link rel="icon" href="/varliklar/isaret.svg" type="image/svg+xml" />
 
-    <link rel="canonical" href="https://swiip.app/en/404.html" />
+    <meta name="robots" content="noindex, follow" />
     <link rel="alternate" hreflang="en" href="https://swiip.app/en/404.html" />
     <link rel="alternate" hreflang="tr" href="https://swiip.app/404.html" />
     <link rel="alternate" hreflang="x-default" href="https://swiip.app/en/404.html" />
@@ -30,14 +30,16 @@
     />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      href="/varliklar/fontlar/instrument-sans-400-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />
-    <link rel="stylesheet" href="../stil.css" />
-    <link rel="stylesheet" href="../belge.css" />
+    <link rel="stylesheet" href="/varliklar/fontlar.css" />
+    <link rel="stylesheet" href="/stil.css" />
+    <link rel="stylesheet" href="/belge.css" />
   </head>
   <body>
     <a class="atla" href="#icerik">Skip to content</a>
@@ -93,11 +95,11 @@
     </svg>
 
     <header class="belge-bas">
-      <a class="belge-marka" href="index.html">
+      <a class="belge-marka" href="/en/index.html">
         <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
         <span>Swiip</span>
       </a>
-      <a class="belge-dil" href="../404.html" hreflang="tr" lang="tr">Türkçe</a>
+      <a class="belge-dil" href="/404.html" hreflang="tr" lang="tr">Türkçe</a>
     </header>
 
     <main class="belge" id="icerik">
@@ -109,12 +111,12 @@
       </p>
       <h2>You were probably looking for one of these</h2>
       <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="privacy.html">Privacy</a> — which data we process and why</li>
+        <li><a href="/en/index.html">Home</a></li>
+        <li><a href="/en/privacy.html">Privacy</a> — which data we process and why</li>
         <li>
-          <a href="delete-account.html">Delete account</a> — what is deleted, how long it takes
+          <a href="/en/delete-account.html">Delete account</a> — what is deleted, how long it takes
         </li>
-        <li><a href="support.html">Support</a> — how to reach us</li>
+        <li><a href="/en/support.html">Support</a> — how to reach us</li>
       </ul>
       <p>
         If a link inside the app brought you here, that is our mistake: write to
@@ -124,7 +126,7 @@
 
     <footer class="alt">
       <div class="alt-ic">
-        <a class="alt-marka" href="index.html" aria-label="Swiip">
+        <a class="alt-marka" href="/en/index.html" aria-label="Swiip">
           <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#isaret" /></svg>
           <span>Swiip</span>
         </a>
