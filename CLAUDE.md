@@ -784,6 +784,35 @@ kullanır.
 **Dağıtım sırası (bu tur için):** önce `gocler/0011` göçü, sonra `api`; besinlerin
 `name_en` alanı için tohumcu çalışmalı; sunucu ve yeni mobil derleme birlikte çıkar.
 
+## 2026-10-03 yayını: 1.2.0
+
+**App Store: 1.2.0 + build 34 `WAITING_FOR_REVIEW`, `AFTER_APPROVAL`.** Sürüm kaydı ve
+11 dilin notu `scripts/apple-surum-ac.mjs` ile (kaynak
+`magaza/appstore/surum-notlari-1.2.0.json`, geri okunarak doğrulandı); gönderim
+`apple-gonder.mjs --yaz --build=34`. **Play: kapalı test `alpha` vc=28 / 1.2.0.**
+Üretim izi hâlâ 12 testçi × 14 gün şartına bağlı.
+
+**Sunucu `2625a90` dağıtıldı ve dışarıdan doğrulandı:** göç 0011 uygulandı, 439/439
+besinde `name_en`, site sayfaları 200, yanlış yollar 404, canlı arama İngilizce adlarla.
+Bir alt ajan API farkını canlı 1.1.0 istemcisine karşı taradı: kıran değişiklik yok.
+Bilinen fark: başlık göndermeyen 1.1.0 için "bugün" UTC değil İstanbul saatine göre.
+
+**Güvenlik:** fastify 5.12.5 ve beş geçişli açık yükseltildi. `braces` ve
+`node-forge` yalnız Expo 57 ile kapanıyor; muafiyet 2026-11-01'de yeniden bakılacak.
+
+**Site fontları kendi sunucumuzdan** (Google Fonts kaldırıldı, `siteUcuncuTaraf.test.ts`).
+
+**Bir hata, kayda geçsin:** `scripts/play-liste.mjs` adına rağmen bir OKUMA betiği
+DEĞİL. Play mağaza listesini (tr-TR başlık, açıklama, görseller) depodan YAZIP işliyor.
+Durum sorgulamak için çalıştırıldı ve listeyi depodaki kaynakla yeniden yazdı. Play'de
+yalnız tr-TR listesi var ve kaynağı depo, yani büyük olasılıkla aynı içerik; ama önceki
+hâl görülemedi. **Bir betiği çalıştırmadan önce yazıp yazmadığına bak.**
+
+**Kalan, kullanıcının işi:** inceleme hesaplarının parolaları herkese açık depoda
+(`magaza/*/konsol-rehberi.md`, `scripts/inceleme-hesabi-kur.mjs`). Döndürmek Play
+Console'daki App access ve ön-yayın kimlik alanlarının da güncellenmesini istiyor —
+o alanların API'si yok.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
