@@ -20,6 +20,7 @@ import { fiyatMetni, tarihMetni } from '@swiip/shared';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { magaza, type Donem as MagazaDonemi, type PlanKodu } from '../../src/odeme/magaza';
 import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '../../src/baglantilar';
+import { useReklamHakki } from '../../src/reklam/ReklamHakki';
 
 /**
  * Aboneliğin yönetildiği mağazanın adı.
@@ -61,6 +62,16 @@ export default function Paywall() {
   const m = useMetinler().paywall;
   const genel = useMetinler().genel;
   const dil = useDil();
+  /*
+    Satın alma / geri yükleme sonrası reklam HEMEN kapanıyor ve hak yoklanıyor.
+
+    `ReklamSaglayici` hakkı yalnızca kullanıcı değiştiğinde soruyordu; ödeme sonrası
+    hiçbir şey onu yeniden sormuyordu. Tek bir tazeleme de yetmiyordu: hak web
+    kancasıyla birkaç saniye geç açılıyor ve o anda sunucu hâlâ "ücretsiz" diyor.
+    Yeni ödeyen kullanıcı, uygulamayı kapatıp açana kadar reklam görüyordu — kilitli
+    kural "ödeyene reklam gösterilmez". Ayrıntı `ReklamHakki.tsx` → `odemeOnaylandi`.
+  */
+  const { odemeOnaylandi } = useReklamHakki();
 
   const [planlar, setPlanlar] = useState<Plan[]>([]);
   const [secili, setSecili] = useState<string | null>(null); // ÖN SEÇİM YOK
@@ -146,14 +157,16 @@ export default function Paywall() {
 
   const satinAl = async () => {
     if (!secili) return;
+    if (yukleniyor) return;
     setYukleniyor(true);
     setSatinAlmaHatasi(null);
 
     const sonuc = await magaza.satinAl(secili as PlanKodu, donem as MagazaDonemi);
 
-    // Hak sunucuda açılır; istemci "premium oldum" diyemez.
+    // Hak sunucuda açılır; istemci "premium oldum" diyemez — yalnızca reklamı kapatır.
     if (sonuc.durum === 'basarili') {
       setYukleniyor(false);
+      odemeOnaylandi();
       router.back();
       return;
     }
@@ -170,19 +183,25 @@ export default function Paywall() {
         govde: { plan: secili, renews_at: yenilemeTarihi.toISOString() },
       }).catch(() => null);
       setYukleniyor(false);
+      odemeOnaylandi();
       router.back();
       return;
     }
 
-    setSatinAlmaHatasi(sonuc.mesaj ?? m.satinAlmaHatasi);
+    setSatinAlmaHatasi(m.satinAlmaHatasi);
     setYukleniyor(false);
   };
 
   const geriYukle = async () => {
+    if (yukleniyor) return;
     setYukleniyor(true);
+    setSatinAlmaHatasi(null);
     const sonuc = await magaza.geriYukle();
     setYukleniyor(false);
-    if (sonuc.durum === 'basarili') router.back();
+    if (sonuc.durum === 'basarili') {
+      odemeOnaylandi();
+      router.back();
+    } else if (sonuc.durum === 'hata' && sonuc.mesaj) setSatinAlmaHatasi(m.geriYuklemeHatasi);
     else setSatinAlmaHatasi(m.geriYuklemeYok);
   };
 
@@ -310,11 +329,15 @@ export default function Paywall() {
 
                 <Ayirac />
 
+                {/*
+                  Ücretsiz katmanda ZATEN olan özellikler (kalori/makro hedefi, barkod,
+                  program düzenleme) burada listelenmiyor. Listeleniyordu: ödeme ekranı
+                  kullanıcının bedavaya aldığı şeyi satıyor gibi görünüyordu. Ücretsiz
+                  kapsam giriş cümlesinde yazıyor.
+                */}
                 <Ozellik metin={m.ozellikler.tumGunler} acik />
                 <Ozellik metin={m.ozellikler.geriBildirim} acik={plan.seans_geri_bildirimi} />
-                <Ozellik metin={m.ozellikler.kaloriMakroHedefi} acik={plan.kalori_makro_hedefi} />
                 <Ozellik metin={m.ozellikler.ogunPlani} acik={plan.ogun_plani} />
-                <Ozellik metin={m.ozellikler.barkodOkuma} acik={plan.barkod} />
                 <Ozellik
                   metin={m.ozellikler.kocSohbeti(plan.koc_mesaji_aylik)}
                   acik={plan.koc_mesaji_aylik > 0}
@@ -327,7 +350,6 @@ export default function Paywall() {
                   }
                   acik={plan.yemek_tanima_aylik > 0}
                 />
-                <Ozellik metin={m.ozellikler.programDuzenleme} acik />
                 <Ozellik metin={m.ozellikler.reklamYok} acik />
               </Kart>
             </Pressable>

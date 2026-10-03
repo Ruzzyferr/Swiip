@@ -7,8 +7,8 @@ import { apiHataMetni, dilCozumle, metinleriAl, tekUcus, type Dil } from '@swiip
  * Ağ katmanının bildiği dil.
  *
  * `api.ts` bir React bileşeni değil; kancayla dil okuyamaz. Oturum katmanı kullanıcının
- * `locale` alanını yükledikçe burayı güncelliyor. Oturum açılmamışsa varsayılan Türkçe —
- * hata metni her durumda bir dilde çıkıyor.
+ * `locale` alanını yükledikçe burayı güncelliyor. Oturum açılmamışsa cihazın dili —
+ * `useDil` ile aynı kural; hata metni her durumda bir dilde çıkıyor.
  */
 /*
   Dil TEMBEL çözülüyor — modül yüklenirken değil, ilk kullanıldığında.
@@ -23,8 +23,16 @@ import { apiHataMetni, dilCozumle, metinleriAl, tekUcus, type Dil } from '@swiip
 */
 let aktif: Dil | null = null;
 
+/*
+  `locale` yoksa `aktif` SIFIRLANIYOR, Türkçeye kurulmuyor.
+
+  Oturum katmanı oturum yokken (ilk açılış, çıkış, geçersiz token) `agDiliniAyarla(null)`
+  çağırıyor. `dilCozumle(null)` varsayılan dili (Türkçe) döndürdüğü için tembel
+  `cihazDili()` yedeği hiç devreye girmiyordu: giriş ekranındaki her ağ hatası yine
+  Türkçe çıkıyordu, arayüzün geri kalanı (`useDil`) cihaz dilindeyken.
+*/
 export function agDiliniAyarla(locale?: string | null): void {
-  aktif = dilCozumle(locale);
+  aktif = locale ? dilCozumle(locale) : null;
 }
 
 const aktifDil = (): Dil => aktif ?? cihazDili();
@@ -154,11 +162,18 @@ const tokenYenile = tekUcus(async (): Promise<boolean> => {
     return false;
   }
 
-  const yanit = await fetch(`${tabanUrl()}/v1/kimlik/yenile`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ yenileme_token: yenileme }),
-  });
+  let yanit: Response;
+  try {
+    yanit = await fetch(`${tabanUrl()}/v1/kimlik/yenile`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ yenileme_token: yenileme }),
+    });
+  } catch {
+    // Ağ hatası düz bir `TypeError` olarak yukarı çıkıyordu; ekranlar onu bağlantı
+    // sorunu olarak tanımıyordu. Diğer bütün ağ hatalarıyla aynı biçimde.
+    throw baglantiHatasi();
+  }
 
   if (!yanit.ok) {
     // Denediğimiz token hâlâ saklıysa oturum gerçekten bitti; değiştiyse dokunma.
@@ -176,6 +191,26 @@ const tokenYenile = tekUcus(async (): Promise<boolean> => {
   return true;
 });
 
+/**
+ * Bağlantı hatası — metin kullanıcının dilinde.
+ *
+ * Türkçe sabit bir cümleydi ("İnternet yok. Son programın cihazında kayıtlı...") ve
+ * her dilde, her ekranda aynısı çıkıyordu: İngilizce telefonda giriş ekranının
+ * hatası Türkçeydi, üstelik giriş ekranında "son programın" diye bir şey yok.
+ */
+function baglantiHatasi(): ApiHatasi {
+  const metinler = metinleriAl(aktifDil());
+  return new ApiHatasi(0, 'baglanti_yok', metinler.apiHatalari.baglanti_yok());
+}
+
+function saatDilimi(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Istanbul';
+  } catch {
+    return 'Europe/Istanbul';
+  }
+}
+
 export interface IstekSecenekleri {
   yontem?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   govde?: unknown;
@@ -191,7 +226,15 @@ async function istekYap<T>(
   secenekler: IstekSecenekleri,
   yenilemeyeIzinVer: boolean,
 ): Promise<T> {
-  const basliklar: Record<string, string> = { 'content-type': 'application/json' };
+  const basliklar: Record<string, string> = {
+    'content-type': 'application/json',
+    /*
+      Sunucu "bugün"ü bu saat diliminde hesaplıyor (`packages/api/src/gun.ts`).
+      Başlık yokken varsayılan İstanbul: New York'ta akşam yemeğini kaydeden
+      kullanıcının kaydı ertesi güne düşerdi.
+    */
+    'x-saat-dilimi': saatDilimi(),
+  };
 
   if (!secenekler.yetkisiz) {
     const token = await erisimTokeni();
@@ -206,11 +249,7 @@ async function istekYap<T>(
       ...(secenekler.govde !== undefined ? { body: JSON.stringify(secenekler.govde) } : {}),
     });
   } catch {
-    throw new ApiHatasi(
-      0,
-      'baglanti_yok',
-      'İnternet yok. Son programın cihazında kayıtlı, açabilirsin.',
-    );
+    throw baglantiHatasi();
   }
 
   if (yanit.status === 401 && yenilemeyeIzinVer && !secenekler.yetkisiz) {

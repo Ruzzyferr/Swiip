@@ -6,7 +6,7 @@ import {
   type Cevaplar,
   type GorunurSoru,
 } from '@swiip/core';
-import { SORU_BANKASI } from '@swiip/shared';
+import { blokBasligi, dogrulamaMetni, SORU_BANKASI, varsayilanDil, type Dil } from '@swiip/shared';
 
 /**
  * Değerlendirme akışı: ekranda hangi soruların durduğu ve ne zaman ilerlendiği.
@@ -50,6 +50,7 @@ export function gosterilecekBlokId(
 /** Cetvelin bölümleri: blok başına toplam ve cevaplanan görünür soru sayısı. */
 export function blokBolumleri(
   cevaplar: Cevaplar,
+  dil: Dil = varsayilanDil,
 ): Array<{ id: string; ad: string; toplam: number; cevaplanan: number }> {
   const gorunur = gorunurSorular(cevaplar);
 
@@ -58,7 +59,7 @@ export function blokBolumleri(
       const sorular = gorunur.filter((s) => s.blok_id === blok.id);
       return {
         id: blok.id,
-        ad: blok.title,
+        ad: blokBasligi(blok.id, dil),
         toplam: sorular.length,
         cevaplanan: sorular.filter((s) => cevaplandiMi(cevaplar, s)).length,
       };
@@ -81,7 +82,11 @@ export function cevaplandiMi(cevaplar: Cevaplar, soru: GorunurSoru): boolean {
  * her biri için ayrı bir "Atla" düğmesine dokunmak yüzden fazla gereksiz dokunuş
  * demekti. Boş bırakılan isteğe bağlı soru ilerlerken atlanmış sayılıyor.
  */
-export function blokHatalari(cevaplar: Cevaplar, blokId: string): Record<string, string> {
+export function blokHatalari(
+  cevaplar: Cevaplar,
+  blokId: string,
+  dil: Dil = varsayilanDil,
+): Record<string, string> {
   const hatalar: Record<string, string> = {};
 
   for (const soru of blokSorulari(cevaplar, blokId)) {
@@ -89,13 +94,13 @@ export function blokHatalari(cevaplar: Cevaplar, blokId: string): Record<string,
     const bos = deger === undefined || deger === null || deger === '';
 
     if (bos) {
-      if (soru.required)
-        hatalar[soru.id] = 'Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.';
+      if (soru.required) hatalar[soru.id] = dogrulamaMetni({ kod: 'zorunlu' }, dil);
       continue;
     }
 
     const dogrulama = cevabiDogrula(soru, deger as never);
-    if (!dogrulama.gecerli && dogrulama.mesaj) hatalar[soru.id] = dogrulama.mesaj;
+    // Motorun Türkçe `mesaj`ı iz; ekrandaki cümle `kod`dan, kullanıcının dilinde.
+    if (!dogrulama.gecerli) hatalar[soru.id] = dogrulamaMetni(dogrulama, dil);
   }
 
   return hatalar;

@@ -58,7 +58,8 @@ describe('kararMetni — hareket', () => {
 
     expect(metin).toContain('Barbell Back Squat');
     expect(metin).toContain('Quads');
-    expect(metin).toContain('Knee dominant');
+    // Cümle ortasında küçük harf: "the knee dominant pattern".
+    expect(metin).toContain('knee dominant');
   });
 
   it('Türkçede katalogtaki Türkçe ad kullanılıyor', () => {

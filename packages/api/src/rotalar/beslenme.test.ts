@@ -6,6 +6,9 @@ import type { FastifyInstance } from 'fastify';
 import { besinleriTohumla } from '../db/tohum';
 import { besinHesapla } from './beslenme';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { uygulamaOlustur } from '../uygulama';
+import { sahteBarkodSaglayici } from '../servisler/barkod';
+import { VARSAYILAN_SAAT_DILIMI, yerelGunISO } from '../gun';
 
 let uygulama: TestUygulama;
 let app: FastifyInstance;
@@ -99,6 +102,43 @@ describe('besin veritabanı', () => {
 
     expect(porsiyonlar.map((p) => p.id)).toContain('kepce');
     expect(porsiyonlar.map((p) => p.ad)).toContain('1 kase');
+  });
+
+  /*
+   * Uygulama 175 ülkede. İngilizce arayüzdeki kullanıcı "chicken" yazdığında arama
+   * yalnızca `name_tr`'ye baktığı için HİÇBİR ŞEY bulmuyordu.
+   */
+  it('İngilizce adla arama yapar ve İngilizce adı döndürür', async () => {
+    const cevap = await besinAra('chicken breast');
+
+    expect(cevap.statusCode).toBe(200);
+    const sonuclar = cevap.json().sonuclar as Array<{ name_tr: string; name_en: string | null }>;
+    expect(sonuclar.length).toBeGreaterThan(0);
+    expect(sonuclar.map((b) => b.name_tr)).toContain('Tavuk göğsü, pişmiş');
+    expect(sonuclar.every((b) => (b.name_en ?? '').toLowerCase().includes('chicken breast'))).toBe(
+      true,
+    );
+  });
+
+  /*
+   * Eşleşme kalitesine göre sıralama. Sıralama yalnızca "doğrulanmış mı" iken "tavuk"
+   * aramasının ilk sekiz sonucunda "Tavuk göğsü" yoktu (emülatörde görüldü); listenin
+   * başında "Tavuklu wrap, zincir" gibi kalemler vardı.
+   */
+  it('adı sorguyla BAŞLAYANLAR önce geliyor', async () => {
+    const cevap = await besinAra('tavuk');
+    const adlar = (cevap.json().sonuclar as Array<{ name_tr: string }>).map((b) => b.name_tr);
+    const ilkSekiz = adlar.slice(0, 8);
+    expect(ilkSekiz).toContain('Tavuk göğsü, pişmiş');
+    const baslayanlar = adlar.filter((a) => a.toLocaleLowerCase('tr').startsWith('tavuk'));
+    expect(adlar.slice(0, baslayanlar.length)).toEqual(baslayanlar);
+  });
+
+  it('İngilizce arama büyük-küçük harf duyarsız', async () => {
+    const cevap = await besinAra('LENTIL');
+    const sonuclar = cevap.json().sonuclar as Array<{ name_tr: string }>;
+
+    expect(sonuclar.map((b) => b.name_tr)).toContain('Mercimek çorbası');
   });
 
   it('kısa sorgu reddedilir', async () => {
@@ -433,5 +473,102 @@ describe('besin arama kapsamı — kuyruk', () => {
    */
   it.each(['bira', 'şarap', 'rakı'])('"%s" araması sonuç veriyor', async (sorgu) => {
     expect((await besinAra(sorgu)).json().sonuclar.length).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * "Gram" seçimi `portion_id: null` olarak geliyor.
+ *
+ * Arama ekranı gram seçildiğinde alanı `null` gönderiyor; şema yalnızca `undefined`
+ * kabul ettiği için gramla eklenen her yemek 400 alıyordu.
+ */
+describe('gramla kayıt', () => {
+  it('portion_id null gelince gram sayılır', async () => {
+    const pilav = await besinBul('pilav');
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/kayit',
+      headers: yetkili(),
+      payload: { food_id: pilav.id, miktar: 200, portion_id: null, gun: '2026-07-01' },
+    });
+
+    expect(cevap.statusCode).toBe(200);
+    expect(cevap.json().kayit.portion_id).toBeNull();
+  });
+});
+
+/**
+ * Varsayılan gün kullanıcının günü, UTC değil.
+ *
+ * Gün göndermeyen yollar (barkod, tanıma onayı, tartı) UTC'ye göre yazıyordu: Türkiye'de
+ * gece yarısından sonra eklenen yemek dünün listesine düşüyordu.
+ */
+describe('varsayılan gün', () => {
+  it('istemcinin saat dilimine göre yazılır', async () => {
+    const pilav = await besinBul('pilav');
+    // Kiribati (UTC+14) ile Baker adası (UTC-12) arasında her an farklı takvim günü var.
+    const ileri = await app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/kayit',
+      headers: { ...yetkili(), 'x-saat-dilimi': 'Pacific/Kiritimati' },
+      payload: { food_id: pilav.id, miktar: 100 },
+    });
+    const geri = await app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/kayit',
+      headers: { ...yetkili(), 'x-saat-dilimi': 'Etc/GMT+12' },
+      payload: { food_id: pilav.id, miktar: 100 },
+    });
+
+    expect(ileri.json().kayit.gun).toBe(yerelGunISO(new Date(), 'Pacific/Kiritimati'));
+    expect(geri.json().kayit.gun).toBe(yerelGunISO(new Date(), 'Etc/GMT+12'));
+    expect(ileri.json().kayit.gun).not.toBe(geri.json().kayit.gun);
+  });
+
+  it('başlık yoksa birincil pazarın günü; geçersiz başlık 500 üretmez', async () => {
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/su',
+      headers: { ...yetkili(), 'x-saat-dilimi': 'Gezegen/Mars' },
+      payload: { ekle_ml: 250 },
+    });
+
+    expect(cevap.statusCode).toBe(200);
+    expect(cevap.json().gun).toBe(yerelGunISO(new Date(), VARSAYILAN_SAAT_DILIMI));
+  });
+});
+
+describe('aynı yeni barkod eşzamanlı sorulunca', () => {
+  it('ikinci istek 500 değil, kazanan kaydı döner', async () => {
+    const yalin = await uygulamaOlustur({
+      db: uygulama.ortam.db,
+      barkodSaglayici: sahteBarkodSaglayici({
+        '8690000000024': {
+          name_tr: 'Eşzamanlı test ürünü',
+          name_en: 'Concurrent test product',
+          per_100g: { kalori: 100, protein_g: 1, yag_g: 1, karbonhidrat_g: 20, lif_g: 0 },
+          portions: [],
+          barcode: '8690000000024',
+          brand: 'Test',
+          source: 'openfoodfacts',
+        },
+      }),
+      yapilandirma: app.yapilandirma,
+    });
+    await yalin.ready();
+    try {
+      const istek = () =>
+        yalin.inject({
+          method: 'GET',
+          url: '/v1/beslenme/besin/barkod/8690000000024',
+          headers: yetkili(),
+        });
+      const cevaplar = await Promise.all([istek(), istek(), istek()]);
+
+      expect(cevaplar.map((c) => c.statusCode)).toEqual([200, 200, 200]);
+      expect(new Set(cevaplar.map((c) => c.json().id)).size).toBe(1);
+    } finally {
+      await yalin.close();
+    }
   });
 });

@@ -1,6 +1,9 @@
 import type { Metinler } from './i18n';
 import { gunMetni } from './tarih';
 
+/** Portion count, up to two decimals: "0.25 bowls" must not round to "0.3". */
+const porsiyonSayisi = (deger: number): string => (Math.round(deger * 100) / 100).toString();
+
 /**
  * English dictionary.
  *
@@ -35,6 +38,13 @@ export const en: Metinler = {
     su: {
       baslik: 'Water',
       govde: 'A glass would help.',
+    },
+    kanalAdlari: {
+      seans: 'Session reminder',
+      geri_bildirim: 'Feedback reminder',
+      haftalik_ozet: 'Weekly summary',
+      olcum: 'Measurement reminder',
+      su: 'Water reminder',
     },
   },
   gerekce: {
@@ -93,7 +103,7 @@ export const en: Metinler = {
       ayirac: ', ',
       oncelikli_bolge: (grup: string) => `you picked ${grup} as a priority area`,
       bilesik_cekirdek: (patern: string) =>
-        `the ${patern} pattern is the core of your weekly volume`,
+        `the ${patern.toLowerCase()} pattern is the core of your weekly volume`,
       izolasyon_tamamlayici: (grup: string) =>
         `added as isolation work to complete your ${grup} volume`,
       sfr_yuksek: 'its stimulus-to-fatigue ratio is high',
@@ -182,7 +192,7 @@ export const en: Metinler = {
       'Your basics are saved. We turned the numbers off for you; we will describe nutrition ' +
       'in portions.',
     bakimKalorisi: (d: Record<string, string | number>) =>
-      `Your maintenance is around ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. That is the energy you take in daily to hold your weight.`,
+      `Your maintenance is around ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. That is roughly how much energy you need each day to hold your weight.`,
     hedefEd: () =>
       'I noted your goal. We will track progress by how you feel and by your measurements, not by weight.',
     hedefKaydedildi: () => 'Your goal is saved. We will build the program around it.',
@@ -209,8 +219,8 @@ export const en: Metinler = {
       `With your equipment, ${d.yapilabilir} exercises are possible (the library has ${d.toplam}).`,
     split: (d: Record<string, string | number>) => `${d.split} · ${d.gun} days suits you.`,
     splitVeSeviye: (d: Record<string, string | number>) =>
-      `${d.split} · ${d.gun} days. ${d.seviyeAdi} level: ${d.alt}-${d.ust} sets per muscle ` +
-      'group per week.',
+      `${d.split} · ${d.gun} days. ${d.seviyeAdi} level starts at ${d.alt}-${d.ust} sets per ` +
+      'muscle group per week; your time and recovery adjust it in the program.',
     toparlanmaTemiz: () =>
       'Nothing is blocking recovery; I am keeping volume in the standard range.',
     toparlanmaDuzeltme: (d: Record<string, string | number>) => {
@@ -279,6 +289,8 @@ export const en: Metinler = {
     },
   },
   apiHatalari: {
+    seans_zaten_bildirildi: () => 'You have already given feedback for this session.',
+    baglanti_yok: () => 'No internet connection. You can try again once you are connected.',
     magaza_disi_yukseltme: () =>
       'Plans are changed only through the store. Purchases happen inside the app.',
     onay_gerekli: (d: Record<string, string | number>) =>
@@ -383,6 +395,11 @@ export const en: Metinler = {
     yeniden: 'Try again',
   },
   genel: {
+    makroKisa: { protein: 'P', karbonhidrat: 'C', yag: 'F', lif: 'Fiber' },
+    parolayiGoster: 'Show',
+    parolayiGizle: 'Hide',
+    parolayiGosterErisim: 'Show password',
+    parolayiGizleErisim: 'Hide password',
     devam: 'Continue',
     geri: 'Back',
     kaydet: 'Save',
@@ -420,7 +437,7 @@ export const en: Metinler = {
     maddeler: [
       {
         etiket: 'QUESTIONS',
-        metin: 'Eight cards, four minutes. Every answer touches your program.',
+        metin: 'Eight cards, four to six minutes. Every answer touches your program.',
       },
       {
         etiket: 'REASONING',
@@ -534,8 +551,17 @@ export const en: Metinler = {
     kardiyak: {
       baslik: 'Doctor approval first',
       govde:
-        'Your answers include a sign related to the heart or circulation. This does not mean you cannot train — it means the right program should be set with your doctor. Program generation opens once you upload their approval.',
-      eylem: 'Upload doctor approval',
+        'Your answers include a sign related to the heart or circulation. This does not mean you cannot train — it means the right program should be set with your doctor. If your doctor has given you written clearance, email it to us; we will check it and open program generation. If you ticked something by mistake, you can review your answers.',
+      eylem: 'Email the clearance',
+      gozdenGecir: 'Review my answers',
+      epostaKonusu: 'Doctor clearance',
+      epostaGovdesi: (eposta: string) =>
+        `Hello,
+
+Please find my doctor's exercise clearance attached.
+
+My account: ${eposta}
+`,
     },
     yemeBozuklugu: {
       baslik: 'We turned the numbers off',
@@ -568,6 +594,23 @@ export const en: Metinler = {
     eksikZorunlu: (adet: number) =>
       `${adet} required question${adet === 1 ? ' is' : 's are'} blank. Fill in the ones marked "Required" to continue.`,
     gecersizCevap: 'That answer is not valid.',
+    dogrulama: {
+      zorunlu: () => 'Please answer this question; your program depends on it.',
+      sayiGir: () => 'Please enter a number.',
+      aralik: (d: Record<string, string | number>) =>
+        `The value must be between ${d.min} and ${d.max}.`,
+      listedenSec: () => 'Choose one of the options in the list.',
+      tanimsizSecenek: () => 'One of the selected options is not recognised.',
+      enFazlaSecim: (d: Record<string, string | number>) => `You can choose up to ${d.adet}.`,
+      tanimsizBolge: () => 'An unrecognised area was marked.',
+      enFazlaBolge: (d: Record<string, string | number>) => `You can choose up to ${d.adet} areas.`,
+      tarihBicimi: () => 'Enter the date as day/month/year.',
+      tarihGecersiz: () => 'This date is not valid.',
+      dogumGelecekte: () => 'Your date of birth cannot be in the future.',
+      onayGerekli: () => 'You need to give this consent to continue.',
+    },
+    enIyiSet: (hareket: string) => `${hareket} — your best set`,
+    hareketVarsayilan: 'Exercise',
     okudumRizaVeriyorum: 'I have read this and give my explicit consent',
     gun: 'Day',
     ay: 'Month',
@@ -661,6 +704,7 @@ export const en: Metinler = {
         M: 'Your kitchen setup is in',
       },
       dipnot: 'This was computed from your answers. It gets sharper with each remaining section.',
+      sonDipnot: 'This was computed from your answers. Next up: body analysis, then your program.',
     },
     ilerleme: (mevcut: number, toplam: number) => `${mevcut} / ${toplam}`,
     blokTamamlandi: 'This section is done',
@@ -749,6 +793,11 @@ export const en: Metinler = {
     sayfaBasligi: 'Your body analysis',
     yukleniyor: 'Extracting measurements',
     hataMesaji: 'The analysis could not run just now. You can enter your measurements and retry.',
+    analizYokBaslik: 'You do not have a body analysis yet',
+    analizYokGovde:
+      'We can create one from three photos or from three tape measurements. Your analysis is only used when there is real data.',
+    fotografla: 'Analyze with photos',
+    olculerle: 'Enter my measurements',
     hataBaslik: 'Analysis could not be prepared',
     programaGec: 'Go to the program',
     analizRaporun: 'Your analysis report',
@@ -878,6 +927,7 @@ export const en: Metinler = {
       'No connection. This is the last program saved on your device — you can read it, and feedback is sent once you are back online.',
     cevrimdisiTarih: (tarih: string) => `Last updated: ${tarih}`,
     haftaEki: 'WEEK',
+    haftaEtiketi: (hafta: number) => `WEEK ${hafta}`,
     hazir: 'Your program is ready',
     nedenBuProgram: 'WHY THIS PROGRAM',
     kararlarinTamami: 'All the decisions →',
@@ -891,6 +941,7 @@ export const en: Metinler = {
       'The whole week is computed. Day 1 is free; the remaining days and the post-session adaptation open from the Basic plan onwards.',
     planlaraBak: 'See the plans',
     tamamEtiketi: 'DONE',
+    atlandiEtiketi: 'SKIPPED',
     haftaBittiBaslik: 'You finished this week',
     haftaBittiGovde:
       'Your feedback has been worked through. The next week is built on top of it: loads, reps and ' +
@@ -1031,7 +1082,7 @@ export const en: Metinler = {
       yapiNedenSecildi: 'WHY THIS STRUCTURE',
       yerlesimBasligi: 'Placement across the week',
       yerlesimNotu:
-        'The days come from the ones you marked available in the assessment; we spread them as far apart as possible so the same muscle group is not loaded again before it recovers.',
+        'The days come from the ones you marked available in the assessment (or are spread across the week if you did not mark any); we spaced them as far apart as possible so the same muscle group is not loaded again before it recovers.',
       gunKisaltmalari: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       antrenmanGunu: 'training day',
       dinlenmeGunu: 'rest',
@@ -1063,11 +1114,15 @@ export const en: Metinler = {
     sayfaBasligi: 'After the session',
     girisMetni:
       'Three taps, fifteen seconds. We do not want you fiddling with your phone at the gym.',
+    hepsiniTamamladim: 'I completed all of them',
+    hepsiniTamamladimNotu: 'Then change only the ones that went differently.',
     gonder: 'Send',
     isaretsizNotu: (adet: number) =>
       `You left ${adet} exercise(s) unmarked; they will not be reported for this session.`,
     gonderilemedi: 'Could not send. You can try again.',
     yargilamiyoruz: 'No judgement; we shift the program accordingly.',
+    atlamaSonucu:
+      'You skipped the session, and that is fine. The week does not reset; you pick up where you left off with your next session.',
     atlamaSebepleri: [
       'No time',
       'I was ill',
@@ -1102,6 +1157,7 @@ export const en: Metinler = {
     edBaslik: 'Your plate today',
     edSayiNotu: 'If you want to see the numbers, you can turn them on in settings.',
     bugun: 'Today',
+    dun: 'Yesterday',
     kaloriEtiketi: 'CALORIES',
     suEtiketi: 'WATER',
     oncekiGun: 'Previous day',
@@ -1137,15 +1193,32 @@ export const en: Metinler = {
     silOnayBaslik: 'Delete entry',
     silOnayGovde: "This item will be removed from today's log. The daily total is recalculated.",
     silinemedi: "Couldn't delete the entry. Try again?",
+    gunYediklerin: 'What you ate that day',
     bugunYediklerin: 'What you ate today',
     bosKayitBaslik: 'Nothing logged today',
     bosKayitGovde:
       'Once you add food, the totals appear here. Add the same food twice and you get the same macros — promise.',
+    eklenecekOnizleme: (gram: number, kalori: number) => `≈ ${gram} g · ${kalori} kcal`,
+    gramBirimi: 'grams',
+    porsiyonlar: {
+      kase: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'bowl' : 'bowls'}`,
+      tabak: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'plate' : 'plates'}`,
+      kepce: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'ladle' : 'ladles'}`,
+      yemek_kasigi: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'tablespoon' : 'tablespoons'}`,
+      cay_kasigi: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'teaspoon' : 'teaspoons'}`,
+      dilim: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'slice' : 'slices'}`,
+      avuc: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'handful' : 'handfuls'}`,
+      adet: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'piece' : 'pieces'}`,
+      bardak: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'glass' : 'glasses'}`,
+      porsiyon: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'serving' : 'servings'}`,
+      fincan: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'small cup' : 'small cups'}`,
+      olcek: (n: number) => `${porsiyonSayisi(n)} ${n === 1 ? 'scoop' : 'scoops'}`,
+    },
     aramaIpucu: 'Search food — rice, meatballs, yoghurt',
     yemekArama: 'Food search',
     miktar: 'Amount',
-    evOlcusuEtiketi: 'YOU CAN PICK A HOUSEHOLD MEASURE - NOT JUST GRAMS',
     vazgec: 'Cancel',
+    enerji: 'Energy',
     kaloriHedefi: 'Daily target',
     protein: 'Protein',
     yag: 'Fat',
@@ -1165,8 +1238,9 @@ export const en: Metinler = {
   kaynaklar: {
     baslik: 'Calculation sources',
     lede:
-      'No number in Swiip is asked to an AI. Every calorie, macro and load figure comes from ' +
-      'the published equations below.',
+      'No calorie, macro or load figure is asked of an AI; they all come from the published ' +
+      'equations below. The one exception is the photo body analysis, where a vision model ' +
+      'estimates the body-fat range.',
     tahminUyarisi:
       'These equations are estimates derived from population averages; your real values may ' +
       'differ. If you have a health condition or take medication, discuss your plan with your ' +
@@ -1211,6 +1285,21 @@ export const en: Metinler = {
   },
 
   fotograf: {
+    olculerSayfaBasligi: 'Your measurements',
+    olculerBaslik: 'Three tape measurements',
+    olculerGiris:
+      'Without a photo, we estimate body fat from these three measurements (US Navy method). Wrap the tape snugly against the skin without squeezing.',
+    olcuIpuclari: {
+      bel_cm: 'At the level of your navel, after breathing out.',
+      boyun_cm: 'Just below the Adam’s apple, tape angled slightly down.',
+      kalca_cm: 'At the widest part of your hips. Needed for the estimate in women.',
+    },
+    olcuAraligi: (alt: number, ust: number) => `${alt}–${ust}`,
+    olcuGecersiz: (alt: number, ust: number) => `This measurement should be ${alt}–${ust} cm.`,
+    raporuCikar: 'Create my report',
+    olcusuzGec: 'Skip for now',
+    olcusuzGecNotu:
+      'Skipping does not use your analysis; you can do it any time from the Progress tab with photos or measurements.',
     sayfaBasligi: 'Capture',
     gizlilikSayfaBasligi: 'Body analysis',
     akisAdimlari: [
@@ -1231,7 +1320,6 @@ export const en: Metinler = {
       'Use daylight; overhead lamps cast shadows.',
       'Wear fitted or athletic clothing so your outline is visible.',
     ],
-    hayaletNotu: 'YOUR PREVIOUS OUTLINE WILL APPEAR HERE NEXT TIME',
     aciUygun:
       'The phone angle is good. If you tilt it, the shutter locks — a bad angle spoils the result.',
     aciBozuk: 'Straighten the phone. Capture stays locked until the angle is right.',
@@ -1239,6 +1327,16 @@ export const en: Metinler = {
       'Camera permission was not granted. You can continue without photos; the report is then based on measurements.',
     izinVer: 'Grant camera permission',
     egimDerecesi: (derece: number) => `Tilt ${derece}°`,
+    aciKisaUygun: (derece: number) => `Angle OK · ${derece}°`,
+    aciKisaBozuk: (derece: number) => `Hold the phone upright · ${derece}°`,
+    aciOkunuyor: 'Measuring the angle…',
+    geriSayim: (saniye: number) => `${saniye}`,
+    geriSayimNotu: 'Get into position.',
+    zamanlayiciNotu: 'After you tap, you have 10 seconds: place the phone and step into position.',
+    vazgec: 'Cancel',
+    ucFotografHazir: 'All three photos are ready',
+    kareAlinamadi: 'The photo could not be taken. Try again.',
+    aciBozulduIptal: 'The phone tilted, so the photo was cancelled. Fix the angle and try again.',
     yenidenCek: 'Retake',
     analizEdiliyor: 'Extracting measurements',
     analizHatasi: 'The analysis could not run. You can continue without photos.',
@@ -1260,7 +1358,7 @@ export const en: Metinler = {
     fotografGovde:
       'Your photo travels over an encrypted channel to the analysis service, measurements are extracted, and the photo is erased from memory within the same request. It is never written to our disk. The only thing stored is the numeric output.',
     cihazKopyasi:
-      'A copy is kept only on your phone, for comparison. If you change phones those photos are gone — we want you to know that up front.',
+      'Photos are not kept on your phone either. Your progress is shown by measurements, not pictures: the comparison screen lines up the numbers from each analysis.',
     fotografsizDevam: 'Continue without a photo',
     fotografsizAciklama:
       'If you would rather not take a photo, we can continue with your tape measurements. The body fat range comes out a little wider; everything else is the same.',
@@ -1279,6 +1377,9 @@ export const en: Metinler = {
     iptalEt: 'Cancel it',
     silOnayBaslik: 'Delete your account',
     silOnayGovde: 'All your data is permanently deleted. This cannot be undone.',
+    silAbonelikNotu:
+      'Deleting your account does NOT cancel your store subscription. Cancel the ' +
+      'subscription first if you do not want to keep being charged.',
     sil: 'Delete',
     planKotaBasligi: 'Plan and quota',
     planEtiketi: 'Plan',
@@ -1317,6 +1418,10 @@ export const en: Metinler = {
     dogrulamaKodu: 'Verification code',
     dogrula: 'Verify',
     kodGelmedi: 'Code did not arrive, send another',
+    kodGonderildi: (dakika: number) =>
+      `We sent the code to your email. It is valid for ${dakika} minutes.`,
+    abonelikOkunamadi:
+      'Your plan could not be loaded right now. Cancellation and quota details will appear here.',
     kodGonderilemedi: 'Could not send the code. You can try again shortly.',
     kodGecersiz: 'The code is invalid or has expired. You can request a new one.',
     cikisYap: 'Sign out',
@@ -1325,8 +1430,8 @@ export const en: Metinler = {
       'Swiip has no badges, no gems, no streaks and no celebration animations. That is a choice, not an omission.',
     dilBasligi: 'Language',
     dilNotu:
-      'Exercise instructions, recipes and the body analysis report are Turkish-only for now. ' +
-      'The interface, program rationales and coach chat are bilingual.',
+      'Recipes and the body analysis report are Turkish-only for now. ' +
+      'The interface, exercise instructions, food names, program rationales and coach chat are bilingual.',
   },
 
   odeme: {
@@ -1347,10 +1452,11 @@ export const en: Metinler = {
 
   ilerleme: {
     baslik: 'Progress',
-    fotografKarsilastir: 'Compare photos',
+    fotografKarsilastir: 'Compare measurements',
     haftalikYapi: 'Weekly structure',
     bugunkuKilon: 'Your weight today',
     kiloErisim: 'Weight',
+    kiloKaydedildi: (kg: string) => `${kg} kg saved.`,
     tartimNotu:
       'Weigh yourself in the morning, after the toilet, before eating. Daily swings of 1-2 kg are normal.',
     edBaslik: 'Weight tracking is off for you',
@@ -1399,7 +1505,7 @@ export const en: Metinler = {
     azGovde:
       'Your first analysis is done. When you do the second one a month from now, you will see the change side by side.',
     cihazNotu:
-      'The comparison runs entirely on your phone. The photos never reached our servers, so they are not in our hands here either.',
+      'The comparison uses measurements, not photos: photos are deleted as soon as they are analysed and are not stored anywhere.',
     baslik: 'Change',
     once: 'BEFORE',
     sonra: 'AFTER',
@@ -1420,6 +1526,27 @@ export const en: Metinler = {
   },
 
   ogun: {
+    etiketAdlari: {
+      laktozsuz: 'Lactose-free',
+      glutensiz: 'Gluten-free',
+      vejetaryen: 'Vegetarian',
+      ana_yemek: 'Main dish',
+      vegan: 'Vegan',
+      yuksek_protein: 'High protein',
+      glutenli: 'Contains gluten',
+      pisirme_yok: 'No cooking',
+      laktozlu: 'Contains lactose',
+      tek_tencere: 'One pot',
+      et: 'Meat',
+      kahvalti: 'Breakfast',
+      ara_ogun: 'Snack',
+      corba: 'Soup',
+      dusuk_kalori: 'Low calorie',
+      dusuk_karbonhidrat: 'Low carb',
+      salata: 'Salad',
+      balik: 'Fish',
+      ramazan_uygun: 'Ramadan-friendly',
+    } as Record<string, string>,
     ogunAdlari: {
       kah: 'Breakfast',
       ogl: 'Lunch',
@@ -1444,7 +1571,7 @@ export const en: Metinler = {
           `options open up.`,
         tarif_yok: () => 'No recipe fits this meal. We can go over your limits together.',
         porsiyon_modu: () =>
-          'What is cooking today? Pick the home meal and we will suggest a portion and a side — we do not impose a menu.',
+          'What is cooking today? Pick the home meal and we will suggest a portion and a side.',
         az_secenek: (d: Record<string, string | number>) =>
           `${d.adet} options. All of them keep your daily totals intact.`,
         secenek_var: (d: Record<string, string | number>) =>
@@ -1597,6 +1724,9 @@ export const en: Metinler = {
     kaynakEtiketi: 'AMOUNTS ESTIMATED - NUTRITION FROM THE DATABASE',
     onayla: 'Confirm and add to today',
     tekrarDene: 'Wrong result, try again',
+    kotaDusmediOnbellek: 'This result came from the cache and did not use your quota.',
+    kotaDusmediTekrar: 'This attempt did not use your quota.',
+    makroOzeti: (p: number, k: number, y: number) => `Protein ${p} g · Carbs ${k} g · Fat ${y} g`,
     kotaNotu: 'A retry after a wrong result does not count against your quota.',
     cekimSayfaBasligi: 'Add from a photo',
     cekimBaslik: 'Photograph your plate',
@@ -1623,9 +1753,10 @@ export const en: Metinler = {
   paywall: {
     satinAlmaHatasi: 'The purchase could not be completed.',
     geriYuklemeYok: 'No purchase was found to restore.',
+    geriYuklemeHatasi: 'Purchases could not be restored. Check your connection and try again.',
     baslik: 'Basic gives you the program, Pro makes tracking effortless',
     girisMetni:
-      'The assessment, the body analysis and day one of your program stay free. What follows comes on top.',
+      'The assessment, body analysis, day one of your program, calorie and macro targets, food and barcode logging and program editing all stay free. What follows comes on top.',
     aylik: 'Monthly',
     yillik: 'Yearly',
     ayKisa: 'mo',

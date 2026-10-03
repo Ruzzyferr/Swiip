@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Cevaplar } from '../cevaplar';
 import { blokGeriBildirimi } from './geriBildirim';
+import { beslenmeHedefiHesapla } from '../beslenme/beslenme';
+import { profilDerle } from '../profil/profil';
 
 const kimlikCevaplari: Cevaplar = {
   K1: '1994-03-15',
@@ -172,5 +174,16 @@ describe('blok geri bildirimi dilden bağımsız', () => {
     for (const blok of ['K', 'G', 'A', 'H', 'E', 'Z', 'B', 'M']) {
       expect(blokGeriBildirimi(blok, TAM_CEVAPLAR)?.metin.length, blok).toBeGreaterThan(15);
     }
+  });
+});
+
+describe('bakım kalorisi kartı beslenme hedefiyle aynı sayıyı verir', () => {
+  it('antrenman gün sayısı Z1 cevabından okunur', () => {
+    const cevaplar: Cevaplar = { ...kimlikCevaplari, Z1: '6 gün' };
+    const kart = blokGeriBildirimi('K', cevaplar);
+    const profil = profilDerle(cevaplar, { bugun: new Date(), userId: 'test' });
+
+    // Eskiden silinmiş A2 okunuyordu: kart her zaman 3 günle hesaplıyordu.
+    expect(Number(kart?.degerler?.tdee)).toBe(beslenmeHedefiHesapla(profil).tdee);
   });
 });

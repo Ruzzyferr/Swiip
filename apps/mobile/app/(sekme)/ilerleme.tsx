@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { sunucuMetni } from '../../src/veri/sunucuMetni';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 import { hareketBul, kgMetni } from '@swiip/core';
@@ -11,6 +11,7 @@ import {
   Kart,
   Satir,
   Sayi,
+  KlavyeKaydirma,
   Sutun,
   Uyari,
   Yazi,
@@ -22,6 +23,7 @@ import { hareketAdi, islemHatasiMetni } from '@swiip/shared';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 import { kisaTarihMetni } from '@swiip/shared';
 import { ReklamBanner } from '../../src/reklam/ReklamBanner';
+import { useOdaktaTazele } from '../../src/durum/tazele';
 
 /**
  * İlerleme (F: kilo/ölçü, hareket bazlı gelişim).
@@ -38,6 +40,7 @@ interface DisaAktarma {
     current_reps: number;
     e1rm: number;
   }>;
+  kararlar?: Array<{ entity_type: string; entity_id: string }>;
   vucut_analizleri: Array<{
     taken_at: string;
     bodyfat_low: number | null;
@@ -46,6 +49,8 @@ interface DisaAktarma {
 }
 
 export default function Ilerleme() {
+  /** Ondalık ayırıcı dile göre ("2,5 kg" / "2.5 kg"). */
+  const ondalik = useMetinler().gerekce.ondalikAyirac;
   const tema = useTema();
   const metinler = useMetinler();
   const m = metinler.ilerleme;
@@ -56,6 +61,14 @@ export default function Ilerleme() {
   const [hazir, setHazir] = useState(false);
   const [kilo, setKilo] = useState('');
   const [tdeeMesaji, setTdeeMesaji] = useState<string | null>(null);
+  const [kayitNotu, setKayitNotu] = useState<string | null>(null);
+  const notZamanlayici = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (notZamanlayici.current) clearTimeout(notZamanlayici.current);
+    },
+    [],
+  );
   const [hata, setHata] = useState<string | null>(null);
   const dil = useDil();
 
@@ -67,20 +80,41 @@ export default function Ilerleme() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+  // Seans geri bildirimi ve vücut analizi sonrası dönüşte grafikler güncel olsun.
+  useOdaktaTazele(yukle);
+
+  const [kaydediliyor, setKaydediliyor] = useState(false);
+  /*
+    Boş alan 0 kg DEĞİL. `Number('')` 0 veriyor ve "Kaydet"e boş basan kullanıcı
+    sunucuya 0 kg gönderiyordu; çift dokunuş da aynı tartımı iki kez yazıyordu.
+  */
+  const kiloSayisi = Number(kilo.replace(',', '.'));
+  const kiloGecerli = kilo.trim() !== '' && Number.isFinite(kiloSayisi) && kiloSayisi > 0;
 
   const kiloKaydet = async () => {
-    const sayi = Number(kilo.replace(',', '.'));
-    if (!Number.isFinite(sayi)) return;
+    if (!kiloGecerli || kaydediliyor) return;
+    const sayi = kiloSayisi;
 
     setHata(null);
+    setKaydediliyor(true);
     try {
       await istek('/v1/beslenme/kilo', { yontem: 'POST', govde: { kilo_kg: sayi } });
     } catch {
       // Sessizce yutmak, kullanıcının kaydettiğini sanmasına yol açar.
       setHata(islemHatasiMetni('kilo_kaydet', dil));
+      setKaydediliyor(false);
       return;
     }
+    setKaydediliyor(false);
     setKilo('');
+    /*
+      Kayıt ONAYI, kartın içinde tartım notunun yerinde. Onay hiç yoktu; yerine
+      "düzeltme için en az iki haftalık veri gerekiyor" uyarısı sayfanın ortasına
+      ekleniyor ve altındaki her şeyi itiyordu.
+    */
+    setKayitNotu(m.kiloKaydedildi(kgMetni(sayi, ondalik)));
+    if (notZamanlayici.current) clearTimeout(notZamanlayici.current);
+    notZamanlayici.current = setTimeout(() => setKayitNotu(null), 4000);
 
     const uyum = await istek<{
       duzeltildi: boolean;
@@ -93,7 +127,9 @@ export default function Ilerleme() {
     }).catch(() => null);
 
     // Metin koddan kuruluyor; sunucunun Türkçe `mesaj` alanı yalnızca yedek.
-    if (uyum) setTdeeMesaji(sunucuMetni(uyum, metinler) ?? uyum.mesaj);
+    // Yalnızca GERÇEKTEN bir düzeltme yapıldıysa: "henüz yeterli veri yok" bilgisi
+    // her tartımda tekrarlanacak bir haber değil.
+    if (uyum?.duzeltildi) setTdeeMesaji(sunucuMetni(uyum, metinler) ?? uyum.mesaj);
     void yukle();
   };
 
@@ -105,12 +141,28 @@ export default function Ilerleme() {
     );
   }
 
-  const kilolar = veri?.kilo_kayitlari ?? [];
-  const hareketler = (veri?.ilerleme_durumu ?? []).filter((h) => h.current_weight > 0);
+  // Tarih sırasıyla (sunucu da sıralıyor; eski sunucu sırasız gönderiyordu).
+  const kilolar = [...(veri?.kilo_kayitlari ?? [])].sort((a, b) => a.gun.localeCompare(b.gun));
+  const sonKilo = kilolar[kilolar.length - 1]?.kilo_kg;
+  /*
+    Yalnızca GERİ BİLDİRİMİ ALINMIŞ hareketler.
+
+    İlerleme durumu program üretilirken başlangıç hedefleriyle doluyor. Tek bir seans
+    yapmamış kullanıcı "Hareket bazlı gelişim · Asıl kanıt bu" başlığı altında
+    "16 kg × 12" gibi değerler görüyordu — henüz kaldırmadığı ağırlıklar gelişim
+    gibi sunuluyordu. Bir hareketin satırı, motorun o hareket için ilk geri bildirim
+    kararını vermesiyle açılıyor; o güne kadar boş durum ne olacağını anlatıyor.
+  */
+  const geriBildirimli = new Set(
+    (veri?.kararlar ?? []).filter((k) => k.entity_type === 'ilerleme').map((k) => k.entity_id),
+  );
+  const hareketler = (veri?.ilerleme_durumu ?? []).filter(
+    (h) => h.current_weight > 0 && geriBildirimli.has(h.exercise_id),
+  );
   const analizler = veri?.vucut_analizleri ?? [];
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
+    <KlavyeKaydirma>
       <Sutun>
         {/*
           `hizala="stretch"`: iki dugme esit yukseklikte.
@@ -123,6 +175,7 @@ export default function Ilerleme() {
             <Dugme
               baslik={m.fotografKarsilastir}
               tur="ikincil"
+              uzat
               onPress={() => router.push('/ilerleme/karsilastirma')}
             />
           </View>
@@ -130,6 +183,7 @@ export default function Ilerleme() {
             <Dugme
               baslik={m.haftalikYapi}
               tur="ikincil"
+              uzat
               onPress={() => router.push('/program/hafta')}
             />
           </View>
@@ -144,12 +198,19 @@ export default function Ilerleme() {
               ve yanindaki dugmeyi ekranin disina itiyordu.
             */}
             <Satir arasi="sm">
-              <View style={{ flex: 1, minWidth: 0 }}>
+              <View style={{ flex: 1, minWidth: 0, justifyContent: 'center' }}>
                 <TextInput
                   value={kilo}
+                  maxLength={6}
+                  returnKeyType="done"
+                  onSubmitEditing={() => void kiloKaydet()}
                   onChangeText={setKilo}
                   keyboardType="decimal-pad"
-                  placeholder="82,4"
+                  /*
+                    Yer tutucu SON TARTIM. Sabit bir "82,4" vardı: girilmiş bir değer gibi
+                    duruyor ve kimsenin kilosu değildi. Ondalık ayırıcı dile göre.
+                  */
+                  placeholder={sonKilo === undefined ? undefined : kgMetni(sonKilo, ondalik)}
                   placeholderTextColor={tema.renk.metinSilik}
                   accessibilityLabel={m.kiloErisim}
                   style={{
@@ -159,6 +220,7 @@ export default function Ilerleme() {
                     borderColor: tema.renk.kenar,
                     borderRadius: tema.yaricap.md,
                     paddingHorizontal: tema.bosluk.lg,
+                    paddingRight: 48,
                     fontSize: 20,
                     fontFamily: tema.tipografi.aileler.sayisal,
                     fontVariant: ['tabular-nums'],
@@ -166,11 +228,25 @@ export default function Ilerleme() {
                     backgroundColor: tema.renk.zemin,
                   }}
                 />
+                {/* Birim alanın içinde: boş kutu neyin girileceğini söylemiyordu. */}
+                <Yazi
+                  tur="kucuk"
+                  renk="metinSilik"
+                  stil={{ position: 'absolute', right: tema.bosluk.lg }}
+                >
+                  kg
+                </Yazi>
               </View>
-              <Dugme baslik={genel.kaydet} onPress={() => void kiloKaydet()} tamGenislik={false} />
+              <Dugme
+                baslik={genel.kaydet}
+                onPress={() => void kiloKaydet()}
+                tamGenislik={false}
+                pasif={!kiloGecerli}
+                yukleniyor={kaydediliyor}
+              />
             </Satir>
-            <Yazi tur="etiket" renk="metinSilik">
-              {m.tartimNotu}
+            <Yazi tur="etiket" renk={kayitNotu ? 'aksan' : 'metinSilik'}>
+              {kayitNotu ?? m.tartimNotu}
             </Yazi>
           </Kart>
         ) : (
@@ -236,7 +312,7 @@ export default function Ilerleme() {
                     </Yazi>
                     <View style={{ flexShrink: 0 }}>
                       <Sayi tur="kucuk" renk="aksan">
-                        {kgMetni(h.current_weight)} kg × {h.current_reps}
+                        {kgMetni(h.current_weight, ondalik)} kg × {h.current_reps}
                       </Sayi>
                     </View>
                   </Satir>
@@ -247,13 +323,8 @@ export default function Ilerleme() {
         ) : (
           <BosDurum baslik={m.bosBaslik} govde={m.bosGovde} />
         )}
-
-        {/*
-          Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte; reklam
-          gelmezse sayfa düzeni hiç değişmiyor.
-        */}
       </Sutun>
-    </ScrollView>
+    </KlavyeKaydirma>
   );
 }
 
@@ -270,6 +341,8 @@ export default function Ilerleme() {
  * aksan yalnizca son okumayi gosteriyor.
  */
 function KiloGrafigi({ kayitlar }: { kayitlar: Array<{ gun: string; kilo_kg: number }> }) {
+  /** Ondalık ayırıcı dile göre ("2,5 kg" / "2.5 kg"). */
+  const ondalik = useMetinler().gerekce.ondalikAyirac;
   const tema = useTema();
   const dil = useDil();
   const son = kayitlar.slice(-30);
@@ -302,10 +375,10 @@ function KiloGrafigi({ kayitlar }: { kayitlar: Array<{ gun: string; kilo_kg: num
       <View style={{ height: YUKSEK, flexDirection: 'row', alignItems: 'stretch' }}>
         <View style={{ width: 48, justifyContent: 'space-between', paddingVertical: PAY - 7 }}>
           <Sayi tur="etiket" renk="metinSilik">
-            {kgMetni(enCok)}
+            {kgMetni(enCok, ondalik)}
           </Sayi>
           <Sayi tur="etiket" renk="metinSilik">
-            {kgMetni(enAz)}
+            {kgMetni(enAz, ondalik)}
           </Sayi>
         </View>
 
@@ -343,14 +416,15 @@ function KiloGrafigi({ kayitlar }: { kayitlar: Array<{ gun: string; kilo_kg: num
       {/* Zaman ekseni: seri nerede basliyor, nerede bitiyor. */}
       <Satir dagit="space-between">
         <Yazi tur="etiket" renk="metinSilik">
-          {kisaTarihMetni(new Date(son[0]?.gun ?? ''), dil)}
+          {/* "YYYY-MM-DD" UTC gece yarısı okunuyordu: Amerika'da bir gün geri. */}
+          {kisaTarihMetni(new Date(`${son[0]?.gun ?? ''}T00:00:00`), dil)}
         </Yazi>
         <Sayi tur="etiket" renk={fark === 0 ? 'metinSilik' : 'aksan'}>
           {fark > 0 ? '+' : ''}
-          {kgMetni(fark)} kg
+          {kgMetni(fark, ondalik)} kg
         </Sayi>
         <Yazi tur="etiket" renk="metinSilik">
-          {kisaTarihMetni(new Date(son[son.length - 1]?.gun ?? ''), dil)}
+          {kisaTarihMetni(new Date(`${son[son.length - 1]?.gun ?? ''}T00:00:00`), dil)}
         </Yazi>
       </Satir>
     </View>

@@ -18,11 +18,10 @@ import {
   tokenlariSil,
 } from '../veri/api';
 import { router } from 'expo-router';
-import { tumunuTemizle } from '../veri/onbellek';
 import { disaAktarmaArtiklariniSil } from '../veri/disaAktar';
 import { magaza } from '../odeme/magaza';
 import { bildirimleriKapat, bildirimleriKur } from '../bildirim/zamanlayici';
-import { ANAHTARLAR, oku } from '../veri/onbellek';
+import { ANAHTARLAR, oku, tumunuTemizle, yaz } from '../veri/onbellek';
 import { cihazDili, kayitDili } from './cihazDili';
 
 /**
@@ -133,11 +132,24 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
       if (!baglantiSorunu) {
         setKullanici(null);
         agDiliniAyarla(null);
+        return;
+      }
+      /*
+        Ağ yokken oturumu düşürmemek YETMİYORDU: `kullanici` hiç kurulmuyordu (başlangıç
+        değeri `null`) ve açılış ekranı yalnızca kullanıcı varken sekmelere yönlendiriyor.
+        Uçakta açan kullanıcı yine karşılama ekranına düşüyordu. Son bilinen kullanıcı
+        cihazda tutuluyor; çıkışta `tumunuTemizle` onu da siliyor.
+      */
+      const onbellekte = await oku<Kullanici>(ANAHTARLAR.kullanici);
+      if (onbellekte) {
+        setKullanici((k) => k ?? onbellekte);
+        agDiliniAyarla(onbellekte.locale);
       }
       return;
     }
 
     setKullanici(kayit);
+    void yaz(ANAHTARLAR.kullanici, kayit);
     // Ağ katmanı bir bileşen değil; dili kancayla okuyamıyor. Hata metinleri de
     // kullanıcının dilinde çıksın diye burada bildiriliyor.
     agDiliniAyarla(kayit.locale);
@@ -195,8 +207,15 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
     [yenile],
   );
 
-  const cikisYap = useCallback(async () => {
-    await tokenlariSil();
+  /**
+   * Cihazdaki her kişisel izi siler. Çıkışta da, sunucu oturumu düşürdüğünde de AYNI yol.
+   *
+   * Oturum sunucu tarafında düştüğünde yalnızca `kullanici` boşaltılıyordu: önbellek,
+   * hatırlatmalar ve mağaza kimliği yerinde kalıyordu. Aynı cihazda giren bir sonraki
+   * hesap öncekinin değerlendirme taslağını — sağlık cevapları dahil — kendi
+   * cevaplarının üstüne birleştiriyordu.
+   */
+  const yerelIzleriSil = useCallback(async () => {
     // Cihazda kişisel veri bırakılmaz.
     await tumunuTemizle();
     // Dışa aktarma dosyası önbellekte duruyor ve içinde sağlık verisi var; depo
@@ -214,9 +233,13 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
      * kancaya `app_user_id = A` olarak düşüyordu: **A Pro oluyor, parayı B ödüyor.**
      */
     await magaza.oturumuBirak();
-
-    setKullanici(null);
   }, []);
+
+  const cikisYap = useCallback(async () => {
+    await tokenlariSil();
+    await yerelIzleriSil();
+    setKullanici(null);
+  }, [yerelIzleriSil]);
 
   /**
    * Oturum kesin düştüğünde karşılama ekranına dönüyoruz.
@@ -227,10 +250,12 @@ export function OturumSaglayici({ children }: { children: ReactNode }) {
   useEffect(() => {
     oturumDustugundeCalistir(() => {
       setKullanici(null);
+      agDiliniAyarla(null);
+      void yerelIzleriSil();
       router.replace('/');
     });
     return () => oturumDustugundeCalistir(null);
-  }, []);
+  }, [yerelIzleriSil]);
 
   const deger = useMemo<OturumDurumu>(
     () => ({ kullanici, hazir, girisYap, kayitOl, cikisYap, yenile }),

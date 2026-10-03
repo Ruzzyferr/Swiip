@@ -1,6 +1,6 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Dugme, Ekran, Kart, Yazi } from '../../src/tasarim/bilesenler';
-import { buyukHarf, SORU_BANKASI } from '@swiip/shared';
+import { blokBasligi, buyukHarf, SORU_BANKASI } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**
@@ -32,7 +32,8 @@ export default function BlokSonu() {
    * `Cetvel.tsx` bu hatayı bir kez yaşayıp `blok.title`'a bağlanmıştı; düzeltme
    * buraya uğramamış. Artık ikisi de `SORU_BANKASI` başlığını okuyor.
    */
-  const bolumAdi = SORU_BANKASI.blocks.find((b) => b.id === blok)?.title ?? baslik;
+  const bolumAdi =
+    blok && SORU_BANKASI.blocks.some((b) => b.id === blok) ? blokBasligi(blok, dil) : baslik;
 
   return (
     <>
@@ -78,7 +79,8 @@ export default function BlokSonu() {
         </Kart>
 
         <Yazi tur="kucuk" renk="metinSilik">
-          {m.dipnot}
+          {/* Son kartta "sonraki bölümler" yok; not oraya göre. */}
+          {son === '1' ? m.sonDipnot : m.dipnot}
         </Yazi>
 
         {/*

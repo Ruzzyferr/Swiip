@@ -16,9 +16,10 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { islemHatasiMetni } from '@swiip/shared';
+import { uygunKareBoyutu } from '../../src/veri/kameraBoyutu';
+import { besinToplami } from '@swiip/core';
+import { besinAdi, buyukHarf, islemHatasiMetni, ogunTahmini, yerelGun } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf } from '@swiip/shared';
 
 /**
  * Fotoğraftan yemek tanıma ve doğrulama (F7.5).
@@ -31,12 +32,22 @@ import { buyukHarf } from '@swiip/shared';
  * tekrar denenen tanımalar "kotandan düşmedi" etiketiyle işaretlenir.
  */
 
+interface Bilesim {
+  kalori: number;
+  protein_g: number;
+  yag_g: number;
+  karbonhidrat_g: number;
+  lif_g: number;
+}
+
 interface TaninanKalem {
   ad: string;
   miktar: number;
   gram: number;
   eslesti: boolean;
-  besin: { id: string; ad: string } | null;
+  /** `per_100g` eski sunucuda yok; o zaman toplam sunucunun ilk cevabından okunur. */
+  /** `ad` Türkçe veri adı (eşleme bununla); `ad_en` İngilizce arayüzde gösterilir. */
+  besin: { id: string; ad: string; ad_en?: string | null; per_100g?: Bilesim } | null;
   skor: number | null;
 }
 
@@ -53,7 +64,8 @@ interface TanimaCevabi {
 interface BesinSonucu {
   id: string;
   name_tr: string;
-  per_100g: { kalori: number };
+  name_en?: string | null;
+  per_100g: Bilesim;
 }
 
 export default function Tanima() {
@@ -68,10 +80,21 @@ export default function Tanima() {
   const [hata, setHata] = useState<string | null>(null);
   const [tekrarDeneme, setTekrarDeneme] = useState(false);
   const [duzeltilen, setDuzeltilen] = useState<number | null>(null);
+  const [onaylaniyor, setOnaylaniyor] = useState(false);
 
   const kamera = useRef<CameraView>(null);
   const [izin, izinIste] = useCameraPermissions();
+  /*
+    İzin henüz SORULMAMIŞSA ekran açılır açılmaz soruluyor. Kütüphane sorulmamış izni de
+    `granted: false` diye bildiriyor ve ekran, kullanıcıya hiçbir şey sorulmadan
+    "Kamera izni verilmedi" yazıyordu. Kullanıcı bu ekrana fotoğraf çekmek için geldi;
+    niyet belli. "Verilmedi" yalnızca gerçekten reddedildiğinde (`denied`) çıkıyor.
+  */
+  useEffect(() => {
+    if (izin?.status === 'undetermined' && izin.canAskAgain) void izinIste();
+  }, [izin?.status, izin?.canAskAgain, izinIste]);
   const [cekiliyor, setCekiliyor] = useState(false);
+  const [kareBoyutu, setKareBoyutu] = useState<string | undefined>(undefined);
 
   /**
    * Kamera modülü cihazda bağlanınca base64 buradan gelir. Fotoğraf yalnızca bu
@@ -134,10 +157,12 @@ export default function Tanima() {
   };
 
   const onayla = async () => {
-    if (!sonuc) return;
-    const eslesenler = kalemler.filter((k) => k.eslesti && k.besin);
+    // Çift dokunuş aynı öğünü iki kez yazıyordu.
+    if (!sonuc || onaylaniyor) return;
+    const eslesenler = kalemler.filter((k) => k.eslesti && k.besin && k.gram > 0);
 
     setHata(null);
+    setOnaylaniyor(true);
     try {
       await istek('/v1/beslenme/tani/onayla', {
         yontem: 'POST',
@@ -149,15 +174,22 @@ export default function Tanima() {
             gram: k.gram,
             miktar: k.miktar,
           })),
+          /*
+            Gün ve öğün CİHAZDAN. Gönderilmediğinde sunucu günü kendi saatinden
+            seçiyor ve kayıt "Öğün seçilmemiş" altına düşüyordu.
+          */
+          gun: yerelGun(),
+          ogun: ogunTahmini(new Date()),
         },
       });
     } catch {
       // Sessiz başarısızlık, kullanıcının öğünü kaydettiğini sanmasına yol açar.
       setHata(islemHatasiMetni('tanima_onayla', dil));
+      setOnaylaniyor(false);
       return;
     }
 
-    router.replace('/(sekme)/beslenme');
+    router.dismissTo('/(sekme)/beslenme');
   };
 
   if (yukleniyor) {
@@ -170,7 +202,39 @@ export default function Tanima() {
 
   // --- Doğrulama ekranı ---
   if (sonuc) {
-    const toplamKalori = kalemler.filter((k) => k.eslesti).reduce((t, k) => t + k.gram, 0);
+    /*
+      Toplam DÜZENLEMEYLE birlikte değişiyor.
+
+      Ekran sunucunun ilk cevabındaki toplamı gösteriyordu: gramı değiştirmek, yemeği
+      değiştirmek ya da "Tabakta yoktu" demek sayıyı oynatmıyordu ve kullanıcı
+      gördüğünden farklı bir öğünü onaylıyordu. Formül sunucununkiyle AYNI fonksiyon;
+      kaydedilen değeri yine sunucu veritabanından hesaplıyor. Adı da yanlıştı:
+      `toplamKalori` aslında gram toplamıydı.
+    */
+    const eslesen = kalemler.filter((k) => k.eslesti && k.besin);
+    const bilesimTam = eslesen.every((k) => k.besin?.per_100g);
+    const toplam = bilesimTam
+      ? besinToplami(
+          eslesen.map((k) => ({
+            ad: k.ad,
+            miktar: k.miktar,
+            gram: k.gram,
+            eslesti: true,
+            besin: {
+              id: k.besin!.id,
+              ad: k.besin!.ad,
+              per_100g: k.besin!.per_100g!,
+              porsiyonlar: [],
+            },
+          })),
+        )
+      : sonuc.toplam;
+    const toplamGram = eslesen.reduce((t, k) => t + k.gram, 0);
+    const kotaNotu = sonuc.kota.dusuldu
+      ? null
+      : sonuc.kaynak === 'onbellek'
+        ? m.kotaDusmediOnbellek
+        : m.kotaDusmediTekrar;
 
     return (
       <>
@@ -186,14 +250,19 @@ export default function Tanima() {
 
           <Yazi renk="metinYumusak">{m.dogrulaGiris}</Yazi>
 
-          {sonuc.kota.not ? <Uyari govde={sonuc.kota.not} /> : null}
+          {/* Kota notu sözlükten: sunucunun Türkçe `kota.not` alanı her dilde Türkçeydi. */}
+          {kotaNotu ? <Uyari govde={kotaNotu} /> : null}
           {sonuc.model_uyarisi ? <Uyari tur="uyari" govde={sonuc.model_uyarisi} /> : null}
 
           {kalemler.map((kalem, i) => (
             <Kart key={`${kalem.ad}-${i}`} vurgulu={!kalem.eslesti}>
               <Satir dagit="space-between" hizala="flex-start">
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Yazi tur="baslik3">{kalem.besin?.ad ?? kalem.ad}</Yazi>
+                  <Yazi tur="baslik3">
+                    {kalem.besin
+                      ? besinAdi({ name_tr: kalem.besin.ad, name_en: kalem.besin.ad_en }, dil)
+                      : kalem.ad}
+                  </Yazi>
                   {kalem.besin && kalem.besin.ad !== kalem.ad ? (
                     <Yazi tur="etiket" renk="metinSilik">
                       {m.fotograftaEki(buyukHarf(kalem.ad, dil))}
@@ -266,7 +335,16 @@ export default function Tanima() {
                     setKalemler((m) =>
                       m.map((k, j) =>
                         j === i
-                          ? { ...k, besin: { id: besin.id, ad: besin.name_tr }, eslesti: true }
+                          ? {
+                              ...k,
+                              besin: {
+                                id: besin.id,
+                                ad: besin.name_tr,
+                                ad_en: besin.name_en ?? null,
+                                per_100g: besin.per_100g,
+                              },
+                              eslesti: true,
+                            }
                           : k,
                       ),
                     );
@@ -297,15 +375,18 @@ export default function Tanima() {
             </Yazi>
             <Satir arasi="xs" hizala="baseline">
               <Sayi tur="dev" renk="aksan">
-                {sonuc.toplam.kalori}
+                {toplam.kalori}
               </Sayi>
               <Yazi tur="kucuk" renk="metinSilik">
-                kcal · {toplamKalori} g
+                kcal · {toplamGram} g
               </Yazi>
             </Satir>
             <Yazi tur="kucuk" renk="metinYumusak">
-              P {Math.round(sonuc.toplam.protein_g)} g · K {Math.round(sonuc.toplam.karbonhidrat_g)}{' '}
-              g · Y {Math.round(sonuc.toplam.yag_g)} g
+              {m.makroOzeti(
+                Math.round(toplam.protein_g),
+                Math.round(toplam.karbonhidrat_g),
+                Math.round(toplam.yag_g),
+              )}
             </Yazi>
             <Yazi tur="etiket" renk="metinSilik">
               {m.kaynakEtiketi}
@@ -315,7 +396,8 @@ export default function Tanima() {
           <Dugme
             baslik={m.onayla}
             onPress={() => void onayla()}
-            pasif={kalemler.filter((k) => k.eslesti).length === 0}
+            yukleniyor={onaylaniyor}
+            pasif={eslesen.filter((k) => k.gram > 0).length === 0}
           />
           <Dugme
             baslik={m.tekrarDene}
@@ -339,37 +421,52 @@ export default function Tanima() {
       <Stack.Screen options={{ headerShown: true, title: m.cekimSayfaBasligi }} />
       <Ekran>
         <Yazi tur="baslik1">{m.cekimBaslik}</Yazi>
-        <Yazi renk="metinYumusak">{m.cekimGiris}</Yazi>
 
-        <Kart>
-          {m.ipuclari.map((ipucu: string) => (
-            <Ipucu key={ipucu} metin={ipucu} />
-          ))}
-        </Kart>
+        {/*
+          Kamera BAŞLIĞIN hemen altında, deklanşör kameranın hemen altında.
 
-        {tekrarDeneme ? <Uyari govde={m.tekrarDenemeNotu} /> : null}
-        {hata ? <Uyari tur="tehlike" govde={hata} /> : null}
-
-        {izin?.granted === false ? (
-          <View style={{ gap: tema.bosluk.sm }}>
-            <Uyari tur="uyari" govde={m.kameraIzniYok} />
-            {izin.canAskAgain ? (
-              <Dugme baslik={m.kameraIzniVer} tur="ikincil" onPress={() => void izinIste()} />
-            ) : null}
-          </View>
-        ) : null}
-
-        {izin?.granted ? (
-          <CameraView
-            ref={kamera}
-            style={{
-              width: '100%',
-              aspectRatio: 3 / 4,
-              borderRadius: tema.yaricap.md,
-              overflow: 'hidden',
-            }}
-          />
-        ) : null}
+          İpuçları kartı ve giriş paragrafı kameranın üstündeydi ve deklanşör kameranın
+          altında, ekranın dışında kalıyordu: tabağı kadrajlayan kullanıcı düğmeyi
+          görmüyordu. Kadraj kare (3:4 değil): tabak için yeterli ve kamera ile düğme
+          bir telefon ekranına birlikte sığıyor. Kutu izin yokken de aynı boyutta.
+        */}
+        <View
+          style={{
+            width: '100%',
+            aspectRatio: 1,
+            borderRadius: tema.yaricap.md,
+            overflow: 'hidden',
+            backgroundColor: tema.renk.yuzey,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: tema.renk.cizgi,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {izin?.granted ? (
+            <CameraView
+              ref={kamera}
+              /* Tam çözünürlüklü kare sunucunun 2 MB sınırını aşabiliyor (`kameraBoyutu.ts`). */
+              pictureSize={kareBoyutu}
+              onCameraReady={() => {
+                void kamera.current
+                  ?.getAvailablePictureSizesAsync()
+                  .then((boyutlar) => setKareBoyutu(uygunKareBoyutu(boyutlar)))
+                  .catch(() => null);
+              }}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : izin?.status === 'denied' ? (
+            <View style={{ gap: tema.bosluk.sm, padding: tema.bosluk.lg, width: '100%' }}>
+              <Yazi tur="kucuk" renk="metinYumusak" hizala="center">
+                {m.kameraIzniYok}
+              </Yazi>
+              {izin.canAskAgain ? (
+                <Dugme baslik={m.kameraIzniVer} tur="ikincil" onPress={() => void izinIste()} />
+              ) : null}
+            </View>
+          ) : null}
+        </View>
 
         <Dugme
           baslik={cekiliyor ? m.cekiliyor : m.fotografCek}
@@ -382,11 +479,22 @@ export default function Tanima() {
             void kareCek();
           }}
         />
+
+        {tekrarDeneme ? <Uyari govde={m.tekrarDenemeNotu} /> : null}
+        {hata ? <Uyari tur="tehlike" govde={hata} /> : null}
+
         <Dugme
           baslik={m.elleAraEkle}
           tur="sessiz"
-          onPress={() => router.replace('/(sekme)/beslenme')}
+          onPress={() => router.dismissTo('/(sekme)/beslenme')}
         />
+
+        <Yazi renk="metinYumusak">{m.cekimGiris}</Yazi>
+        <Kart>
+          {m.ipuclari.map((ipucu: string) => (
+            <Ipucu key={ipucu} metin={ipucu} />
+          ))}
+        </Kart>
 
         <Yazi tur="etiket" renk="metinSilik" hizala="center">
           {m.silmeNotu}
@@ -419,6 +527,7 @@ function Ipucu({ metin }: { metin: string }) {
 function BesinDegistir({ onSec }: { onSec: (besin: BesinSonucu) => void }) {
   const tema = useTema();
   const m = useMetinler().tanima;
+  const dil = useDil();
   const [sorgu, setSorgu] = useState('');
   const [sonuclar, setSonuclar] = useState<BesinSonucu[]>([]);
 
@@ -435,14 +544,23 @@ function BesinDegistir({ onSec }: { onSec: (besin: BesinSonucu) => void }) {
       setSonuclar([]);
       return;
     }
+    // Eski sorgunun geç gelen cevabı yenisinin üstüne yazılmasın.
+    let gecerli = true;
     const zamanlayici = setTimeout(() => {
       void istek<{ sonuclar: BesinSonucu[] }>(
         `/v1/beslenme/besin/ara?q=${encodeURIComponent(sorgu)}`,
       )
-        .then((c) => setSonuclar(c.sonuclar))
-        .catch(() => setSonuclar([]));
+        .then((c) => {
+          if (gecerli) setSonuclar(c.sonuclar);
+        })
+        .catch(() => {
+          if (gecerli) setSonuclar([]);
+        });
     }, 250);
-    return () => clearTimeout(zamanlayici);
+    return () => {
+      gecerli = false;
+      clearTimeout(zamanlayici);
+    };
   }, [sorgu]);
 
   return (
@@ -474,7 +592,7 @@ function BesinDegistir({ onSec }: { onSec: (besin: BesinSonucu) => void }) {
         >
           <Satir dagit="space-between">
             <Yazi tur="kucuk" stil={{ flex: 1 }}>
-              {besin.name_tr}
+              {besinAdi(besin, dil)}
             </Yazi>
             <Sayi tur="etiket" renk="metinSilik">
               {besin.per_100g.kalori} kcal/100g

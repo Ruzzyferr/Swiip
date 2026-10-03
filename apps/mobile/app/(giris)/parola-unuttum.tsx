@@ -1,8 +1,16 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { sunucuMetni } from '../../src/veri/sunucuMetni';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import { Dugme, Ekran, Kart, Uyari, Yazi } from '../../src/tasarim/bilesenler';
+import {
+  Dugme,
+  Ekran,
+  Kart,
+  MetinAlani,
+  ParolaAlani,
+  Uyari,
+  Yazi,
+} from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { useMetinler } from '../../src/durum/Oturum';
@@ -36,19 +44,10 @@ export default function ParolaUnuttum() {
   const [hata, setHata] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
 
-  const girisStili = {
-    minHeight: tema.dokunmaHedefi,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: tema.renk.kenar,
-    borderRadius: tema.yaricap.md,
-    paddingHorizontal: tema.bosluk.lg,
-    fontSize: 16,
-    fontFamily: tema.tipografi.aileler.govde,
-    color: tema.renk.metin,
-    backgroundColor: tema.renk.yuzey,
-  };
+  const parolaAlani = useRef<TextInput>(null);
 
   const kodIste = async () => {
+    if (yukleniyor) return;
     setHata(null);
     setYukleniyor(true);
     try {
@@ -67,6 +66,7 @@ export default function ParolaUnuttum() {
   };
 
   const sifirla = async () => {
+    if (yukleniyor) return;
     setHata(null);
     setYukleniyor(true);
     try {
@@ -96,14 +96,18 @@ export default function ParolaUnuttum() {
               <Yazi tur="kucuk" renk="metinYumusak">
                 {metinler.giris.kayit.eposta}
               </Yazi>
-              <TextInput
+              <MetinAlani
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
+                textContentType="emailAddress"
+                returnKeyType="send"
+                onSubmitEditing={() => {
+                  if (email) void kodIste();
+                }}
                 accessibilityLabel={metinler.giris.kayit.epostaEtiketi}
-                style={girisStili}
               />
             </View>
 
@@ -129,14 +133,24 @@ export default function ParolaUnuttum() {
               <Yazi tur="kucuk" renk="metinYumusak">
                 {m.kodEtiketi}
               </Yazi>
-              <TextInput
+              <MetinAlani
                 value={kod}
-                onChangeText={(deger) => setKod(deger.replace(/\D/g, '').slice(0, 6))}
+                onChangeText={(deger) => {
+                  const temiz = deger.replace(/\D/g, '').slice(0, 6);
+                  setKod(temiz);
+                  // Altı hane tamamlanınca parolaya geç: bir dokunuş daha az.
+                  if (temiz.length === 6) parolaAlani.current?.focus();
+                }}
                 keyboardType="number-pad"
                 autoComplete="one-time-code"
+                textContentType="oneTimeCode"
                 maxLength={6}
                 accessibilityLabel={m.kodErisim}
-                style={[girisStili, { letterSpacing: 6, fontVariant: ['tabular-nums'] as const }]}
+                style={{
+                  letterSpacing: 6,
+                  fontVariant: ['tabular-nums'] as const,
+                  fontFamily: tema.tipografi.aileler.sayisal,
+                }}
               />
             </View>
 
@@ -144,13 +158,17 @@ export default function ParolaUnuttum() {
               <Yazi tur="kucuk" renk="metinYumusak">
                 {m.yeniParola}
               </Yazi>
-              <TextInput
+              <ParolaAlani
+                ref={parolaAlani}
                 value={yeniParola}
                 onChangeText={setYeniParola}
-                secureTextEntry
                 autoComplete="new-password"
+                textContentType="newPassword"
+                returnKeyType="go"
+                onSubmitEditing={() => {
+                  if (kod.length === 6 && yeniParola) void sifirla();
+                }}
                 accessibilityLabel={m.yeniParola}
-                style={girisStili}
               />
               <Yazi tur="kucuk" renk="metinYumusak">
                 {m.yeniParolaIpucu}

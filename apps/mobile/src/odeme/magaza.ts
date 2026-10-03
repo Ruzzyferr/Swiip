@@ -61,6 +61,11 @@ export function urunKimliginiSadelestir(magazaKimligi: string): string {
 
 export interface SatinAlmaSonucu {
   durum: 'basarili' | 'iptal' | 'hata' | 'sdk_yok';
+  /**
+   * SDK'nın kendi teknik mesajı — yalnızca hata ayıklama için. Ekrana BASILMAZ:
+   * dili cihazın değil SDK'nın dili ve kullanıcıya bir şey söylemiyor. Kullanıcının
+   * gördüğü metin her zaman sözlükten.
+   */
   mesaj?: string;
 }
 
@@ -87,10 +92,7 @@ const sdksizSaglayici: MagazaSaglayicisi = {
     return {};
   },
   async satinAl() {
-    return {
-      durum: 'sdk_yok',
-      mesaj: 'Satın alma bu sürümde kullanılamıyor. Mağaza bağlantısı yayın sürümünde açılıyor.',
-    };
+    return { durum: 'sdk_yok' };
   },
   async geriYukle() {
     return { durum: 'sdk_yok' };
@@ -119,10 +121,14 @@ const revenueCatSaglayicisi: MagazaSaglayicisi = {
   },
 
   async satinAl(urunId) {
-    const [urun] = await Purchases.getProducts([urunId]);
-    if (!urun) return { durum: 'hata', mesaj: 'Ürün mağazada bulunamadı.' };
-
+    /*
+     * `getProducts` da try'ın İÇİNDE. Dışındayken ağ yokken ya da SDK yapılandırılamamışken
+     * fırlatıyordu; paywall'daki `await` reddediliyor, `yukleniyor` true kalıyor ve satın
+     * alma düğmesi sonsuza kadar dönüyordu.
+     */
     try {
+      const [urun] = await Purchases.getProducts([urunId]);
+      if (!urun) return { durum: 'hata' };
       await Purchases.purchaseStoreProduct(urun);
       return { durum: 'basarili' };
     } catch (hata) {
@@ -231,7 +237,7 @@ export const magaza = {
    */
   async satinAl(kod: PlanKodu, donem: Donem): Promise<SatinAlmaSonucu> {
     const urun = URUNLER.find((u) => u.kod === kod && u.donem === donem);
-    if (!urun) return { durum: 'hata', mesaj: 'Ürün bulunamadı.' };
+    if (!urun) return { durum: 'hata' };
 
     const sonuc = await saglayici.satinAl(urun.urun_id);
 

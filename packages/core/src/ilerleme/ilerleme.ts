@@ -123,7 +123,12 @@ export function ilerlemeUygula(girdi: IlerlemeGirdisi): IlerlemeSonucu {
     ustuste_zorlanma += 1;
     ustuste_basari = 0;
     kurallar.push('cift_ilerleme_sabit');
-    mesajlar.push(`${hareket.ad_tr} sabit, bir hafta daha ${kgMetni(mevcut_kg)} kg.`);
+    // Vücut ağırlığı hareketinde kilo yok: "bir hafta daha 0 kg" yazıyordu.
+    mesajlar.push(
+      hareket.vucut_agirligi
+        ? `${hareket.ad_tr} sabit, bir hafta daha ${mevcut_tekrar} tekrar.`
+        : `${hareket.ad_tr} sabit, bir hafta daha ${kgMetni(mevcut_kg)} kg.`,
+    );
 
     if (ustuste_zorlanma >= HACIM_DUSURME_ESIGI) {
       set_degisimi = -1;
@@ -137,11 +142,25 @@ export function ilerlemeUygula(girdi: IlerlemeGirdisi): IlerlemeSonucu {
   if (sonuc === 'yapamadim') {
     ustuste_zorlanma += 1;
     ustuste_basari = 0;
-    kurallar.push('yuk_dusuruldu');
     if (!hareket.vucut_agirligi) {
       mevcut_kg = yukYuvarla(mevcut_kg * BASARISIZLIK_DUSUSU, artis, taban);
-      mesajlar.push(`${hareket.ad_tr} ${kgMetni(mevcut_kg)} kg'a iniyor, tekrar oturtalım.`);
+      if (taban > 0 && mevcut_kg >= durum.mevcut_kg) {
+        /**
+         * Boş barın altına inilemiyor. Burada "20 kg'a iniyor" yazıyordu — zaten 20 kg'dı;
+         * yük düşmüyor, kullanıcı aynı yükte her hafta yeniden başarısız oluyordu.
+         * Kurtuluş yükü azaltmak değil, ağırlığı sıfırdan kurulabilen bir muadil.
+         */
+        kurallar.push('bos_bar_tabani');
+        hareket_degistir = true;
+        mesajlar.push(
+          `${hareket.ad_tr} zaten boş barda; daha hafif başlayabileceğin bir muadile geçiyoruz.`,
+        );
+      } else {
+        kurallar.push('yuk_dusuruldu');
+        mesajlar.push(`${hareket.ad_tr} ${kgMetni(mevcut_kg)} kg'a iniyor, tekrar oturtalım.`);
+      }
     } else {
+      kurallar.push('yuk_dusuruldu');
       mevcut_tekrar = Math.max(3, mevcut_tekrar - 2);
       mesajlar.push(`${hareket.ad_tr} hedefi ${mevcut_tekrar} tekrara iniyor.`);
     }
@@ -189,9 +208,22 @@ export function ilerlemeUygula(girdi: IlerlemeGirdisi): IlerlemeSonucu {
     mevcut_tekrar,
     ustuste_basari,
     ustuste_zorlanma,
-    e1rm: hareket.vucut_agirligi
-      ? durum.e1rm
-      : Math.max(durum.e1rm, epley1rm(mevcut_kg, girdi.tekrarUst)),
+    /**
+     * e1RM yalnızca GERÇEKTEN kaldırılan yükten güncellenir.
+     *
+     * `mevcut_kg` burada artık bir sonraki seansın HEDEFİ — henüz kaldırılmamış yük.
+     * Eskiden e1RM ondan hesaplanıyordu: "tamamladım" diyen kullanıcının e1RM'i bir artış
+     * adımı kadar şişiyor, "zorlandım" diyeninki ise üst tekrarı yapmadığı bir yükle
+     * hesaplanıyordu. Bu sayı yeni hareketlerin başlangıç yükünü belirliyor; şişmesi,
+     * kullanıcıya hiç kaldırmadığı bir ağırlık yazmak demek.
+     *
+     * Üst tekrarın kanıtı yalnızca "tamamladım": kullanıcı `durum.mevcut_kg` ile bütün
+     * setlerde üst tekrarı yaptı.
+     */
+    e1rm:
+      !hareket.vucut_agirligi && sonuc === 'tamamladim'
+        ? Math.max(durum.e1rm, epley1rm(durum.mevcut_kg, girdi.tekrarUst))
+        : durum.e1rm,
   };
   if (son_deload_hafta !== undefined) yeniDurum.son_deload_hafta = son_deload_hafta;
 
@@ -226,9 +258,10 @@ export function ilerlemeUygula(girdi: IlerlemeGirdisi): IlerlemeSonucu {
 }
 
 /** Türkçe ondalık ayırıcı virgüldür; 52.5 değil 52,5. */
-export function kgMetni(kg: number): string {
+export function kgMetni(kg: number, ondalikAyirac = ','): string {
   const yuvarli = Math.round(kg * 100) / 100;
-  return Number.isInteger(yuvarli) ? String(yuvarli) : String(yuvarli).replace('.', ',');
+  // Ayırıcı dile göre: İngilizce arayüz "2,5 kg" görüyordu.
+  return Number.isInteger(yuvarli) ? String(yuvarli) : String(yuvarli).replace('.', ondalikAyirac);
 }
 
 /** Atlanan seans programı ileri kaydırır; hafta atlanmaz, plan kayar. */
@@ -242,7 +275,9 @@ export function seansAtla(gunIndeksi: number, sebep: string, hafta: number): Atl
   return {
     kaydirilan_gun: gunIndeksi,
     mesaj:
-      'Seansı atladın, sorun değil. Programı bir gün kaydırdım; hafta sıfırlanmıyor, ' +
+      // "Programı bir gün kaydırdım" diyordu; sunucu hiçbir şeyi kaydırmıyor, yalnızca
+      // seansı "atlandı" işaretliyor. Söylenen, yapılanla aynı olmalı.
+      'Seansı atladın, sorun değil. Hafta sıfırlanmıyor; bir sonraki seansınla ' +
       'kaldığın yerden devam ediyorsun.',
     karar: {
       id: `atlama-h${hafta}-g${gunIndeksi}`,

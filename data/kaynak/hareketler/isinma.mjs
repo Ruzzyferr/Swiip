@@ -31,6 +31,13 @@ export default [
       '30 saniye tut, taraf değiştir.',
       'Squat derinliği kısıtlı olanlar için birinci sırada gelir.',
     ],
+    talimat_en: [
+      'Sit on the floor with your front leg bent at 90 degrees in front of you and your back leg bent at 90 degrees to the side.',
+      'Keep your back straight and lean forward over your front knee.',
+      'You should feel a stretch on the outside of your hip.',
+      'Hold for 30 seconds, then switch sides.',
+      'It is the top priority for anyone with limited squat depth.',
+    ],
   },
   {
     id: 'kalca-fleksor-esnetme',
@@ -59,6 +66,13 @@ export default [
       'Arka bacağın kalça önünde gerilme hissetmelisin.',
       'Belini kavislendirme; kalçanı hafif içe kıvır.',
       'Uzun süre oturanlar için en gerekli esnetme budur.',
+    ],
+    talimat_en: [
+      'Place one knee on the floor and bend the other leg in front at 90 degrees.',
+      'Push your hips forward and keep your torso upright.',
+      'You should feel a stretch at the front of the hip on your back leg.',
+      'Don’t arch your lower back; tuck your pelvis slightly under.',
+      'This is the most essential stretch for anyone who sits for long periods.',
     ],
   },
   {
@@ -89,6 +103,13 @@ export default [
       'Dizinde ağrı hissedersen bu hareketi yapma.',
       '30-45 saniye tut.',
     ],
+    talimat_en: [
+      'Bend your front leg in front of you and extend your back leg behind you.',
+      'Let your hips sink toward the floor.',
+      'Lean your torso forward to deepen the stretch.',
+      'If you feel pain in your knee, don’t do this exercise.',
+      'Hold for 30-45 seconds.',
+    ],
   },
   {
     id: 'kedi-deve',
@@ -117,6 +138,13 @@ export default [
       'Nefes alırken göğsünü öne aç, belini hafif çukurlaştır.',
       'Yavaş ve akıcı hareket et.',
       'Bel ısınması için 8-10 tekrar yeterlidir.',
+    ],
+    talimat_en: [
+      'Get into an all-fours position.',
+      'As you exhale, round your back up toward the ceiling.',
+      'As you inhale, open your chest forward and let your lower back arch slightly.',
+      'Move slowly and smoothly.',
+      '8-10 reps are enough to warm up your lower back.',
     ],
   },
   {
@@ -148,6 +176,13 @@ export default [
       'Bakışını dirseğini takip ettir.',
       'Her tarafta 8 tekrar yap.',
     ],
+    talimat_en: [
+      'On all fours, place one hand behind your head.',
+      'Rotate your upper back by turning your elbow toward the ceiling.',
+      'Don’t rotate your lower back; the movement should come from your rib cage.',
+      'Follow your elbow with your eyes.',
+      'Do 8 reps on each side.',
+    ],
   },
   {
     id: 'duvar-kaydirma',
@@ -176,6 +211,13 @@ export default [
       'Belini duvardan ayırma.',
       'Kollar duvardan ayrılmaya başladığı yerde dur.',
       'Omuz presi öncesi ısınma olarak idealdir.',
+    ],
+    talimat_en: [
+      'Stand with your back against a wall and your arms bent at 90 degrees, touching the wall.',
+      'Slide your arms up without lifting them off the wall.',
+      'Keep your lower back against the wall.',
+      'Stop where your arms start to come off the wall.',
+      'Ideal as a warm-up before overhead pressing.',
     ],
   },
   {
@@ -207,6 +249,13 @@ export default [
       'Değdiriyorsan ayağını biraz daha geri al.',
       'Squat derinliği ayak bileğinden kısıtlıysa buradan başla.',
     ],
+    talimat_en: [
+      'Get into a half-kneeling position facing a wall.',
+      'Place the toes of your front foot about a hand’s width from the wall.',
+      'Push your knee toward the wall without lifting your heel.',
+      'If your knee touches, move your foot back a little.',
+      'If your squat depth is limited by your ankles, start here.',
+    ],
   },
   {
     id: 'olu-asilma',
@@ -232,9 +281,16 @@ export default [
     talimat_tr: [
       'Bara asıl, omuzların kulaklarına yaklaşsın.',
       'Sonra omuzlarını aşağı çekerek aktif asılmaya geç.',
-      'Nefesini tut, gövden sallanmasın.',
+      'Düzenli nefes al, gövden sallanmasın.',
       '20-40 saniye asılı kal.',
       'Kavrama gücünü ve omuz sağlığını birlikte geliştirir.',
+    ],
+    talimat_en: [
+      'Hang from the bar and let your shoulders rise toward your ears.',
+      'Then pull your shoulders down to switch to an active hang.',
+      'Breathe steadily and don’t let your body swing.',
+      'Stay hanging for 20-40 seconds.',
+      'It builds grip strength and shoulder health together.',
     ],
   },
   {
@@ -264,6 +320,13 @@ export default [
       'Omuzlarını aşağı çek.',
       'Kavrama gücün yetersizse buradan başla.',
       '30 saniyeye ulaşınca bandı bırak.',
+    ],
+    talimat_en: [
+      'Loop the band around the bar and place your foot in the band.',
+      'Hang from the bar and let the band carry part of your weight.',
+      'Pull your shoulders down.',
+      'If your grip strength isn’t enough yet, start here.',
+      'Once you reach 30 seconds, drop the band.',
     ],
   },
   {
@@ -295,6 +358,13 @@ export default [
       'Her tarafta 10 tekrar öne-arkaya, 10 tekrar yana yap.',
       'Bacak günü öncesi ısınmanın standart parçasıdır.',
     ],
+    talimat_en: [
+      'Hold on to a wall or a rack.',
+      'Swing one leg forward and back through a comfortable range.',
+      'Keep your torso still; don’t use your lower back.',
+      'Do 10 forward-back swings and 10 side-to-side swings on each leg.',
+      'This is a standard part of the warm-up before leg day.',
+    ],
   },
   {
     id: 'kol-cevirme',
@@ -323,6 +393,13 @@ export default [
       '15 saniye ileri, 15 saniye geri çevir.',
       'Omuzda takılma hissediyorsan daireyi küçült.',
       'Üst vücut günü öncesi ilk hareket olarak uygundur.',
+    ],
+    talimat_en: [
+      'Extend your arms out to the sides.',
+      'Start with small circles and gradually make them bigger.',
+      'Circle forward for 15 seconds, then backward for 15 seconds.',
+      'If you feel catching in your shoulder, make the circles smaller.',
+      'A good first movement before an upper-body day.',
     ],
   },
   {
@@ -354,6 +431,13 @@ export default [
       'Diğer tarafa geç.',
       'Ani ve hızlı hareketten kaçın.',
     ],
+    talimat_en: [
+      'Slowly tilt your head toward one shoulder.',
+      'Place your hand on top of your head for light support; don’t pull.',
+      'Hold for 20-30 seconds.',
+      'Switch to the other side.',
+      'Avoid sudden, fast movements.',
+    ],
   },
   {
     id: 'kalca-koprusu-isinma',
@@ -382,6 +466,13 @@ export default [
       '15 tekrar yap, ağırlık kullanma.',
       'Uzun süre oturanlarda kalça kasları uyumakta gecikir; bu onları uyandırır.',
       'Bacak veya kalça günü öncesi yap.',
+    ],
+    talimat_en: [
+      'Lie on your back with your knees bent.',
+      'Lift your hips and squeeze your glutes for two seconds at the top.',
+      'Do 15 reps without any added weight.',
+      'In people who sit for long periods, the glutes are slow to activate; this wakes them up.',
+      'Do this before a leg or glute day.',
     ],
   },
 ];

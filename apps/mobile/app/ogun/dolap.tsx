@@ -204,10 +204,13 @@ export default function Dolap() {
           </View>
         </Kart>
 
+        {/*
+          Sonuç düğmenin ALTINDA. Üstündeyken, basılan "Kaydet" not kadar aşağı
+          kayıyordu; ikinci dokunuş boşluğa gidiyordu.
+        */}
+        <Dugme baslik={genel.kaydet} onPress={() => void kaydet()} />
         {kaydetmeHatasi ? <Uyari tur="tehlike" govde={kaydetmeHatasi} /> : null}
         {kaydedildi ? <Uyari govde={m.kaydedildi} /> : null}
-
-        <Dugme baslik={genel.kaydet} onPress={() => void kaydet()} />
         <Dugme
           baslik={m.tarifleriGor}
           tur="ikincil"

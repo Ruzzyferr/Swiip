@@ -24,6 +24,9 @@ export async function besinleriTohumla(db: Veritabani): Promise<number> {
       await db
         .update(foods)
         .set({
+          // Mevcut satırlar da İngilizce adını alsın: ad sonradan eklendi ve
+          // üretimdeki 439 satırın yalnızca ikisinde vardı.
+          name_en: besin.name_en,
           per_100g_jsonb: besin.per_100g,
           portions_jsonb: besin.portions,
           source: besin.source,
@@ -33,7 +36,7 @@ export async function besinleriTohumla(db: Veritabani): Promise<number> {
     } else {
       await db.insert(foods).values({
         name_tr: besin.name_tr,
-        name_en: besin.name_en ?? null,
+        name_en: besin.name_en,
         per_100g_jsonb: besin.per_100g,
         portions_jsonb: besin.portions,
         source: besin.source,

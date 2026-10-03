@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { Dugme, Ekran, Yazi, Yukleniyor } from '../src/tasarim/bilesenler';
 import { useTema } from '../src/tasarim/tema';
 import { useMetinler, useOturum } from '../src/durum/Oturum';
+import { istek } from '../src/veri/api';
 import { Isaret } from '../src/marka/Isaret';
 
 /**
@@ -17,11 +18,48 @@ export default function Karsilama() {
   const metinler = useMetinler();
   const { kullanici, hazir } = useOturum();
 
-  useEffect(() => {
-    if (hazir && kullanici) router.replace('/(sekme)/program');
-  }, [hazir, kullanici]);
+  /*
+    Yönlendirme yalnızca bu ekran ODAKTAYKEN.
 
-  if (!hazir) {
+    Karşılama ekranı yığının dibinde bağlı kalıyor: "Başla" → kayıt akışı onun ÜSTÜNE
+    açılıyor. Düz `useEffect` ile, kayıt bitip `kullanici` dolduğu anda bu efekt de
+    çalışıyor ve kullanıcıyı Program'a atıyordu — aynı anda kayıt ekranı onu
+    değerlendirmeye götürürken. İki yönlendirme yarışıyordu; ağ günlüğünde Program
+    sekmesinin bir anlığına bağlanıp `/program/aktif` çektiği görüldü. Odak şartı
+    yalnızca açılışta (ve çıkıştan dönüşte) yönlendiriyor.
+  */
+  useFocusEffect(
+    useCallback(() => {
+      if (!hazir || !kullanici) return;
+      let iptal = false;
+      /*
+        Değerlendirmesi YARIM kalan kullanıcı kaldığı yere dönüyor.
+
+        Herkes Program'a atılıyordu: yarıda bırakan kullanıcı uygulamayı her açışında
+        "Henüz programın yok" ve kırmızı bir "Önce değerlendirmeyi tamamla" uyarısıyla
+        karşılaşıyordu — yapması gereken şeyi bir dokunuş arkasına saklayan bir ekran.
+        Durum okunamazsa (çevrimdışı) Program: orada cihazdaki son program duruyor.
+      */
+      void istek<{ tamamlandi?: boolean; version?: number }>('/v1/degerlendirme/durum')
+        .then((d) =>
+          /*
+            Yalnızca İLK değerlendirme. 2. sürüm "Değerlendirmeyi güncelle"den açılıyor;
+            onu yarıda bırakanın zaten bir programı var ve açılışta onu görmeli.
+          */
+          d.tamamlandi === false && (d.version ?? 1) === 1 ? '/degerlendirme' : '/(sekme)/program',
+        )
+        .catch(() => '/(sekme)/program' as const)
+        .then((hedef) => {
+          if (!iptal) router.replace(hedef);
+        });
+      return () => {
+        iptal = true;
+      };
+    }, [hazir, kullanici]),
+  );
+
+  // Oturum açıkken yönlendirme beklenirken karşılama ekranı bir anlığına görünmesin.
+  if (!hazir || kullanici) {
     return (
       <View style={{ flex: 1, backgroundColor: tema.renk.zemin, justifyContent: 'center' }}>
         <Yukleniyor metin={metinler.giris.aciliyor} />

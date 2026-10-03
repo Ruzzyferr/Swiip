@@ -1,18 +1,26 @@
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { HataliIstek, Yetkisiz } from '../hatalar';
 import {
   assessments,
   body_analyses,
+  coach_messages,
   decisions,
   food_logs,
+  meal_plans,
+  ogun_tercihleri,
+  pantry,
   profiles,
   programs,
   progression_state,
+  quotas,
   sessions,
   subscriptions,
+  tanima_onaylari,
+  tanima_onbellegi,
   users,
+  water_logs,
   weight_logs,
 } from '../db/sema';
 
@@ -61,6 +69,14 @@ export async function hesapRotalari(app: FastifyInstance): Promise<void> {
       yemekler,
       kilolar,
       abonelik,
+      kocMesajlari,
+      suKayitlari,
+      ogunPlanlari,
+      dolap,
+      ogunTercihleri,
+      kotalar,
+      tanimaOnaylari,
+      tanimaOnbellegi,
     ] = await Promise.all([
       db.select().from(assessments).where(eq(assessments.user_id, id)),
       db.select().from(profiles).where(eq(profiles.user_id, id)),
@@ -70,8 +86,27 @@ export async function hesapRotalari(app: FastifyInstance): Promise<void> {
       db.select().from(progression_state).where(eq(progression_state.user_id, id)),
       db.select().from(decisions).where(eq(decisions.user_id, id)),
       db.select().from(food_logs).where(eq(food_logs.user_id, id)),
-      db.select().from(weight_logs).where(eq(weight_logs.user_id, id)),
+      // Tarih sırasıyla: İlerleme'deki kilo grafiği sıralı seri varsayıyor.
+      db
+        .select()
+        .from(weight_logs)
+        .where(eq(weight_logs.user_id, id))
+        .orderBy(asc(weight_logs.gun)),
       db.select().from(subscriptions).where(eq(subscriptions.user_id, id)),
+      /**
+       * Aşağıdakiler dışa aktarmada YOKTU — ama dosyanın açıklaması "tüm kişisel
+       * verini içerir" diyordu. En ağırı koç mesajları: kullanıcı oraya sağlık
+       * şikâyetini yazıyor (`uygulama.ts` bu yüzden log'dan bile siliyor) ve KVKK
+       * m.11 erişim hakkı tam olarak bunu kapsıyor.
+       */
+      db.select().from(coach_messages).where(eq(coach_messages.user_id, id)),
+      db.select().from(water_logs).where(eq(water_logs.user_id, id)),
+      db.select().from(meal_plans).where(eq(meal_plans.user_id, id)),
+      db.select().from(pantry).where(eq(pantry.user_id, id)),
+      db.select().from(ogun_tercihleri).where(eq(ogun_tercihleri.user_id, id)),
+      db.select().from(quotas).where(eq(quotas.user_id, id)),
+      db.select().from(tanima_onaylari).where(eq(tanima_onaylari.user_id, id)),
+      db.select().from(tanima_onbellegi).where(eq(tanima_onbellegi.user_id, id)),
     ]);
 
     return {
@@ -90,6 +125,14 @@ export async function hesapRotalari(app: FastifyInstance): Promise<void> {
       beslenme_kayitlari: yemekler,
       kilo_kayitlari: kilolar,
       abonelik: abonelik[0] ?? null,
+      koc_mesajlari: kocMesajlari,
+      su_kayitlari: suKayitlari,
+      ogun_planlari: ogunPlanlari,
+      dolap: dolap[0] ?? null,
+      ogun_tercihleri: ogunTercihleri[0] ?? null,
+      kullanim_kotalari: kotalar,
+      tanima_duzeltmeleri: tanimaOnaylari,
+      tanima_gecmisi: tanimaOnbellegi,
     };
   });
 

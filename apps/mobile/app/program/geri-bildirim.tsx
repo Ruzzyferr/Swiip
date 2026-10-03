@@ -45,6 +45,8 @@ interface SeansCevabi {
 const SECENEK_KODLARI: GeriBildirim[] = ['tamamladim', 'zorlandim', 'yapamadim'];
 
 export default function GeriBildirimEkrani() {
+  /** Ondalık ayırıcı dile göre ("2,5 kg" / "2.5 kg"). */
+  const ondalik = useMetinler().gerekce.ondalikAyirac;
   const tema = useTema();
   const m = useMetinler().geriBildirim;
   const dil = useDil();
@@ -117,13 +119,16 @@ export default function GeriBildirimEkrani() {
   };
 
   const atla = async (sebep: string) => {
+    // Çift dokunuş iki atlama kaydı yazıyordu.
+    if (gonderiliyor) return;
     setGonderiliyor(true);
     try {
-      const cevap = await istek<{ mesaj: string }>(`/v1/program/seans/${seans}/atla`, {
+      await istek<{ mesaj: string }>(`/v1/program/seans/${seans}/atla`, {
         yontem: 'POST',
         govde: { sebep },
       });
-      setKararlar([cevap.mesaj]);
+      // Sunucunun cümlesi Türkçe sabit; kullanıcıya sözlükten, kendi dilinde.
+      setKararlar([m.atlamaSonucu]);
     } catch (h) {
       setHata(h instanceof ApiHatasi ? h.mesaj : m.gonderilemedi);
     } finally {
@@ -147,7 +152,7 @@ export default function GeriBildirimEkrani() {
 
           {agriBolgeleri.length > 0 ? <Uyari tur="uyari" govde={m.agriUyarisi} /> : null}
 
-          <Dugme baslik={m.programaDon} onPress={() => router.replace('/(sekme)/program')} />
+          <Dugme baslik={m.programaDon} onPress={() => router.dismissTo('/(sekme)/program')} />
         </Ekran>
       </>
     );
@@ -172,6 +177,27 @@ export default function GeriBildirimEkrani() {
           </Yazi>
         </View>
 
+        {/*
+          "Üç dokunuş" vaadi altı hareketlik bir seansta tutmuyordu: her hareket ayrı bir
+          dokunuştu. Çoğu seansta her şey planlandığı gibi geçer; tek dokunuşla hepsi
+          işaretlenir, yalnızca farklı geçen değiştirilir. Kısayol listenin ÜSTÜNDE ama
+          hiçbir koşulda belirip kaybolmuyor — altındaki kartları kaydırmaz.
+        */}
+        <View style={{ gap: tema.bosluk.xs }}>
+          <Dugme
+            baslik={m.hepsiniTamamladim}
+            tur="ikincil"
+            onPress={() =>
+              setSecimler(
+                Object.fromEntries(kalemler.map((k) => [k.exercise_id, 'tamamladim' as const])),
+              )
+            }
+          />
+          <Yazi tur="etiket" renk="metinSilik" hizala="center">
+            {m.hepsiniTamamladimNotu}
+          </Yazi>
+        </View>
+
         {kalemler.map((kalem) => {
           const hareket = hareketBul(kalem.exercise_id);
           return (
@@ -179,7 +205,7 @@ export default function GeriBildirimEkrani() {
               <Yazi tur="baslik3">{hareketAdi(hareket, dil, kalem.exercise_id)}</Yazi>
               <Satir arasi="md" hizala="baseline">
                 {kalem.target_weight !== null ? (
-                  <Sayi renk="metinYumusak">{kgMetni(kalem.target_weight)} kg</Sayi>
+                  <Sayi renk="metinYumusak">{kgMetni(kalem.target_weight, ondalik)} kg</Sayi>
                 ) : null}
                 <Sayi renk="metinYumusak">
                   {kalem.target_sets} × {kalem.target_reps_low}-{kalem.target_reps_high}
@@ -300,12 +326,17 @@ export default function GeriBildirimEkrani() {
             <Yazi tur="kucuk" renk="metinSilik">
               {m.yargilamiyoruz}
             </Yazi>
-            {m.atlamaSebepleri.map((sebep: string) => (
+            {/*
+              Sunucuya KOD gidiyor, ekrandaki metin değil. Metin gidiyordu: aynı sebep
+              İngilizce kullanıcıda başka bir dize olarak kaydediliyor ve atlama
+              sebepleri hiçbir zaman birlikte sayılamıyordu.
+            */}
+            {m.atlamaSebepleri.map((sebep: string, i: number) => (
               <SecimDugmesi
                 key={sebep}
                 baslik={sebep}
                 secili={false}
-                onPress={() => void atla(sebep)}
+                onPress={() => void atla(ATLAMA_KODLARI[i] ?? 'diger')}
               />
             ))}
           </Kart>
@@ -314,3 +345,6 @@ export default function GeriBildirimEkrani() {
     </>
   );
 }
+
+/** `atlamaSebepleri` ile AYNI sırada. Sözlükteki sıra değişirse burası da değişir. */
+const ATLAMA_KODLARI = ['zaman_yok', 'hastalik', 'yorgunluk', 'salona_gidemedim', 'istek_yok'];

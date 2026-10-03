@@ -14,7 +14,7 @@ import {
 import { hacimButcesiHesapla, type Kapasite } from '../hacim/hacim';
 import { hacimGrubu, muadilZinciri, yukReferansi } from '../katalog/katalog';
 import { splitSec } from '../split/split';
-import { baslangicYuku, referansE1rm, type ReferansLift } from '../yuk/tahmin';
+import { baslangicYuku, referansE1rm, tekrarYuzdesi, type ReferansLift } from '../yuk/tahmin';
 import { havuzHazirla, type HavuzSonucu } from './havuz';
 import { bilesikMi, hareketSuresiDakika, semaSec } from './semalar';
 
@@ -61,7 +61,15 @@ const GUN_GRUPLARI: Record<GunTipi, HacimGrubu[]> = {
   lower: ['quadriceps', 'hamstring', 'kalca', 'baldir', 'karin'],
   push: ['gogus', 'omuz', 'triceps'],
   pull: ['sirt', 'biceps'],
-  legs: ['quadriceps', 'hamstring', 'kalca', 'baldir'],
+  /**
+   * Karın bacak gününde.
+   *
+   * Burada karın yoktu ve karın hiçbir push/pull gününde de yok. Sonuç: altı günlük
+   * (ppl_x2) programda karın bütçesi hesaplanıyor (haftada 12 set) ama HİÇBİR güne
+   * düşmüyordu — haftada altı gün antrenman yapan kullanıcı tek bir karın hareketi
+   * görmüyordu. `lower` günü karını zaten taşıyor; `legs` onun odaklı hâli.
+   */
+  legs: ['quadriceps', 'hamstring', 'kalca', 'baldir', 'karin'],
 };
 
 const LIFT_KANONIK: Record<ReferansLift, string> = {
@@ -87,6 +95,8 @@ const MAKINE_EKIPMANLARI = new Set([
   'makine_abduktor',
 ]);
 
+/** Barbell hareketinde yük bunun altına inemez. */
+const BOS_BAR_KG = 20;
 const ISINMA_DAKIKA_UZUN = 8;
 const ISINMA_DAKIKA_KISA = 5;
 const MIN_SET = 2;
@@ -206,6 +216,7 @@ interface SeansGirdisi {
 
 function seansKur(girdi: SeansGirdisi): { seans: SeansPlani; seansKararlari: Karar[] } {
   const { profil, gunTipi, gunIndeksi, hedefler, havuz } = girdi;
+  const havuzKimlikleri = new Set(havuz.map((h) => h.id));
   const isinma = profil.seans_dakika >= 45 ? ISINMA_DAKIKA_UZUN : ISINMA_DAKIKA_KISA;
   const sureButcesi = profil.seans_dakika - isinma;
 
@@ -315,10 +326,22 @@ function seansKur(girdi: SeansGirdisi): { seans: SeansPlani; seansKararlari: Kar
           : { artis: secim.hareket.artis_kg > 0 ? secim.hareket.artis_kg : 2.5 }),
       },
       gerekce_id: gerekceId,
+      /**
+       * Muadil yalnızca HAVUZDAN gelir.
+       *
+       * `muadilZinciri` ekipmana ve kontrendikasyona bakıyor ama havuzun öteki sert
+       * kurallarına (eksenel yük, baş üstü, teknik tavanı, ağrıyı artıran patern,
+       * reddedilen hareket…) bakmıyor. Osteoporoz bildiren kullanıcıda goblet squat'ın
+       * muadili olarak **barbell squat** öneriliyordu — havuzun "buradan geçemeyen
+       * hareket hiçbir skorla geri gelemez" sözünü arka kapıdan bozmak. Muadil, ağrı
+       * bildiriminde hareketi değiştirmenin yolu; yani tam da en hassas anda okunuyor.
+       */
       alternatifler: muadilZinciri(secim.hareket.id, {
         ekipman: profil.kisitlar.ekipman,
         kontrendikasyonlar: profil.kisitlar.kontrendikasyonlar,
-      }).map((h) => h.id),
+      })
+        .filter((h) => havuzKimlikleri.has(h.id))
+        .map((h) => h.id),
     });
 
     seansKararlari.push(hareketKarari(gerekceId, secim.hareket, secim.grup, profil));
@@ -357,7 +380,26 @@ function enIyiAday(
       b.skor !== a.skor ? b.skor - a.skor : a.hareket.id.localeCompare(b.hareket.id),
     );
 
-  return adaylar[0];
+  // Boş barı kaldıramayacağı tahmin edilen kullanıcıya barbell hareketi yazılmaz —
+  // başka aday varsa. Yoksa en iyisi yine döner: seans boş kalmaz.
+  return adaylar.find((a) => barKaldirilabilir(a.hareket, profil)) ?? adaylar[0];
+}
+
+/**
+ * Boş bar, motorun kendi tahminine göre hedef tekrarda kaldırılabilir mi?
+ *
+ * Barbell hareketinde yük boş barın (20 kg) altına inemez. 55 kg'lık yeni başlayan bir
+ * kadında bench press e1RM tahmini ~18 kg; güç hedefinde 6 tekrar için 20 kg yazılıyordu —
+ * motorun KENDİ tahminine göre tek tekrarlık maksimumunun üstü. "İlk hafta hep hafif
+ * tarafta başlanır" ilkesinin tam tersi. Böyle bir kullanıcıda dumbbell veya makine
+ * muadili ağırlığı sıfırdan kurabiliyor; bar kurmuyor.
+ */
+function barKaldirilabilir(hareket: Hareket, profil: Profil): boolean {
+  if (hareket.vucut_agirligi || !hareket.ekipman.includes('barbell')) return true;
+  const e1rm = e1rmTahmini(hareket, profil);
+  if (e1rm <= 0) return true;
+  const sema = semaSec(profil.hedef_vektoru.birincil, hareket);
+  return BOS_BAR_KG <= e1rm * tekrarYuzdesi(sema.tekrar_ust);
 }
 
 /** Skorlama: hedef uyumu × tarz × uyaran/yorgunluk × erişilebilirlik. */
@@ -404,7 +446,7 @@ function yukAta(hareket: Hareket, profil: Profil, tekrarUst: number): number | n
     antrenmanYasi: profil.antrenman_yasi,
   };
 
-  if (hareket.ekipman.includes('barbell')) girdi.tabanKg = 20;
+  if (hareket.ekipman.includes('barbell')) girdi.tabanKg = BOS_BAR_KG;
   if (hareket.ekipman.includes('dumbbell') && profil.kisitlar.dumbbell_max_kg !== undefined) {
     girdi.tavanKg = profil.kisitlar.dumbbell_max_kg;
   }
@@ -525,7 +567,20 @@ function hareketKarari(id: string, hareket: Hareket, grup: HacimGrubu, profil: P
 
   if (profil.kisitlar.kontrendikasyonlar.length > 0) {
     kurallar.push('kontrendikasyon_uyumlu');
-    girdiler.push({ soru_id: 'S8', deger: profil.kisitlar.kontrendikasyonlar.join(', ') });
+    /*
+      Her kontrendikasyon GELDİĞİ soruya atfediliyor. Hepsi S8'e (ağrı haritası)
+      yazılıyordu: S17'de verilen "Bel fıtığı" cevabı karar izinde "ağrı bölgelerini
+      işaretle" sorusundan çıkmış görünüyordu. Kaynağı bilinmeyen (eski profil) S8'de.
+    */
+    const kaynak = profil.kisitlar.kontrendikasyon_sorulari ?? {};
+    const soruBasina = new Map<string, string[]>();
+    for (const kod of profil.kisitlar.kontrendikasyonlar) {
+      const soru = kaynak[kod] ?? 'S8';
+      soruBasina.set(soru, [...(soruBasina.get(soru) ?? []), kod]);
+    }
+    for (const [soru, kodlar] of soruBasina) {
+      girdiler.push({ soru_id: soru, deger: kodlar.join(', ') });
+    }
     cumleler.push('bildirdiğin kısıtlarla çelişmiyor');
   }
 

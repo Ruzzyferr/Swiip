@@ -7,6 +7,7 @@ import {
   tarifleriFiltrele,
 } from '@swiip/core';
 import { besinAra } from './malzemeEslemesi';
+import { aramaAnahtari } from '@swiip/shared';
 
 /**
  * Tarif kütüphanesi veri sözleşmesi (F8).
@@ -537,5 +538,65 @@ describe('B9 alerji filtresi — arayüzdeki etiketlerle', () => {
   it('"Diğer" otomatik filtrelenemiyor ve bu çağırana bildiriliyor', () => {
     expect(bilinmeyenAlerjenler(['Süt', 'Diğer'])).toEqual(['Diğer']);
     expect(bilinmeyenAlerjenler(['Süt', 'Buğday'])).toEqual([]);
+  });
+});
+
+/**
+ * Beslenme biçimi etiketleri malzemeyle tutarlı mı?
+ *
+ * Tavuk, hindi ve kıyma içeren 43 tarifin hiçbirinde `et` etiketi yoktu — pesketaryen
+ * kuralı (`yasak: 'et'`) etikete baktığı için pesketaryen kullanıcıya `Fırında tavuk
+ * but` öneriliyordu. Terbiyeli tavuk çorbası ise `vejetaryen` etiketi taşıyordu.
+ * Çekirdek artık malzemeden de denetliyor ama etiket bir veri; yanlış durmamalı.
+ *
+ * Eşleşme KELİME bazlı (katlanmış), alt dize değil: "et" alt dizesi `kereviz`,
+ * `tereyağı` gibi masum malzemeleri de yakalardı.
+ */
+describe('tarif kütüphanesi — beslenme biçimi etiketleri', () => {
+  const KARA_ETI = [
+    'et',
+    'eti',
+    'tavuk',
+    'hindi',
+    'dana',
+    'kuzu',
+    'kiyma',
+    'kusbasi',
+    'bonfile',
+    'pirzola',
+    'incik',
+    'sucuk',
+    'sosis',
+    'salam',
+    'pastirma',
+    'jambon',
+    'kavurma',
+    'ciger',
+    'sakatat',
+    'domuz',
+  ];
+
+  const kelimeler = (tarif: (typeof TARIF_TOHUMU)[number]) =>
+    tarif.malzemeler.flatMap((m) =>
+      aramaAnahtari(m.ad.toLocaleLowerCase('tr-TR')).split(/[^a-z]+/),
+    );
+  const etliMi = (tarif: (typeof TARIF_TOHUMU)[number]) =>
+    kelimeler(tarif).some((k) => KARA_ETI.includes(k));
+
+  it('kara eti içeren her tarif `et` etiketi taşıyor', () => {
+    const eksik = TARIF_TOHUMU.filter((t) => etliMi(t) && !t.etiketler.includes('et'));
+    expect(eksik.map((t) => t.id)).toEqual([]);
+  });
+
+  it('`et` etiketli her tarifte gerçekten kara eti var', () => {
+    const fazla = TARIF_TOHUMU.filter((t) => t.etiketler.includes('et') && !etliMi(t));
+    expect(fazla.map((t) => t.id)).toEqual([]);
+  });
+
+  it('vejetaryen ya da vegan etiketli hiçbir tarifte et yok', () => {
+    const celiski = TARIF_TOHUMU.filter(
+      (t) => etliMi(t) && (t.etiketler.includes('vejetaryen') || t.etiketler.includes('vegan')),
+    );
+    expect(celiski.map((t) => t.id)).toEqual([]);
   });
 });

@@ -8,14 +8,14 @@ import { useTema } from '../tasarim/tema';
 /**
  * Alt banner.
  *
- * **Üç koşulun üçü de sağlanmadan hiçbir şey çizilmiyor:**
+ * **Üç koşulun üçü de sağlanmadan reklam çizilmiyor:**
  *
  *  1. Sunucu bu kullanıcıya reklam gösterilebileceğini söylemiş olmalı (`goster`).
- *  2. Cevap gerçekten gelmiş olmalı (`bilindi`) — yükleme sırasında ödeyen bir
- *     kullanıcıya reklam göstermek, `rakip-analizi.md`'deki 1★/8 beğenili yorumun
- *     ta kendisi.
- *  3. Reklam yüklenmiş olmalı (`yuklendi`) — yüklenmeden yer ayırmak, dolmayan bir
- *     boşluk bırakıyor ve listenin altında sebepsiz bir delik gibi duruyor.
+ *  2. Cevap BU OTURUMDA gerçekten gelmiş olmalı (`bilindi`) — yükleme sırasında
+ *     ödeyen bir kullanıcıya reklam göstermek, `rakip-analizi.md`'deki 1★/8 beğenili
+ *     yorumun ta kendisi. Cevaptan önce en fazla boş bir şerit durur (`yerAyir`).
+ *  3. Reklam yüklenmiş olmalı (`yuklendi`) — yüklenene kadar yer AYRILIYOR ama
+ *     reklam görünmez (`opacity: 0`); aşağıdaki "Yükseklik SABİT" bölümüne bak.
  *
  * **Yükseklik SABİT — reklam gelse de gelmese de.**
  *
@@ -42,11 +42,20 @@ import { useTema } from '../tasarim/tema';
 const BANNER_YUKSEKLIGI = 60;
 
 export function ReklamBanner() {
-  const { goster, bilindi } = useReklamHakki();
+  const { goster, bilindi, yerAyir } = useReklamHakki();
   const [yuklendi, setYuklendi] = useState(false);
   const tema = useTema();
 
-  if (!bilindi || !goster) return null;
+  /*
+    Yer, reklamdan AYRI bir karar.
+
+    Önceden cevap gelene kadar `null` dönülüyordu ve sekmenin kendi verisi cevaptan
+    önce gelince, sayfanın ortasına ~90 px birden açılıyordu (2. kusur sınıfı).
+    Artık sunucunun bu kullanıcıya SON kararı "reklam var" idiyse şerit baştan
+    duruyor; reklam ise yalnızca bu oturumda onaylanınca yükleniyor.
+  */
+  if (!yerAyir) return null;
+  const reklamYuklensin = bilindi && goster;
 
   return (
     <View
@@ -56,23 +65,26 @@ export function ReklamBanner() {
         marginVertical: tema.bosluk.md,
         height: BANNER_YUKSEKLIGI,
         overflow: 'hidden',
-        opacity: yuklendi ? 1 : 0,
+        opacity: yuklendi && reklamYuklensin ? 1 : 0,
       }}
     >
-      <BannerAd
-        unitId={birimKimligi('banner')}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        requestOptions={{
-          /*
-           * Kişiselleştirme kapalı — gerekçesi `baslat.ts`'te: bir sağlık
-           * uygulamasında Apple'ın "Data Used to Track You" beyanını açmanın
-           * bedeli, kişiselleştirmenin getirdiği eCPM farkından ağır.
-           */
-          requestNonPersonalizedAdsOnly: true,
-        }}
-        onAdLoaded={() => setYuklendi(true)}
-        onAdFailedToLoad={() => setYuklendi(false)}
-      />
+      {/* Hak yoksa ya da bilinmiyorsa reklam İSTENMİYOR bile — yalnızca yer duruyor. */}
+      {!bilindi || !goster ? null : (
+        <BannerAd
+          unitId={birimKimligi('banner')}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          requestOptions={{
+            /*
+             * Kişiselleştirme kapalı — gerekçesi `baslat.ts`'te: bir sağlık
+             * uygulamasında Apple'ın "Data Used to Track You" beyanını açmanın
+             * bedeli, kişiselleştirmenin getirdiği eCPM farkından ağır.
+             */
+            requestNonPersonalizedAdsOnly: true,
+          }}
+          onAdLoaded={() => setYuklendi(true)}
+          onAdFailedToLoad={() => setYuklendi(false)}
+        />
+      )}
     </View>
   );
 }

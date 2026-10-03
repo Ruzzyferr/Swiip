@@ -93,4 +93,13 @@ export default tseslint.config(
       },
     },
   },
+  {
+    // Expo yapılandırma eklentileri: prebuild sırasında Node'da CommonJS olarak çalışıyor.
+    files: ['apps/mobile/eklentiler/**/*.js'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: { require: 'readonly', module: 'writable' },
+    },
+    rules: { '@typescript-eslint/no-require-imports': 'off' },
+  },
 );

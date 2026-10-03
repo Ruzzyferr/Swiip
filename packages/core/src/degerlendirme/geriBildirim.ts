@@ -102,7 +102,14 @@ const URETICILER: Record<string, Uretici> = {
       kiloKg: kilo,
       ...(sayi(cevaplar, 'F2') !== undefined ? { yagOrani: sayi(cevaplar, 'F2')! } : {}),
     });
-    const tdee = Math.round(bmr * aktiviteCarpani(cevaplar, sayi(cevaplar, 'A2') ?? 3));
+    /**
+     * Antrenman gün sayısı Z1'den okunur — profil de oradan okuyor.
+     *
+     * Burada silinmiş `A2` okunuyordu; sonuç her zaman 3 gündü. Cevaplar gözden
+     * geçirilirken ("Cevaplarımı gözden geçir") bu kart, Beslenme ekranındaki bakım
+     * kalorisinden farklı bir sayı gösteriyordu: aynı girdi, iki çıktı.
+     */
+    const tdee = Math.round(bmr * aktiviteCarpani(cevaplar, gunSayisiOku(cevaplar)));
 
     /**
      * Tahmin ARALIK olarak veriliyor, tek sayı olarak değil.
@@ -126,7 +133,7 @@ const URETICILER: Record<string, Uretici> = {
 
     return c(
       'bakimKalorisi',
-      `Bakım kalorin yaklaşık ${alt}-${ust} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
+      `Bakım kalorin yaklaşık ${alt}-${ust} kcal. Kilonu korumak için günde alman gereken enerji bu.`,
       { alt, ust, tdee },
     );
   },
@@ -226,7 +233,7 @@ const URETICILER: Record<string, Uretici> = {
   },
 
   Z: (cevaplar) => {
-    const gun = sayi(cevaplar, 'Z1') ?? Number(metin(cevaplar, 'Z1')?.match(/\d+/)?.[0] ?? 3);
+    const gun = gunSayisiOku(cevaplar);
     const dakika = Number(metin(cevaplar, 'Z2')?.match(/\d+/)?.[0] ?? 45);
     const yas = antrenmanYasiBelirle(cevaplar);
     const split = splitSec({ gunSayisi: gun, antrenmanYasi: yas, seansDakika: dakika });
@@ -238,8 +245,11 @@ const URETICILER: Record<string, Uretici> = {
      */
     return c(
       'splitVeSeviye',
-      `${SPLIT_ADLARI[split.tip]} · ${split.gun_sayisi} gün. ${SEVIYE_ADLARI[yas]} seviye: ` +
-        `haftada kas grubu başına ${esik.hedefAlt}-${esik.hedefUst} set.`,
+      // Başlangıç değeri: program uyku, stres ve süreyle düzeltiyor; kesin sayı gibi
+      // sunulunca karar izindeki (düzeltilmiş) tabloyla çelişiyordu.
+      `${SPLIT_ADLARI[split.tip]} · ${split.gun_sayisi} gün. ${SEVIYE_ADLARI[yas]} seviyede ` +
+        `başlangıç: haftada kas grubu başına ${esik.hedefAlt}-${esik.hedefUst} set. ` +
+        'Süren ve toparlanman bunu programda ayarlar.',
       {
         split: SPLIT_ADLARI[split.tip] ?? split.tip,
         gun: split.gun_sayisi,
@@ -319,6 +329,11 @@ function yasTahmini(cevaplar: Cevaplar): number {
   const ayFarki = bugun.getUTCMonth() - tarih.getUTCMonth();
   if (ayFarki < 0 || (ayFarki === 0 && bugun.getUTCDate() < tarih.getUTCDate())) yas -= 1;
   return yas > 0 && yas < 120 ? yas : 30;
+}
+
+/** "4 gün" -> 4. Cevapsızsa profildeki gibi 3. */
+function gunSayisiOku(cevaplar: Cevaplar): number {
+  return sayi(cevaplar, 'Z1') ?? Number(metin(cevaplar, 'Z1')?.match(/\d+/)?.[0] ?? 3);
 }
 
 function sayiMetni(deger: number): string {

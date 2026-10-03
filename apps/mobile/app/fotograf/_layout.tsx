@@ -22,6 +22,7 @@ export default function FotografDuzeni() {
     <Stack screenOptions={secenekler}>
       <Stack.Screen name="cekim" options={{ title: m.sayfaBasligi }} />
       <Stack.Screen name="gizlilik" options={{ title: m.gizlilikSayfaBasligi }} />
+      <Stack.Screen name="olculer" options={{ title: m.olculerSayfaBasligi }} />
     </Stack>
   );
 }

@@ -20,10 +20,13 @@ import {
   Uyari,
   Yazi,
   Yukleniyor,
+  useKlavyePayi,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler } from '../../src/durum/Oturum';
 import { ApiHatasi, istek } from '../../src/veri/api';
+import { useAbonelik } from '../../src/reklam/ReklamHakki';
+import { useOdaktaTazele } from '../../src/durum/tazele';
 
 /**
  * Koç sohbeti (F9).
@@ -53,6 +56,7 @@ export default function Koc() {
   const tema = useTema();
   const m = useMetinler().koc;
   const kaydirma = useRef<ScrollView>(null);
+  const klavyePayi = useKlavyePayi();
 
   const [mesajlar, setMesajlar] = useState<Mesaj[]>([]);
   const [girdi, setGirdi] = useState('');
@@ -96,6 +100,21 @@ export default function Koc() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+
+  /*
+    Sekmeye dönüşte ve plan değiştiğinde kota yeniden okunuyor. Önce yalnızca mount'ta
+    okunuyordu: koç kotası 0 olan ücretsiz kullanıcı Pro aldıktan sonra metin kutusu
+    KAPALI kalıyordu. Gönderim sürerken okunmuyor — iyimser eklenen mesaj silinmesin.
+  */
+  const gonderiyor = useRef(false);
+  gonderiyor.current = gonderiliyor;
+  useOdaktaTazele(() => {
+    if (!gonderiyor.current) void yukle();
+  });
+
+  /** Ödeyene upsell yok: kota uyarısında "Planlara bak" yalnızca ücretsize. */
+  const { durum: abonelik } = useAbonelik();
+  const promosyon = abonelik?.promosyon_goster === true;
 
   /**
    * Koç şu an kullanılabilir mi?
@@ -165,7 +184,9 @@ export default function Koc() {
       <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
         <Sutun>
           <BosDurum baslik={m.kapaliBaslik} govde={kilit} />
-          <Dugme baslik={m.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
+          {promosyon ? (
+            <Dugme baslik={m.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
+          ) : null}
           <Dugme baslik={m.geri} tur="sessiz" onPress={() => setKilit(null)} />
         </Sutun>
       </ScrollView>
@@ -174,9 +195,20 @@ export default function Koc() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: tema.renk.zemin }}
+      /*
+        iOS: kaçınma `padding` ile. Android: kap klavyenin içerikle çakışan kısmı kadar
+        DARALIYOR (`useKlavyePayi`). `behavior="height"` denendi ve emülatörde mesaj
+        kutusu yine klavyenin arkasında kaldı: Android 15'ten beri pencere kenardan
+        kenara ve kaçınma bileşeni klavyeyi doğru ölçemiyor. Hesap `Ekran` ile aynı yerde.
+      */
+      style={{
+        flex: 1,
+        backgroundColor: tema.renk.zemin,
+        paddingBottom: Platform.OS === 'android' ? klavyePayi : 0,
+      }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={90}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      enabled={Platform.OS === 'ios'}
     >
       {/*
         Sohbet de okuma sutununa giriyor. iPad'de tuval 820 pt; sutunsuz birakilirsa
@@ -242,7 +274,7 @@ export default function Koc() {
             </View>
 
             {mesaj.araclar && mesaj.araclar.length > 0 ? (
-              <Satir arasi="xs">
+              <Satir arasi="xs" sar>
                 <Yazi tur="etiket" renk="metinSilik">
                   {m.baktigimVeri}
                 </Yazi>
@@ -284,37 +316,49 @@ export default function Koc() {
               {kalan > 0 ? m.kalanMesaj(kalan) : toplamHak === 0 ? m.kocKapali : m.kotaBitti}
             </Yazi>
           ) : null}
-          <Satir arasi="sm">
-            <TextInput
-              value={girdi}
-              onChangeText={setGirdi}
-              placeholder={m.girisAlani}
-              placeholderTextColor={tema.renk.metinSilik}
-              multiline
-              accessibilityLabel={m.girdiErisim}
-              style={{
-                flex: 1,
-                minHeight: tema.dokunmaHedefi,
-                maxHeight: 120,
-                borderWidth: StyleSheet.hairlineWidth,
-                borderColor: tema.renk.kenar,
-                borderRadius: tema.yaricap.md,
-                paddingHorizontal: tema.bosluk.md,
-                paddingTop: tema.bosluk.sm,
-                fontSize: 16,
-                fontFamily: tema.tipografi.aileler.govde,
-                color: tema.renk.metin,
-                backgroundColor: tema.renk.zemin,
-              }}
-            />
-            <Dugme
-              baslik={m.gonder}
-              onPress={() => void gonder()}
-              tamGenislik={false}
-              pasif={girdi.trim() === '' || !kocAcik}
-              yukleniyor={gonderiliyor}
-            />
-          </Satir>
+          {toplamHak === 0 ? (
+            /*
+              Koç bu planda HİÇ açık değilse yazılabilir bir kutu göstermiyoruz.
+              Kutu yazılabiliyordu ve "Gönder" pasifti: kullanıcı sorusunu yazıyor,
+              sonra gönderemediğini fark ediyordu.
+            */
+            promosyon ? (
+              <Dugme baslik={m.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
+            ) : null
+          ) : (
+            <Satir arasi="sm">
+              <TextInput
+                value={girdi}
+                editable={kocAcik}
+                onChangeText={setGirdi}
+                placeholder={m.girisAlani}
+                placeholderTextColor={tema.renk.metinSilik}
+                multiline
+                accessibilityLabel={m.girdiErisim}
+                style={{
+                  flex: 1,
+                  minHeight: tema.dokunmaHedefi,
+                  maxHeight: 120,
+                  borderWidth: StyleSheet.hairlineWidth,
+                  borderColor: tema.renk.kenar,
+                  borderRadius: tema.yaricap.md,
+                  paddingHorizontal: tema.bosluk.md,
+                  paddingTop: tema.bosluk.sm,
+                  fontSize: 16,
+                  fontFamily: tema.tipografi.aileler.govde,
+                  color: tema.renk.metin,
+                  backgroundColor: tema.renk.zemin,
+                }}
+              />
+              <Dugme
+                baslik={m.gonder}
+                onPress={() => void gonder()}
+                tamGenislik={false}
+                pasif={girdi.trim() === '' || !kocAcik}
+                yukleniyor={gonderiliyor}
+              />
+            </Satir>
+          )}
         </Sutun>
       </View>
     </KeyboardAvoidingView>

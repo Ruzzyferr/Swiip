@@ -1,8 +1,8 @@
-import { Pressable, View } from 'react-native';
-import type { Soru } from '@swiip/shared';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { secenekEtiketi, type Soru } from '@swiip/shared';
 import { Dugme, Satir, Uyari, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
-import { useMetinler } from '../durum/Oturum';
+import { useDil, useMetinler } from '../durum/Oturum';
 
 /**
  * Ekipman envanteri (F2.5).
@@ -11,38 +11,15 @@ import { useMetinler } from '../durum/Oturum';
  * kısıt değil: kullanıcı onaylayana kadar bağlayıcı olmaz, tikleri kaldırabilir.
  */
 
-const SIMGELER: Record<string, string> = {
-  'Barbell ve plaka': '🏋',
-  Dumbbell: '🔩',
-  Kettlebell: '🔔',
-  'Leg press': '🦵',
-  'Hack squat': '⛰',
-  'Lat pulldown': '⬇',
-  'Kablo makinesi': '🔗',
-  'Smith makinesi': '⛓',
-  'Barfiks barı': '➖',
-  'Dip barı': '⊓',
-  'Düz bench': '🛏',
-  'Eğimli bench': '📐',
-  'Ayarlanabilir bench': '🪑',
-  'Direnç bandı': '➰',
-  'Koşu bandı': '🏃',
-  'Sabit bisiklet': '🚲',
-  'Kürek makinesi': '🚣',
-  Merdiven: '🪜',
-  'TRX / askı': '🪢',
-  'Squat rack': '🗜',
-  'Göğüs presi makinesi': '🎛',
-  'Sırt makinesi': '🎚',
-  'Omuz presi makinesi': '🎛',
-  'Bacak ekstansiyon / curl makinesi': '🦿',
-  'Baldır makinesi': '🦶',
-  'Abduktor / adduktor makinesi': '↔',
-  'Preacher bench': '💪',
-  'Roma sandalyesi / hiperekstansiyon': '🪑',
-  'Plyo box': '📦',
-  'Hiçbiri, vücut ağırlığı': '🧍',
-};
+/*
+  Kutucuklarda EMOJİ YOK.
+
+  Her ekipmanın bir emojisi vardı ve yarısı yanlıştı: dumbbell için somun-cıvata (🔩),
+  kettlebell için çan (🔔), düz bench için yatak (🛏). Emojiler platforma göre farklı
+  çiziliyor (iOS ile Android aynı kutuyu iki ayrı resimle gösteriyor) ve ürünün
+  "ölçü aleti" diline yabancı. Kutucuk artık uygulamadaki diğer çoklu seçimlerle aynı
+  onay işaretini taşıyor: ne seçildiği resimle değil işaretle okunuyor.
+*/
 
 /**
  * E1 ("Nerede antrenman yapacaksın?") cevabına göre ön doldurma.
@@ -90,6 +67,7 @@ export interface EkipmanEnvanteriProps {
 export function EkipmanEnvanteri({ soru, deger, onDegisim, konum }: EkipmanEnvanteriProps) {
   const tema = useTema();
   const m = useMetinler().degerlendirme.ekipman;
+  const dil = useDil();
   const secili = Array.isArray(deger) ? (deger as string[]) : [];
   const secenekler = soru.options ?? [];
   const onDolduSet = konum ? KONUM_SETLERI[konum] : undefined;
@@ -176,28 +154,55 @@ export function EkipmanEnvanteri({ soru, deger, onDegisim, konum }: EkipmanEnvan
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: tema.bosluk.sm }}>
         {secenekler.map((secenek) => {
           const isaretli = secili.includes(secenek);
+          // Etiket kullanıcının dilinde; kaydedilen değer bankadaki kanonik değer.
+          const etiket = secenekEtiketi(soru, secenek, dil);
           return (
             <Pressable
               key={secenek}
               onPress={() => degistir(secenek)}
               accessibilityRole="checkbox"
-              accessibilityLabel={secenek}
+              accessibilityLabel={etiket}
               accessibilityState={{ checked: isaretli }}
               style={{
-                width: '47%',
-                minHeight: tema.dokunmaHedefi + 20,
+                /*
+                  İki eşit sütun, kabın TAM genişliği. `width: '47%'` + boşluk sağda
+                  ~20 px açık bırakıyordu; ızgara üstündeki tam genişlikteki kartlarla
+                  hizalanmıyordu.
+                */
+                flexBasis: '40%',
+                flexGrow: 1,
+                minHeight: tema.dokunmaHedefi + 12,
                 borderRadius: tema.yaricap.md,
-                borderWidth: isaretli ? 2 : 1,
-                borderColor: isaretli ? tema.renk.aksan : tema.renk.cizgi,
-                backgroundColor: isaretli ? tema.renk.aksanZemin : tema.renk.yuzey,
-                padding: tema.bosluk.md,
-                gap: 4,
-                justifyContent: 'center',
+                borderWidth: isaretli ? 2 : StyleSheet.hairlineWidth,
+                borderColor: isaretli ? tema.renk.aksan : tema.renk.kenar,
+                backgroundColor: tema.renk.yuzey,
+                // Kenarlık kalınlaşırken iç boşluk inceliyor: seçim kutuyu büyütmüyor.
+                padding: tema.bosluk.md - (isaretli ? 2 - StyleSheet.hairlineWidth : 0),
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: tema.bosluk.sm,
               }}
             >
-              <Yazi tur="baslik3">{SIMGELER[secenek] ?? '•'}</Yazi>
-              <Yazi tur="kucuk" renk={isaretli ? 'aksan' : 'metinYumusak'}>
-                {secenek}
+              <View
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: tema.yaricap.sm,
+                  borderWidth: isaretli ? 0 : 1.5,
+                  borderColor: tema.renk.celik,
+                  backgroundColor: isaretli ? tema.renk.aksan : 'transparent',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {isaretli ? (
+                  <Yazi tur="etiket" stil={{ color: tema.renk.aksanUstu, lineHeight: 14 }}>
+                    ✓
+                  </Yazi>
+                ) : null}
+              </View>
+              <Yazi tur="kucuk" renk={isaretli ? 'metin' : 'metinYumusak'} stil={{ flex: 1 }}>
+                {etiket}
               </Yazi>
             </Pressable>
           );

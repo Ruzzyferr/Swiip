@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { kapilariDegerlendir } from './kapilar';
-import type { Cevaplar } from '../cevaplar';
+import { ATLANDI, type Cevaplar } from '../cevaplar';
 
 /**
  * Dört sert kapı — spec bölüm 4. Atlanamaz.
@@ -133,6 +133,19 @@ describe('kapilariDegerlendir', () => {
       expect(durum.program_engelli).toBe(false);
       expect(durum.kapilar).toEqual([]);
     });
+
+    it.each(['S2', 'S3', 'S7', 'S18', 'K6', 'K7'])(
+      'atlanmış %s taramayı karşılamaz; program engelli kalır',
+      (soru) => {
+        const durum = kapilariDegerlendir(
+          { ...temizCevaplar, [soru]: ATLANDI },
+          { bugun: REFERANS_GUN },
+        );
+
+        expect(durum.eksik_tarama).toContain(soru);
+        expect(durum.program_engelli).toBe(true);
+      },
+    );
 
     it('doktor onayı gebelik kapısını açmaz', () => {
       const durum = kapilariDegerlendir(

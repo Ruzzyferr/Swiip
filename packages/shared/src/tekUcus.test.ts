@@ -58,6 +58,25 @@ describe('tekUcus', () => {
     await expect(calis()).rejects.toThrow('patladi-2');
   });
 
+  /**
+   * Eşzamanlı fırlatan çalışan uçuşu KİLİTLİYORDU.
+   *
+   * `finally` uçuş değişkenine atamadan ÖNCE koşuyor, ardından reddedilmiş söz
+   * değişkene yazılıp orada kalıyordu: sonraki her çağrı aynı eski hatayı alıyor,
+   * yenileme uygulama kapanana kadar bir daha hiç denenmiyordu.
+   */
+  it('eşzamanlı fırlatan çalışan sonraki çağrıyı kilitlemiyor', async () => {
+    let sayac = 0;
+    const calis = tekUcus((() => {
+      sayac += 1;
+      if (sayac === 1) throw new Error('ilk');
+      return Promise.resolve(sayac);
+    }) as () => Promise<number>);
+
+    await expect(calis()).rejects.toThrow('ilk');
+    expect(await calis()).toBe(2);
+  });
+
   it('sonuç değeri her bekleyene aynı geliyor', async () => {
     const calis = tekUcus(async () => ({ deger: Math.PI }));
 

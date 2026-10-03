@@ -25,6 +25,13 @@ export default [
       'Bar tepede kulaklarının hizasına gelsin, öne kalmasın.',
       'Belini geriye kavislendirerek itme; bu bel için en yaygın hata.',
     ],
+    talimat_en: [
+      'Grip the bar at shoulder width, resting at collarbone height.',
+      'Brace your core and squeeze your glutes; keep your body as one solid unit.',
+      'As you press the bar up, pull your head slightly back so the bar just clears your face.',
+      'At the top, the bar should be in line with your ears, not out in front.',
+      'Don’t arch your lower back to press; this is the most common mistake for the lower back.',
+    ],
   },
   {
     id: 'omuz-presi-dumbbell',
@@ -52,6 +59,13 @@ export default [
       'Tepede dirseklerini tam kilitleme.',
       'İnerken dirseğin omuz hizasının biraz altına gelsin, daha fazla inme.',
     ],
+    talimat_en: [
+      'Set the bench back close to upright and lean your back against it.',
+      'Hold the dumbbells at ear height with your palms facing forward.',
+      'As you press up, let the dumbbells come slightly closer together.',
+      'Don’t fully lock out your elbows at the top.',
+      'On the way down, bring your elbows slightly below shoulder height and no lower.',
+    ],
   },
   {
     id: 'makine-omuz-presi',
@@ -77,6 +91,13 @@ export default [
       'Yukarı it, tepede dirsekleri tam kilitleme.',
       'İndirirken kontrolü bırakma.',
       'Omzunda batma varsa menzili kısalt veya alternatife geç.',
+    ],
+    talimat_en: [
+      'Adjust the seat so the handles are at shoulder height.',
+      'Keep your back fully against the back pad.',
+      'Press up without fully locking out your elbows at the top.',
+      'Stay in control as you lower the weight.',
+      'If you feel a sharp pain in your shoulder, shorten the range or switch to an alternative.',
     ],
   },
   {
@@ -105,6 +126,13 @@ export default [
       'Baş parmağın hafif aşağı baksın, su döker gibi.',
       'Omuz hizasını geçme; yukarısı trapeze geçer.',
     ],
+    talimat_en: [
+      'Start with light dumbbells; this exercise breaks down with heavy weight.',
+      'Keep your torso upright and your elbows slightly bent.',
+      'Raise your arms out to the sides up to shoulder height.',
+      'Let your thumbs point slightly down, as if pouring water.',
+      'Don’t go above shoulder height; beyond that the traps take over.',
+    ],
   },
   {
     id: 'kablo-lateral-raise',
@@ -132,6 +160,13 @@ export default [
       'Kablo alt noktada bile gerginliği koruduğu için hareket boyunca yük sabit kalır.',
       'Gövdeni yana yatırarak ivme verme.',
     ],
+    talimat_en: [
+      'Set the pulley to its lowest position and hold the cable so it crosses in front of your body.',
+      'Stand side-on to the machine and grip the handle with your outside hand.',
+      'Raise your arm out to the side up to shoulder height.',
+      'Because the cable keeps tension even at the bottom, the load stays constant throughout the movement.',
+      'Don’t lean your torso to the side to build momentum.',
+    ],
   },
   {
     id: 'makine-lateral-raise',
@@ -157,6 +192,13 @@ export default [
       'Yanlara doğru omuz hizasına kadar kaldır.',
       'Yukarıda bir an dur.',
       'Kontrollü indir, ağırlığı düşürme.',
+    ],
+    talimat_en: [
+      'Align the seat with the pivot point of your shoulder joint.',
+      'Rest your arms against the pads.',
+      'Raise your arms out to the sides up to shoulder height.',
+      'Pause for a moment at the top.',
+      'Lower under control; don’t let the weight drop.',
     ],
   },
   {
@@ -185,6 +227,13 @@ export default [
       'Kontrollü indir.',
       'Bu kas zaten her itme hareketinde çalışır; az hacim yeterlidir.',
     ],
+    talimat_en: [
+      'Hold the dumbbells in front of your thighs.',
+      'Keeping your arm straight, raise it up to shoulder height.',
+      'Don’t lean your torso back to build momentum.',
+      'Lower the weight under control.',
+      'This muscle already works in every pressing movement; a little volume is enough.',
+    ],
   },
   {
     id: 'arnold-press',
@@ -212,6 +261,13 @@ export default [
       'Dönüş yumuşak olsun, ani çevirme.',
       'Omuz sıkışması geçmişi varsa düz dumbbell presi tercih et.',
     ],
+    talimat_en: [
+      'Hold the dumbbells at chin height with your palms facing you.',
+      'As you press up, rotate your wrists so your palms face forward at the top.',
+      'Rotate in the opposite direction on the way down.',
+      'Keep the rotation smooth; don’t twist abruptly.',
+      'If you have a history of shoulder impingement, choose a regular dumbbell press instead.',
+    ],
   },
   {
     id: 'dik-cekis-kablo',
@@ -237,6 +293,13 @@ export default [
       'Dirseklerini omuz hizasının üstüne çıkarma.',
       'Omzunda sıkışma hissediyorsan bu hareketi yapma.',
       'Geniş kavrama omuz için daha güvenlidir.',
+    ],
+    talimat_en: [
+      'Set the pulley to its lowest position and grip a straight bar at shoulder width.',
+      'Pull the bar up to mid-chest, leading with your elbows.',
+      'Don’t raise your elbows above shoulder height.',
+      'If you feel pinching in your shoulder, don’t do this exercise.',
+      'A wider grip is safer for the shoulders.',
     ],
   },
   {
@@ -266,6 +329,13 @@ export default [
       'Kontrollü geri getir.',
       'Bu bir güç hareketi değil; omuz eklemi sağlığı için yapılır.',
     ],
+    talimat_en: [
+      'Anchor the band somewhere at navel height.',
+      'Pin your elbow to your side and keep it bent at 90 degrees.',
+      'Rotate your forearm outward; don’t let your elbow leave your side.',
+      'Bring it back under control.',
+      'This isn’t a strength exercise; it’s done for shoulder joint health.',
+    ],
   },
   {
     id: 'pike-sinav',
@@ -293,6 +363,13 @@ export default [
       'Yukarı iterken kalçanı yerinde tut.',
       'Ayaklarını yükseltiye koyarak zorlaştırabilirsin.',
     ],
+    talimat_en: [
+      'From a push-up position, raise your hips to form an inverted V.',
+      'Place your hands slightly wider than shoulder width.',
+      'Lower your head down between your hands.',
+      'Keep your hips in place as you press up.',
+      'You can make it harder by putting your feet on an elevated surface.',
+    ],
   },
   {
     id: 'kettlebell-omuz-presi',
@@ -319,6 +396,13 @@ export default [
       'Karnını sık, yukarı it.',
       'Tepede kol kulağının yanında olsun.',
       'İnerken kettlebell’ı yavaşça rack pozisyonuna geri al.',
+    ],
+    talimat_en: [
+      'Hold the kettlebell at shoulder height in front of your body in the rack position.',
+      'Keep your wrist straight and let the kettlebell rest on your forearm.',
+      'Brace your core and press the kettlebell overhead.',
+      'At the top, your arm should be next to your ear.',
+      'On the way down, slowly bring the kettlebell back to the rack position.',
     ],
   },
 ];

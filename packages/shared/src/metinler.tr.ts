@@ -14,6 +14,10 @@ import { gunMetni } from './tarih';
  * Ondalık ayraç Türkçede virgül. "78.5 kg" yabancı bir üründen çıkmış gibi duruyor;
  * ölçü aleti olmayı iddia eden bir arayüzde sayının yazılışı da ölçünün parçası.
  */
+/** Porsiyon miktarı iki ondalığa kadar: "0,25 kase" yuvarlanıp "0,3" olmasın. */
+const porsiyonSayisi = (deger: number): string =>
+  (Math.round(deger * 100) / 100).toString().replace('.', ',');
+
 const ondalik = (deger: number): string =>
   (Math.round(deger * 10) / 10).toString().replace('.', ',');
 
@@ -38,6 +42,14 @@ export const tr = {
     su: {
       baslik: 'Su',
       govde: 'Bir bardak iyi gelir.',
+    },
+    /** Android sistem ayarlarında görünen kanal adları. */
+    kanalAdlari: {
+      seans: 'Seans hatırlatması',
+      geri_bildirim: 'Geri bildirim hatırlatması',
+      haftalik_ozet: 'Haftalık özet',
+      olcum: 'Ölçüm hatırlatması',
+      su: 'Su hatırlatması',
     },
   },
   gerekce: {
@@ -191,7 +203,7 @@ export const tr = {
      * bağımlı bir metin, sıra bir kez şaşınca sessizce bozulur.
      */
     bakimKalorisi: (d: Record<string, string | number>) =>
-      `Bakım kalorin yaklaşık ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. Bu, kilonu korumak için günde aldığın enerji.`,
+      `Bakım kalorin yaklaşık ${d.alt !== undefined && d.ust !== undefined ? `${d.alt}-${d.ust}` : d.tdee} kcal. Kilonu korumak için günde alman gereken enerji bu.`,
     hedefEd: () =>
       'Hedefini not ettim. İlerlemeyi kilo yerine nasıl hissettiğin ve ölçülerinle takip edeceğiz.',
     hedefKaydedildi: () => 'Hedefin kaydedildi. Programı buna göre kuracağız.',
@@ -218,8 +230,8 @@ export const tr = {
       `Ekipmanınla ${d.yapilabilir} hareket yapılabiliyor (kütüphanede ${d.toplam} hareket var).`,
     split: (d: Record<string, string | number>) => `${d.split} · ${d.gun} gün sana uygun.`,
     splitVeSeviye: (d: Record<string, string | number>) =>
-      `${d.split} · ${d.gun} gün. ${d.seviyeAdi} seviye: haftada kas grubu başına ` +
-      `${d.alt}-${d.ust} set.`,
+      `${d.split} · ${d.gun} gün. ${d.seviyeAdi} seviyede başlangıç: haftada kas grubu ` +
+      `başına ${d.alt}-${d.ust} set. Süren ve toparlanman bunu programda ayarlar.`,
     toparlanmaTemiz: () =>
       'Toparlanma tarafında engelleyici bir şey yok; hacmi standart aralıkta tutuyorum.',
     toparlanmaDuzeltme: (d: Record<string, string | number>) => {
@@ -295,6 +307,8 @@ export const tr = {
     },
   },
   apiHatalari: {
+    seans_zaten_bildirildi: () => 'Bu seansın geri bildirimini zaten verdin.',
+    baglanti_yok: () => 'İnternet bağlantısı yok. Bağlandığında tekrar deneyebilirsin.',
     magaza_disi_yukseltme: () =>
       'Plan yalnızca mağaza üzerinden değiştirilir. Satın alma uygulamadan yapılır.',
     onay_gerekli: (d: Record<string, string | number>) =>
@@ -415,6 +429,12 @@ export const tr = {
     yeniden: 'Tekrar dene',
   },
   genel: {
+    // Makro kısaltmaları: tarif ve deste kartlarında dar satırlar için.
+    makroKisa: { protein: 'P', karbonhidrat: 'K', yag: 'Y', lif: 'Lif' },
+    parolayiGoster: 'Göster',
+    parolayiGizle: 'Gizle',
+    parolayiGosterErisim: 'Parolayı göster',
+    parolayiGizleErisim: 'Parolayı gizle',
     devam: 'Devam',
     geri: 'Geri',
     kaydet: 'Kaydet',
@@ -479,7 +499,7 @@ export const tr = {
      * teknik künyesi; etiketleri de neyin künyesi olduğunu söylüyor.
      */
     maddeler: [
-      { etiket: 'SORU', metin: 'Sekiz kart, dört dakika. Her cevap programına dokunuyor.' },
+      { etiket: 'SORU', metin: 'Sekiz kart, dört-altı dakika. Her cevap programına dokunuyor.' },
       {
         etiket: 'GEREKÇE',
         metin: 'Programındaki her hareketin yanında neden orada olduğu yazıyor.',
@@ -599,8 +619,17 @@ export const tr = {
     kardiyak: {
       baslik: 'Önce doktor onayı',
       govde:
-        'Verdiğin cevaplarda kalp ve dolaşımla ilgili bir işaret var. Bu, spor yapamazsın demek değil — doğru programın doktorunla belirlenmesi gerekiyor demek. Onayını yükleyince program üretimi açılır.',
-      eylem: 'Doktor onayı yükle',
+        'Verdiğin cevaplarda kalp ve dolaşımla ilgili bir işaret var. Bu, spor yapamazsın demek değil — doğru programın doktorunla belirlenmesi gerekiyor demek. Doktorundan yazılı onay aldıysan bize e-postayla gönder; kontrol edip program üretimini açarız. Bir soruyu yanlışlıkla işaretlediysen cevaplarını gözden geçirebilirsin.',
+      eylem: 'Onayı e-postayla gönder',
+      gozdenGecir: 'Cevaplarımı gözden geçir',
+      epostaKonusu: 'Doktor onayı',
+      epostaGovdesi: (eposta: string) =>
+        `Merhaba,
+
+Doktorumun egzersiz onayını ekte gönderiyorum.
+
+Hesabım: ${eposta}
+`,
     },
     yemeBozuklugu: {
       baslik: 'Sayıları kapattık',
@@ -663,6 +692,33 @@ export const tr = {
     eksikZorunlu: (adet: number) =>
       `${adet} zorunlu soru boş. Yukarıda "Zorunlu" yazanları doldurunca geçebilirsin.`,
     gecersizCevap: 'Bu cevap geçerli değil.',
+    /**
+     * Cevap doğrulama mesajları — anahtarlar `cevabiDogrula`nın döndürdüğü `kod`.
+     *
+     * Motor Türkçe `mesaj`ı iz olarak taşımaya devam ediyor; ekran cümleyi buradan
+     * kuruyor. Yoksa İngilizce arayüzde zorunlu sorunun altında Türkçe bir uyarı çıkıyordu.
+     */
+    dogrulama: {
+      zorunlu: () => 'Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.',
+      sayiGir: () => 'Lütfen bir sayı gir.',
+      aralik: (d: Record<string, string | number>) =>
+        `Değer ${d.min} ile ${d.max} arasında olmalı.`,
+      listedenSec: () => 'Listedeki seçeneklerden birini seç.',
+      tanimsizSecenek: (d: Record<string, string | number>) =>
+        `Tanımadığım seçenek var: ${d.liste}`,
+      enFazlaSecim: (d: Record<string, string | number>) =>
+        `En fazla ${d.adet} seçim yapabilirsin.`,
+      tanimsizBolge: () => 'Tanımadığım bir bölge işaretlendi.',
+      enFazlaBolge: (d: Record<string, string | number>) =>
+        `En fazla ${d.adet} bölge seçebilirsin.`,
+      tarihBicimi: () => 'Tarihi gün/ay/yıl olarak seç.',
+      tarihGecersiz: () => 'Bu tarih geçerli değil.',
+      dogumGelecekte: () => 'Doğum tarihi gelecekte olamaz.',
+      onayGerekli: () => 'Devam etmek için bu onayı vermen gerekiyor.',
+    },
+    /** Yük girişi kartının başlığı: "Squat — en iyi setin". */
+    enIyiSet: (hareket: string) => `${hareket} — en iyi setin`,
+    hareketVarsayilan: 'Hareket',
     okudumRizaVeriyorum: 'Okudum, açık rıza veriyorum',
     gun: 'Gün',
     ay: 'Ay',
@@ -773,6 +829,7 @@ export const tr = {
         M: 'Mutfak düzenin alındı',
       },
       dipnot: 'Bu, verdiğin cevaplardan hesaplandı. Sonraki bölümlerde daha da netleşecek.',
+      sonDipnot: 'Bu, verdiğin cevaplardan hesaplandı. Sırada vücut analizi, sonra programın.',
     },
     ilerleme: (mevcut: number, toplam: number) => `${mevcut} / ${toplam}`,
     blokTamamlandi: 'Bu bölüm tamam',
@@ -873,6 +930,11 @@ export const tr = {
     sayfaBasligi: 'Vücut analizin',
     yukleniyor: 'Ölçümler çıkarılıyor',
     hataMesaji: 'Analiz şu an yapılamadı. Ölçülerini girip tekrar deneyebilirsin.',
+    analizYokBaslik: 'Henüz bir vücut analizin yok',
+    analizYokGovde:
+      'Üç fotoğrafla ya da mezurayla alınan üç ölçüyle çıkarabiliriz. Analiz hakkın yalnızca gerçek veriyle kullanılır.',
+    fotografla: 'Fotoğrafla analiz',
+    olculerle: 'Ölçülerimi gir',
     hataBaslik: 'Analiz hazırlanamadı',
     programaGec: 'Programa geç',
     analizRaporun: 'Analiz raporun',
@@ -987,7 +1049,7 @@ export const tr = {
           `${d.set} setin hepsinde ${d.tekrar_ust} tekrarı tamamlarsan bir sonraki hafta ` +
           `zorlaştırılmış varyanta geç. ${d.tekrar_alt} tekrarın altına düşersen aynı varyantta kal.`,
         agirlik: (d: Record<string, string | number>) =>
-          `${d.set} setin hepsinde ${d.tekrar_ust} tekrarı tamamlarsan gelecek hafta ${d.artis} kg ` +
+          `${d.set} setin hepsinde ${d.tekrar_ust} tekrarı tamamlarsan gelecek hafta ${String(d.artis).replace('.', ',')} kg ` +
           `ekle. ${d.tekrar_alt} tekrarın altına düşersen ağırlığı sabit tut.`,
       },
     },
@@ -1005,6 +1067,8 @@ export const tr = {
     // iki haftalik bir programi bugunku sanmaya yol aciyordu.
     cevrimdisiTarih: (tarih: string) => `Son güncelleme: ${tarih}`,
     haftaEki: 'HAFTA',
+    // Sıra biçimi dile göre: Türkçede "1. HAFTA", İngilizcede "WEEK 1".
+    haftaEtiketi: (hafta: number) => `${hafta}. HAFTA`,
     hazir: 'Programın hazır',
     nedenBuProgram: 'NEDEN BU PROGRAM',
     kararlarinTamami: 'Kararların tamamı →',
@@ -1018,6 +1082,7 @@ export const tr = {
       'Haftanın tamamı hesaplandı. 1. günü ücretsiz görüyorsun; kalan günler ve seans sonrası uyarlama Temel plandan itibaren açılıyor.',
     planlaraBak: 'Planlara bak',
     tamamEtiketi: 'TAMAM',
+    atlandiEtiketi: 'ATLANDI',
     haftaBittiBaslik: 'Bu haftayı bitirdin',
     haftaBittiGovde:
       'Geri bildirimlerin işlendi. Sıradaki hafta bunların üstüne kuruluyor: yükler, tekrarlar ve ' +
@@ -1159,7 +1224,7 @@ export const tr = {
       yapiNedenSecildi: 'BU YAPI NEDEN SEÇİLDİ',
       yerlesimBasligi: 'Hafta içindeki yerleşim',
       yerlesimNotu:
-        'Günler değerlendirmede uygun işaretlediklerinden seçildi; aralarını mümkün olduğunca açtık ki aynı kas grubu toparlanmadan tekrar yüklenmesin.',
+        'Günler, değerlendirmede uygun işaretlediklerinden (işaretlemediysen haftaya yayılarak) seçildi; aralarını mümkün olduğunca açtık ki aynı kas grubu toparlanmadan tekrar yüklenmesin.',
       gunKisaltmalari: ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'],
       antrenmanGunu: 'antrenman günü',
       dinlenmeGunu: 'dinlenme',
@@ -1190,11 +1255,15 @@ export const tr = {
   geriBildirim: {
     sayfaBasligi: 'Seans sonrası',
     girisMetni: 'Üç dokunuş, on beş saniye. Salonda telefonla uğraşmanı istemiyoruz.',
+    hepsiniTamamladim: 'Hepsini tamamladım',
+    hepsiniTamamladimNotu: 'Sonra yalnızca farklı geçenleri değiştir.',
     gonder: 'Gönder',
     isaretsizNotu: (adet: number) =>
       `${adet} hareketi işaretlemedin; onlar bu seansta hiç raporlanmayacak.`,
     gonderilemedi: 'Gönderilemedi. Tekrar deneyebilirsin.',
     yargilamiyoruz: 'Yargılamıyoruz; programı buna göre kaydırıyoruz.',
+    atlamaSonucu:
+      'Seansı atladın, sorun değil. Hafta sıfırlanmıyor; bir sonraki seansınla kaldığın yerden devam ediyorsun.',
     atlamaSebepleri: [
       'Zamanım olmadı',
       'Hastaydım',
@@ -1229,6 +1298,7 @@ export const tr = {
     edBaslik: 'Bugünkü tabağın',
     edSayiNotu: 'Sayıları görmek istersen ayarlardan açabilirsin.',
     bugun: 'Bugün',
+    dun: 'Dün',
     kaloriEtiketi: 'KALORİ',
     suEtiketi: 'SU',
     oncekiGun: 'Önceki gün',
@@ -1264,15 +1334,37 @@ export const tr = {
     silOnayBaslik: 'Kaydı sil',
     silOnayGovde: 'Bu kalem günlükten çıkarılacak. Günün toplamı yeniden hesaplanır.',
     silinemedi: 'Kayıt silinemedi. Tekrar dener misin?',
+    gunYediklerin: 'O gün yediklerin',
     bugunYediklerin: 'Bugün yediklerin',
     bosKayitBaslik: 'Bugün henüz kayıt yok',
     bosKayitGovde:
       'Yemek eklediğinde toplam burada görünür. Aynı yemeği iki kez eklediğinde aynı makro çıkar — söz.',
+    eklenecekOnizleme: (gram: number, kalori: number) => `≈ ${gram} g · ${kalori} kcal`,
+    gramBirimi: 'gram',
+    /*
+      Ev ölçüleri, `portion_id` ile. Veride saklanan ad Türkçe bir dize; kimlik
+      saklanıyor, görünen metin buradan geliyor (`porsiyonAdi`). Miktar alıyor:
+      günlükte "2 kase" yazsın, "2 1 kase" değil. Türkçede sayıdan sonra çoğul eki yok.
+    */
+    porsiyonlar: {
+      kase: (n: number) => `${porsiyonSayisi(n)} kase`,
+      tabak: (n: number) => `${porsiyonSayisi(n)} tabak`,
+      kepce: (n: number) => `${porsiyonSayisi(n)} kepçe`,
+      yemek_kasigi: (n: number) => `${porsiyonSayisi(n)} yemek kaşığı`,
+      cay_kasigi: (n: number) => `${porsiyonSayisi(n)} çay kaşığı`,
+      dilim: (n: number) => `${porsiyonSayisi(n)} dilim`,
+      avuc: (n: number) => `${porsiyonSayisi(n)} avuç`,
+      adet: (n: number) => `${porsiyonSayisi(n)} adet`,
+      bardak: (n: number) => `${porsiyonSayisi(n)} su bardağı`,
+      porsiyon: (n: number) => `${porsiyonSayisi(n)} porsiyon`,
+      fincan: (n: number) => `${porsiyonSayisi(n)} fincan`,
+      olcek: (n: number) => `${porsiyonSayisi(n)} ölçek`,
+    },
     aramaIpucu: 'Yemek ara — pilav, köfte, yoğurt',
     yemekArama: 'Yemek arama',
     miktar: 'Miktar',
-    evOlcusuEtiketi: 'EV ÖLÇÜSÜ SEÇEBİLİRSİN — SADECE GRAM DEĞİL',
     vazgec: 'Vazgeç',
+    enerji: 'Enerji',
     kaloriHedefi: 'Günlük hedef',
     protein: 'Protein',
     yag: 'Yağ',
@@ -1297,8 +1389,9 @@ export const tr = {
   kaynaklar: {
     baslik: 'Hesaplama kaynakları',
     lede:
-      'Swiip’te hiçbir sayı yapay zekâya sorulmuyor. Kalori, makro ve yük hesaplarının hepsi ' +
-      'aşağıdaki yayımlanmış denklemlerden çıkıyor.',
+      'Kalori, makro ve yük hesaplarının hiçbiri yapay zekâya sorulmuyor; hepsi aşağıdaki ' +
+      'yayımlanmış denklemlerden çıkıyor. Tek istisna fotoğraflı vücut analizi: yağ oranı ' +
+      'aralığını orada görsel model tahmin ediyor.',
     tahminUyarisi:
       'Bu denklemlerin hepsi popülasyon ortalamalarından türetilmiş tahminlerdir; senin gerçek ' +
       'değerlerin farklı olabilir. Bir sağlık sorunun varsa ya da ilaç kullanıyorsan planını ' +
@@ -1343,6 +1436,21 @@ export const tr = {
   },
 
   fotograf: {
+    olculerSayfaBasligi: 'Ölçülerin',
+    olculerBaslik: 'Mezurayla üç ölçü',
+    olculerGiris:
+      'Fotoğraf olmadan yağ oranını bu üç ölçüden tahmin ediyoruz (ABD Donanması yöntemi). Mezurayı sıkmadan, cilde değecek kadar sar.',
+    olcuIpuclari: {
+      bel_cm: 'Göbek deliği hizasından, nefesini verdikten sonra.',
+      boyun_cm: 'Gırtlağın hemen altından, mezura hafif aşağı eğik.',
+      kalca_cm: 'Kalçanın en geniş yerinden. Kadınlarda tahmin için gerekli.',
+    },
+    olcuAraligi: (alt: number, ust: number) => `${alt}–${ust}`,
+    olcuGecersiz: (alt: number, ust: number) => `Bu ölçü ${alt}–${ust} cm arasında olmalı.`,
+    raporuCikar: 'Raporumu çıkar',
+    olcusuzGec: 'Şimdilik geç',
+    olcusuzGecNotu:
+      'Geçersen analiz hakkın harcanmaz; istediğin zaman İlerleme sekmesinden fotoğrafla ya da ölçülerle yapabilirsin.',
     sayfaBasligi: 'Çekim',
     gizlilikSayfaBasligi: 'Vücut analizi',
     akisAdimlari: [
@@ -1363,13 +1471,22 @@ export const tr = {
       'Gündüz ışığı; tepe lambası gölge yapar.',
       'Dar veya spor kıyafet; vücut hattı görünsün.',
     ],
-    hayaletNotu: 'SONRAKİ ÖLÇÜMDE ÖNCEKİ SİLUETİN BURADA GÖRÜNÜR',
     aciUygun:
       'Telefonun açısı uygun. Eğik tutarsan çekim düğmesi kapanır — bozuk açı sonucu bozar.',
     aciBozuk: 'Telefonu dikleştir. Açı düzelene kadar çekim yapılamaz.',
     izinYok: 'Kamera izni verilmedi. Fotoğrafsız devam edebilirsin; rapor ölçülerinden çıkar.',
     izinVer: 'Kamera iznini ver',
     egimDerecesi: (derece: number) => `Eğim ${derece}°`,
+    aciKisaUygun: (derece: number) => `Açı uygun · ${derece}°`,
+    aciKisaBozuk: (derece: number) => `Telefonu dikleştir · ${derece}°`,
+    aciOkunuyor: 'Açı ölçülüyor…',
+    geriSayim: (saniye: number) => `${saniye}`,
+    geriSayimNotu: 'Yerine geç.',
+    zamanlayiciNotu: 'Düğmeye bastıktan sonra 10 saniyen var: telefonu yerleştir, yerine geç.',
+    vazgec: 'Vazgeç',
+    ucFotografHazir: 'Üç fotoğraf hazır',
+    kareAlinamadi: 'Fotoğraf alınamadı. Tekrar dene.',
+    aciBozulduIptal: 'Telefon eğildi, çekim iptal edildi. Açıyı düzeltip tekrar dene.',
     yenidenCek: 'Yeniden çek',
     analizEdiliyor: 'Ölçümler çıkarılıyor',
     analizHatasi: 'Analiz yapılamadı. Fotoğrafsız devam edebilirsin.',
@@ -1391,7 +1508,7 @@ export const tr = {
     fotografGovde:
       'Fotoğrafın şifreli kanaldan analiz servisine gider, ölçümler çıkarılır ve fotoğraf aynı istek içinde bellekten silinir. Sunucumuzun diskine hiç yazılmaz. Saklanan tek şey sayısal çıktılar.',
     cihazKopyasi:
-      'Karşılaştırma için bir kopya yalnızca senin telefonunda tutulur. Telefon değiştirirsen bu fotoğraflar gider — bunu şimdiden bilmeni istiyoruz.',
+      'Fotoğraf telefonunda da saklanmaz. İlerlemeni fotoğraflar değil ölçümler gösterir: karşılaştırma ekranı her analizin sayılarını yan yana koyar.',
     fotografsizDevam: 'Fotoğrafsız devam et',
     fotografsizAciklama:
       'Fotoğraf çekmek istemiyorsan çevre ölçülerinle devam edebiliriz. Yağ oranı aralığı biraz daha geniş çıkar, gerisi aynı.',
@@ -1410,6 +1527,9 @@ export const tr = {
     iptalEt: 'İptal et',
     silOnayBaslik: 'Hesabını sil',
     silOnayGovde: 'Tüm verilerin kalıcı olarak silinir. Bu işlem geri alınamaz.',
+    silAbonelikNotu:
+      'Hesabını silmek mağaza aboneliğini iptal ETMEZ. Ücret kesilmeye devam etmesin ' +
+      'istiyorsan önce aboneliği iptal et.',
     sil: 'Sil',
     planKotaBasligi: 'Plan ve kota',
     planEtiketi: 'Plan',
@@ -1448,6 +1568,8 @@ export const tr = {
     dogrulamaKodu: 'Doğrulama kodu',
     dogrula: 'Doğrula',
     kodGelmedi: 'Kod gelmedi, tekrar gönder',
+    kodGonderildi: (dakika: number) => `Kodu e-postana gönderdik. ${dakika} dakika geçerli.`,
+    abonelikOkunamadi: 'Plan bilgin şu an okunamadı. İptal ve kota bilgisi burada görünecek.',
     kodGonderilemedi: 'Kod gönderilemedi. Biraz sonra tekrar deneyebilirsin.',
     kodGecersiz: 'Kod geçersiz veya süresi dolmuş. Yeni kod isteyebilirsin.',
     cikisYap: 'Çıkış yap',
@@ -1456,8 +1578,8 @@ export const tr = {
       "Swiip'te rozet, elmas, seri veya kutlama animasyonu yok. Bu bir eksiklik değil, tercih.",
     dilBasligi: 'Dil',
     dilNotu:
-      'Hareket talimatları, tarifler ve vücut analizi raporu şimdilik yalnızca Türkçe. ' +
-      'Arayüz, program gerekçeleri ve koç sohbeti iki dilde.',
+      'Tarifler ve vücut analizi raporu şimdilik yalnızca Türkçe. ' +
+      'Arayüz, hareket talimatları, besin adları, program gerekçeleri ve koç sohbeti iki dilde.',
   },
 
   odeme: {
@@ -1477,10 +1599,12 @@ export const tr = {
 
   ilerleme: {
     baslik: 'İlerleme',
-    fotografKarsilastir: 'Fotoğraf karşılaştır',
+    // Karşılaştırma fotoğrafla değil ölçülerle yapılıyor (fotoğraflar saklanmıyor).
+    fotografKarsilastir: 'Ölçüleri karşılaştır',
     haftalikYapi: 'Haftalık yapı',
     bugunkuKilon: 'Bugünkü kilon',
     kiloErisim: 'Kilo',
+    kiloKaydedildi: (kg: string) => `${kg} kg kaydedildi.`,
     tartimNotu: 'Sabah, tuvaletten sonra, aç karnına tart. Gün içi dalgalanma 1-2 kg olabilir.',
     edBaslik: 'Kilo takibi senin için kapalı',
     edGovde:
@@ -1529,7 +1653,7 @@ export const tr = {
     azGovde:
       'İlk analizin yapıldı. Bir ay sonra ikincisini yaptığında değişimi yan yana göreceksin.',
     cihazNotu:
-      'Karşılaştırma tamamen telefonunda çalışır. Fotoğraflar sunucumuza hiç gitmediği için burada da bizim elimizde değil.',
+      'Karşılaştırma fotoğrafla değil ölçülerle yapılıyor: fotoğraflar analiz edilir edilmez siliniyor, hiçbir yerde saklanmıyor.',
     baslik: 'Değişim',
     once: 'ÖNCE',
     sonra: 'SONRA',
@@ -1547,6 +1671,28 @@ export const tr = {
   },
 
   ogun: {
+    /** Tarif etiketleri (veride kod; ekranda bu ad). Alt çizgili ham kod basılıyordu. */
+    etiketAdlari: {
+      laktozsuz: 'Laktozsuz',
+      glutensiz: 'Glutensiz',
+      vejetaryen: 'Vejetaryen',
+      ana_yemek: 'Ana yemek',
+      vegan: 'Vegan',
+      yuksek_protein: 'Yüksek protein',
+      glutenli: 'Glutenli',
+      pisirme_yok: 'Pişirme yok',
+      laktozlu: 'Laktozlu',
+      tek_tencere: 'Tek tencere',
+      et: 'Etli',
+      kahvalti: 'Kahvaltılık',
+      ara_ogun: 'Ara öğün',
+      corba: 'Çorba',
+      dusuk_kalori: 'Düşük kalori',
+      dusuk_karbonhidrat: 'Düşük karbonhidrat',
+      salata: 'Salata',
+      balik: 'Balık',
+      ramazan_uygun: 'Ramazana uygun',
+    } as Record<string, string>,
     ogunAdlari: {
       kah: 'Kahvaltı',
       ogl: 'Öğle',
@@ -1578,7 +1724,7 @@ export const tr = {
           `${d.adet} seçenek açılıyor.`,
         tarif_yok: () => 'Bu öğün için uygun tarif bulunamadı. Kısıtlarını gözden geçirebiliriz.',
         porsiyon_modu: () =>
-          'Bugün ne pişti? Ev yemeğini seç, sana porsiyon ve tamamlayıcı önerelim — menü dayatmıyoruz.',
+          'Bugün ne pişti? Ev yemeğini seç, sana porsiyon ve tamamlayıcı önerelim.',
         az_secenek: (d: Record<string, string | number>) =>
           `${d.adet} seçenek var. Hepsi günlük toplamını bozmuyor.`,
         secenek_var: (d: Record<string, string | number>) =>
@@ -1731,6 +1877,10 @@ export const tr = {
     kaynakEtiketi: 'MİKTARI TAHMİN ETTİM · BESİN DEĞERİ VERİTABANINDAN',
     onayla: 'Onayla ve güne ekle',
     tekrarDene: 'Yanlış tanıdı, tekrar dene',
+    kotaDusmediOnbellek: 'Bu tanıma önbellekten geldi, kotandan düşmedi.',
+    kotaDusmediTekrar: 'Bu deneme kotandan düşmedi.',
+    makroOzeti: (p: number, k: number, y: number) =>
+      `Protein ${p} g · Karbonhidrat ${k} g · Yağ ${y} g`,
     kotaNotu: 'Yanlış tanıma sonrası tekrar deneme kotandan düşmez.',
     cekimSayfaBasligi: 'Fotoğraftan ekle',
     cekimBaslik: 'Tabağını çek',
@@ -1756,9 +1906,10 @@ export const tr = {
   paywall: {
     satinAlmaHatasi: 'Satın alma tamamlanamadı.',
     geriYuklemeYok: 'Geri yüklenecek bir satın alma bulunamadı.',
+    geriYuklemeHatasi: 'Satın almalar geri yüklenemedi. Bağlantını kontrol edip tekrar dene.',
     baslik: 'Temel planı verir, Pro takibi zahmetsiz yapar',
     girisMetni:
-      'Değerlendirme, vücut analizi ve 1. gün programı ücretsiz kalır. Aşağıdakiler bunun üstüne eklenir.',
+      'Değerlendirme, vücut analizi, 1. gün programı, kalori ve makro hedefi, yemek ve barkod kaydı ile program düzenleme ücretsiz kalır. Aşağıdakiler bunun üstüne eklenir.',
     aylik: 'Aylık',
     yillik: 'Yıllık',
     ayKisa: 'ay',

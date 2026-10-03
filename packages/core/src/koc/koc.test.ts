@@ -327,3 +327,44 @@ describe('koç sistem mesajı kullanıcının dilinde', () => {
     expect(acik.length).toBeGreaterThan(kapali.length);
   });
 });
+
+/**
+ * Koç İngilizce de konuşuyor; kapılar yalnızca Türkçe desen tanıyordu ve İngilizce
+ * mesaj hiçbir kapıya takılmadan modele ulaşıyordu.
+ */
+describe('sinirKontrolu — İngilizce mesajlar da kapıdan geçer', () => {
+  it('ED modunda İngilizce kalori sorusu modele ulaşmaz', () => {
+    const sonuc = sinirKontrolu('How many calories should I eat today?', { edModu: true });
+
+    expect(sonuc.izin).toBe(false);
+    expect(sonuc.kategori).toBe('ed_sayi');
+  });
+
+  it('ED modunda İngilizce kilo hedefi sorusu modele ulaşmaz', () => {
+    expect(sinirKontrolu('What should my weight goal be?', { edModu: true }).kategori).toBe(
+      'ed_sayi',
+    );
+  });
+
+  it.each([
+    ['My knee hurts when I squat, what is it?', 'tani'],
+    ['Do I have a hernia?', 'tani'],
+    ['What dose of creatine should I take?', 'doz'],
+    ['Can I stop my medication before training?', 'doz'],
+    ['I want to eat 600 calories a day', 'asiri_hedef'],
+    ['How do I lose 10 kg in a week?', 'asiri_hedef'],
+  ])('"%s" → %s', (mesaj, kategori) => {
+    const sonuc = sinirKontrolu(mesaj, { edModu: false });
+
+    expect(sonuc.izin).toBe(false);
+    expect(sonuc.kategori).toBe(kategori);
+  });
+
+  it.each([
+    'Can you swap bench press for something else?',
+    'How should I warm up before deadlifts?',
+    'Is my program good for building muscle?',
+  ])('sıradan İngilizce antrenman sorusu serbest: "%s"', (mesaj) => {
+    expect(sinirKontrolu(mesaj, { edModu: true }).izin).toBe(true);
+  });
+});

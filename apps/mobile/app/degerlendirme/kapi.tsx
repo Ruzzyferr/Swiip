@@ -1,6 +1,8 @@
+import { Linking } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Dugme, Ekran, Kart, Yazi } from '../../src/tasarim/bilesenler';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useMetinler, useOturum } from '../../src/durum/Oturum';
+import { DESTEK_EPOSTASI } from '../../src/baglantilar';
 
 /**
  * Güvenlik kapısı ekranı (F2.7).
@@ -14,6 +16,24 @@ type KapiTipi = 'yas' | 'gebelik' | 'kardiyak' | 'yeme_bozuklugu';
 export default function Kapi() {
   const metinler = useMetinler();
   const k = metinler.kapiEkrani;
+  const { kullanici } = useOturum();
+  const kardiyak = metinler.kapilar.kardiyak;
+
+  /*
+    Doktor onayı E-POSTAYLA, ekip eliyle açılıyor (`/v1/analitik/doktor-onayi`).
+
+    Bu düğme eskiden Ayarlar'a götürüyordu ve orada yükleme diye bir şey yoktu;
+    sunucuda da onayı yazan bir uç yoktu. Ekran "onayını yükleyince açılır" diyerek
+    olmayan bir yol vaat ediyordu. Uygulama içi bir "onayım var" kutusu bilerek YOK:
+    kendi beyanıyla açılan bir sert kapı, kapı değildir.
+  */
+  const onayGonder = () => {
+    const konu = encodeURIComponent(kardiyak.epostaKonusu);
+    const govde = encodeURIComponent(kardiyak.epostaGovdesi(kullanici?.email ?? ''));
+    void Linking.openURL(`mailto:${DESTEK_EPOSTASI}?subject=${konu}&body=${govde}`).catch(
+      () => null,
+    );
+  };
   const { tip, kalan } = useLocalSearchParams<{ tip: KapiTipi; kalan?: string }>();
 
   /**
@@ -95,8 +115,18 @@ export default function Kapi() {
           </Yazi>
         </Kart>
 
-        {icerik.eylem ? (
-          <Dugme baslik={icerik.eylem} onPress={() => router.push('/(sekme)/ayarlar')} />
+        {icerik.eylem ? <Dugme baslik={icerik.eylem} onPress={onayGonder} /> : null}
+
+        {/*
+          Yanlış dokunulmuş tek bir kardiyak cevap program üretimini kalıcı olarak
+          kapatıyordu (CLAUDE.md, 7. kusur). Düzeltmenin yolu bu ekranda görünmeli.
+        */}
+        {tip === 'kardiyak' ? (
+          <Dugme
+            baslik={kardiyak.gozdenGecir}
+            tur="ikincil"
+            onPress={() => router.push('/degerlendirme')}
+          />
         ) : null}
 
         <Dugme

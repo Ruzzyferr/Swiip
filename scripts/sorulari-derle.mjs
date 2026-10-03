@@ -12,6 +12,22 @@ const kokDizin = join(dirname(fileURLToPath(import.meta.url)), '..');
 const kaynak = join(kokDizin, 'data', 'sorular.json');
 const tsHedefi = join(kokDizin, 'packages', 'shared', 'src', 'sorular.uretilmis.ts');
 
+/**
+ * Görünen metinlerin çevirileri: soru bankasının yanında, dil başına bir dosya.
+ *
+ * Cevap DEĞERLERİ çevrilmiyor — çekirdek ve API 'Evet', 'Ev', 'Barbell ve plaka' gibi
+ * Türkçe değerleri okuyor ve üretimdeki cevaplar da bu değerlerle saklı. Çeviri yalnızca
+ * ekranda çizilen etiket; anahtarı soru kimliği ve seçeneğin kanonik değeri.
+ */
+const CEVIRILER = [
+  {
+    dil: 'en',
+    kaynak: join(kokDizin, 'data', 'sorular.en.json'),
+    hedef: join(kokDizin, 'packages', 'shared', 'src', 'sorular.en.uretilmis.ts'),
+    ad: 'SORU_BANKASI_EN',
+  },
+];
+
 const TIPLER = new Set([
   'date',
   'number',
@@ -184,6 +200,57 @@ for (const blok of veri.blocks) {
   }
 }
 
+/**
+ * Çeviri katmanı iki yönlü eşleşmeli: bankadaki her blok, soru, seçenek ve kalem için
+ * bir etiket olmalı (eksikse o dilde kullanıcı Türkçe bir parça görür), bankada
+ * karşılığı olmayan bir anahtar da olmamalı (bayat çeviri sessizce eskir).
+ */
+const ceviriVerileri = [];
+for (const ceviri of CEVIRILER) {
+  const katman = JSON.parse(await readFile(ceviri.kaynak, 'utf8'));
+  const on = `${ceviri.dil}:`;
+  const dolu = (m) => typeof m === 'string' && m.trim().length > 0;
+
+  const bloklar = katman.blocks ?? {};
+  const sorular = katman.questions ?? {};
+  const bankaBloklari = new Set(veri.blocks.map((b) => b.id));
+  const bankaSorulari = new Map(veri.blocks.flatMap((b) => b.questions).map((q) => [q.id, q]));
+
+  for (const id of bankaBloklari) {
+    kontrol(dolu(bloklar[id]?.title), `${on} ${id} — blok başlığı çevrilmemiş`);
+  }
+  for (const id of Object.keys(bloklar)) {
+    kontrol(bankaBloklari.has(id), `${on} ${id} — bankada olmayan blok çevrilmiş`);
+  }
+
+  for (const [id, soru] of bankaSorulari) {
+    const c = sorular[id];
+    kontrol(dolu(c?.text), `${on} ${id} — soru metni çevrilmemiş`);
+    // `dataSource` listeleri (ör. şehir adları) özel ad; çevrilmiyor.
+    const alanlar = [
+      ['options', soru.dataSource ? [] : (soru.options ?? [])],
+      ['lifts', soru.lifts ?? []],
+    ];
+    for (const [alan, kaynakListe] of alanlar) {
+      const etiketler = c?.[alan] ?? {};
+      for (const deger of kaynakListe) {
+        kontrol(dolu(etiketler[deger]), `${on} ${id} — ${alan} çevrilmemiş: ${deger}`);
+      }
+      for (const deger of Object.keys(etiketler)) {
+        kontrol(kaynakListe.includes(deger), `${on} ${id} — ${alan} bankada yok: ${deger}`);
+      }
+    }
+  }
+  for (const id of Object.keys(sorular)) {
+    kontrol(bankaSorulari.has(id), `${on} ${id} — bankada olmayan soru çevrilmiş`);
+  }
+
+  ceviriVerileri.push({
+    ...ceviri,
+    veri: { locale: katman.locale, blocks: bloklar, questions: sorular },
+  });
+}
+
 if (hatalar.length > 0) {
   console.error(`\n${hatalar.length} doğrulama hatası:\n`);
   for (const hata of hatalar) console.error(`  • ${hata}`);
@@ -206,6 +273,18 @@ if (!process.argv.includes('--kontrol')) {
     '',
   ].join('\n');
   await writeFile(tsHedefi, ts, 'utf8');
+
+  for (const ceviri of ceviriVerileri) {
+    const icerik = [
+      '// ÜRETİLMİŞ DOSYA — elle düzenleme.',
+      `// Kaynak: data/sorular.${ceviri.dil}.json · Derleyici: scripts/sorulari-derle.mjs`,
+      "import type { SoruBankasiCevirisi } from './degerlendirme';",
+      '',
+      `export const ${ceviri.ad}: SoruBankasiCevirisi = ${JSON.stringify(ceviri.veri, null, 2)};`,
+      '',
+    ].join('\n');
+    await writeFile(ceviri.hedef, icerik, 'utf8');
+  }
 }
 
 console.log(`${toplamSoru} soru doğrulandı (${kosullu} koşullu, ${veri.blocks.length} blok).`);

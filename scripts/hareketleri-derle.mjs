@@ -170,6 +170,18 @@ function dogrula(hareketler) {
       );
     }
 
+    // İngilizce talimat Türkçeyle ADIM ADIM hizalı: aynı sayıda adım, aynı sıra.
+    kontrol(
+      Array.isArray(h.talimat_en) && h.talimat_en.length === (h.talimat_tr ?? []).length,
+      `${yer} — talimat_en, talimat_tr ile aynı sayıda adım içermeli`,
+    );
+    for (const adim of h.talimat_en ?? []) {
+      kontrol(
+        typeof adim === 'string' && adim.trim().length > 15,
+        `${yer} — İngilizce talimat adımı çok kısa: "${adim}"`,
+      );
+    }
+
     kontrol(
       Array.isArray(h.alternatifler) && h.alternatifler.length >= 2,
       `${yer} — en az 2 muadil gerekli (makine doluysa zinciri)`,
@@ -210,6 +222,7 @@ const cikti = {
   durum: `${hareketler.length} hareket. Kaynak: data/kaynak/hareketler/*.mjs — derleyici: scripts/hareketleri-derle.mjs`,
   alanlar: {
     ...mevcut.alanlar,
+    talimat_en: 'İngilizce adım adım anlatım; talimat_tr ile adım adım hizalı',
     yuk_referansi: 'başlangıç yükü tahmini için referans lift ve katsayı',
     sure_bazli: 'set/tekrar yerine süre ile planlanır',
     isinma: 'ısınma bloğunda kullanılır, hacim bütçesine girmez',

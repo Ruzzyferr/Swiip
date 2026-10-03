@@ -15,6 +15,12 @@ export const KOD_OMRU_DAKIKA = 15;
 const HANE = 6;
 
 /**
+ * Bir kodun kaç yanlış denemeye dayandığı. Sınıra ulaşınca kod kullanılmış sayılır ve
+ * yenisi istenmek zorunda; her kod için tahmin şansı `KOD_DENEME_SINIRI / 10^6`.
+ */
+export const KOD_DENEME_SINIRI = 5;
+
+/**
  * Kriptografik rastgele altı haneli kod.
  * `randomInt` kullanılıyor: `Math.random()` tahmin edilebilir ve kimlik akışında kabul edilemez.
  */

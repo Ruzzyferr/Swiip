@@ -4,6 +4,7 @@ import { z } from 'zod';
 import {
   gerekceAnlat,
   hareketBul,
+  havuzHazirla,
   ilerlemeUygula,
   muadilZinciri,
   programUret,
@@ -22,8 +23,10 @@ import {
   programUyarilari,
   splitGerekcesi,
 } from '@swiip/shared';
-import { Bulunamadi, HataliIstek, PlanYetersiz, Yasak } from '../hatalar';
+import { Cakisma, Bulunamadi, HataliIstek, PlanYetersiz, Yasak } from '../hatalar';
 import { planGecerliMi } from '../servisler/planOku';
+import { programKapisiniUygula } from '../servisler/kapiDurumu';
+import { istekGunu } from '../gun';
 import {
   ai_usage,
   decisions,
@@ -89,8 +92,17 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
    * `/uret` ve `/sonraki-hafta` aynı gövdeyi paylaşır: iki ayrı üretim yolu,
    * ayrışan iki program demekti.
    */
-  async function programKur(kullaniciId: string, hafta: number) {
+  async function programKur(kullaniciId: string, hafta: number, bugun: string) {
     const profil = await profiliGetir(kullaniciId);
+
+    /**
+     * Kapı GÜNCEL cevaplardan da kontrol ediliyor — profilin fotoğrafından değil yalnızca.
+     *
+     * Profil `/tamamla` anında yazılıyor; sonradan "Hamileyim" ya da kardiyak bir soruya
+     * "Evet" diyen kullanıcı `/tamamla` çağırmadıkça eski profille program almaya devam
+     * ediyordu. Gerekçe `servisler/kapiDurumu.ts`'te.
+     */
+    await programKapisiniUygula(db, kullaniciId);
 
     /**
      * Kazanılan ilerleme yeni haftaya TAŞINIR.
@@ -135,7 +147,8 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
      * Tarih üretimi burada, motorda değil: çekirdek makine saatine bakmaz.
      */
     const yerlesim = seanslariYerlestir(program.seanslar.length, profil.uygun_gunler);
-    const tarihler = seansTarihleri(yerlesim.gunler, bugunISO());
+    // "Bugün" kullanıcının günü; UTC değil (bkz. `gun.ts`).
+    const tarihler = seansTarihleri(yerlesim.gunler, bugun);
 
     // Önceki program pasife alınır; kullanıcı geçmişini kaybetmez.
     await db
@@ -273,7 +286,7 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
       .object({ hafta: z.number().int().min(1).max(52).default(1) })
       .parse(istek.body ?? {});
 
-    return programKur(istek.kullaniciId, hafta);
+    return programKur(istek.kullaniciId, hafta, istekGunu(istek));
   });
 
   /**
@@ -341,7 +354,7 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
       );
     }
 
-    const yeni = await programKur(istek.kullaniciId, program.hafta + 1);
+    const yeni = await programKur(istek.kullaniciId, program.hafta + 1, istekGunu(istek));
     return { ...yeni, bekleyen_seans_vardi: bekleyen !== undefined };
   });
 
@@ -530,6 +543,15 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
       .limit(1);
 
     if (!seans) throw Bulunamadi('Seans bulunamadı.', 'seans_yok');
+
+    /*
+      Aynı seans İKİ KEZ raporlanamaz. Kontrol yoktu ve Program ekranı geri bildirimi
+      verilmiş seansı yeniden "sıradaki" diye gösterince kullanıcı aynı seansı tekrar
+      gönderebiliyordu: ilerleme motoru ağırlıkları ikinci kez artırıyordu.
+    */
+    if (seans.status === 'tamamlandi' || seans.status === 'atlandi') {
+      throw Cakisma('Bu seansın geri bildirimi zaten verildi.', 'seans_zaten_bildirildi');
+    }
 
     const plan = await planGetir(istek.kullaniciId);
     if (plan === 'ucretsiz') {
@@ -813,10 +835,20 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
 
     if (!kalem) throw Bulunamadi('Bu seansta böyle bir hareket yok.', 'seansta_hareket_yok');
 
+    /**
+     * Muadil yalnızca kullanıcının HAVUZUNDAN gelir — `programUret` ile aynı kural.
+     *
+     * `muadilZinciri` yalnızca ekipmana ve kontrendikasyona bakıyor; havuzun öteki sert
+     * kurallarına (eksenel yük yasağı, baş üstü, teknik tavanı, ağrıyı artıran patern,
+     * zıplama…) bakmıyor. Omurga yüklemesi yasak olan kullanıcıya goblet squat'ın
+     * muadili olarak barbell squat önerilip plana YAZILABİLİYORDU. Hareket değiştirme
+     * ağrı anında kullanılan yol; kısıt çözücüsü tam orada atlanmamalı.
+     */
+    const havuzKimlikleri = new Set(havuzHazirla(profil).havuz.map((h) => h.id));
     const zincir = muadilZinciri(govde.eski_hareket_id, {
       ekipman: profil.kisitlar.ekipman,
       kontrendikasyonlar: profil.kisitlar.kontrendikasyonlar,
-    });
+    }).filter((h) => havuzKimlikleri.has(h.id));
 
     if (!govde.yeni_hareket_id) {
       /**
@@ -867,11 +899,6 @@ export async function programRotalari(app: FastifyInstance): Promise<void> {
  * metin ayrışmıştı: okuma ucu kullanıcının diline çeviriyor, üretim ucu ham Türkçe
  * döndürüyordu. Artık programı yalnızca `/aktif` döndürüyor.
  */
-
-/** API zamanı bilir, çekirdek bilmez: tarih üretimi yalnızca bu katmanda. */
-function bugunISO(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function haftaGunu(planlanan: string | null): number | null {
   if (!planlanan) return null;

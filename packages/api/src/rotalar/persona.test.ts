@@ -399,7 +399,12 @@ describe('Persona 2 · Mehmet — Pro, salon, ileri seviye', () => {
     const plan = await post(mehmet, '/v1/ogun/plan', { hafta_basi: '2026-08-24' });
     expect(plan.statusCode, plan.body).toBe(200);
 
-    const metin = JSON.stringify(plan.json()).toLocaleLowerCase('tr');
+    // Bitkisel "sütler" laktozsuz: "soya sütlü granola" `laktozsuz` etiketli bir tarif ve
+    // düz alt dize aramasında "süt"e takılıyordu. Yalnız onlar çıkarılıyor; inek sütü,
+    // peynir, yoğurt ve ayran hâlâ yasak.
+    const metin = JSON.stringify(plan.json())
+      .toLocaleLowerCase('tr')
+      .replace(/(soya|badem|yulaf|hindistan cevizi) süt/g, '$1');
     for (const yasak of ['süt', 'peynir', 'yoğurt', 'ayran']) {
       expect(metin, `${yasak} laktoz intoleransı olana çıkmamalı`).not.toContain(yasak);
     }

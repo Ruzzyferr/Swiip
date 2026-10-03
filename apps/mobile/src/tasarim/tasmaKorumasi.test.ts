@@ -50,7 +50,7 @@ function kod(yol: string): string {
 }
 
 /** Taşan içeriği kaydırarak erişilebilir kılan kaplar. */
-const KAYDIRAN = /<(Ekran|ScrollView|FlatList|SectionList)\b/;
+const KAYDIRAN = /<(Ekran|KlavyeKaydirma|ScrollView|FlatList|SectionList)\b/;
 
 describe('ekranlar taşan içeriği kırpmıyor', () => {
   it('taranacak ekran var — test boşa dönmüyor', () => {

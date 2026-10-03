@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   Linking,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   TextInput,
@@ -17,19 +16,23 @@ import {
   Dugme,
   Etiket,
   Kart,
+  KlavyeKaydirma,
   Satir,
   Sayi,
   Sutun,
   Uyari,
   Yazi,
+  Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { veriyiPaylas } from '../../src/veri/disaAktar';
-import { ANAHTARLAR, sil } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
 import { tarihMetni } from '@swiip/shared';
 import { magaza } from '../../src/odeme/magaza';
+import { useAbonelik } from '../../src/reklam/ReklamHakki';
+import { degerlendirmeyiGuncelle } from '../../src/degerlendirme/guncelle';
+import { useOdaktaTazele } from '../../src/durum/tazele';
 
 /**
  * Ayarlar.
@@ -37,18 +40,6 @@ import { magaza } from '../../src/odeme/magaza';
  * Sıralama tesadüf değil: ABONELİK İPTALİ EN ÜSTTE. Pilates Workout negatiflerinin %42'si
  * iptal/iade şikâyetiydi. İptali gömmek kısa vadede geliri korur, uzun vadede puanı öldürür.
  */
-
-interface AbonelikDurumu {
-  plan: string;
-  haklar: { aylik_fiyat_try: number };
-  kota: {
-    yenilenme: string;
-    yemek_tanima: { kullanilan: number; toplam: number; kalan: number };
-    koc_sohbeti: { kullanilan: number; toplam: number; kalan: number };
-    adalet_notu: string;
-  };
-  promosyon_goster: boolean;
-}
 
 const DIL_ADLARI: Record<Dil, string> = { tr: 'Türkçe', en: 'English' };
 
@@ -62,7 +53,17 @@ export default function Ayarlar() {
   const planAdi = (kod: string) =>
     metinler.genel.planAdlari[kod as keyof typeof metinler.genel.planAdlari] ?? kod;
 
-  const [abonelik, setAbonelik] = useState<AbonelikDurumu | null>(null);
+  /*
+    Abonelik durumu reklam kararıyla AYNI kaynaktan geliyor ve önbellekten anında çiziliyor.
+
+    Eskiden bu ekran ucu kendisi okuyordu: iptal kartı ve plan kartı istek dönünce
+    sayfanın EN ÜSTÜNE birden beliriyor ve altındaki her şeyi itiyordu. İstek hata
+    verirse de iptal düğmesi HİÇ görünmüyordu — kilitli kural "iptal gizlenmez".
+    Satın almadan sonra da kimse yeniden okumuyordu: yeni ödeyen hâlâ "Planlara bak"
+    görüyordu.
+  */
+  const { durum: abonelik, okunamadi: abonelikHatasi, yenile: abonelikYenile } = useAbonelik();
+  const [guncelleniyor, setGuncelleniyor] = useState(false);
   const [dilYukleniyor, setDilYukleniyor] = useState(false);
   const [disaAktariliyor, setDisaAktariliyor] = useState(false);
   const [islemHatasi, setIslemHatasi] = useState<string | null>(null);
@@ -70,13 +71,11 @@ export default function Ayarlar() {
   const [dogrulamaKodu, setDogrulamaKodu] = useState('');
   const [dogrulamaNotu, setDogrulamaNotu] = useState<string | null>(null);
 
-  const yukle = useCallback(async () => {
-    setAbonelik(await istek<AbonelikDurumu>('/v1/abonelik/durum').catch(() => null));
-  }, []);
-
-  useEffect(() => {
-    void yukle();
-  }, [yukle]);
+  const yukle = async () => {
+    await abonelikYenile();
+    await yenile();
+  };
+  useOdaktaTazele(yukle);
 
   /**
    * Iptal, kullaniciyi MAGAZANIN abonelik sayfasina goturur.
@@ -128,7 +127,17 @@ export default function Ayarlar() {
   };
 
   const hesabiSil = () => {
-    Alert.alert(a.silOnayBaslik, a.silOnayGovde, [
+    /*
+      Ödeyen kullanıcıya: hesap silmek mağaza aboneliğini iptal etmiyor. Söylenmezse
+      kullanıcı silinmiş bir hesap için ödemeye devam ediyor (Apple 5.1.1(v)).
+    */
+    const govde =
+      abonelik && abonelik.plan !== 'ucretsiz'
+        ? `${a.silOnayGovde}
+
+${a.silAbonelikNotu}`
+        : a.silOnayGovde;
+    Alert.alert(a.silOnayBaslik, govde, [
       { text: metinler.genel.iptal, style: 'cancel' },
       {
         text: a.sil,
@@ -169,19 +178,28 @@ export default function Ayarlar() {
 
   const dogrulamaKoduIste = async () => {
     setDogrulamaNotu(null);
-    const yanit = await istek<{ mesaj: string }>('/v1/kimlik/eposta-dogrula-gonder', {
+    /*
+      Sunucu `{ durum: 'gonderildi', gecerlilik_dakika }` dönüyor — `mesaj` alanı YOK.
+      Ekran `yanit?.mesaj ?? kodGonderilemedi` yazıyordu: kod e-postaya GİTTİĞİ hâlde
+      kullanıcı "Kod gönderilemedi" okuyordu. Metin artık sözlükten, sonuca göre.
+    */
+    const yanit = await istek<{ gecerlilik_dakika?: number }>('/v1/kimlik/eposta-dogrula-gonder', {
       yontem: 'POST',
       govde: {},
     }).catch(() => null);
+    if (!yanit) {
+      setDogrulamaNotu(a.kodGonderilemedi);
+      return;
+    }
     setDogrulamaAdimi('kod');
-    setDogrulamaNotu(yanit?.mesaj ?? a.kodGonderilemedi);
+    setDogrulamaNotu(a.kodGonderildi(yanit.gecerlilik_dakika ?? 15));
   };
 
-  const epostayiDogrula = async () => {
+  const epostayiDogrula = async (kod: string = dogrulamaKodu) => {
     setDogrulamaNotu(null);
     const yanit = await istek('/v1/kimlik/eposta-dogrula', {
       yontem: 'POST',
-      govde: { kod: dogrulamaKodu.trim() },
+      govde: { kod: kod.trim() },
     }).catch(() => null);
 
     if (!yanit) {
@@ -206,9 +224,33 @@ export default function Ayarlar() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
+    <KlavyeKaydirma>
       <Sutun>
         {/* --- İPTAL EN ÜSTTE --- */}
+        {abonelik === null ? (
+          /*
+            Durum henüz bilinmiyor (ilk açılış, önbellek yok). Yer ayrılıyor ve bir
+            hata olursa SÖYLENİYOR: iptal düğmesinin sessizce yokluğu, gizlenmesiyle
+            kullanıcı açısından aynı şey.
+          */
+          <Kart>
+            <Yazi tur="baslik3">{a.planKotaBasligi}</Yazi>
+            {abonelikHatasi ? (
+              <>
+                <Yazi tur="kucuk" renk="metinYumusak">
+                  {a.abonelikOkunamadi}
+                </Yazi>
+                <Dugme
+                  baslik={metinler.genel.yeniden}
+                  tur="ikincil"
+                  onPress={() => void abonelikYenile()}
+                />
+              </>
+            ) : (
+              <Yukleniyor />
+            )}
+          </Kart>
+        ) : null}
         {abonelik && abonelik.plan !== 'ucretsiz' ? (
           <Kart>
             <Satir dagit="space-between">
@@ -268,14 +310,23 @@ export default function Ayarlar() {
               </Satir>
             ) : null}
 
-            <Ayirac />
-            <Yazi tur="etiket" renk="metinSilik">
-              {abonelik.kota.adalet_notu}
-            </Yazi>
-            <Yazi tur="etiket" renk="metinSilik">
-              {/* Sunucu ISO tarih gönderiyor; kullanıcıya "2026-09-01" gösterilemez. */}
-              {a.kotaYenilenme(tarihMetni(new Date(abonelik.kota.yenilenme), aktifDil))}
-            </Yazi>
+            {/*
+              Adalet notu ve sıfırlanma tarihi yalnızca gösterilen bir KOTA varken.
+              Ücretsiz planda kota satırı yok; "tanıma kotandan düşmez" ve "1 Kasım'da
+              sıfırlanır" ortada olmayan bir şeyden söz ediyordu.
+            */}
+            {abonelik.kota.yemek_tanima.toplam > 0 || abonelik.kota.koc_sohbeti.toplam > 0 ? (
+              <>
+                <Ayirac />
+                <Yazi tur="etiket" renk="metinSilik">
+                  {abonelik.kota.adalet_notu}
+                </Yazi>
+                <Yazi tur="etiket" renk="metinSilik">
+                  {/* Sunucu ISO tarih gönderiyor; kullanıcıya "2026-09-01" gösterilemez. */}
+                  {a.kotaYenilenme(tarihMetni(new Date(abonelik.kota.yenilenme), aktifDil))}
+                </Yazi>
+              </>
+            ) : null}
 
             {/* Ödeyene tek satır bile upsell gösterilmez. */}
             {abonelik.promosyon_goster ? (
@@ -314,11 +365,18 @@ export default function Ayarlar() {
           <Dugme
             baslik={a.degerlendirmeyiGuncelle}
             tur="ikincil"
+            yukleniyor={guncelleniyor}
             onPress={() => {
-              // Yeni surum eski taslakla acilmasin; taslak tamamlanmis surumun kalintisi.
-              void sil(ANAHTARLAR.degerlendirmeTaslagi)
-                .then(() => istek('/v1/degerlendirme/yeni-surum', { yontem: 'POST', govde: {} }))
-                .then(() => router.push('/degerlendirme'));
+              /*
+                Çift dokunuş iki yeni sürüm açıyordu; zincirin `catch`'i yoktu ve ağ
+                hatasında hiçbir şey olmuyordu (yakalanmamış red). İkisi de kapandı.
+              */
+              if (guncelleniyor) return;
+              setGuncelleniyor(true);
+              setIslemHatasi(null);
+              void degerlendirmeyiGuncelle()
+                .catch(() => setIslemHatasi(metinler.genel.hata))
+                .finally(() => setGuncelleniyor(false));
             }}
           />
         </Kart>
@@ -424,7 +482,14 @@ export default function Ayarlar() {
                 <>
                   <TextInput
                     value={dogrulamaKodu}
-                    onChangeText={(m) => setDogrulamaKodu(m.replace(/\D/g, '').slice(0, 6))}
+                    onChangeText={(m) => {
+                      const kod = m.replace(/\D/g, '').slice(0, 6);
+                      setDogrulamaKodu(kod);
+                      // Altı hane tamamlanınca doğrulama kendiliğinden başlıyor: "Doğrula"
+                      // düğmesi klavyenin arkasında kalıyordu.
+                      if (kod.length === 6) void epostayiDogrula(kod);
+                    }}
+                    returnKeyType="done"
                     keyboardType="number-pad"
                     autoComplete="one-time-code"
                     maxLength={6}
@@ -491,6 +556,6 @@ export default function Ayarlar() {
 
         <Uyari govde={a.oyunlastirmaNotu} />
       </Sutun>
-    </ScrollView>
+    </KlavyeKaydirma>
   );
 }

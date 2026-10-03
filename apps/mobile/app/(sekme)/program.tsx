@@ -24,6 +24,7 @@ import { ANAHTARLAR, oku, okuYas, yaz } from '../../src/veri/onbellek';
 import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 import { hareketGorseli } from '../../src/veri/hareketMedyasi.uretilmis';
 import { ReklamBanner } from '../../src/reklam/ReklamBanner';
+import { useOdaktaTazele } from '../../src/durum/tazele';
 
 /**
  * 1. GÜN AÇILIŞI — ürünün tamamının kazanıldığı veya kaybedildiği ekran.
@@ -87,29 +88,44 @@ export default function ProgramEkrani() {
   const [haftaHatasi, setHaftaHatasi] = useState<string | null>(null);
   const [haftaNotu, setHaftaNotu] = useState<string | null>(null);
   const [onbellekTarihi, setOnbellekTarihi] = useState<string | null>(null);
+  const haftaHesaplaniyor = useRef(false);
+  const [haftaHesapliyor, setHaftaHesapliyor] = useState(false);
 
   const yukle = useCallback(async () => {
     try {
       const cevap = await istek<ProgramCevabi>('/v1/program/aktif');
-      setProgram(cevap);
-      await yaz(ANAHTARLAR.program, cevap);
-      setDurum('hazir');
 
-      // Gerekçeler ayrı çekilir: program yavaşlamasın, gerekçe eksik kalmasın.
-      const ilkGun = cevap.gunler[0];
-      if (ilkGun) {
-        const sonuclar = await Promise.all(
-          ilkGun.hareketler.map(async (h) => {
-            try {
-              const g = await istek<{ aciklama: string }>(`/v1/program/gerekce/${h.exercise_id}`);
-              return [h.exercise_id, g.aciklama] as const;
-            } catch {
-              return [h.exercise_id, ''] as const;
-            }
-          }),
-        );
-        setGerekceler(Object.fromEntries(sonuclar.filter(([, a]) => a !== '')));
-      }
+      /*
+        Gerekçeler program ÇİZİLMEDEN önce geliyor.
+
+        Önce program çiziliyor, gerekçeler sonra geliyordu: her hareket kartı birkaç
+        satır birden büyüyor ve altındaki her şeyi — "Seansı bitirdim" dahil — aşağı
+        itiyordu (bu depoda 2. kusur sınıfı). İstekler paralel; bekleme tek bir
+        gidiş-dönüş kadar. Gerekçe bu ürünün tezi: onsuz çizilmiş bir program,
+        yarım çizilmiş bir programdır.
+      */
+      // Gerekçeler SIRADAKİ seansın hareketleri için (ekranda o gösteriliyor).
+      const ilkGun =
+        cevap.gunler.find((g) => g.seans.status !== 'tamamlandi' && g.seans.status !== 'atlandi') ??
+        cevap.gunler[0];
+      const sonuclar = ilkGun
+        ? await Promise.all(
+            ilkGun.hareketler.map(async (h) => {
+              try {
+                const g = await istek<{ aciklama: string }>(`/v1/program/gerekce/${h.exercise_id}`);
+                return [h.exercise_id, g.aciklama] as const;
+              } catch {
+                return [h.exercise_id, ''] as const;
+              }
+            }),
+          )
+        : [];
+
+      setGerekceler(Object.fromEntries(sonuclar.filter(([, a]) => a !== '')));
+      setProgram(cevap);
+      setOnbellekTarihi(null);
+      setDurum('hazir');
+      await yaz(ANAHTARLAR.program, cevap);
     } catch (hata) {
       const onbellek = await oku<ProgramCevabi>(ANAHTARLAR.program);
       if (onbellek) {
@@ -135,6 +151,13 @@ export default function ProgramEkrani() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+
+  /*
+    Seans geri bildirimi, keskinleştirme ya da satın alma sonrası dönüşte program
+    güncel olsun. Eskiden eski program duruyordu: "TAMAM" etiketi ve "hafta bitti"
+    kartı hiç çıkmıyor, ödeyen kullanıcı kilitli günleri görmeye devam ediyordu.
+  */
+  useOdaktaTazele(yukle);
 
   const uret = useCallback(
     async (otomatik = false) => {
@@ -236,7 +259,19 @@ export default function ProgramEkrani() {
     );
   }
 
-  const bugun = program.gunler[0];
+  /*
+    "Sıradaki seans" = ilk TAMAMLANMAMIŞ ve atlanmamış gün.
+
+    Hep ilk gün gösteriliyordu: 1. günün geri bildirimini veren kullanıcı Program'a
+    döndüğünde yine 1. günü ve "Seansı bitirdim, geri bildirim ver" düğmesini
+    görüyordu. Aynı seansı ikinci kez bildirmek ağırlıkları ikinci kez artırıyordu.
+    Hepsi bittiyse sıradaki yok; "hafta bitti" kartı devreye giriyor.
+  */
+  const siradakiIndeks = program.gunler.findIndex(
+    (g) => g.seans.status !== 'tamamlandi' && g.seans.status !== 'atlandi',
+  );
+  const bugun = siradakiIndeks >= 0 ? program.gunler[siradakiIndeks] : undefined;
+  const digerGunler = program.gunler.filter((_, i) => i !== siradakiIndeks);
 
   // Karar `shared`'da: ekranda hesap yapmıyoruz, kural orada sınanıyor.
   const haftaBitti = haftaBittiMi({
@@ -245,6 +280,10 @@ export default function ProgramEkrani() {
   });
 
   const sonrakiHafta = async () => {
+    // Çift dokunuş aynı hafta için iki program üretiyordu.
+    if (haftaHesaplaniyor.current) return;
+    haftaHesaplaniyor.current = true;
+    setHaftaHesapliyor(true);
     setHaftaHatasi(null);
     setHaftaNotu(null);
     try {
@@ -256,6 +295,9 @@ export default function ProgramEkrani() {
       await yukle();
     } catch (hata) {
       setHaftaHatasi(hata instanceof ApiHatasi ? hata.mesaj : m.haftaHesaplanamadi);
+    } finally {
+      haftaHesaplaniyor.current = false;
+      setHaftaHesapliyor(false);
     }
   };
 
@@ -287,7 +329,7 @@ export default function ProgramEkrani() {
 
         <View style={{ gap: tema.bosluk.xs }}>
           <Yazi tur="etiket" renk="aksan">
-            {program.hafta}. {m.haftaEki}
+            {m.haftaEtiketi(program.hafta)}
           </Yazi>
           <Yazi tur="dev">{m.hazir}</Yazi>
         </View>
@@ -337,7 +379,9 @@ export default function ProgramEkrani() {
         {bugun ? (
           <View style={{ gap: tema.bosluk.md }}>
             <Satir dagit="space-between">
-              <Yazi tur="baslik2">{m.gunBasligi(1, gunTipi(m, bugun.seans.gun_tipi))}</Yazi>
+              <Yazi tur="baslik2">
+                {m.gunBasligi(bugun.seans.gun_indeksi + 1, gunTipi(m, bugun.seans.gun_tipi))}
+              </Yazi>
               {bugun.seans.tahmini_dakika ? (
                 <Etiket metin={m.dakikaEtiketi(bugun.seans.tahmini_dakika)} />
               ) : null}
@@ -358,13 +402,22 @@ export default function ProgramEkrani() {
               />
             ))}
 
+            {/*
+              Seans geri bildirimi Temel plandan itibaren (sunucu: `geri_bildirim_plan_yetersiz`).
+              Düğme ücretsizde kilitsiz görünüyordu: kullanıcı üç dokunuşluk formu
+              dolduruyor, gönderince ödeme ekranına atılıyordu. Kilit rozeti
+              uygulamanın her yerinde olduğu gibi burada da ÖNCEDEN söylüyor.
+            */}
             <Dugme
               baslik={m.seansiBitirdim}
+              kilitli={program.plan === 'ucretsiz'}
               onPress={() =>
-                router.push({
-                  pathname: '/program/geri-bildirim',
-                  params: { seans: bugun.seans.id },
-                })
+                program.plan === 'ucretsiz'
+                  ? router.push('/odeme/paywall')
+                  : router.push({
+                      pathname: '/program/geri-bildirim',
+                      params: { seans: bugun.seans.id },
+                    })
               }
               erisimIpucu={m.seansErisimIpucu}
             />
@@ -384,7 +437,7 @@ export default function ProgramEkrani() {
             />
           </Kart>
         ) : (
-          program.gunler.slice(1).map((gun) => (
+          digerGunler.map((gun) => (
             <Kart key={gun.seans.id}>
               <Satir dagit="space-between">
                 <Yazi tur="baslik3">
@@ -394,8 +447,11 @@ export default function ProgramEkrani() {
                   metin={
                     gun.seans.status === 'tamamlandi'
                       ? m.tamamEtiketi
-                      : m.hareketEtiketi(gun.hareketler.length)
+                      : gun.seans.status === 'atlandi'
+                        ? m.atlandiEtiketi
+                        : m.hareketEtiketi(gun.hareketler.length)
                   }
+                  tur={gun.seans.status === 'tamamlandi' ? 'aksan' : undefined}
                 />
               </Satir>
               <Yazi tur="kucuk" renk="metinSilik">
@@ -423,7 +479,11 @@ export default function ProgramEkrani() {
               {m.haftaBittiGovde}
             </Yazi>
             {haftaHatasi ? <Uyari tur="tehlike" govde={haftaHatasi} /> : null}
-            <Dugme baslik={m.sonrakiHaftayiHesapla} onPress={() => void sonrakiHafta()} />
+            <Dugme
+              baslik={m.sonrakiHaftayiHesapla}
+              onPress={() => void sonrakiHafta()}
+              yukleniyor={haftaHesapliyor}
+            />
           </Kart>
         ) : null}
 
@@ -432,11 +492,6 @@ export default function ProgramEkrani() {
         <Yazi tur="etiket" renk="metinSilik" hizala="center">
           {m.duzenlemeUcretsiz}
         </Yazi>
-
-        {/*
-          Banner listenin ALTINDA ve yüklenene kadar sıfır yükseklikte; reklam
-          gelmezse sayfa düzeni hiç değişmiyor.
-        */}
       </Sutun>
     </ScrollView>
   );
@@ -455,6 +510,8 @@ function HareketKarti({
 }) {
   const tema = useTema();
   const m = useMetinler().program;
+  /** Ondalık ayırıcı dile göre ("2,5 kg" / "2.5 kg"). */
+  const ondalik = useMetinler().gerekce.ondalikAyirac;
   const hareket = hareketBul(kalem.exercise_id);
   const dil = useDil();
   const ad = hareketAdi(hareket, dil, kalem.exercise_id);
@@ -498,7 +555,7 @@ function HareketKarti({
               </Sayi>
               {kalem.target_weight !== null && !sayilarGizli ? (
                 <Sayi tur="baslik3" renk="aksan">
-                  {kgMetni(kalem.target_weight)} kg
+                  {kgMetni(kalem.target_weight, ondalik)} kg
                 </Sayi>
               ) : (
                 <Yazi tur="kucuk" renk="metinSilik">

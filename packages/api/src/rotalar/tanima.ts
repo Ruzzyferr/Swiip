@@ -34,6 +34,7 @@ import { donemBitisi, donemKodu } from './abonelik';
 import { kotaIadeEt, kotaRezerveEt } from '../servisler/kotaRezerve';
 import { butceDurumu, fotografBoyutuUygunMu } from '@swiip/core';
 import { planGecerliMi } from '../servisler/planOku';
+import { istekGunu } from '../gun';
 
 /**
  * Fotoğraftan yemek tanıma (F7).
@@ -79,6 +80,12 @@ const duzeltmeSemasi = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .optional(),
+  /*
+    Öğün. Fotoğraftan eklenen her kayıt "Öğün seçilmemiş" başlığına düşüyordu: alan
+    `food_logs.ogun`'da vardı ama bu uç onu almıyordu. Eski istemci göndermez; o
+    zaman yine boş kalır.
+  */
+  ogun: z.enum(['kahvalti', 'ogle', 'aksam', 'ara']).optional(),
 });
 
 export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
@@ -110,6 +117,8 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
       .select({
         id: foods.id,
         ad: foods.name_tr,
+        // Eşleme Türkçe adla yapılıyor; İngilizce ad yalnızca gösterim için taşınıyor.
+        ad_en: foods.name_en,
         per_100g: foods.per_100g_jsonb,
         porsiyonlar: foods.portions_jsonb,
       })
@@ -193,6 +202,21 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     const kotaDusecek = kotaDusulmeliMi({ onbellekten: false, hataliTanimaTekrari: false });
 
     /**
+     * Model yoksa hak REZERVE EDİLMEDEN dönülür.
+     *
+     * Bu kontrol rezervasyondan sonra geliyordu ve iade etmeden fırlatıyordu: geçit
+     * yapılandırılmamışken her deneme, hiçbir çağrı yapılmadan kullanıcının aylık
+     * hakkından bir tane yiyordu.
+     */
+    const aiIstemcisi = app.aiIstemcisi;
+    if (!aiIstemcisi) {
+      throw HataliIstek(
+        'Görsel tanıma şu an kullanılamıyor. Yemeği elle arayıp ekleyebilirsin.',
+        'ai_kapali',
+      );
+    }
+
+    /**
      * Hak model çağrılmadan **önce** rezerve edilir.
      *
      * Eskiden "oku, çağır, artır" sırası vardı; aradaki boşlukta paralel istekler sınırı
@@ -215,13 +239,6 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
           { hak: haklar.yemek_tanima_aylik, yenilenme: donemBitisi() },
         );
       }
-    }
-
-    if (!app.aiIstemcisi) {
-      throw HataliIstek(
-        'Görsel tanıma şu an kullanılamıyor. Yemeği elle arayıp ekleyebilirsin.',
-        'ai_kapali',
-      );
     }
 
     // --- 2. Tanıma: kalem listesi + miktar. Kalori DEĞİL. ---
@@ -263,7 +280,7 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
 
     let cevap;
     try {
-      cevap = await app.aiIstemcisi.metinUret({
+      cevap = await aiIstemcisi.metinUret({
         is: 'yemek_tanima',
         sistem: TANIMA_SISTEM_MESAJI,
         kullanici: 'Bu fotoğraftaki yemekleri ve miktarlarını çıkar.',
@@ -303,7 +320,19 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     });
 
     if (cikti.kalemler.length === 0) {
-      // Boş sonuç kullanıcının hatası değil; kota yemez.
+      /**
+       * Boş sonuç kullanıcının hatası değil; kota yemez — ve gerçekten YEMEMELİ.
+       *
+       * Yalnızca adalet sayacı artırılıyordu; rezerve edilen hak iade edilmiyordu.
+       * Kullanıcıya "Bu deneme kotandan düşmedi" deniyor, sayaç ise bir eksiliyordu.
+       */
+      if (kotaDusecek) {
+        await kotaIadeEt(db, {
+          kullaniciId: istek.kullaniciId,
+          donem: donemKodu(),
+          alan: 'food_photos_used',
+        });
+      }
       await kotaIsaretle(istek.kullaniciId, { hatali: true });
       throw HataliIstek(
         'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
@@ -349,11 +378,33 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
   /** 4-5. Kullanıcı doğrulaması ve geri besleme. */
   app.post('/tani/onayla', { preHandler: app.kimlikDogrula }, async (istek) => {
     const govde = duzeltmeSemasi.parse(istek.body);
-    const gun = govde.gun ?? new Date().toISOString().slice(0, 10);
+    const gun = govde.gun ?? istekGunu(istek);
 
     const dil = veriYereli(await kullaniciDili(istek.kullaniciId));
     const katalog = await besinKataloguGetir(dil);
     const kayitlar = [];
+
+    /**
+     * Düzeltme global eşleme tablosuna YALNIZCA gerçek bir tanımadan sonra oy verir.
+     *
+     * `photo_hash` istemcinin gönderdiği serbest bir dizeydi ve bu uç plan da
+     * istemiyor. Üç ücretsiz hesap — e-posta doğrulaması gerekmiyor — "tavuk" gibi bir
+     * kelimeyi istedikleri besine bağlayıp HERKESİN tanıma sonucunu değiştirebiliyordu.
+     * Sağlık ürününde yanlış besin değeri. Oy artık kullanıcının kendi önbelleğinde
+     * duran bir tanımaya bağlı; yani her oy en az bir gerçek (Pro) tanıma gerektiriyor.
+     * Kayıt yine yapılıyor: kullanıcının kendi günlüğü bu kurala takılmaz.
+     */
+    const [tanimaKaydi] = await db
+      .select({ photo_hash: tanima_onbellegi.photo_hash })
+      .from(tanima_onbellegi)
+      .where(
+        and(
+          eq(tanima_onbellegi.user_id, istek.kullaniciId),
+          eq(tanima_onbellegi.photo_hash, govde.photo_hash),
+        ),
+      )
+      .limit(1);
+    const oyVerebilir = tanimaKaydi !== undefined;
 
     for (const kalem of govde.kalemler) {
       const besin = katalog.find((b) => b.id === kalem.food_id);
@@ -371,12 +422,15 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
           quantity: String(kalem.gram),
           entry_method: 'foto',
           gun,
+          ogun: govde.ogun ?? null,
           photo_hash: govde.photo_hash,
           hesaplanan_jsonb: hesaplanan,
         })
         .returning();
 
       kayitlar.push(kayit);
+
+      if (!oyVerebilir) continue;
 
       /**
        * Geri besleme: düzeltme global eşleme tablosuna yazılır.
@@ -608,7 +662,21 @@ function tanimaCevabi(girdi: CevapGirdisi) {
       miktar: k.miktar,
       gram: k.gram,
       eslesti: k.eslesti,
-      besin: k.besin ? { id: k.besin.id, ad: k.besin.ad } : null,
+      /*
+        Bileşim de gidiyor: kullanıcı gramı değiştirdiğinde ya da yemeği başka biriyle
+        değiştirdiğinde ekrandaki toplam AYNI formülle (`besinToplami`) yeniden
+        hesaplanabilsin. Gitmiyordu ve ekran ilk cevabın toplamında donuyordu —
+        kullanıcı, gördüğünden farklı bir öğünü onaylıyordu. Kaydedilen değeri yine
+        sunucu `/tani/onayla`da veritabanından hesaplıyor.
+      */
+      besin: k.besin
+        ? {
+            id: k.besin.id,
+            ad: k.besin.ad,
+            ad_en: (k.besin as BesinKaydi & { ad_en?: string | null }).ad_en ?? null,
+            per_100g: k.besin.per_100g,
+          }
+        : null,
       skor: k.skor ?? null,
     })),
     toplam: besinToplami(girdi.kalemler),

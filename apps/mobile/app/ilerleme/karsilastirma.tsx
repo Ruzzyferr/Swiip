@@ -87,7 +87,13 @@ export default function Karsilastirma() {
         <Stack.Screen options={{ headerShown: true, title: m.sayfaBasligi }} />
         <Ekran>
           <BosDurum baslik={m.azBaslik} govde={m.azGovde} />
+          {/*
+            "Fotoğraflar sunucumuza hiç gitmedi" yazıyordu: fotoğraflar analiz için
+            sunucudan GEÇİYOR, yalnızca saklanmıyor. Gizlilik ekranıyla çelişiyordu.
+            Boş durum çıkmaz da değil artık: yeni ölçüm buradan başlıyor.
+          */}
           <Uyari govde={m.cihazNotu} />
+          <Dugme baslik={m.yeniOlcum} onPress={() => router.push('/fotograf/gizlilik')} />
         </Ekran>
       </>
     );

@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
-import { Dugme, Ekran, Uyari, Yazi } from '../../src/tasarim/bilesenler';
+import { Dugme, Ekran, MetinAlani, ParolaAlani, Uyari, Yazi } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler, useOturum } from '../../src/durum/Oturum';
+import { sozlukKaresiniBekle } from '../../src/gezinme/oturumSonrasi';
 import { ApiHatasi } from '../../src/veri/api';
 
 export default function Giris() {
@@ -18,10 +19,12 @@ export default function Giris() {
   const [yukleniyor, setYukleniyor] = useState(false);
 
   const gonder = async () => {
+    if (yukleniyor) return;
     setHata(null);
     setYukleniyor(true);
     try {
       await girisYap(email.trim(), parola);
+      await sozlukKaresiniBekle();
       router.replace('/(sekme)/program');
     } catch (h) {
       setHata(h instanceof ApiHatasi ? h.mesaj : m.hata);
@@ -30,17 +33,7 @@ export default function Giris() {
     }
   };
 
-  const girisStili = {
-    minHeight: tema.dokunmaHedefi,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: tema.renk.kenar,
-    borderRadius: tema.yaricap.md,
-    paddingHorizontal: tema.bosluk.lg,
-    fontSize: 16,
-    fontFamily: tema.tipografi.aileler.govde,
-    color: tema.renk.metin,
-    backgroundColor: tema.renk.yuzey,
-  };
+  const parolaAlani = useRef<TextInput>(null);
 
   return (
     <>
@@ -52,14 +45,17 @@ export default function Giris() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {metinler.giris.kayit.eposta}
           </Yazi>
-          <TextInput
+          <MetinAlani
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            textContentType="emailAddress"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => parolaAlani.current?.focus()}
             accessibilityLabel={metinler.giris.kayit.epostaEtiketi}
-            style={girisStili}
           />
         </View>
 
@@ -67,13 +63,17 @@ export default function Giris() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {metinler.giris.kayit.parola}
           </Yazi>
-          <TextInput
+          <ParolaAlani
+            ref={parolaAlani}
             value={parola}
             onChangeText={setParola}
-            secureTextEntry
             autoComplete="current-password"
+            textContentType="password"
+            returnKeyType="go"
+            onSubmitEditing={() => {
+              if (email && parola && !yukleniyor) void gonder();
+            }}
             accessibilityLabel={metinler.giris.kayit.parola}
-            style={girisStili}
           />
         </View>
 

@@ -186,3 +186,76 @@ describe('GET /v1/degerlendirme/profil yazmıyor', () => {
     expect(await damga(token), 'POST /tamamla damgayı basmalı').not.toBeNull();
   });
 });
+
+/**
+ * Kapı profilin FOTOĞRAFINDAN değil, güncel cevaplardan okunuyor.
+ *
+ * Profil yalnızca `/tamamla` anında yazılıyor. Temiz bir değerlendirmeyle program alan
+ * kullanıcı sonra kardiyak bir soruya "Evet" ya da "Hamileyim" diyip `/tamamla`
+ * çağırmadığında, eski profille program almaya devam ediyordu.
+ */
+describe('profil yazıldıktan sonra açılan kapı', () => {
+  const TEMIZ = { K7: 'Evet', S2: 'Hayır', S3: 'Hayır', S7: 'Hayır', S18: 'Hayır' };
+
+  async function cevapla(token: string, cevaplar: Record<string, unknown>) {
+    const c = await app.inject({
+      method: 'POST',
+      url: '/v1/degerlendirme/cevap',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { cevaplar },
+    });
+    expect(c.statusCode).toBe(200);
+  }
+
+  it('sonradan işaretlenen kardiyak bayrak programı durdurur', async () => {
+    const token = await kur('sonradan-kardiyak@swiip.app', TEMIZ);
+    expect((await programUretDene(token)).statusCode, 'önce temiz').toBe(200);
+
+    await cevapla(token, { S2: 'Evet' });
+
+    const cevap = await programUretDene(token);
+    expect(cevap.statusCode, 'eski profil kapıyı atlatmamalı').toBe(403);
+    expect(cevap.json().kod).toBe('kapi_engeli');
+  });
+
+  it('sonradan beyan edilen gebelik programı durdurur', async () => {
+    const token = await kur('sonradan-gebelik@swiip.app', { ...TEMIZ, K2: 'Kadın' });
+    expect((await programUretDene(token)).statusCode).toBe(200);
+
+    await cevapla(token, { K6: 'Hamileyim' });
+
+    expect((await programUretDene(token)).statusCode).toBe(403);
+  });
+
+  it('18 yaş altı beyanı vücut fotoğrafı analizini de kapatır', async () => {
+    const token = await kur('sonradan-yas@swiip.app', TEMIZ);
+    await cevapla(token, { K1: `${new Date().getUTCFullYear() - 15}-01-01` });
+
+    const analiz = await app.inject({
+      method: 'POST',
+      url: '/v1/vucut/analiz',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { olculer: { bel_cm: 80, boyun_cm: 38 } },
+    });
+    expect(analiz.statusCode).toBe(403);
+    expect(analiz.json().kod).toBe('kapi_yas');
+    expect((await programUretDene(token)).statusCode).toBe(403);
+  });
+
+  it('yanlış girilen yaş düzeltilince durum kalıcı olarak "engelli" kalmaz', async () => {
+    const token = await kur('yas-duzeltme@swiip.app', TEMIZ);
+    await cevapla(token, { K1: `${new Date().getUTCFullYear() - 15}-01-01` });
+
+    const ben = () =>
+      app.inject({
+        method: 'GET',
+        url: '/v1/kimlik/ben',
+        headers: { authorization: `Bearer ${token}` },
+      });
+    expect((await ben()).json().medical_gate_status).toBe('yas_engeli');
+
+    await cevapla(token, { K1: '1990-03-15' });
+    expect((await ben()).json().medical_gate_status).toBe('temiz');
+    expect((await programUretDene(token)).statusCode).toBe(200);
+  });
+});

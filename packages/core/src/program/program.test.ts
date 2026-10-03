@@ -3,6 +3,7 @@ import { HAREKET_KATALOGU, type Profil } from '@swiip/shared';
 import { programUret } from './program';
 import { hareketBul } from '../katalog/katalog';
 import { profilKur } from '../test/profilKur';
+import { havuzHazirla } from './havuz';
 import { TOPARLANMASI_DUSUK_PROFIL } from '../test/ornekler/toparlanmasiDusukProfil';
 
 function uret(uzat: Partial<Profil> = {}) {
@@ -514,5 +515,70 @@ describe('karar izi dilden bağımsız', () => {
     for (const karar of [...hareketKararlari, ...havuzKararlari]) {
       expect(karar.aciklama_tr.length, karar.id).toBeGreaterThan(10);
     }
+  });
+});
+
+describe('programUret — muadiller havuzun sert kurallarına uyar', () => {
+  it('eksenel yük ve teknik kısıtı olan kullanıcıya muadil olarak elenen hareket önerilmez', () => {
+    const kisitlar = {
+      ...profilKur().kisitlar,
+      eksenel_yuk_yasak: true,
+      bas_ustu_yasak: true,
+      teknik_guveni: 2,
+      kisitli_paternler: ['kalca_baskin' as const],
+    };
+    const profil = profilKur({ kisitlar });
+    const havuz = new Set(havuzHazirla(profil).havuz.map((h) => h.id));
+
+    const alternatifler = uret({ kisitlar }).seanslar.flatMap((s) =>
+      s.hareketler.flatMap((h) => h.alternatifler),
+    );
+
+    expect(alternatifler.length).toBeGreaterThan(0);
+    // Eskiden goblet squat'ın muadili barbell squat'tı — eksenel yük yasağına rağmen.
+    expect(alternatifler.filter((id) => !havuz.has(id))).toEqual([]);
+  });
+});
+
+describe('programUret — boş bar kaldırılamıyorsa barbell yazılmaz', () => {
+  it('bench e1RM tahmini boş barın altındaysa göğüs için barbell bench verilmez', () => {
+    // 55 kg, yeni başlayan kadın: bench e1RM tahmini ≈ 18 kg. 6 tekrar için 20 kg yazılıyordu.
+    const program = uret({
+      cinsiyet: 'kadin',
+      kilo_kg: 55,
+      antrenman_yasi: 'yeni',
+      hedef_vektoru: { birincil: 'guc_artisi', oncelikli_bolgeler: [], memnun_bolgeler: [] },
+      kisitlar: { ...profilKur().kisitlar, teknik_guveni: 4, spotter_yok: false },
+    });
+    const hareketler = program.seanslar.flatMap((s) => s.hareketler);
+
+    expect(hareketler.map((h) => h.hareket_id)).not.toContain('barbell-bench-press');
+    // Göğüs boş kalmıyor; ağırlığı sıfırdan kurulabilen bir muadil geliyor.
+    expect(hareketler.some((h) => hareketBul(h.hareket_id)!.birincil_kas.includes('gogus'))).toBe(
+      true,
+    );
+  });
+
+  it('boş barı rahat kaldıran kullanıcıda barbell bench yerinde kalır', () => {
+    const program = uret({
+      hedef_vektoru: { birincil: 'guc_artisi', oncelikli_bolgeler: [], memnun_bolgeler: [] },
+      kisitlar: { ...profilKur().kisitlar, spotter_yok: false },
+    });
+
+    expect(program.seanslar.flatMap((s) => s.hareketler.map((h) => h.hareket_id))).toContain(
+      'barbell-bench-press',
+    );
+  });
+});
+
+describe('programUret — karın her splitte bir güne düşer', () => {
+  it.each([5, 6])('%i günlük programda karın hareketi var', (gun) => {
+    const program = uret({ gun_sayisi: gun });
+    const karin = program.seanslar
+      .flatMap((s) => s.hareketler)
+      .filter((h) => hareketBul(h.hareket_id)!.birincil_kas.includes('karin'));
+
+    expect(program.butce.karin).toBeGreaterThan(0);
+    expect(karin.length).toBeGreaterThan(0);
   });
 });

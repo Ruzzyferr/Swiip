@@ -49,6 +49,10 @@ export default function TarifDetayi() {
   const tema = useTema();
   const ogunMetinleri = useMetinler().ogun;
   const genel = useMetinler().genel;
+  const etiketAdlari = useMetinler().ogun.etiketAdlari;
+  /** Ondalık ayırıcı dile göre: Türkçede "43,1 g". */
+  const ayirac = useMetinler().gerekce.ondalikAyirac;
+  const ondalik = (deger: number) => String(Math.round(deger * 10) / 10).replace('.', ayirac);
   const m = ogunMetinleri.tarif;
   const dil = useDil();
   const reyonlar = ogunMetinleri.reyonAdlari;
@@ -87,11 +91,18 @@ export default function TarifDetayi() {
       <Ekran>
         <Yazi tur="baslik1">{tarif.name_tr}</Yazi>
 
-        <Satir arasi="xs">
+        {/*
+          Etiket satırı SARIYOR: tek satırda sağdan taşıyordu ("ANA_YEMEK" ekranın
+          kenarında kesikti). Etiket adı sözlükten; ham kod alt çizgisiyle basılıyordu.
+        */}
+        <Satir arasi="xs" sar>
           <Etiket metin={genel.dakikaKisa(tarif.prep_minutes)} />
           <Etiket metin={genel.butceKademesi(tarif.cost_tier)} />
           {tarif.tags.slice(0, 3).map((etiket) => (
-            <Etiket key={etiket} metin={buyukHarf(etiket, dil)} />
+            <Etiket
+              key={etiket}
+              metin={buyukHarf(etiketAdlari[etiket] ?? etiket.replace(/_/g, ' '), dil)}
+            />
           ))}
         </Satir>
 
@@ -110,16 +121,16 @@ export default function TarifDetayi() {
             </Satir>
             <Satir arasi="lg">
               <Yazi tur="kucuk" renk="metinYumusak">
-                P {tarif.macros_jsonb.protein_g} g
+                {genel.makroKisa.protein} {ondalik(tarif.macros_jsonb.protein_g)} g
               </Yazi>
               <Yazi tur="kucuk" renk="metinYumusak">
-                K {tarif.macros_jsonb.karbonhidrat_g} g
+                {genel.makroKisa.karbonhidrat} {ondalik(tarif.macros_jsonb.karbonhidrat_g)} g
               </Yazi>
               <Yazi tur="kucuk" renk="metinYumusak">
-                Y {tarif.macros_jsonb.yag_g} g
+                {genel.makroKisa.yag} {ondalik(tarif.macros_jsonb.yag_g)} g
               </Yazi>
               <Yazi tur="kucuk" renk="metinYumusak">
-                Lif {tarif.macros_jsonb.lif_g} g
+                {genel.makroKisa.lif} {ondalik(tarif.macros_jsonb.lif_g)} g
               </Yazi>
             </Satir>
             <Yazi tur="etiket" renk="metinSilik">

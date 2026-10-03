@@ -101,3 +101,34 @@ describe('POST /v1/ilgi', () => {
     expect(cevap.statusCode).toBe(201);
   });
 });
+
+/**
+ * Uç oturumsuz; kimlik uçlarıyla aynı dar sınıra bağlı olmalı.
+ *
+ * Not böyle diyordu ama uç yalnızca genel 120/dk kovasındaydı: tek IP dakikada 120
+ * yabancı adresi listeye yazabiliyordu.
+ */
+describe('ilgi listesi istek sınırı', () => {
+  it('dar sınırı aşan IP 429 alır', async () => {
+    const { uygulamaOlustur } = await import('../uygulama');
+    const dar = await uygulamaOlustur({
+      db: uygulama.ortam.db,
+      yapilandirma: { ...uygulama.app.yapilandirma, KIMLIK_ISTEK_SINIRI: 3 },
+    });
+    await dar.ready();
+    try {
+      const kodlar: number[] = [];
+      for (let i = 0; i < 5; i += 1) {
+        const c = await dar.inject({
+          method: 'POST',
+          url: '/v1/ilgi',
+          payload: { eposta: `sel${i}@ornek.com`, riza: true },
+        });
+        kodlar.push(c.statusCode);
+      }
+      expect(kodlar).toEqual([201, 201, 201, 429, 429]);
+    } finally {
+      await dar.close();
+    }
+  });
+});

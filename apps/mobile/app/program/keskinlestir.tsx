@@ -12,7 +12,7 @@ import {
   Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
-import { istek } from '../../src/veri/api';
+import { ApiHatasi, istek } from '../../src/veri/api';
 import { useMetinler } from '../../src/durum/Oturum';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
 
@@ -42,7 +42,9 @@ interface Teklif {
 
 export default function Keskinlestir() {
   const tema = useTema();
-  const m = useMetinler().program.keskinlestirme;
+  const metinler = useMetinler();
+  const m = metinler.program.keskinlestirme;
+  const genel = metinler.genel;
   const [teklifler, setTeklifler] = useState<Teklif[]>([]);
   const [cevaplar, setCevaplar] = useState<Record<string, unknown>>({});
   const [hazir, setHazir] = useState(false);
@@ -74,10 +76,16 @@ export default function Keskinlestir() {
     setHata(null);
     try {
       await istek('/v1/degerlendirme/cevap', { yontem: 'POST', govde: { cevaplar } });
-      await istek('/v1/program/uret', { yontem: 'POST', govde: {} });
-      router.replace('/(sekme)/program');
+      /*
+        Program AYNI haftada yeniden hesaplanıyor. Gövde boş gidiyordu ve sunucu
+        varsayılanı `hafta: 1`: tek bir soruyu cevaplayan 6. hafta kullanıcısı 1.
+        haftaya dönüyor, deload takvimi sıfırlanıyordu.
+      */
+      const aktif = await istek<{ hafta: number }>('/v1/program/aktif').catch(() => null);
+      await istek('/v1/program/uret', { yontem: 'POST', govde: { hafta: aktif?.hafta ?? 1 } });
+      router.dismissTo('/(sekme)/program');
     } catch (h) {
-      setHata(h instanceof Error ? h.message : String(h));
+      setHata(h instanceof ApiHatasi ? h.mesaj : genel.hata);
       setKaydediliyor(false);
     }
   }, [cevaplar]);

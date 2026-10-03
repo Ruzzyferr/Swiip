@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { router, Stack } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import {
   ATLANDI,
   sonrakiSoru,
@@ -8,7 +8,7 @@ import {
   type Cevaplar,
   type GorunurSoru,
 } from '@swiip/core';
-import { SORU_BANKASI } from '@swiip/shared';
+import { blokBasligi } from '@swiip/shared';
 import { Dugme, Ekran, Yazi, Yukleniyor } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { SoruAlani } from '../../src/degerlendirme/SoruAlani';
@@ -56,6 +56,12 @@ interface CevapSonucu {
 }
 
 export default function Degerlendirme() {
+  /*
+    `?blok=H` doğrudan o kartı açıyor. "Hedefimi güncelle" kullanıcıyı Ayarlar'ın en
+    üstüne (aboneliği iptal et düğmesinin önüne) atıyordu; hedefini değiştirmek
+    isteyen biri için yanlış yer.
+  */
+  const { blok: istenenBlok } = useLocalSearchParams<{ blok?: string }>();
   const tema = useTema();
   const m = useMetinler().degerlendirme;
   const dil = useDil();
@@ -120,21 +126,40 @@ export default function Degerlendirme() {
         setCevaplar((mevcut) => {
           const birlesik = { ...sunucuCevaplari, ...taslak, ...mevcut };
           // Açılışta da soru sabitleniyor; yoksa ilk cevap ekranı kendiliğinden atlatır.
-          setAktifBlokId(gosterilecekBlokId(birlesik, undefined));
+          setAktifBlokId(gosterilecekBlokId(birlesik, istenenBlok));
           return birlesik;
         });
       } catch (h) {
         setCevrimdisi(baglantiSorunuMu(h));
         // Sunucuya ulaşılamasa da soru sabitlenmeli; çevrimdışı akış da aynı kuralı izler.
-        setAktifBlokId((mevcut) => mevcut ?? gosterilecekBlokId(taslak ?? {}, undefined));
+        setAktifBlokId((mevcut) => mevcut ?? gosterilecekBlokId(taslak ?? {}, istenenBlok));
       }
       setHazir(true);
     })();
   }, []);
 
+  /*
+    Taslak HER CEVAPTA cihaza yazılıyor (kısa bir gecikmeyle).
+
+    Yalnızca kartın sonunda "Devam et"e basılınca yazılıyordu. Kart ortasında
+    uygulamadan çıkan — kilosuna bakmak için tartıya giden, bildirime dokunan — ya da
+    işletim sistemi tarafından arka planda kapatılan kullanıcı o karttaki her şeyi
+    yeniden giriyordu. Emülatörde görüldü: doğum tarihi girilip uygulama kapatıldı,
+    açılınca alan boştu. "Yarıda bırakırsan kaldığın yerden devam edersin" sözü
+    kart sınırında değil, cevap sınırında tutulmalı.
+  */
+  const tamamlandi = useRef(false);
+  useEffect(() => {
+    if (!hazir || tamamlandi.current) return;
+    const zamanlayici = setTimeout(() => {
+      if (!tamamlandi.current) void yaz(ANAHTARLAR.degerlendirmeTaslagi, cevaplar);
+    }, 400);
+    return () => clearTimeout(zamanlayici);
+  }, [cevaplar, hazir]);
+
   const blokId = useMemo(() => gosterilecekBlokId(cevaplar, aktifBlokId), [cevaplar, aktifBlokId]);
   const sorular = useMemo(() => (blokId ? blokSorulari(cevaplar, blokId) : []), [cevaplar, blokId]);
-  const bolumler = useMemo(() => blokBolumleri(cevaplar), [cevaplar]);
+  const bolumler = useMemo(() => blokBolumleri(cevaplar, dil), [cevaplar, dil]);
   const zorunlu = useMemo(() => (blokId ? zorunluSayisi(cevaplar, blokId) : 0), [cevaplar, blokId]);
   /**
    * "İsteğe bağlıları sonra cevaplayacağım" satırının yeri.
@@ -166,7 +191,7 @@ export default function Degerlendirme() {
     [bolumler, blokId],
   );
   // Baslik gosterilen blogun adini yaziyor; ilerleme motorunun sectigi blok degil.
-  const blok = SORU_BANKASI.blocks.find((b) => b.id === blokId);
+  const blokAdi = blokId ? blokBasligi(blokId, dil) : '';
 
   /**
    * Kayıt sonucu üç ayrı durum: gönderildi, bağlantı yok, sunucu reddetti.
@@ -230,6 +255,8 @@ export default function Degerlendirme() {
   const tamamla = useCallback(async (): Promise<boolean> => {
     try {
       await istek('/v1/degerlendirme/tamamla', { yontem: 'POST', govde: {} });
+      // Gecikmeli taslak yazıcısı silinen taslağı geri yazmasın.
+      tamamlandi.current = true;
       /*
         Taslak SILINIYOR.
         Cihazdaki taslak, birlestirmede sunucunun uzerine biniyor (cevrimdisi
@@ -264,7 +291,7 @@ export default function Degerlendirme() {
        * burada. Atlama yolunun doğrulamayı baypas etmesi, dört güvenlik kapısının
        * (18 yaş, gebelik, kardiyak, yeme bozukluğu) tek dokunuşla aşılması demekti.
        */
-      const hatalar = blokHatalari(cevaplar, blokId);
+      const hatalar = blokHatalari(cevaplar, blokId, dil);
       if (Object.keys(hatalar).length > 0) {
         setAlanHatalari(hatalar);
         /**
@@ -381,7 +408,7 @@ export default function Degerlendirme() {
 
       if (!sonrasi) router.replace('/fotograf/gizlilik');
     },
-    [blokId, cevaplar, kaydet, m.eksikZorunlu, tamamla],
+    [blokId, cevaplar, dil, kaydet, m.eksikZorunlu, tamamla],
   );
 
   if (!hazir) {
@@ -482,9 +509,17 @@ export default function Degerlendirme() {
           ) : null}
         </View>
 
-        <Ekran>
+        {/*
+          `key` KART kimliği: yeni kart EN ÜSTTEN açılıyor.
+
+          Kap kartlar arasında aynı kalıyordu ve önceki kartın kaydırma konumunu
+          taşıyordu. Emülatörde görüldü: "Nerede" kartı ilk sorusu ("Nerede antrenman
+          yapacaksın?") ekranın üstünde, görünmez hâlde açıldı; kullanıcı doğrudan
+          ekipman listesine düşüyordu.
+        */}
+        <Ekran key={blokId}>
           <View style={{ gap: tema.bosluk.xxs }}>
-            <Yazi tur="baslik1">{blok ? blok.title : ''}</Yazi>
+            <Yazi tur="baslik1">{blokAdi}</Yazi>
             {/*
               Soru sayısı yerine bölüm sayısı.
               Görünür soru sayısı dallanmayla değişiyor ve sayaç "0/123" iken bir sonraki

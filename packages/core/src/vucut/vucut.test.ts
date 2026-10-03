@@ -52,6 +52,14 @@ describe('navyYagOrani', () => {
 });
 
 describe('yagOraniAralik', () => {
+  it.each([70, 120, 0, -5])('ölçek dışı tahminde (%d) aralık ters dönmez', (tahmin) => {
+    const aralik = yagOraniAralik({ gorselTahmin: tahmin })!;
+
+    expect(aralik.alt).toBeLessThan(aralik.ust);
+    expect(aralik.alt).toBeGreaterThanOrEqual(3);
+    expect(aralik.ust).toBeLessThanOrEqual(65);
+  });
+
   it('tek sayı değil aralık döner', () => {
     const aralik = yagOraniAralik({ gorselTahmin: 18 })!;
 

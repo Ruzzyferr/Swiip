@@ -25,6 +25,20 @@ export function kisaTarihMetni(tarih: Date, dil: Dil): string {
   return new Intl.DateTimeFormat(BCP47[dil]).format(tarih);
 }
 
+/** "28 Eylül" / "September 28" — hafta başlığı gibi yıl gerekmeyen yerler için. */
+export function gunAyUzunMetni(tarih: Date, dil: Dil): string {
+  return new Intl.DateTimeFormat(BCP47[dil], { day: 'numeric', month: 'long' }).format(tarih);
+}
+
+/** "2 Ekim Cuma" / "Friday, October 2" — gün gezginin başlığı için. */
+export function gunBaslikMetni(tarih: Date, dil: Dil): string {
+  return new Intl.DateTimeFormat(BCP47[dil], {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(tarih);
+}
+
 /** "20 Ağu" / "Aug 20" — grafik ekseni ve dar kartlar için. */
 export function gunAyMetni(tarih: Date, dil: Dil): string {
   return new Intl.DateTimeFormat(BCP47[dil], { day: '2-digit', month: 'short' }).format(tarih);
@@ -40,7 +54,22 @@ export function gunAyMetni(tarih: Date, dil: Dil): string {
 export function gunMetni(ham: string | number | undefined, dil: Dil): string {
   if (ham === undefined) return '';
   const metin = String(ham);
-  const zaman = Date.parse(metin.length === 10 ? `${metin}T00:00:00.000Z` : metin);
+  /**
+   * Yalnızca gün (`2026-09-01`) bir TAKVİM GÜNÜDÜR, an değil.
+   *
+   * UTC gece yarısı olarak ayrıştırılıp yerel saat diliminde biçimleniyordu: UTC'nin
+   * batısındaki her cihazda (bütün Amerika) "1 Eylül" yenileme tarihi "31 Ağustos"
+   * diye yazılıyordu. Gün yerel bileşenlerden kuruluyor; hangi saat diliminde
+   * olunursa olunsun aynı gün okunuyor.
+   */
+  const yalnizGun = /^(\d{4})-(\d{2})-(\d{2})$/.exec(metin);
+  if (yalnizGun) {
+    const [, y, a, g] = yalnizGun.map(Number) as [number, number, number, number];
+    const d = new Date(y, a - 1, g);
+    if (d.getFullYear() !== y || d.getMonth() !== a - 1 || d.getDate() !== g) return metin;
+    return tarihMetni(d, dil);
+  }
+  const zaman = Date.parse(metin);
   if (Number.isNaN(zaman)) return metin;
   return tarihMetni(new Date(zaman), dil);
 }
@@ -99,4 +128,19 @@ export function bugunMu(gun: string): boolean {
 /** Verilen gün gelecekte mi; ileri gitme düğmesi bunu okuyor. */
 export function gelecekMi(gun: string): boolean {
   return gun > yerelGun();
+}
+
+/**
+ * Saatten öğün tahmini.
+ *
+ * Sınırlar Türkiye'nin yaygın öğün saatlerine göre ve bilerek geniş: 05-11 kahvaltı,
+ * 11-16 öğle, 16-22 akşam, kalanı ara öğün. Amaç doğru tahmin etmek değil, çoğu
+ * zaman doğru olup kullanıcıyı bir dokunuştan kurtarmak.
+ */
+export function ogunTahmini(simdi: Date = new Date()): 'kahvalti' | 'ogle' | 'aksam' | 'ara' {
+  const saat = simdi.getHours();
+  if (saat >= 5 && saat < 11) return 'kahvalti';
+  if (saat >= 11 && saat < 16) return 'ogle';
+  if (saat >= 16 && saat < 22) return 'aksam';
+  return 'ara';
 }

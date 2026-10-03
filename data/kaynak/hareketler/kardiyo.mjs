@@ -30,6 +30,13 @@ export default [
       'Nefesin cümle kurabileceğin seviyede kalsın.',
       'Kalori yakımı için en düşük yorgunluk maliyetli seçenektir.',
     ],
+    talimat_en: [
+      'Set the incline to 8-12% and the speed to a pace at which you can still talk.',
+      'Don’t lean on the handrails; keep your hands free.',
+      'Stand tall and keep your stride natural.',
+      'Keep your breathing at a level where you can still speak in sentences.',
+      'It’s the lowest-fatigue option for burning calories.',
+    ],
   },
   {
     id: 'sabit-bisiklet',
@@ -57,6 +64,13 @@ export default [
       'Direnci pedal çevirmenin zorlaştığı ama akıcı kaldığı seviyede tut.',
       'Diz eklemine yük binmediği için sakatlık sonrası dönüşte uygundur.',
       'Süre ve direnç hedefiyle çalış.',
+    ],
+    talimat_en: [
+      'Set the seat height so your knee stays slightly bent when the pedal is at its lowest point.',
+      'Keep your back upright and your shoulders relaxed.',
+      'Set the resistance so pedaling feels hard but stays smooth.',
+      'Because it puts little load on the knee joint, it’s a good option when returning from injury.',
+      'Work toward a target duration and resistance.',
     ],
   },
   {
@@ -86,6 +100,13 @@ export default [
       'Tutamağı göğüs altına çek, boynuna değil.',
       'Vuruş sayısını değil, her vuruştaki gücü hedefle.',
     ],
+    talimat_en: [
+      'Order: legs push first, then the torso opens, and the arms pull last.',
+      'On the return, reverse it: arms extend first, then the torso, and the knees bend last.',
+      'Work without rounding your lower back.',
+      'Pull the handle to just below your chest, not to your neck.',
+      'Focus on the power of each stroke, not the stroke count.',
+    ],
   },
   {
     id: 'disarida-yuruyus',
@@ -114,6 +135,13 @@ export default [
       'Ekipman gerektirmez, toparlanmayı bozmaz.',
       'Kardiyoyu sevmeyenler için en sürdürülebilir seçenek budur.',
     ],
+    talimat_en: [
+      'Keep a pace at which you can talk but not sing.',
+      'Choosing a hilly route lets you do more work in the same time.',
+      'Your daily step count is the biggest part of your non-exercise calorie burn.',
+      'It needs no equipment and doesn’t interfere with recovery.',
+      'For people who don’t enjoy cardio, this is the most sustainable option.',
+    ],
   },
   {
     id: 'merdiven-cikma',
@@ -141,6 +169,13 @@ export default [
       'İnerken dizini koru; inişte asansör kullanmak makuldür.',
       'Diz önü ağrın varsa bu hareketi atla.',
       'Süre veya kat sayısı hedefle.',
+    ],
+    talimat_en: [
+      'Place your whole foot on each step; don’t climb on your toes.',
+      'Keep your torso upright; don’t lean on the handrail.',
+      'Protect your knees on the way down; taking the elevator down is reasonable.',
+      'If you have pain at the front of your knee, skip this exercise.',
+      'Aim for a target duration or number of floors.',
     ],
   },
   {
@@ -171,6 +206,13 @@ export default [
       'Apartmanda alt komşun varsa bu hareketi yapma.',
       'Kısa aralıklarla başla: 30 saniye atlama, 30 saniye dinlenme.',
     ],
+    talimat_en: [
+      'Turn the rope with your elbows bent and your hands at hip height.',
+      'Keep your jumps low; just high enough for the rope to pass.',
+      'Land on the balls of your feet with your knees slightly bent.',
+      'If you live in an apartment with a neighbor below, don’t do this exercise.',
+      'Start with short intervals: 30 seconds of jumping, 30 seconds of rest.',
+    ],
   },
   {
     id: 'burpee',
@@ -200,6 +242,13 @@ export default [
       'Yorgunlukta şeklin bozulur; şekil bozulunca seti bitir.',
       'Uyaran/yorgunluk oranı düşüktür; kas geliştirmek için verimli değildir.',
     ],
+    talimat_en: [
+      'Squat down and place your hands on the floor.',
+      'Kick your feet back into a push-up position.',
+      'Bring your feet back in and jump up.',
+      'Your form breaks down as you fatigue; end the set when it does.',
+      'Its stimulus-to-fatigue ratio is low; it’s not an efficient way to build muscle.',
+    ],
   },
   {
     id: 'mountain-climber',
@@ -228,6 +277,13 @@ export default [
       'Tempoyu kontrol edebildiğin seviyede tut.',
       'Gürültüsüzdür; apartman için uygundur.',
     ],
+    talimat_en: [
+      'Start in a push-up position with your hands under your shoulders.',
+      'Drive your knees toward your chest one at a time.',
+      'Don’t let your hips bounce up; keep your torso still.',
+      'Keep the pace at a level you can control.',
+      'It’s quiet, so it works well in an apartment.',
+    ],
   },
   {
     id: 'kettlebell-goblet-tasima',
@@ -254,6 +310,13 @@ export default [
       'Kısa adımlarla düz yürü.',
       'Gövdenin geriye yaslanmasına izin verme.',
       '30-45 saniyelik yürüyüşler yeterlidir.',
+    ],
+    talimat_en: [
+      'Hold the kettlebell in front of your chest with both hands.',
+      'Pull your shoulders back and brace your core.',
+      'Walk in a straight line with short steps.',
+      'Don’t let your torso lean back.',
+      'Walks of 30-45 seconds are enough.',
     ],
   },
   {
@@ -282,6 +345,13 @@ export default [
       'İki ayakla kutunun üstüne yumuşak in.',
       'Kutudan zıplayarak inme; adımla in.',
       'Yorgunken bu hareketi yapma.',
+    ],
+    talimat_en: [
+      'Choose a height you can comfortably land on; ego height leads to injuries.',
+      'Swing your arms to build momentum.',
+      'Land softly on top of the box with both feet.',
+      'Don’t jump down from the box; step down.',
+      'Don’t do this exercise when you’re fatigued.',
     ],
   },
 ];

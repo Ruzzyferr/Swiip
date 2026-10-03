@@ -16,12 +16,8 @@ import { fotografiAnalizEt } from '../servisler/gorselAnaliz';
 import { fotografBoyutuUygunMu } from '@swiip/core';
 import { vucutAnaliziHakki, type Plan } from '../servisler/haklar';
 import { planGecerliMi } from '../servisler/planOku';
-import {
-  oluRezervasyonlariSil,
-  vucutRezerveEt,
-  vucutRezervasyonuBirak,
-  vucutSayimi,
-} from '../servisler/vucutRezerve';
+import { guncelKapiDurumu, yasKapisi } from '../servisler/kapiDurumu';
+import { vucutHakkiniRezerveEt, vucutRezervasyonuBirak } from '../servisler/vucutRezerve';
 
 /**
  * Vücut analizi (F4).
@@ -162,6 +158,19 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
       .limit(1);
 
     if (!kullanici) throw Bulunamadi('Kullanıcı bulunamadı.', 'kullanici_yok');
+
+    /**
+     * Yaş kapısı bu uçta da geçerli.
+     *
+     * Kapı yalnızca profil yazımında (`/tamamla`) uygulanıyordu. Bu uç profil istemiyor,
+     * yalnızca boy istiyor — ve boy `/cevap` ile ilk kartta yazılıyor. 18 yaşından küçük
+     * olduğunu beyan eden kullanıcı programa ulaşamıyordu ama vücut FOTOĞRAFINI üçüncü
+     * taraf bir görsel modele gönderebiliyordu. Kayıt reddi, en hassas veriyi işlemenin
+     * de reddi olmalı.
+     */
+    const yas = yasKapisi(await guncelKapiDurumu(db, istek.kullaniciId));
+    if (yas) throw Yasak(yas.mesaj, 'kapi_yas');
+
     if (!kullanici.boy) {
       throw HataliIstek('Analiz için boy bilgin gerekiyor; değerlendirmeyi tamamla.', 'boy_yok');
     }
@@ -179,8 +188,6 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
      */
     const abonelik = await abonelikGetir(istek.kullaniciId);
     const plan = abonelik.plan;
-    await oluRezervasyonlariSil(db, istek.kullaniciId);
-    const sayim = await vucutSayimi(db, istek.kullaniciId, hakDonemininBasi(abonelik.baslangic));
 
     /**
      * Hak kontrolü `body_analyses` DEFTERİNDEN okunuyor — `quotas`'tan değil.
@@ -204,7 +211,18 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
      *    denenmiş ve geri alınmıştı: pencere, plan yükseltip hemen yeniden analiz eden
      *    meşru kullanıcıyı da engelliyordu (`vucutHakki.test.ts` bunu yakaladı).
      */
-    if (!vucutAnaliziHakki(plan, sayim.toplam, sayim.donem)) {
+    /**
+     * Sayım ve rezervasyon tek kritik bölgede (kullanıcı başına kilit): sayım ile satırın
+     * açılması arasındaki milisaniyelerden de ikinci bir istek geçemiyor.
+     */
+    const rezervasyonId = await vucutHakkiniRezerveEt(
+      db,
+      istek.kullaniciId,
+      hakDonemininBasi(abonelik.baslangic),
+      (sayim) => vucutAnaliziHakki(plan, sayim.toplam, sayim.donem),
+    );
+
+    if (rezervasyonId === null) {
       // Mesaj önce hesaplanıyor: `throw` içindeki koşullu ifade, hata kodu tarayıcısının
       // ikinci argümanı bulmasını zorlaştırıyor.
       const mesaj =
@@ -216,6 +234,7 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     }
 
     if (govde.fotograflar && govde.fotograflar.length > 0 && !kullanici.fotoOnayi) {
+      await vucutRezervasyonuBirak(db, rezervasyonId);
       throw Yasak(
         'Fotoğraf analizi için ayrı açık rıza vermen gerekiyor. Dilersen fotoğrafsız, yalnızca ' +
           'ölçülerinle devam edebilirsin.',
@@ -226,14 +245,11 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     /** Gizlilik notu bu bayrağa bakıyor: söylediğimiz şey yaptığımız şey olmalı. */
     const gorselGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
 
-    /**
-     * Hak burada REZERVE ediliyor — görsel çağrısından önce.
-     *
-     * Kontrolü geçmek yetmiyor: kontrol ile kaydın yazılması arasında saniyeler var ve
-     * o boşluktan ikinci bir istek geçiyordu. Satır şimdi baştan açılıyor, ikinci istek
-     * onu sayıp reddediliyor.
+    /*
+     * Hak yukarıda REZERVE edildi — görsel çağrısından önce. Kontrol ile kaydın
+     * yazılması arasında saniyeler var; satır baştan açık olduğu için ikinci istek onu
+     * sayıp reddediliyor.
      */
-    const rezervasyonId = await vucutRezerveEt(db, istek.kullaniciId);
 
     let kayit: { id: string; taken_at: Date } | undefined;
     let rapor: VucutRaporu;

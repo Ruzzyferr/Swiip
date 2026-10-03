@@ -3,6 +3,8 @@ import type { FastifyInstance } from 'fastify';
 import { uygulamaOlustur } from '../uygulama';
 import { sandboxYokSayilsinMi } from './abonelik';
 import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
+import { eq } from 'drizzle-orm';
+import { subscriptions } from '../db/sema';
 
 /**
  * RevenueCat web kancası (F6.1).
@@ -463,5 +465,96 @@ describe('kanca: kayıt zamanı sıra korumasını tetiklemiyor', () => {
       headers: { authorization: `Bearer ${t}` },
     });
     expect(durum.json().plan, 'kayıt zamanı satın almayı düşürmemeli').toBe('pro');
+  });
+});
+
+/**
+ * Plan YAZMAYAN olay sıra referansı olamaz.
+ *
+ * Sıra koruması "işlenmiş en yeni olaydan eski olan plan yazamaz" diyordu ve sıradan
+ * CANCELLATION (otomatik yenilemeyi kapatma) da "işlenmiş" sayılıyordu. Teslimatı
+ * gecikmiş bir RENEWAL ondan sonra geldiğinde atılıyordu: `renews_at` uzamıyor,
+ * parasını ödemiş kullanıcının hakkı ek süreden sonra kapanıyordu.
+ */
+describe('kanca: plan yazmayan olay sırayı bozmaz', () => {
+  it('iptalden sonra teslim edilen daha eski yenileme süreyi uzatır', async () => {
+    const kayit = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/kayit',
+      payload: {
+        email: 'gec-yenileme@swiip.app',
+        parola: 'Kirmizi-Bisiklet-42',
+        saglik_onayi: true,
+      },
+    });
+    const id = kayit.json().kullanici.id as string;
+
+    const t0 = Date.now() + 10 * 24 * 3_600_000;
+    const ilkBitis = t0 + 30 * 24 * 3_600_000;
+    const yeniBitis = ilkBitis + 30 * 24 * 3_600_000;
+
+    await olay({
+      id: 'evt-gec-1',
+      type: 'INITIAL_PURCHASE',
+      app_user_id: id,
+      product_id: 'swiip_pro_aylik',
+      expiration_at_ms: ilkBitis,
+      event_timestamp_ms: t0,
+    });
+
+    // Yenileme ilkBitis anında oldu ama teslimatı gecikti; araya iptal girdi.
+    await olay({
+      id: 'evt-gec-3',
+      type: 'CANCELLATION',
+      cancel_reason: 'UNSUBSCRIBE',
+      app_user_id: id,
+      event_timestamp_ms: ilkBitis + 60_000,
+    });
+    await olay({
+      id: 'evt-gec-2',
+      type: 'RENEWAL',
+      app_user_id: id,
+      product_id: 'swiip_pro_aylik',
+      expiration_at_ms: yeniBitis,
+      event_timestamp_ms: ilkBitis,
+    });
+
+    const [abonelik] = await ortam.db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.user_id, id));
+
+    expect(abonelik!.plan).toBe('pro');
+    expect(abonelik!.renews_at?.getTime(), 'ödenen dönem kayda geçmeli').toBe(yeniBitis);
+  });
+
+  it('plan yazan daha yeni olay hâlâ eskisini engeller', async () => {
+    const kayit = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/kayit',
+      payload: { email: 'sira-hala@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+    });
+    const id = kayit.json().kullanici.id as string;
+    const t0 = Date.now() + 20 * 24 * 3_600_000;
+
+    await olay({
+      id: 'evt-hala-2',
+      type: 'EXPIRATION',
+      app_user_id: id,
+      event_timestamp_ms: t0 + 60_000,
+    });
+    await olay({
+      id: 'evt-hala-1',
+      type: 'RENEWAL',
+      app_user_id: id,
+      product_id: 'swiip_pro_aylik',
+      event_timestamp_ms: t0,
+    });
+
+    const [abonelik] = await ortam.db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.user_id, id));
+    expect(abonelik!.plan, 'süresi dolmuş aboneye eski yenileme Pro vermemeli').toBe('ucretsiz');
   });
 });

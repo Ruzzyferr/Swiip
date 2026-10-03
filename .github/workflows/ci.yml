@@ -9,6 +9,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# CI hiçbir şey yazmıyor; jeton salt okunur. Yazılmadığında deponun varsayılanı
+# geçerli oluyor ve bu, push'ta yazma yetkisi demek olabiliyor.
+permissions:
+  contents: read
+
 jobs:
   dogrula:
     name: Biçim · Lint · Tip · Test
@@ -31,7 +36,7 @@ jobs:
         run: |
           node scripts/hareketleri-derle.mjs
           node scripts/sorulari-derle.mjs
-          git diff --exit-code -- data packages/shared/src/hareketler.uretilmis.ts packages/shared/src/sorular.uretilmis.ts
+          git diff --exit-code -- data packages/shared/src/hareketler.uretilmis.ts packages/shared/src/sorular.uretilmis.ts packages/shared/src/sorular.en.uretilmis.ts
 
       - name: Biçim
         run: npm run format:check

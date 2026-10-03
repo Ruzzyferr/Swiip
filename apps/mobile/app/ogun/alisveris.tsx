@@ -60,6 +60,15 @@ function haftaBasi(): string {
 }
 
 export default function AlisverisListesi() {
+  /*
+    Bin gramın üstü kilogram: "1180 g patates" yerine "1,2 kg". Markette tartı da
+    kilogram gösteriyor. Ondalık ayırıcı dile göre.
+  */
+  const ayirac = useMetinler().gerekce.ondalikAyirac;
+  const miktarMetni = (gram: number) =>
+    gram >= 1000
+      ? `${String(Math.round(gram / 100) / 10).replace('.', ayirac)} kg`
+      : `${Math.round(gram)} g`;
   const tema = useTema();
   const ogunMetinleri = useMetinler().ogun;
   const m = ogunMetinleri.alisveris;
@@ -192,7 +201,7 @@ export default function AlisverisListesi() {
                       {kalem.ad}
                     </Yazi>
                     <Sayi tur="kucuk" renk="metinSilik">
-                      {kalem.gram} g
+                      {miktarMetni(kalem.gram)}
                     </Sayi>
                   </Satir>
                 </Pressable>

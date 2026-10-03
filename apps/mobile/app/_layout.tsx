@@ -1,3 +1,4 @@
+import { LogBox } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -17,6 +18,16 @@ import { yaziTipleriHazirMi } from '../src/tasarim/yazitipi';
  * açılışta yükleniyor.
  */
 import '../src/bildirim/zamanlayici';
+
+/*
+  Geliştirme derlemesinde RevenueCat'in "faturalandırma yok" kayıtları susturuluyor.
+
+  Emülatörde Google Play faturalandırması yok; SDK her açılışta bunu hata olarak
+  basıyor ve geliştirme katmanı ekranın yarısını kaplayan kırmızı kutular açıyordu.
+  Yalnızca `__DEV__` ve yalnızca bu önek: yayın derlemesinde LogBox zaten yok, diğer
+  hatalar görünmeye devam ediyor.
+*/
+if (__DEV__) LogBox.ignoreLogs([/\[RevenueCat\]/]);
 
 /**
  * Reklam SDK'sı ve onay akışı, modül yüklenirken bir kez.

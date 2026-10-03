@@ -78,6 +78,22 @@ describe('gunMetni', () => {
     expect(gunMetni('2026-09-01', 'tr')).not.toContain('2026-09-01');
   });
 
+  /** UTC gece yarısı sayılıp yerel saatte biçimlenince batı yarımkürede bir gün geri gidiyordu. */
+  it('yalnızca gün, UTC’nin batısında da AYNI gün okunuyor', () => {
+    const onceki = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+    try {
+      expect(gunMetni('2026-09-01', 'en')).toBe('September 1, 2026');
+    } finally {
+      if (onceki === undefined) delete process.env.TZ;
+      else process.env.TZ = onceki;
+    }
+  });
+
+  it('takvimde olmayan gün olduğu gibi geçer', () => {
+    expect(gunMetni('2026-02-31', 'tr')).toBe('2026-02-31');
+  });
+
   it('tam zaman damgası da kabul ediliyor', () => {
     expect(gunMetni('2026-09-01T10:30:00.000Z', 'tr')).toContain('Eylül');
   });

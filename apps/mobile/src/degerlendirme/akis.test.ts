@@ -222,3 +222,34 @@ describe('blokBolumleri', () => {
     expect(blokBolumleri({}).every((b) => b.toplam > 0)).toBe(true);
   });
 });
+
+/**
+ * İngilizce kullanıcı değerlendirmede Türkçe uyarı görmez.
+ *
+ * Ekran motorun Türkçe `mesaj`ını doğrudan basıyordu; İngilizce kullanıcı zorunlu
+ * sorunun altında Türkçe uyarı görüyordu. Cümle artık `kod`dan, kullanıcının dilinde.
+ */
+describe('blok hataları ve başlıklar kullanıcının dilinde', () => {
+  const TURKCE_HARF = /[çğıöşüÇĞİÖŞÜ]/;
+
+  it('boş zorunlu soru İngilizce uyarı verir', () => {
+    const hatalar = Object.values(blokHatalari({}, 'K', 'en'));
+
+    expect(hatalar.length).toBeGreaterThan(0);
+    for (const hata of hatalar) expect(hata).not.toMatch(TURKCE_HARF);
+  });
+
+  it('aralık dışı değer İngilizce uyarı verir, Türkçede değişmez', () => {
+    expect(blokHatalari({ ...K, K3: 999 } as Cevaplar, 'K', 'en').K3).toBe(
+      'The value must be between 120 and 230.',
+    );
+    expect(blokHatalari({ ...K, K3: 999 } as Cevaplar, 'K').K3).toBe(
+      'Değer 120 ile 230 arasında olmalı.',
+    );
+  });
+
+  it('cetvel bölüm adları İngilizce', () => {
+    expect(blokBolumleri(K, 'en').find((b) => b.id === 'K')?.ad).toBe('You');
+    expect(blokBolumleri(K).find((b) => b.id === 'K')?.ad).toBe('Sen');
+  });
+});

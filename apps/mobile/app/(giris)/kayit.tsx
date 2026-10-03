@@ -1,17 +1,20 @@
-import { useState } from 'react';
-import { Linking, StyleSheet, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Linking, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import {
   BaglantiSatiri,
   Dugme,
   Ekran,
   Kart,
+  MetinAlani,
+  ParolaAlani,
   SecimDugmesi,
   Uyari,
   Yazi,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { useMetinler, useOturum } from '../../src/durum/Oturum';
+import { sozlukKaresiniBekle } from '../../src/gezinme/oturumSonrasi';
 import { ApiHatasi } from '../../src/veri/api';
 import { GIZLILIK_URL, KULLANIM_KOSULLARI_URL } from '../../src/baglantilar';
 
@@ -36,6 +39,7 @@ export default function Kayit() {
   const [yukleniyor, setYukleniyor] = useState(false);
 
   const gonder = async () => {
+    if (yukleniyor) return;
     setHata(null);
     setYukleniyor(true);
     try {
@@ -45,6 +49,7 @@ export default function Kayit() {
         saglik_onayi: saglikOnayi,
         olcum_onayi: olcumOnayi,
       });
+      await sozlukKaresiniBekle();
       router.replace('/degerlendirme');
     } catch (h) {
       setHata(h instanceof ApiHatasi ? h.mesaj : metinler.genel.hata);
@@ -53,17 +58,7 @@ export default function Kayit() {
     }
   };
 
-  const girisStili = {
-    minHeight: tema.dokunmaHedefi,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: tema.renk.kenar,
-    borderRadius: tema.yaricap.md,
-    paddingHorizontal: tema.bosluk.lg,
-    fontSize: 16,
-    fontFamily: tema.tipografi.aileler.govde,
-    color: tema.renk.metin,
-    backgroundColor: tema.renk.yuzey,
-  };
+  const parolaAlani = useRef<TextInput>(null);
 
   return (
     <>
@@ -75,14 +70,17 @@ export default function Kayit() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {m.eposta}
           </Yazi>
-          <TextInput
+          <MetinAlani
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="email"
+            textContentType="emailAddress"
+            returnKeyType="next"
+            submitBehavior="submit"
+            onSubmitEditing={() => parolaAlani.current?.focus()}
             accessibilityLabel={m.epostaEtiketi}
-            style={girisStili}
           />
         </View>
 
@@ -90,13 +88,15 @@ export default function Kayit() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {m.parola}
           </Yazi>
-          <TextInput
+          {/* Rıza kutusu hâlâ işaretlenecek: "gönder" değil "bitti" — klavyeyi kapatır. */}
+          <ParolaAlani
+            ref={parolaAlani}
             value={parola}
             onChangeText={setParola}
-            secureTextEntry
             autoComplete="new-password"
+            textContentType="newPassword"
+            returnKeyType="done"
             accessibilityLabel={m.parola}
-            style={girisStili}
           />
           <Yazi tur="etiket" renk="metinSilik">
             {m.parolaIpucu}

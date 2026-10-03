@@ -102,11 +102,23 @@ export async function gecisReklamiGoster(reklamGoster: boolean): Promise<void> {
     return;
   }
 
+  /*
+   * `hazir` gösterimden ÖNCE düşürülüyor: arka arkaya iki kayıt ikisi de sıklık
+   * kontrolünü geçip aynı reklamı iki kez göstermeye kalkmasın.
+   *
+   * `show()` bir Promise döndürüyor ve BEKLENİYOR: beklenmeyince reddi `catch`e hiç
+   * ulaşmıyor (işlenmemiş ret) ve gösterilemeyen reklam sayaca yazılıyordu.
+   */
+  const gosterilecek = reklam;
+  hazir = false;
   try {
-    reklam.show();
+    await gosterilecek.show();
     await durumuYaz(gosterildi(mevcut, simdi));
   } catch {
     // Gösterilemezse sayaç ARTMAZ: kullanıcı görmediği bir reklamın bedelini ödemez.
+    // Nesne artık güvenilmez; bir sonraki için yenisi hazırlanıyor.
+    if (reklam === gosterilecek) reklam = null;
+    gecisReklamiHazirla();
   }
 }
 
