@@ -32,7 +32,7 @@ describe('site: üçüncü taraf kaynak yok', () => {
 
   it('yerel font dosyalarının hepsi var', () => {
     const css = readFileSync(join(SITE, 'varliklar', 'fontlar.css'), 'utf8');
-    const dosyalar = [...css.matchAll(/url\(([^)]+\.woff2)\)/g)].map((m) => m[1]);
+    const dosyalar = [...css.matchAll(/url\(([^)]+\.woff2)\)/g)].map((m) => m[1] ?? '');
     expect(dosyalar.length).toBeGreaterThan(0);
     for (const d of dosyalar) expect(existsSync(join(SITE, 'varliklar', d)), d).toBe(true);
   });
