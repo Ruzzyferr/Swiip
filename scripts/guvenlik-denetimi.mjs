@@ -36,6 +36,22 @@ const MUAFIYETLER = [
     gozdenGecir: '2026-11-01',
   },
   {
+    paket: 'braces',
+    neden:
+      'Tek kökü expo → @expo/cli (micromatch, Metro dosya eşleme). Derleme zamanı; sunucuda ' +
+      've uygulama paketinde yok (`npm ls braces --all`, 2026-10-03). Kapatan sürüm yalnızca ' +
+      'Expo 57 ile geliyor; SDK yükseltmesi ayrı bir iş.',
+    gozdenGecir: '2026-11-01',
+  },
+  {
+    paket: 'node-forge',
+    neden:
+      'Tek kökü expo → @expo/cli (geliştirme sunucusunun kendinden imzalı sertifikası ve ' +
+      'güncelleme imzası). Bu depoda EAS Update yok; sunucuda ve uygulama paketinde yok ' +
+      '(`npm ls node-forge --all`, 2026-10-03). Kapatan sürüm yalnızca Expo 57 ile geliyor.',
+    gozdenGecir: '2026-11-01',
+  },
+  {
     paket: 'tar',
     neden: '@expo/cli önbelleği açarken kullanıyor; sunucuda veya uygulamada yok.',
     gozdenGecir: '2026-11-01',
