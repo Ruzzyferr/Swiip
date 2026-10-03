@@ -867,6 +867,23 @@ mutasyonla sınandı). Testlerdeki kayıtlar `test/kayit.ts` → `kayitIstegi` �
 kayıt ve silme akışını kırıyor. Önce incelemedeki gönderim geri çekildi, sonra sunucu
 dağıtıldı, sonra yeni derleme gönderildi.
 
+**1.2.1 yayını (2026-10-03):** 1.2.0 bu sırada zaten onaylanıp yayına girmişti, o
+yüzden değişiklikler 1.2.1 oldu (Apple kapalı sürüm numarasına derleme kabul etmiyor:
+"You've already submitted this version"). App Store: 1.2.1 + build 36
+`WAITING_FOR_REVIEW`, `AFTER_APPROVAL`. Play: `alpha` vc=30. Sunucu 1.2.1'den ÖNCE
+dağıtıldı; onay gelene kadar mağazadaki 1.2.0 kayıt olamıyor ve hesap silemiyor
+("güncelle" mesajı) — kullanıcı bu pencereyi kabul etti.
+
+Emülatörde uçtan uca doğrulandı: kayıt kodu adımı, hesap açılışı (201), yanlış
+parolayla silme reddi (403, hesap duruyor), doğru parolayla silme (200). Test hesabı
+canlıda iz bırakmadı. **Emülatör notu:** 3311'de önceki oturumdan kalan YEREL API
+(eski kod, yerel veritabanı) dönüyordu ve 500 veriyordu; canlıya yönlendiren vekil
+yerine konunca geçti. "3311 yanıt veriyor" ≠ "canlıya gidiyor".
+
+İnceleme notları 1.1.0'dan beri "No ad or analytics SDK" diyordu (AdMob var) —
+düzeltildi. `apple-notlar.mjs` 1.0'ın inceleme kaydına sabit yazıyordu; artık
+düzenlenebilir sürümü kendisi buluyor.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:
