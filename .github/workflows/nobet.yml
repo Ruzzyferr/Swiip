@@ -1,0 +1,45 @@
+# Dışarıdan nöbet — canlı sunucuyu 30 dakikada bir yoklar, sorun varsa e-posta atar.
+#
+# Ayrıntı ve gerekçe: scripts/nobet.mjs. Yalnız SORUNDA bildirim gidiyor; her yarım
+# saatte "her şey yolunda" postası, gerçek uyarıyı gürültüye gömerdi.
+#
+# GitHub, 60 gün commit görmeyen depoda zamanlanmış işleri durduruyor. Depo uzun süre
+# sessiz kalırsa Actions sekmesinden yeniden etkinleştirilmeli.
+name: Nöbet
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nobet
+  cancel-in-progress: false
+
+jobs:
+  yokla:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Canlıyı yokla
+        id: yokla
+        run: |
+          set -o pipefail
+          node scripts/nobet.mjs | tee sonuc.txt
+      - name: Sorunu bildir
+        if: failure()
+        env:
+          DURUM: failure
+          POSTA_API_KEY: ${{ secrets.POSTA_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_SOHBET_ID: ${{ secrets.TELEGRAM_SOHBET_ID }}
+          BAGLANTI: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          BASLIK="Swiip nöbet — canlıda sorun" AYRINTI="$(cat sonuc.txt 2>/dev/null || echo 'çıktı yok')" node scripts/bildirim-gonder.mjs

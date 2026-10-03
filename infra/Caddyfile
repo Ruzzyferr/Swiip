@@ -9,9 +9,26 @@
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+		# Site yalnız kendi dosyalarını yüklüyor (siteUcuncuTaraf.test.ts kilitliyor);
+		# satır içi BETİK yok, satır içi `style=` var. API yanıtı JSON, CSP onu etkilemez.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+		X-Permitted-Cross-Domain-Policies "none"
 		-Server
+		-X-Powered-By
 	}
+
+	# Gövde sınırı vekilde: uygulamaya ulaşmadan kesilsin. En büyük meşru istek
+	# vücut/yemek fotoğrafı (base64, birkaç MB). Sitenin POST alan tek ucu yok.
+	request_body {
+		max_size 15MB
+	}
+
+	# İzin verilmeyen yöntemler uygulamaya hiç gitmesin (TRACE, CONNECT, ...).
+	@yasakYontem not method GET HEAD POST PUT PATCH DELETE OPTIONS
+	respond @yasakYontem 405
 
 	# Sağlık ucu log'u şişirmesin.
 	@saglik path /saglik

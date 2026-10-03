@@ -307,6 +307,8 @@ export const en: Metinler = {
     ilgi_gecersiz: () => 'A valid email address and explicit consent are required.',
     analiz_hakki_bitti: () =>
       'You have used your body analysis. The free plan includes one; paid plans open one every month.',
+    ucretsiz_ai_tavani: () =>
+      'Photo analysis is very busy today. You can run it right now with your measurements, or try again tomorrow.',
     profil_yok: () => 'Finish the assessment first.',
     barkod_yok: () => 'This barcode is not in our database. You can add it manually.',
     besin_yok: () => 'Food not found.',

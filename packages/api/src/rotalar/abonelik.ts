@@ -548,7 +548,12 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
    * Gerçek akış RevenueCat web kancası (`/kanca`) üzerinden.
    */
   app.post('/guncelle', { preHandler: app.kimlikDogrula }, async (istek) => {
-    if (app.yapilandirma.NODE_ENV === 'production') {
+    // Güvenli tarafta kapanıyor: `NODE_ENV` AÇIKÇA geliştirme ya da test olarak
+    // verilmedikçe uç kapalı. Yapılandırmanın varsayılanı 'development' olduğu için
+    // yalnız 'production' kontrolü, ortam değişkeni unutulmuş her çalıştırmada
+    // (bir deneme sunucusu, elle `docker run`) herkese bedava Pro açardı.
+    const acikcaGelistirme = ['development', 'test'].includes(process.env.NODE_ENV ?? '');
+    if (app.yapilandirma.NODE_ENV === 'production' || !acikcaGelistirme) {
       throw Yasak(
         'Plan yalnızca mağaza üzerinden değiştirilir. Satın alma uygulamadan yapılır.',
         'magaza_disi_yukseltme',

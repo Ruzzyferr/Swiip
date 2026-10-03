@@ -9,6 +9,8 @@
 # Geri yüklemesi denenmemiş yedek, yedek değildir.
 
 set -eu
+# Dump şifresiz ve sağlık verisi taşıyor: yalnız sahibi okusun.
+umask 077
 
 YEDEK_DIZINI="${YEDEK_DIZINI:-/yedekler}"
 SAKLAMA_GUN="${YEDEK_SAKLAMA_GUN:-30}"

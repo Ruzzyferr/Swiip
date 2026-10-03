@@ -106,7 +106,11 @@ describe('dağıtım: göçler imaja giriyor ve uygulanıyor', () => {
     expect(buildSatirlari.length, 'derleme satırı bulunamadı').toBeGreaterThan(0);
     for (const satir of buildSatirlari) {
       expect(
-        satir.trim().endsWith('build'),
+        // Bayraklar (`--pull`) serbest; servis adı değil.
+        satir
+          .trim()
+          .replace(/(\s+--[\w-]+)+$/, '')
+          .endsWith('build'),
         `"build" tek bir servisle sınırlanmış: ${satir.trim()} — gocmen eski imajla kalır`,
       ).toBe(true);
     }

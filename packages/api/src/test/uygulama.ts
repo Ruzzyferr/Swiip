@@ -3,6 +3,7 @@ import { uygulamaOlustur } from '../uygulama';
 import { testPostacisi, type Posta } from '../servisler/postaci';
 import { sahteBarkodSaglayici } from '../servisler/barkod';
 import { testVeritabaniAc, type TestOrtami } from './veritabani';
+import type { Yapilandirma } from '../yapilandirma';
 
 /** Testler için gerçek uygulama + PGlite veritabanı. Sahte katman yok. */
 
@@ -16,7 +17,7 @@ export interface TestUygulama {
   kapat: () => Promise<void>;
 }
 
-export async function testUygulamasi(): Promise<TestUygulama> {
+export async function testUygulamasi(ek: Partial<Yapilandirma> = {}): Promise<TestUygulama> {
   const ortam = await testVeritabaniAc();
 
   const postaci = testPostacisi();
@@ -50,6 +51,7 @@ export async function testUygulamasi(): Promise<TestUygulama> {
       POSTA_GONDEREN: 'Swiip <test@swiip.app>',
       LOG_SEVIYESI: 'fatal',
       CORS_KAYNAKLAR: '*',
+      ...ek,
     },
   });
 

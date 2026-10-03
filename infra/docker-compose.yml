@@ -1,9 +1,41 @@
 name: swiip
 
+# Konteyner sertleştirmesi — her servis bu iki bloktan birini alıyor.
+#
+# - `no-new-privileges`: setuid ikililer yetki yükseltemez.
+# - Günlük boyutu sınırlı: Docker'ın varsayılan json-file sürücüsü SINIRSIZ büyür.
+#   Bir hata döngüsü ya da log seli 48 GB'lık diski doldurur ve Postgres yazamaz
+#   hâle gelir — dışarıdan tetiklenebilen bir veri kaybı yolu.
+# - `cap_drop: [ALL]`: çekirdek yetkilerinin hiçbiri. Node süreçleri hiçbirine
+#   ihtiyaç duymuyor; caddy yalnız 80/443'e bağlanmak için birini geri alıyor.
+# - Salt okunur kök dosya sistemi: ele geçirilmiş bir süreç imaja kalıcı bir şey
+#   yazamaz. tsx derleme önbelleğini /tmp'ye yazıyor, o yüzden /tmp bellekte.
+#
+# `sertlestirme.test.ts` her servisin bunları almasını kilitliyor.
+x-gunluk: &gunluk
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '3'
+
+x-node-sertlestirme: &node-sertlestirme
+  security_opt: ['no-new-privileges:true']
+  cap_drop: [ALL]
+  read_only: true
+  tmpfs: ['/tmp:size=64m,mode=1777']
+  logging: *gunluk
+
 services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
+    # Giriş betiği veri dizininin sahipliğini ayarlayıp `postgres` kullanıcısına
+    # geçiyor; bu beş yetki o iş için, fazlası değil.
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+    cap_add: [CHOWN, DAC_OVERRIDE, FOWNER, SETGID, SETUID]
+    shm_size: 128m
+    logging: *gunluk
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-swiip}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD gerekli}
@@ -36,12 +68,15 @@ services:
       context: ..
       dockerfile: infra/api.Dockerfile
     restart: 'no'
+    <<: *node-sertlestirme
     depends_on:
       postgres:
         condition: service_healthy
     environment:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-swiip}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-swiip}
+      # Göçlerden sonra API'nin süper kullanıcı OLMAYAN rolü bu parolayla kuruluyor.
+      UYGULAMA_DB_PAROLASI: ${UYGULAMA_DB_PAROLASI:?UYGULAMA_DB_PAROLASI gerekli}
       # goc.ts yapılandırmanın tamamını okuyor; JWT_SECRET onun için de zorunlu.
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET gerekli, en az 32 karakter}
     command: ['node', '--import', 'tsx', 'packages/api/src/db/goc.ts']
@@ -62,6 +97,7 @@ services:
       context: ..
       dockerfile: infra/api.Dockerfile
     restart: 'no'
+    <<: *node-sertlestirme
     depends_on:
       gocmen:
         condition: service_completed_successfully
@@ -77,6 +113,11 @@ services:
       context: ..
       dockerfile: infra/api.Dockerfile
     restart: unless-stopped
+    <<: *node-sertlestirme
+    # Bellek ve süreç sınırı: kaçak bir istek (dev bir gövde, sonsuz döngü) tek
+    # vCPU / 2 GB'lık makinede Postgres'i de boğmasın.
+    mem_limit: 768m
+    pids_limit: 256
     depends_on:
       postgres:
         condition: service_healthy
@@ -94,7 +135,10 @@ services:
       NODE_ENV: production
       PORT: 3000
       HOST: 0.0.0.0
-      DATABASE_URL: postgres://${POSTGRES_USER:-swiip}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-swiip}
+      # API süper kullanıcıyla DEĞİL, yalnız veri okuyup yazabilen rolle bağlanıyor
+      # (db/uygulamaRolu.ts). Süper kullanıcı bağlantısı, tek bir SQL enjeksiyonunu
+      # `COPY ... TO PROGRAM` ile konteynerde komut yürütmeye çevirirdi.
+      DATABASE_URL: postgres://swiip_uygulama:${UYGULAMA_DB_PAROLASI:?UYGULAMA_DB_PAROLASI gerekli}@postgres:5432/${POSTGRES_DB:-swiip}
       JWT_SECRET: ${JWT_SECRET:?JWT_SECRET gerekli, en az 32 karakter}
       AI_GATEWAY_URL: ${AI_GATEWAY_URL:-}
       AI_GATEWAY_KEY: ${AI_GATEWAY_KEY:-}
@@ -126,6 +170,10 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     depends_on: [api]
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    logging: *gunluk
     ports:
       - '80:80'
       - '443:443'
@@ -143,6 +191,9 @@ services:
   yedekleyici:
     image: postgres:17-alpine
     restart: unless-stopped
+    security_opt: ['no-new-privileges:true']
+    cap_drop: [ALL]
+    logging: *gunluk
     depends_on:
       postgres:
         condition: service_healthy

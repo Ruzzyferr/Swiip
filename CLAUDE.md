@@ -813,6 +813,49 @@ hâl görülemedi. **Bir betiği çalıştırmadan önce yazıp yazmadığına b
 Console'daki App access ve ön-yayın kimlik alanlarının da güncellenmesini istiyor —
 o alanların API'si yok.
 
+## 2026-10-03: güvenlik denetimi ve sertleştirme
+
+Salt-okunur denetimle başladı, sonra kullanıcının onayıyla canlıya uygulandı.
+
+**Denetimde ölçülen (değişiklikten önce):** dışarıdan tam TCP taraması (65.534 port)
+→ yalnız 80/443 (+22). Postgres parolası kardeş konteynerden sınandı: yanlış parola
+reddediliyor. Konteyner ortamı `.env` ile aynı, sırlar zayıf değil, loglarda sır yok.
+SSH yalnız anahtarla; `authorized_keys`'te iki bilinen anahtar; 30 günde 30.739
+başarısız deneme, kabul edilenlerin hepsi bizim IP'mizden. Fidye/miner/kalıcılık izi
+YOK. Yedekler okunabilir (users 18, foods 439 satır dump içinde sayıldı).
+
+**Bulunan ve kapatılan:**
+
+| Bulgu | Düzeltme | Kilit |
+|---|---|---|
+| API Postgres'e **süper kullanıcıyla** bağlanıyordu (SQLi → `COPY TO PROGRAM`) | `swiip_uygulama` rolü, yalnız DML; `gocmen` kuruyor (`db/uygulamaRolu.ts`) | `guvenlikSertlestirme.test.ts` |
+| 12 MB gövde sınırı her uçta, kimliksiz olanlar dahil | genel 256 KB, fotoğraf uçlarında 12 MB; Caddy'de 15 MB | aynı |
+| `trustProxy: true` → XFF'nin sol girdisi (istemcinin yazdığı) | yalnız ilk atlama | mutasyonla sınandı |
+| Parola sıfırlama yalnız IP başına sınırlı | hesap başına 3/saat, 10/gün; yanıt değişmiyor | aynı |
+| Değerlendirme cevabı sınırsız anahtar biriktirebiliyordu | 200 anahtar, 64 KB | aynı |
+| Sınırsız hesap açma → AI bütçesini tüketme | IP başına 20 kayıt/saat; ücretsiz fotoğraflı analize günlük servis tavanı (200) | aynı |
+| `/abonelik/guncelle` `NODE_ENV` unutulursa açık | yalnız AÇIKÇA development/test | aynı |
+| Yönetim anahtarı `!==` ile, ham `process.env`'den | sabit zamanlı, doğrulanmış yapılandırmadan | — |
+| 4xx loglarında ham gövde kesiti, 500'de pg `detail` (kişisel veri) | yalnız kod/mesaj | — |
+| Barkod serbest metin, ortak kataloğa yazılıyor | yalnız 6-14 rakam | aynı |
+| Konteynerler: yetki düşürme yok, log sınırsız (disk doldurma) | `no-new-privileges`, `cap_drop: ALL`, Node'da salt okunur kök, log 3×10 MB, API'de bellek/pid sınırı | aynı |
+| Site CSP yok | CSP, COOP/CORP, TRACE vb. 405 | aynı |
+| Çekirdek 42 gündür yamasız (reboot bekliyordu) | unattended-upgrades 04:30 UTC'de yeniden başlatıyor | aynı |
+| SSH/fail2ban/sysctl elle, depoda değil | `scripts/sunucu-sertlestir.sh`, HER dağıtımda | aynı |
+| İmajlar aylarca güncellenmiyordu | dağıtım `pull` + `build --pull` | — |
+| Yedek dosyaları 0644 | `umask 077`, dizin 700 | aynı |
+| **Hiç izleme yoktu** | `.github/workflows/nobet.yml` — 30 dk'da bir dışarıdan: sağlık, DB, site, 404'ler, başlıklar, sertifika, iç portların KAPALI olması; sorunda e-posta | — |
+
+**Bir hata, kayda geçsin:** denetim betiğinde `${g:+TANIMLI}${g:-BOS}` yazıldı; ikinci
+ifade değer DOLUYKEN değeri basar. Dört sır (`AI_GATEWAY_KEY`, `POSTA_API_KEY`,
+`REVENUECAT_KANCA_SIRRI`, `YONETIM_ANAHTARI`) oturum çıktısına düştü. Yönetim anahtarı
+sunucuda döndürüldü; diğer üçü sağlayıcı panelinden döndürülmeli (Vercel AI Gateway,
+Resend, RevenueCat webhook + sunucu `.env`). Sır kontrolünde `${x:+VAR}` tek başına.
+
+**Bilerek yapılmayanlar:** e-posta doğrulamasını AI için şart koşmak (ürün akışı
+değişir, inceleme hesapları etkilenir); hesap silmede parola tekrar sorma (mobil arayüz
+gerekir); erişim tokenının parola sıfırlamada anında iptali (15 dk ömür kabul edildi).
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:

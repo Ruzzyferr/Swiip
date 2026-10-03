@@ -325,6 +325,8 @@ export const tr = {
     ilgi_gecersiz: () => 'Geçerli bir e-posta adresi ve açık rıza gerekiyor.',
     analiz_hakki_bitti: () =>
       'Vücut analizi hakkını kullandın. Ücretsiz planda bir kez, ödemeli planlarda her ay açılıyor.',
+    ucretsiz_ai_tavani: () =>
+      'Fotoğraflı analiz bugün çok yoğun. Ölçülerinle hemen analiz yapabilir ya da yarın tekrar deneyebilirsin.',
     profil_yok: () => 'Önce değerlendirmeyi tamamla.',
     barkod_yok: () => 'Bu barkod veritabanımızda yok. Elle ekleyebilirsin.',
     besin_yok: () => 'Besin bulunamadı.',

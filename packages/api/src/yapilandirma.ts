@@ -24,6 +24,11 @@ const sema = z.object({
    * Dakikada 120 deneme günde 170 binden fazla eder ve zayıf bir parolayı bulmaya yeter.
    */
   KIMLIK_ISTEK_SINIRI: z.coerce.number().int().positive().default(10),
+  /**
+   * IP başına saatte açılabilecek hesap. Tanımsızsa 20; test ortamında sınırsız
+   * (testler tek sentetik adresten yüzlerce hesap açıyor). Gerekçe `rotalar/kimlik.ts`.
+   */
+  KAYIT_SAATLIK_SINIRI: z.coerce.number().int().positive().optional(),
 
   /**
    * RevenueCat web kancası sırrı.

@@ -1,9 +1,13 @@
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, gt, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { vucutRaporuUret, type GorselAnalizCiktisi, type VucutRaporu } from '@swiip/core';
 import { dilCozumle, metinleriAl, raporMetinleri } from '@swiip/shared';
-import { Bulunamadi, HataliIstek, Yasak } from '../hatalar';
+import { Bulunamadi, HataliIstek, KotaDoldu, Yasak } from '../hatalar';
+import { FOTOGRAF_GOVDE_SINIRI } from '../govdeSinirlari';
+
+/** Ücretsiz katmanda günde en çok bu kadar fotoğraflı analiz (servis geneli). */
+export const UCRETSIZ_GORSEL_GUNLUK_TAVAN = 200;
 import {
   assessments,
   body_analyses,
@@ -141,202 +145,233 @@ export async function vucutRotalari(app: FastifyInstance): Promise<void> {
     return Number.isFinite(sayi) && sayi > 0 ? sayi : 0;
   }
 
-  app.post('/analiz', { preHandler: app.kimlikDogrula }, async (istek) => {
-    const govde = analizSemasi.parse(istek.body);
+  app.post(
+    '/analiz',
+    { preHandler: app.kimlikDogrula, bodyLimit: FOTOGRAF_GOVDE_SINIRI },
+    async (istek) => {
+      const govde = analizSemasi.parse(istek.body);
 
-    const [kullanici] = await db
-      .select({
-        cinsiyet: users.sex,
-        dogum: users.birth_date,
-        boy: users.height_cm,
-        fotoOnayi: users.consent_photo,
-        edModu: users.ed_mode,
-        locale: users.locale,
-      })
-      .from(users)
-      .where(eq(users.id, istek.kullaniciId))
-      .limit(1);
+      const [kullanici] = await db
+        .select({
+          cinsiyet: users.sex,
+          dogum: users.birth_date,
+          boy: users.height_cm,
+          fotoOnayi: users.consent_photo,
+          edModu: users.ed_mode,
+          locale: users.locale,
+        })
+        .from(users)
+        .where(eq(users.id, istek.kullaniciId))
+        .limit(1);
 
-    if (!kullanici) throw Bulunamadi('Kullanıcı bulunamadı.', 'kullanici_yok');
+      if (!kullanici) throw Bulunamadi('Kullanıcı bulunamadı.', 'kullanici_yok');
 
-    /**
-     * Yaş kapısı bu uçta da geçerli.
-     *
-     * Kapı yalnızca profil yazımında (`/tamamla`) uygulanıyordu. Bu uç profil istemiyor,
-     * yalnızca boy istiyor — ve boy `/cevap` ile ilk kartta yazılıyor. 18 yaşından küçük
-     * olduğunu beyan eden kullanıcı programa ulaşamıyordu ama vücut FOTOĞRAFINI üçüncü
-     * taraf bir görsel modele gönderebiliyordu. Kayıt reddi, en hassas veriyi işlemenin
-     * de reddi olmalı.
-     */
-    const yas = yasKapisi(await guncelKapiDurumu(db, istek.kullaniciId));
-    if (yas) throw Yasak(yas.mesaj, 'kapi_yas');
+      /**
+       * Yaş kapısı bu uçta da geçerli.
+       *
+       * Kapı yalnızca profil yazımında (`/tamamla`) uygulanıyordu. Bu uç profil istemiyor,
+       * yalnızca boy istiyor — ve boy `/cevap` ile ilk kartta yazılıyor. 18 yaşından küçük
+       * olduğunu beyan eden kullanıcı programa ulaşamıyordu ama vücut FOTOĞRAFINI üçüncü
+       * taraf bir görsel modele gönderebiliyordu. Kayıt reddi, en hassas veriyi işlemenin
+       * de reddi olmalı.
+       */
+      const yas = yasKapisi(await guncelKapiDurumu(db, istek.kullaniciId));
+      if (yas) throw Yasak(yas.mesaj, 'kapi_yas');
 
-    if (!kullanici.boy) {
-      throw HataliIstek('Analiz için boy bilgin gerekiyor; değerlendirmeyi tamamla.', 'boy_yok');
-    }
-
-    /**
-     * Analiz hakkı — ücretsizde ömür boyu bir kez, ödemelide ayda bir.
-     *
-     * `vucutAnaliziHakki` yazılmıştı ama **hiçbir yerden çağrılmıyordu**: ücretsiz bir
-     * kullanıcı rapor ekranını her açtığında yeni bir analiz üretiliyordu. Fotoğraflı
-     * her analiz bir görsel AI çağrısı; sınırsız çalışan bu uç doğrudan birim
-     * ekonomisine açılan bir kapıydı.
-     *
-     * Kontrol AI çağrısından ve kayıttan ÖNCE: reddedilen istek ne para harcar ne satır
-     * yazar.
-     */
-    const abonelik = await abonelikGetir(istek.kullaniciId);
-    const plan = abonelik.plan;
-
-    /**
-     * Hak kontrolü `body_analyses` DEFTERİNDEN okunuyor — `quotas`'tan değil.
-     *
-     * Kural dönemsel bir sayaçla ifade edilemiyor: ücretsiz katmanda ömür boyu bir kez,
-     * ödemelide ayda bir, ama ay içinde ödemeye geçen kullanıcının penceresi abonelik
-     * anında başlıyor (`hakDonemininBasi`). `quotas` satırı `YYYY-MM` ile anahtarlı
-     * olduğu için "yükseltince pencere sıfırlanır" kuralını taşıyamıyor — denendi ve
-     * `vucutHakki.test.ts` haklı olarak düştü.
-     *
-     * Defterin kendisi zaten doğru kaynak. Kalan iki sorun ayrıca çözüldü:
-     *  - Sayaç gösterimi: `GET /v1/abonelik/durum` hiç yazılmayan `quotas.body_analyses_used`
-     *    kolonundan besleniyordu ve ömür boyu hakkını kullanmış kullanıcıya "1 kalan"
-     *    diyordu. Artık aynı defterden okuyor.
-     *
-     *  - Kontrol ile kayıt arasındaki yarış: aradaki görsel AI çağrısı saniyeler
-     *    sürüyordu ve o aralıkta gelen ikinci istek de kontrolü geçiyordu; ücretsiz
-     *    kullanıcı çift dokunuşla ömür boyu bir olan hakkını ikiye çıkarıyordu. Artık
-     *    satır çağrıdan ÖNCE `tamamlandi = false` ile açılıyor (`vucutRezerve.ts`),
-     *    ikinci istek onu sayıp reddediliyor. Bir zaman penceresiyle kapatmak önce
-     *    denenmiş ve geri alınmıştı: pencere, plan yükseltip hemen yeniden analiz eden
-     *    meşru kullanıcıyı da engelliyordu (`vucutHakki.test.ts` bunu yakaladı).
-     */
-    /**
-     * Sayım ve rezervasyon tek kritik bölgede (kullanıcı başına kilit): sayım ile satırın
-     * açılması arasındaki milisaniyelerden de ikinci bir istek geçemiyor.
-     */
-    const rezervasyonId = await vucutHakkiniRezerveEt(
-      db,
-      istek.kullaniciId,
-      hakDonemininBasi(abonelik.baslangic),
-      (sayim) => vucutAnaliziHakki(plan, sayim.toplam, sayim.donem),
-    );
-
-    if (rezervasyonId === null) {
-      // Mesaj önce hesaplanıyor: `throw` içindeki koşullu ifade, hata kodu tarayıcısının
-      // ikinci argümanı bulmasını zorlaştırıyor.
-      const mesaj =
-        plan === 'ucretsiz'
-          ? 'Ücretsiz planda vücut analizi bir kez yapılıyor. Sonraki analizler Temel plandan itibaren her ay açılıyor.'
-          : 'Bu ayki vücut analizini kullandın. Gelecek ay yeniden açılıyor.';
-
-      throw Yasak(mesaj, 'analiz_hakki_bitti');
-    }
-
-    if (govde.fotograflar && govde.fotograflar.length > 0 && !kullanici.fotoOnayi) {
-      await vucutRezervasyonuBirak(db, rezervasyonId);
-      throw Yasak(
-        'Fotoğraf analizi için ayrı açık rıza vermen gerekiyor. Dilersen fotoğrafsız, yalnızca ' +
-          'ölçülerinle devam edebilirsin.',
-        'foto_riza_yok',
-      );
-    }
-
-    /** Gizlilik notu bu bayrağa bakıyor: söylediğimiz şey yaptığımız şey olmalı. */
-    const gorselGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
-
-    /*
-     * Hak yukarıda REZERVE edildi — görsel çağrısından önce. Kontrol ile kaydın
-     * yazılması arasında saniyeler var; satır baştan açık olduğu için ikinci istek onu
-     * sayıp reddediliyor.
-     */
-
-    let kayit: { id: string; taken_at: Date } | undefined;
-    let rapor: VucutRaporu;
-    try {
-      let gorsel: GorselAnalizCiktisi | undefined;
-      if (gorselGeldi) {
-        // Fotoğraf yalnızca bu çağrının ömrü boyunca bellekte. Dönüş değeri sayılardır.
-        gorsel = await fotografiAnalizEt({
-          fotograflar: govde.fotograflar!,
-          aiIstemcisi: app.aiIstemcisi,
-        });
+      if (!kullanici.boy) {
+        throw HataliIstek('Analiz için boy bilgin gerekiyor; değerlendirmeyi tamamla.', 'boy_yok');
       }
 
-      const kiloKg = await guncelKilo(istek.kullaniciId);
-      rapor = vucutRaporuUret({
-        cinsiyet: kullanici.cinsiyet === 'Kadın' ? 'kadin' : 'erkek',
-        yas: yasHesapla(kullanici.dogum),
-        boyCm: kullanici.boy,
-        kiloKg: kiloKg > 0 ? kiloKg : 0,
-        ...(govde.olculer ? { olculer: govde.olculer } : {}),
-        ...(gorsel ? { gorsel } : {}),
-      });
-
-      [kayit] = await db
-        .update(body_analyses)
-        .set({
-          yontem: rapor.yontem,
-          // Gizlilik notu sonradan da dogru cumleyi secebilsin diye KAYDEDILIYOR.
-          gorselden_uretildi: gorselGeldi,
-          bodyfat_low: rapor.yag_orani?.alt ?? null,
-          bodyfat_high: rapor.yag_orani?.ust ?? null,
-          muscle_map_jsonb: Object.fromEntries(rapor.kas_dagilimi.map((k) => [k.bolge, k.skor])),
-          posture_flags: gorsel?.durusBayraklari ?? [],
-          measurements_jsonb: govde.olculer ?? {},
-          rapor_jsonb: rapor,
-          tamamlandi: true,
-        })
-        .where(eq(body_analyses.id, rezervasyonId))
-        .returning({ id: body_analyses.id, taken_at: body_analyses.taken_at });
-    } catch (hata) {
       /**
-       * Çağrı başarısızsa rezervasyon geri veriliyor.
+       * Analiz hakkı — ücretsizde ömür boyu bir kez, ödemelide ayda bir.
        *
-       * Kota adaleti kuralı: bizim hatamızın bedelini kullanıcı ödemez. Görsel model
-       * 500 döndüğünde ücretsiz kullanıcının ömür boyu hakkı yanmamalı.
+       * `vucutAnaliziHakki` yazılmıştı ama **hiçbir yerden çağrılmıyordu**: ücretsiz bir
+       * kullanıcı rapor ekranını her açtığında yeni bir analiz üretiliyordu. Fotoğraflı
+       * her analiz bir görsel AI çağrısı; sınırsız çalışan bu uç doğrudan birim
+       * ekonomisine açılan bir kapıydı.
+       *
+       * Kontrol AI çağrısından ve kayıttan ÖNCE: reddedilen istek ne para harcar ne satır
+       * yazar.
        */
-      await vucutRezervasyonuBirak(db, rezervasyonId);
-      throw hata;
-    }
+      const abonelik = await abonelikGetir(istek.kullaniciId);
+      const plan = abonelik.plan;
 
-    /**
-     * Rapor kullanıcının dilinde anlatılıyor.
-     *
-     * Motor kod üretiyor (duruş bayrağı, sınırlama kodu, özet parametreleri); cümle
-     * sözlükte kuruluyor. Kayda giren `rapor_jsonb` motorun izi — Türkçe metinler orada
-     * duruyor ve çeviremediğimiz bir kodda ona düşülüyor.
-     */
-    const metinler = metinleriAl(dilCozumle(kullanici.locale)).rapor.motor;
-    const cevrilmis = raporMetinleri(rapor, metinler);
-
-    return {
-      analiz_id: kayit!.id,
-      taken_at: kayit!.taken_at,
-      rapor: {
-        ...rapor,
-        ozet: cevrilmis.ozet,
-        durus: cevrilmis.durus,
-        sinirlamalar: cevrilmis.sinirlamalar,
-        feragat: cevrilmis.feragat,
-        ...(rapor.bel_boy && cevrilmis.belBoyMesaji
-          ? { bel_boy: { ...rapor.bel_boy, mesaj: cevrilmis.belBoyMesaji } }
-          : {}),
-      },
-      // ED modunda arayüz aralığı gizler; motor yine hesaplar.
-      sayilar_gizli: kullanici.edModu,
       /**
-       * Not, GERÇEKTEN yapılan işi anlatıyor.
+       * Hak kontrolü `body_analyses` DEFTERİNDEN okunuyor — `quotas`'tan değil.
        *
-       * Tek bir cümle her raporda yazıyordu: "Fotoğrafın analiz edildi ve bellekten
-       * düştü." Ölçülerle devam eden kullanıcı fotoğraf göndermemişti; olmayan bir şeyin
-       * silindiğine dair güvence, tam da kazanmak istediğimiz güveni harcıyor.
+       * Kural dönemsel bir sayaçla ifade edilemiyor: ücretsiz katmanda ömür boyu bir kez,
+       * ödemelide ayda bir, ama ay içinde ödemeye geçen kullanıcının penceresi abonelik
+       * anında başlıyor (`hakDonemininBasi`). `quotas` satırı `YYYY-MM` ile anahtarlı
+       * olduğu için "yükseltince pencere sıfırlanır" kuralını taşıyamıyor — denendi ve
+       * `vucutHakki.test.ts` haklı olarak düştü.
+       *
+       * Defterin kendisi zaten doğru kaynak. Kalan iki sorun ayrıca çözüldü:
+       *  - Sayaç gösterimi: `GET /v1/abonelik/durum` hiç yazılmayan `quotas.body_analyses_used`
+       *    kolonundan besleniyordu ve ömür boyu hakkını kullanmış kullanıcıya "1 kalan"
+       *    diyordu. Artık aynı defterden okuyor.
+       *
+       *  - Kontrol ile kayıt arasındaki yarış: aradaki görsel AI çağrısı saniyeler
+       *    sürüyordu ve o aralıkta gelen ikinci istek de kontrolü geçiyordu; ücretsiz
+       *    kullanıcı çift dokunuşla ömür boyu bir olan hakkını ikiye çıkarıyordu. Artık
+       *    satır çağrıdan ÖNCE `tamamlandi = false` ile açılıyor (`vucutRezerve.ts`),
+       *    ikinci istek onu sayıp reddediliyor. Bir zaman penceresiyle kapatmak önce
+       *    denenmiş ve geri alınmıştı: pencere, plan yükseltip hemen yeniden analiz eden
+       *    meşru kullanıcıyı da engelliyordu (`vucutHakki.test.ts` bunu yakaladı).
        */
-      gizlilik_notu: gorselGeldi
-        ? metinler.gizlilikNotu.fotografli
-        : metinler.gizlilikNotu.olculerle,
-    };
-  });
+      /**
+       * Sayım ve rezervasyon tek kritik bölgede (kullanıcı başına kilit): sayım ile satırın
+       * açılması arasındaki milisaniyelerden de ikinci bir istek geçemiyor.
+       */
+      /**
+       * Ücretsiz katmanın görsel AI çağrıları için GÜNLÜK, servis geneli tavan.
+       *
+       * Hesap açmak doğrulama istemiyor ve her ücretsiz hesap bir fotoğraflı analizle
+       * doğuyor. Hesap üreten biri ayda $5'lık geçit tavanını dakikalar içinde bitirip
+       * ayın geri kalanında ÖDEYEN kullanıcıların AI'ını da kapatabilirdi (2026-10-03
+       * güvenlik incelemesi). Tavan yalnız ücretsize ve yalnız fotoğraflı yola
+       * uygulanıyor: ölçüyle analiz AI kullanmıyor ve açık kalıyor.
+       */
+      if (plan === 'ucretsiz' && govde.fotograflar && govde.fotograflar.length > 0) {
+        const [bugun] = await db
+          .select({ sayi: sql<number>`count(*)` })
+          .from(body_analyses)
+          .where(
+            and(
+              eq(body_analyses.gorselden_uretildi, true),
+              gt(body_analyses.taken_at, sql`now() - interval '24 hours'`),
+            ),
+          );
+        if (Number(bugun?.sayi ?? 0) >= UCRETSIZ_GORSEL_GUNLUK_TAVAN) {
+          throw KotaDoldu(
+            'Fotoğraflı analiz bugün çok yoğun. Ölçülerinle hemen analiz yapabilir ya da yarın tekrar deneyebilirsin.',
+            'ucretsiz_ai_tavani',
+          );
+        }
+      }
+
+      const rezervasyonId = await vucutHakkiniRezerveEt(
+        db,
+        istek.kullaniciId,
+        hakDonemininBasi(abonelik.baslangic),
+        (sayim) => vucutAnaliziHakki(plan, sayim.toplam, sayim.donem),
+      );
+
+      if (rezervasyonId === null) {
+        // Mesaj önce hesaplanıyor: `throw` içindeki koşullu ifade, hata kodu tarayıcısının
+        // ikinci argümanı bulmasını zorlaştırıyor.
+        const mesaj =
+          plan === 'ucretsiz'
+            ? 'Ücretsiz planda vücut analizi bir kez yapılıyor. Sonraki analizler Temel plandan itibaren her ay açılıyor.'
+            : 'Bu ayki vücut analizini kullandın. Gelecek ay yeniden açılıyor.';
+
+        throw Yasak(mesaj, 'analiz_hakki_bitti');
+      }
+
+      if (govde.fotograflar && govde.fotograflar.length > 0 && !kullanici.fotoOnayi) {
+        await vucutRezervasyonuBirak(db, rezervasyonId);
+        throw Yasak(
+          'Fotoğraf analizi için ayrı açık rıza vermen gerekiyor. Dilersen fotoğrafsız, yalnızca ' +
+            'ölçülerinle devam edebilirsin.',
+          'foto_riza_yok',
+        );
+      }
+
+      /** Gizlilik notu bu bayrağa bakıyor: söylediğimiz şey yaptığımız şey olmalı. */
+      const gorselGeldi = Boolean(govde.fotograflar && govde.fotograflar.length > 0);
+
+      /*
+       * Hak yukarıda REZERVE edildi — görsel çağrısından önce. Kontrol ile kaydın
+       * yazılması arasında saniyeler var; satır baştan açık olduğu için ikinci istek onu
+       * sayıp reddediliyor.
+       */
+
+      let kayit: { id: string; taken_at: Date } | undefined;
+      let rapor: VucutRaporu;
+      try {
+        let gorsel: GorselAnalizCiktisi | undefined;
+        if (gorselGeldi) {
+          // Fotoğraf yalnızca bu çağrının ömrü boyunca bellekte. Dönüş değeri sayılardır.
+          gorsel = await fotografiAnalizEt({
+            fotograflar: govde.fotograflar!,
+            aiIstemcisi: app.aiIstemcisi,
+          });
+        }
+
+        const kiloKg = await guncelKilo(istek.kullaniciId);
+        rapor = vucutRaporuUret({
+          cinsiyet: kullanici.cinsiyet === 'Kadın' ? 'kadin' : 'erkek',
+          yas: yasHesapla(kullanici.dogum),
+          boyCm: kullanici.boy,
+          kiloKg: kiloKg > 0 ? kiloKg : 0,
+          ...(govde.olculer ? { olculer: govde.olculer } : {}),
+          ...(gorsel ? { gorsel } : {}),
+        });
+
+        [kayit] = await db
+          .update(body_analyses)
+          .set({
+            yontem: rapor.yontem,
+            // Gizlilik notu sonradan da dogru cumleyi secebilsin diye KAYDEDILIYOR.
+            gorselden_uretildi: gorselGeldi,
+            bodyfat_low: rapor.yag_orani?.alt ?? null,
+            bodyfat_high: rapor.yag_orani?.ust ?? null,
+            muscle_map_jsonb: Object.fromEntries(rapor.kas_dagilimi.map((k) => [k.bolge, k.skor])),
+            posture_flags: gorsel?.durusBayraklari ?? [],
+            measurements_jsonb: govde.olculer ?? {},
+            rapor_jsonb: rapor,
+            tamamlandi: true,
+          })
+          .where(eq(body_analyses.id, rezervasyonId))
+          .returning({ id: body_analyses.id, taken_at: body_analyses.taken_at });
+      } catch (hata) {
+        /**
+         * Çağrı başarısızsa rezervasyon geri veriliyor.
+         *
+         * Kota adaleti kuralı: bizim hatamızın bedelini kullanıcı ödemez. Görsel model
+         * 500 döndüğünde ücretsiz kullanıcının ömür boyu hakkı yanmamalı.
+         */
+        await vucutRezervasyonuBirak(db, rezervasyonId);
+        throw hata;
+      }
+
+      /**
+       * Rapor kullanıcının dilinde anlatılıyor.
+       *
+       * Motor kod üretiyor (duruş bayrağı, sınırlama kodu, özet parametreleri); cümle
+       * sözlükte kuruluyor. Kayda giren `rapor_jsonb` motorun izi — Türkçe metinler orada
+       * duruyor ve çeviremediğimiz bir kodda ona düşülüyor.
+       */
+      const metinler = metinleriAl(dilCozumle(kullanici.locale)).rapor.motor;
+      const cevrilmis = raporMetinleri(rapor, metinler);
+
+      return {
+        analiz_id: kayit!.id,
+        taken_at: kayit!.taken_at,
+        rapor: {
+          ...rapor,
+          ozet: cevrilmis.ozet,
+          durus: cevrilmis.durus,
+          sinirlamalar: cevrilmis.sinirlamalar,
+          feragat: cevrilmis.feragat,
+          ...(rapor.bel_boy && cevrilmis.belBoyMesaji
+            ? { bel_boy: { ...rapor.bel_boy, mesaj: cevrilmis.belBoyMesaji } }
+            : {}),
+        },
+        // ED modunda arayüz aralığı gizler; motor yine hesaplar.
+        sayilar_gizli: kullanici.edModu,
+        /**
+         * Not, GERÇEKTEN yapılan işi anlatıyor.
+         *
+         * Tek bir cümle her raporda yazıyordu: "Fotoğrafın analiz edildi ve bellekten
+         * düştü." Ölçülerle devam eden kullanıcı fotoğraf göndermemişti; olmayan bir şeyin
+         * silindiğine dair güvence, tam da kazanmak istediğimiz güveni harcıyor.
+         */
+        gizlilik_notu: gorselGeldi
+          ? metinler.gizlilikNotu.fotografli
+          : metinler.gizlilikNotu.olculerle,
+      };
+    },
+  );
 
   /**
    * Son raporu OKUR — yeni analiz üretmez, hak harcamaz.

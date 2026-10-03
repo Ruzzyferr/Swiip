@@ -84,6 +84,11 @@ tar -xzf /tmp/swiip.tar.gz -C "$UZAK_DIZIN"
 cp /tmp/.env.koruma infra/.env
 rm -f /tmp/swiip.tar.gz /tmp/.env.koruma
 
+# İşletim sistemi sertleştirmesi HER dağıtımda, konteynerlerden ÖNCE: SSH, fail2ban,
+# çekirdek ayarları, otomatik güncelleme ve API'nin veritabanı rolünün parolası
+# (compose bu parola olmadan açılmıyor). İdempotent; değişiklik yoksa hiçbir şey yapmaz.
+UZAK_DIZIN="$UZAK_DIZIN" bash scripts/sunucu-sertlestir.sh
+
 # TUM servisler derleniyor, yalnizca api degil.
 #
 # Burada 'build api' yaziyordu. gocmen ve tohumcu ayni Dockerfile'i kullaniyor ama
@@ -96,7 +101,12 @@ rm -f /tmp/swiip.tar.gz /tmp/.env.koruma
 # dosya gormuyor), api ayaga kalkiyor, saglik ucu 200 donuyor. Kusur ancak yeni tablo
 # ilk kez sorgulandiginda 500 olarak goruunuyor. Uretimde tam bu oldu: kanca_olaylari
 # tablosu yoktu ve abonelik kancasi 42P01 ile patliyordu.
-docker compose -f infra/docker-compose.yml build
+#
+# `--pull` ve `pull`: temel imajlar (node:22-alpine, postgres:17-alpine, caddy:2-alpine)
+# her dağıtımda güncel çekiliyor. Yoksa ilk kurulumdaki imaj aylarca kalıyor ve
+# içindeki güvenlik yamaları hiç gelmiyor — 2026-10-03'te caddy imajı 3 aylıktı.
+docker compose -f infra/docker-compose.yml pull --ignore-buildable --quiet
+docker compose -f infra/docker-compose.yml build --pull
 docker compose -f infra/docker-compose.yml up -d
 
 # Caddy ZORLA yeniden olusturuluyor.

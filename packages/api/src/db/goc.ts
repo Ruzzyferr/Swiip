@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
 import { yapilandirmayiOku } from '../yapilandirma';
+import { uygulamaRolunuKur } from './uygulamaRolu';
 
 /**
  * Göç çalıştırıcı.
@@ -51,6 +52,10 @@ export async function gocleriCalistir(url: string): Promise<string[]> {
         throw new Error(`Göç başarısız: ${dosya} — ${hata instanceof Error ? hata.message : hata}`);
       }
     }
+
+    // API'nin süper kullanıcı olmayan rolü, göçlerden SONRA: yeni tablolar da kapsansın.
+    const parola = process.env.UYGULAMA_DB_PAROLASI;
+    if (parola) await uygulamaRolunuKur(istemci, parola);
   } finally {
     await istemci.end();
   }

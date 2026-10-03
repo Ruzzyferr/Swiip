@@ -23,7 +23,19 @@ import { analytics_events, assessments, decisions, profiles, users } from '../db
  * yeniden pazarlama hedefimiz ve kaldığı yerden devam edebilmeli.
  */
 
-const cevapSemasi = z.record(z.string(), z.unknown());
+/**
+ * Cevap gövdesinin boyutu sınırlı.
+ *
+ * Tanınmayan soru kimliği bilerek REDDEDİLMİYOR (eski derleme kaldırılmış bir
+ * sorunun cevabını gönderebilir, bkz. CLAUDE.md). Ama sınırsız da değildi: tek
+ * istekte binlerce çöp anahtar, her istekte birleşerek aynı satırda büyüyordu
+ * (2026-10-03 güvenlik incelemesi). Banka 53 soru; sınırlar bunun çok üstünde.
+ */
+export const CEVAP_SINIRLARI = { anahtar: 200, kimlikUzunlugu: 64, birlesikBayt: 64 * 1024 };
+
+const cevapSemasi = z
+  .record(z.string().max(CEVAP_SINIRLARI.kimlikUzunlugu), z.unknown())
+  .refine((c) => Object.keys(c).length <= CEVAP_SINIRLARI.anahtar, 'Çok fazla cevap.');
 
 const kaydetSemasi = z.object({
   cevaplar: cevapSemasi,
@@ -87,6 +99,12 @@ export async function degerlendirmeRotalari(app: FastifyInstance): Promise<void>
     const mevcut = kayit.answers_jsonb as Cevaplar;
 
     const birlesik: Cevaplar = { ...mevcut, ...(govde.cevaplar as Cevaplar) };
+    if (
+      Object.keys(birlesik).length > CEVAP_SINIRLARI.anahtar ||
+      Buffer.byteLength(JSON.stringify(birlesik)) > CEVAP_SINIRLARI.birlesikBayt
+    ) {
+      throw HataliIstek('Cevaplar beklenenden büyük.', 'gecersiz_cevap');
+    }
 
     // Gelen her cevap soru tanımına göre doğrulanır; istemciye güvenilmez.
     const sorular = new Map(gorunurSorular(birlesik).map((s) => [s.id, s]));

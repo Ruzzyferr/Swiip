@@ -28,8 +28,7 @@ const TEMEL_CEVAPLAR = {
 };
 
 beforeAll(async () => {
-  process.env.YONETIM_ANAHTARI = ANAHTAR;
-  uygulama = await testUygulamasi();
+  uygulama = await testUygulamasi({ YONETIM_ANAHTARI: ANAHTAR });
   app = uygulama.app;
 
   // Üç kullanıcı: biri yarım bıraktı, biri tamamladı, biri hiç başlamadı.
@@ -79,7 +78,6 @@ beforeAll(async () => {
 }, 60_000);
 
 afterAll(async () => {
-  delete process.env.YONETIM_ANAHTARI;
   await uygulama?.kapat();
 });
 

@@ -21,6 +21,9 @@ import { epostaDogrulamaPostasi, parolaSifirlamaPostasi } from '../servisler/pos
 import { DILLER } from '@swiip/shared';
 import { istekSayaciKur } from '../servisler/istekSayaci';
 
+/** Hesap başına parola sıfırlama kodu sınırı. Gerekçe `/parola-sifirla-istek`te. */
+export const SIFIRLAMA_SINIRI = { saatlik: 3, gunluk: 10 };
+
 /**
  * Kimlik akışları.
  *
@@ -77,6 +80,19 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
   const kimlikSayaci = istekSayaciKur({
     sinir: yapilandirma.KIMLIK_ISTEK_SINIRI,
     pencereMs: 60_000,
+  });
+
+  /**
+   * Kayıt için ayrıca SAATLİK sınır. Hesap açmak e-posta doğrulaması istemiyor ve her
+   * ücretsiz hesap bir AI vücut analizi hakkıyla doğuyor; dakikalık sınır tek adresten
+   * saatte 600 hesaba izin veriyordu (2026-10-03 güvenlik incelemesi). 20 bilerek
+   * cömert: mobil operatörler binlerce aboneyi tek adresin (CGNAT) arkasına koyuyor.
+   */
+  const kayitSayaci = istekSayaciKur({
+    sinir:
+      yapilandirma.KAYIT_SAATLIK_SINIRI ??
+      (yapilandirma.NODE_ENV === 'test' ? Number.MAX_SAFE_INTEGER : 20),
+    pencereMs: 60 * 60_000,
   });
 
   const darSinir = async (istek: FastifyRequest, cevap: FastifyReply) => {
@@ -148,7 +164,16 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     return { erisim_token, yenileme_token: ham };
   }
 
-  app.post('/kayit', { preHandler: darSinir }, async (istek, cevap) => {
+  const kayitSiniri = async (istek: FastifyRequest, cevap: FastifyReply) => {
+    if (!kayitSayaci.izinVar(istek.ip, Date.now())) {
+      await cevap.code(429).send({
+        kod: 'cok_fazla_istek',
+        mesaj: 'Çok fazla deneme yapıldı. Bir dakika sonra tekrar dene.',
+      });
+    }
+  };
+
+  app.post('/kayit', { preHandler: [darSinir, kayitSiniri] }, async (istek, cevap) => {
     const govde = kayitSemasi.parse(istek.body);
 
     if (!govde.saglik_onayi) {
@@ -337,7 +362,40 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       .where(sql`lower(${users.email}) = lower(${email})`)
       .limit(1);
 
+    /**
+     * Hesap başına sınır — IP başına sınıra EK olarak.
+     *
+     * Yalnız IP sınırı vardı (dakikada 10). Adres değiştiren biri aynı hesaba
+     * sınırsız kod istetebiliyordu: kurbanın gelen kutusu dolar, gönderen alan adının
+     * itibarı düşer, ve her yeni kod 5 tahmin hakkı daha demek — milyonda 5'lik
+     * şansın sınırsız tekrarı (2026-10-03 güvenlik incelemesi). Günde 10 kodla bir
+     * hesaba yapılabilecek tahmin günde 50; milyonluk uzayda pratikte sıfır.
+     *
+     * Sınır aşıldığında yanıt AYNI kalıyor: farklı bir yanıt, adresin kayıtlı
+     * olduğunu ele verirdi. Tablo üretim anını tutmuyor; `expires_at` üretim + ömür.
+     */
+    let sinirda = false;
     if (kullanici) {
+      const [sayim] = await db
+        .select({
+          saat: sql<number>`count(*) filter (where ${dogrulama_kodlari.expires_at} > now() - make_interval(mins => ${60 - KOD_OMRU_DAKIKA}::int))`,
+          gun: sql<number>`count(*)`,
+        })
+        .from(dogrulama_kodlari)
+        .where(
+          and(
+            eq(dogrulama_kodlari.user_id, kullanici.id),
+            eq(dogrulama_kodlari.tip, 'parola_sifirlama'),
+            sql`${dogrulama_kodlari.expires_at} > now() - make_interval(mins => ${24 * 60 - KOD_OMRU_DAKIKA}::int)`,
+          ),
+        );
+      sinirda =
+        Number(sayim?.saat ?? 0) >= SIFIRLAMA_SINIRI.saatlik ||
+        Number(sayim?.gun ?? 0) >= SIFIRLAMA_SINIRI.gunluk;
+      if (sinirda) istek.log.warn('parola sıfırlama: hesap başına sınır doldu');
+    }
+
+    if (kullanici && !sinirda) {
       const kod = kodUret();
 
       // Önceki kullanılmamış kodlar iptal edilir: aynı anda birden fazla geçerli kod olmaz.

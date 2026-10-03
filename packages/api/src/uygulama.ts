@@ -12,6 +12,7 @@ import type { Yapilandirma } from './yapilandirma';
 import { loglayanPostaci, type Postaci } from './servisler/postaci';
 import { HataliIstek, UygulamaHatasi } from './hatalar';
 import { istekAnahtari } from './istekSiniri';
+import { GENEL_GOVDE_SINIRI } from './govdeSinirlari';
 import { kimlikRotalari } from './rotalar/kimlik';
 import { hesapRotalari } from './rotalar/hesap';
 import { degerlendirmeRotalari } from './rotalar/degerlendirme';
@@ -101,8 +102,17 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
         remove: true,
       },
     },
-    // Vücut fotoğrafı üç poz olarak gelebilir; sınır yine de dar tutulur.
-    bodyLimit: 12 * 1024 * 1024,
+    /**
+     * Gövde sınırı GENEL olarak dar; geniş sınır yalnız fotoğraf alan iki uçta.
+     *
+     * 12 MB'tı ve her uca uygulanıyordu — kimliksiz `/v1/kimlik/*` ve `/kanca` dahil.
+     * Yani doğrulamadan önce herkes 12 MB JSON ayrıştırtabiliyordu; değerlendirme
+     * cevabı ise bu boyutta çöp anahtarı tek satıra biriktirebiliyordu (2026-10-03
+     * güvenlik incelemesi). `FOTOGRAF_GOVDE_SINIRI` `vucut.ts` ve `tanima.ts`'te.
+     */
+    bodyLimit: GENEL_GOVDE_SINIRI,
+    // Yavaş gövde gönderen bağlantı (slowloris) süreci sonsuza dek tutmasın.
+    requestTimeout: 120_000,
     disableRequestLogging: yapilandirma.NODE_ENV === 'test',
 
     /**
@@ -120,10 +130,13 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
      * `kimlikSinir.test.ts` bunu göremezdi: `app.inject` her isteğe aynı sentetik
      * adresi verir, yani testte zaten "tek IP" durumu vardır.
      *
-     * Güvenli çünkü tek giriş Caddy: `reverse_proxy` `X-Forwarded-For`'u kendisi
-     * yazıyor, istemcinin gönderdiği başlığı taşımıyor.
+     * Yalnız TEK atlamaya güveniliyor (Caddy). `true` zincirin en solundaki adresi,
+     * yani istemcinin kendi yazabildiği değeri alırdı; bugün Caddy gelen başlığı
+     * eziyor diye güvenliydi, ama bu bir başkasının varsayılanına yaslanmaktı.
+     * Yalnız ilk atlama (soketin karşısındaki Caddy) güvenilir: adres, başlığın son
+     * girdisi — Caddy'nin kendi yazdığı gerçek istemci adresi.
      */
-    trustProxy: true,
+    trustProxy: (_adres: string, sira: number) => sira === 0,
   });
 
   app.decorate('db', db);
@@ -135,7 +148,8 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
   await app.register(helmet, { contentSecurityPolicy: false });
   await app.register(cors, {
     origin: yapilandirma.CORS_KAYNAKLAR === '*' ? true : yapilandirma.CORS_KAYNAKLAR.split(','),
-    credentials: true,
+    // Kimlik başlıkla taşınıyor, çerez yok: kimlik bilgili çapraz istek gerekmiyor.
+    credentials: false,
   });
   await app.register(jwt, {
     secret: yapilandirma.JWT_SECRET,
@@ -243,7 +257,9 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
       };
 
       // Beklenen istemci hatası: `warn`, `error` değil. İzlemeyi boğmamak için.
-      istek.log.warn({ hata, durumKodu }, 'istemci hatası');
+      // Hata nesnesinin TAMAMI loglanmıyor: Node'un JSON ayrıştırma hatası ham
+      // gövdeden bir kesit alıntılıyor ve o kesit bir parola olabilir.
+      istek.log.warn({ kod: (hata as { code?: string }).code, durumKodu }, 'istemci hatası');
 
       return cevap.status(durumKodu).send({
         kod: kodlar[durumKodu] ?? 'gecersiz_istek',
@@ -251,7 +267,13 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
       });
     }
 
-    istek.log.error({ hata }, 'beklenmeyen hata');
+    // pg hatasının `detail` alanı satır değerini taşıyor ("Key (email)=(…)"): loga
+    // kişisel veri düşmesin diye yalnız ad, kod, mesaj ve yığın yazılıyor.
+    const h = hata as { name?: string; code?: string; message?: string; stack?: string };
+    istek.log.error(
+      { hata: { ad: h.name, kod: h.code, mesaj: h.message, yigin: h.stack } },
+      'beklenmeyen hata',
+    );
     return cevap.status(500).send({
       kod: 'sunucu_hatasi',
       mesaj: 'Bir şeyler ters gitti. Tekrar deneyebilirsin.',

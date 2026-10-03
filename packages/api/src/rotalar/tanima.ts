@@ -17,6 +17,7 @@ import {
 } from '@swiip/core';
 import { veriYereli } from '@swiip/shared';
 import { Bulunamadi, HataliIstek, KotaDoldu, PlanYetersiz } from '../hatalar';
+import { FOTOGRAF_GOVDE_SINIRI } from '../govdeSinirlari';
 import {
   ai_usage,
   food_logs,
@@ -131,249 +132,253 @@ export async function tanimaRotalari(app: FastifyInstance): Promise<void> {
     return kayitlar as unknown as BesinKaydi[];
   }
 
-  app.post('/tani', { preHandler: app.kimlikDogrula }, async (istek) => {
-    const govde = tanimaSemasi.parse(istek.body);
-    const plan = await planGetir(istek.kullaniciId);
-    const haklar = planHaklari(plan);
+  app.post(
+    '/tani',
+    { preHandler: app.kimlikDogrula, bodyLimit: FOTOGRAF_GOVDE_SINIRI },
+    async (istek) => {
+      const govde = tanimaSemasi.parse(istek.body);
+      const plan = await planGetir(istek.kullaniciId);
+      const haklar = planHaklari(plan);
 
-    if (haklar.yemek_tanima_aylik === 0) {
-      throw PlanYetersiz(
-        'Fotoğraftan yemek tanıma Pro planda. Manuel giriş ve arama her planda sınırsız.',
-        'tanima_plan_yetersiz',
-      );
-    }
+      if (haklar.yemek_tanima_aylik === 0) {
+        throw PlanYetersiz(
+          'Fotoğraftan yemek tanıma Pro planda. Manuel giriş ve arama her planda sınırsız.',
+          'tanima_plan_yetersiz',
+        );
+      }
 
-    // --- 1. Yerel önbellek: AI çağrısı yok, kota yemez ---
-    const parmakIzi = gorselParmakIzi(govde.fotograf);
-    const [onbellek] = await db
-      .select()
-      .from(tanima_onbellegi)
-      .where(
-        and(
-          eq(tanima_onbellegi.user_id, istek.kullaniciId),
-          eq(tanima_onbellegi.photo_hash, parmakIzi),
-        ),
-      )
-      .limit(1);
-
-    const katalog = await besinKataloguGetir(veriYereli(await kullaniciDili(istek.kullaniciId)));
-
-    if (onbellek) {
-      await db
-        .update(tanima_onbellegi)
-        .set({ isabet_sayisi: onbellek.isabet_sayisi + 1, son_kullanim: new Date() })
+      // --- 1. Yerel önbellek: AI çağrısı yok, kota yemez ---
+      const parmakIzi = gorselParmakIzi(govde.fotograf);
+      const [onbellek] = await db
+        .select()
+        .from(tanima_onbellegi)
         .where(
           and(
             eq(tanima_onbellegi.user_id, istek.kullaniciId),
             eq(tanima_onbellegi.photo_hash, parmakIzi),
           ),
+        )
+        .limit(1);
+
+      const katalog = await besinKataloguGetir(veriYereli(await kullaniciDili(istek.kullaniciId)));
+
+      if (onbellek) {
+        await db
+          .update(tanima_onbellegi)
+          .set({ isabet_sayisi: onbellek.isabet_sayisi + 1, son_kullanim: new Date() })
+          .where(
+            and(
+              eq(tanima_onbellegi.user_id, istek.kullaniciId),
+              eq(tanima_onbellegi.photo_hash, parmakIzi),
+            ),
+          );
+
+        await kotaIsaretle(istek.kullaniciId, { onbellekten: true });
+
+        const kalemler = kalemleriEslestir(onbellek.kalemler_jsonb as TanimaKalemi[], katalog);
+        return tanimaCevabi({
+          parmakIzi,
+          kalemler,
+          kaynak: 'onbellek',
+          kotaDusuldu: false,
+          haklar,
+          kullanilan: await kotaOku(istek.kullaniciId),
+        });
+      }
+
+      /**
+       * Kota kontrolü: yalnızca gerçek AI çağrısı öncesi.
+       *
+       * Burada bir zamanlar `hataliTanimaTekrari: govde.tekrar_deneme` yazıyordu — yani
+       * "bu istek kotadan düşmesin" kararını **istemci veriyordu.** Sunucuda o
+       * kullanıcının önceki tanımasının başarısız olduğuna dair hiçbir kayıt yoktu.
+       * `{"fotograf": ..., "tekrar_deneme": true}` göndermek 250/ay tavanını tamamen
+       * atlatıyordu; `:214` altındaki not da bütçenin bu uçta uygulanmadığını söylediği
+       * için ikinci bir savunma da yoktu. Belgelenmiş en büyük riskimiz olan birim
+       * ekonomisine doğrudan açılan bir kapıydı.
+       *
+       * Alan kaldırıldı, kural KAYBOLMADI: "yanlış tanıma sonrası tekrar deneme kotadan
+       * düşmez" zaten rezerve-et/iade-et ile sağlanıyor. Başarısız denemenin hakkı üç
+       * yolun hepsinde geri veriliyor (okunamayan görsel, model hatası, boş sonuç), yani
+       * bir sonraki deneme zaten bedava. İstemcinin beyanı fazlalıktı; tek yaptığı
+       * atlatmaya kapı açmaktı.
+       */
+      const kotaDusecek = kotaDusulmeliMi({ onbellekten: false, hataliTanimaTekrari: false });
+
+      /**
+       * Model yoksa hak REZERVE EDİLMEDEN dönülür.
+       *
+       * Bu kontrol rezervasyondan sonra geliyordu ve iade etmeden fırlatıyordu: geçit
+       * yapılandırılmamışken her deneme, hiçbir çağrı yapılmadan kullanıcının aylık
+       * hakkından bir tane yiyordu.
+       */
+      const aiIstemcisi = app.aiIstemcisi;
+      if (!aiIstemcisi) {
+        throw HataliIstek(
+          'Görsel tanıma şu an kullanılamıyor. Yemeği elle arayıp ekleyebilirsin.',
+          'ai_kapali',
         );
+      }
 
-      await kotaIsaretle(istek.kullaniciId, { onbellekten: true });
+      /**
+       * Hak model çağrılmadan **önce** rezerve edilir.
+       *
+       * Eskiden "oku, çağır, artır" sırası vardı; aradaki boşlukta paralel istekler sınırı
+       * aşabiliyordu. Fotoğraf tanıma en pahalı iş: kota delinmesi doğrudan marj sızıntısı.
+       */
+      if (kotaDusecek) {
+        const rezerve = await kotaRezerveEt(db, {
+          kullaniciId: istek.kullaniciId,
+          donem: donemKodu(),
+          alan: 'food_photos_used',
+          satiriAc: true,
+          sinir: haklar.yemek_tanima_aylik,
+        });
 
-      const kalemler = kalemleriEslestir(onbellek.kalemler_jsonb as TanimaKalemi[], katalog);
-      return tanimaCevabi({
+        if (!rezerve) {
+          throw KotaDoldu(
+            `Bu ayki fotoğraf tanıma hakkın doldu (${haklar.yemek_tanima_aylik}). ` +
+              `${donemBitisi()} tarihinde sıfırlanır. Bu arada manuel giriş ve barkod sınırsız.`,
+            'tanima_kotasi_doldu',
+            { hak: haklar.yemek_tanima_aylik, yenilenme: donemBitisi() },
+          );
+        }
+      }
+
+      // --- 2. Tanıma: kalem listesi + miktar. Kalori DEĞİL. ---
+      /**
+       * Bütçe burada **ölçülüyor, uygulanmıyor.**
+       *
+       * Tanıma zaten en ucuz görsel seviyeden yapılıyor; inecek kademe yok. Geriye kalan tek
+       * kaldıraç çıktı uzunluğu, ama çıktı bir JSON kalem listesi — kısaltmak listeyi
+       * ortasından keser ve ödeme yapan kullanıcıya bozuk sonuç döndürür.
+       *
+       * Marjı koruma yeri koç sohbeti: orada kısalan şey anlatım, sayı değil.
+       */
+      const secim = modelSec('yemek_tanima');
+
+      /**
+       * Fotograf GORSEL olarak gidiyor, metne gomulmuyor.
+       *
+       * Eskiden `kullanici: JSON.stringify({ fotograf })` yaziliydi ve iki hasari birden
+       * vardi, ikisi de sessiz: model gorsel gormuyordu (tanima her zaman bos donuyordu)
+       * ve base64 dizesi token sayiliyordu (~900 yerine ~90.000). Yani ozellik hic
+       * calismiyor, ama en pahali istegi uretiyordu.
+       */
+      const gorsel = gorselHazirla(govde.fotograf);
+      if (!gorsel) {
+        if (kotaDusecek) {
+          await kotaIadeEt(db, {
+            kullaniciId: istek.kullaniciId,
+            donem: donemKodu(),
+            alan: 'food_photos_used',
+          });
+          await kotaIsaretle(istek.kullaniciId, { hatali: true });
+        }
+        throw HataliIstek(
+          'Bu dosyayı okuyamadım. JPEG, PNG veya WebP bir fotoğraf gönderebilir misin? ' +
+            'Bu deneme kotandan düşmedi.',
+          'gorsel_bicimi_desteklenmiyor',
+        );
+      }
+
+      let cevap;
+      try {
+        cevap = await aiIstemcisi.metinUret({
+          is: 'yemek_tanima',
+          sistem: TANIMA_SISTEM_MESAJI,
+          kullanici: 'Bu fotoğraftaki yemekleri ve miktarlarını çıkar.',
+          gorseller: [gorsel],
+          max_cikti_token: secim.max_cikti_token,
+        });
+      } catch (hata) {
+        /**
+         * Model çağrısı başarısızsa hak geri verilir: kullanıcı bizim hatamızı ödemez.
+         *
+         * Sayaç da burada artıyor. "Kotadan düşmeyen deneme" üç yoldan geliyor
+         * (okunamayan görsel, model hatası, boş sonuç) ama yalnızca sonuncusu
+         * sayılıyordu; `abonelik/durum` altındaki adalet sayacı bu yüzden gerçekte
+         * bağışladığımız hakların bir kısmını hiç göstermiyordu.
+         */
+        if (kotaDusecek) {
+          await kotaIadeEt(db, {
+            kullaniciId: istek.kullaniciId,
+            donem: donemKodu(),
+            alan: 'food_photos_used',
+          });
+          await kotaIsaretle(istek.kullaniciId, { hatali: true });
+        }
+        throw hata;
+      }
+
+      const cikti = tanimaCiktisiniAyristir(cevap.metin);
+
+      await db.insert(ai_usage).values({
+        user_id: istek.kullaniciId,
+        is_tipi: 'yemek_tanima',
+        model: cevap.model,
+        girdi_token: cevap.girdi_token,
+        cikti_token: cevap.cikti_token,
+        maliyet_usd: String(maliyetHesapla(secim.seviye, cevap)),
+        onbellekten: false,
+      });
+
+      if (cikti.kalemler.length === 0) {
+        /**
+         * Boş sonuç kullanıcının hatası değil; kota yemez — ve gerçekten YEMEMELİ.
+         *
+         * Yalnızca adalet sayacı artırılıyordu; rezerve edilen hak iade edilmiyordu.
+         * Kullanıcıya "Bu deneme kotandan düşmedi" deniyor, sayaç ise bir eksiliyordu.
+         */
+        if (kotaDusecek) {
+          await kotaIadeEt(db, {
+            kullaniciId: istek.kullaniciId,
+            donem: donemKodu(),
+            alan: 'food_photos_used',
+          });
+        }
+        await kotaIsaretle(istek.kullaniciId, { hatali: true });
+        throw HataliIstek(
+          'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
+            'elle arayabilirsin. Bu deneme kotandan düşmedi.',
+          'tanima_basarisiz',
+        );
+      }
+
+      // --- 3. Veritabanı eşleme: global düzeltme tablosu önce ---
+      const kalemler = await eslemeleriUygula(
+        cikti.kalemler,
+        katalog,
+        veriYereli(await kullaniciDili(istek.kullaniciId)),
+      );
+
+      // --- Önbelleğe yaz: aynı tabak ikinci kez AI çağrısı yapmaz ---
+      await db
+        .insert(tanima_onbellegi)
+        .values({
+          user_id: istek.kullaniciId,
+          photo_hash: parmakIzi,
+          kalemler_jsonb: cikti.kalemler,
+        })
+        .onConflictDoNothing();
+
+      // Hak yukarıda rezerve edildi; burada yalnızca adalet sayacı işleniyor.
+      if (!kotaDusecek) {
+        await kotaIsaretle(istek.kullaniciId, { hatali: true });
+      }
+
+      const cevapGovdesi = tanimaCevabi({
         parmakIzi,
         kalemler,
-        kaynak: 'onbellek',
-        kotaDusuldu: false,
+        kaynak: 'model',
+        kotaDusuldu: kotaDusecek,
         haklar,
         kullanilan: await kotaOku(istek.kullaniciId),
       });
-    }
 
-    /**
-     * Kota kontrolü: yalnızca gerçek AI çağrısı öncesi.
-     *
-     * Burada bir zamanlar `hataliTanimaTekrari: govde.tekrar_deneme` yazıyordu — yani
-     * "bu istek kotadan düşmesin" kararını **istemci veriyordu.** Sunucuda o
-     * kullanıcının önceki tanımasının başarısız olduğuna dair hiçbir kayıt yoktu.
-     * `{"fotograf": ..., "tekrar_deneme": true}` göndermek 250/ay tavanını tamamen
-     * atlatıyordu; `:214` altındaki not da bütçenin bu uçta uygulanmadığını söylediği
-     * için ikinci bir savunma da yoktu. Belgelenmiş en büyük riskimiz olan birim
-     * ekonomisine doğrudan açılan bir kapıydı.
-     *
-     * Alan kaldırıldı, kural KAYBOLMADI: "yanlış tanıma sonrası tekrar deneme kotadan
-     * düşmez" zaten rezerve-et/iade-et ile sağlanıyor. Başarısız denemenin hakkı üç
-     * yolun hepsinde geri veriliyor (okunamayan görsel, model hatası, boş sonuç), yani
-     * bir sonraki deneme zaten bedava. İstemcinin beyanı fazlalıktı; tek yaptığı
-     * atlatmaya kapı açmaktı.
-     */
-    const kotaDusecek = kotaDusulmeliMi({ onbellekten: false, hataliTanimaTekrari: false });
-
-    /**
-     * Model yoksa hak REZERVE EDİLMEDEN dönülür.
-     *
-     * Bu kontrol rezervasyondan sonra geliyordu ve iade etmeden fırlatıyordu: geçit
-     * yapılandırılmamışken her deneme, hiçbir çağrı yapılmadan kullanıcının aylık
-     * hakkından bir tane yiyordu.
-     */
-    const aiIstemcisi = app.aiIstemcisi;
-    if (!aiIstemcisi) {
-      throw HataliIstek(
-        'Görsel tanıma şu an kullanılamıyor. Yemeği elle arayıp ekleyebilirsin.',
-        'ai_kapali',
-      );
-    }
-
-    /**
-     * Hak model çağrılmadan **önce** rezerve edilir.
-     *
-     * Eskiden "oku, çağır, artır" sırası vardı; aradaki boşlukta paralel istekler sınırı
-     * aşabiliyordu. Fotoğraf tanıma en pahalı iş: kota delinmesi doğrudan marj sızıntısı.
-     */
-    if (kotaDusecek) {
-      const rezerve = await kotaRezerveEt(db, {
-        kullaniciId: istek.kullaniciId,
-        donem: donemKodu(),
-        alan: 'food_photos_used',
-        satiriAc: true,
-        sinir: haklar.yemek_tanima_aylik,
-      });
-
-      if (!rezerve) {
-        throw KotaDoldu(
-          `Bu ayki fotoğraf tanıma hakkın doldu (${haklar.yemek_tanima_aylik}). ` +
-            `${donemBitisi()} tarihinde sıfırlanır. Bu arada manuel giriş ve barkod sınırsız.`,
-          'tanima_kotasi_doldu',
-          { hak: haklar.yemek_tanima_aylik, yenilenme: donemBitisi() },
-        );
-      }
-    }
-
-    // --- 2. Tanıma: kalem listesi + miktar. Kalori DEĞİL. ---
-    /**
-     * Bütçe burada **ölçülüyor, uygulanmıyor.**
-     *
-     * Tanıma zaten en ucuz görsel seviyeden yapılıyor; inecek kademe yok. Geriye kalan tek
-     * kaldıraç çıktı uzunluğu, ama çıktı bir JSON kalem listesi — kısaltmak listeyi
-     * ortasından keser ve ödeme yapan kullanıcıya bozuk sonuç döndürür.
-     *
-     * Marjı koruma yeri koç sohbeti: orada kısalan şey anlatım, sayı değil.
-     */
-    const secim = modelSec('yemek_tanima');
-
-    /**
-     * Fotograf GORSEL olarak gidiyor, metne gomulmuyor.
-     *
-     * Eskiden `kullanici: JSON.stringify({ fotograf })` yaziliydi ve iki hasari birden
-     * vardi, ikisi de sessiz: model gorsel gormuyordu (tanima her zaman bos donuyordu)
-     * ve base64 dizesi token sayiliyordu (~900 yerine ~90.000). Yani ozellik hic
-     * calismiyor, ama en pahali istegi uretiyordu.
-     */
-    const gorsel = gorselHazirla(govde.fotograf);
-    if (!gorsel) {
-      if (kotaDusecek) {
-        await kotaIadeEt(db, {
-          kullaniciId: istek.kullaniciId,
-          donem: donemKodu(),
-          alan: 'food_photos_used',
-        });
-        await kotaIsaretle(istek.kullaniciId, { hatali: true });
-      }
-      throw HataliIstek(
-        'Bu dosyayı okuyamadım. JPEG, PNG veya WebP bir fotoğraf gönderebilir misin? ' +
-          'Bu deneme kotandan düşmedi.',
-        'gorsel_bicimi_desteklenmiyor',
-      );
-    }
-
-    let cevap;
-    try {
-      cevap = await aiIstemcisi.metinUret({
-        is: 'yemek_tanima',
-        sistem: TANIMA_SISTEM_MESAJI,
-        kullanici: 'Bu fotoğraftaki yemekleri ve miktarlarını çıkar.',
-        gorseller: [gorsel],
-        max_cikti_token: secim.max_cikti_token,
-      });
-    } catch (hata) {
-      /**
-       * Model çağrısı başarısızsa hak geri verilir: kullanıcı bizim hatamızı ödemez.
-       *
-       * Sayaç da burada artıyor. "Kotadan düşmeyen deneme" üç yoldan geliyor
-       * (okunamayan görsel, model hatası, boş sonuç) ama yalnızca sonuncusu
-       * sayılıyordu; `abonelik/durum` altındaki adalet sayacı bu yüzden gerçekte
-       * bağışladığımız hakların bir kısmını hiç göstermiyordu.
-       */
-      if (kotaDusecek) {
-        await kotaIadeEt(db, {
-          kullaniciId: istek.kullaniciId,
-          donem: donemKodu(),
-          alan: 'food_photos_used',
-        });
-        await kotaIsaretle(istek.kullaniciId, { hatali: true });
-      }
-      throw hata;
-    }
-
-    const cikti = tanimaCiktisiniAyristir(cevap.metin);
-
-    await db.insert(ai_usage).values({
-      user_id: istek.kullaniciId,
-      is_tipi: 'yemek_tanima',
-      model: cevap.model,
-      girdi_token: cevap.girdi_token,
-      cikti_token: cevap.cikti_token,
-      maliyet_usd: String(maliyetHesapla(secim.seviye, cevap)),
-      onbellekten: false,
-    });
-
-    if (cikti.kalemler.length === 0) {
-      /**
-       * Boş sonuç kullanıcının hatası değil; kota yemez — ve gerçekten YEMEMELİ.
-       *
-       * Yalnızca adalet sayacı artırılıyordu; rezerve edilen hak iade edilmiyordu.
-       * Kullanıcıya "Bu deneme kotandan düşmedi" deniyor, sayaç ise bir eksiliyordu.
-       */
-      if (kotaDusecek) {
-        await kotaIadeEt(db, {
-          kullaniciId: istek.kullaniciId,
-          donem: donemKodu(),
-          alan: 'food_photos_used',
-        });
-      }
-      await kotaIsaretle(istek.kullaniciId, { hatali: true });
-      throw HataliIstek(
-        'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
-          'elle arayabilirsin. Bu deneme kotandan düşmedi.',
-        'tanima_basarisiz',
-      );
-    }
-
-    // --- 3. Veritabanı eşleme: global düzeltme tablosu önce ---
-    const kalemler = await eslemeleriUygula(
-      cikti.kalemler,
-      katalog,
-      veriYereli(await kullaniciDili(istek.kullaniciId)),
-    );
-
-    // --- Önbelleğe yaz: aynı tabak ikinci kez AI çağrısı yapmaz ---
-    await db
-      .insert(tanima_onbellegi)
-      .values({
-        user_id: istek.kullaniciId,
-        photo_hash: parmakIzi,
-        kalemler_jsonb: cikti.kalemler,
-      })
-      .onConflictDoNothing();
-
-    // Hak yukarıda rezerve edildi; burada yalnızca adalet sayacı işleniyor.
-    if (!kotaDusecek) {
-      await kotaIsaretle(istek.kullaniciId, { hatali: true });
-    }
-
-    const cevapGovdesi = tanimaCevabi({
-      parmakIzi,
-      kalemler,
-      kaynak: 'model',
-      kotaDusuldu: kotaDusecek,
-      haklar,
-      kullanilan: await kotaOku(istek.kullaniciId),
-    });
-
-    return cikti.uyari ? { ...cevapGovdesi, model_uyarisi: cikti.uyari } : cevapGovdesi;
-  });
+      return cikti.uyari ? { ...cevapGovdesi, model_uyarisi: cikti.uyari } : cevapGovdesi;
+    },
+  );
 
   /** 4-5. Kullanıcı doğrulaması ve geri besleme. */
   app.post('/tani/onayla', { preHandler: app.kimlikDogrula }, async (istek) => {

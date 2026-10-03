@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
@@ -21,7 +22,7 @@ import { ai_usage, analytics_events, assessments, subscriptions, users } from '.
 
 /** Yönetim uçları yalnızca bu ortam değişkeni tanımlıysa açıktır. */
 function yonetimAnahtariniDogrula(app: FastifyInstance, anahtar: string | undefined): void {
-  const beklenen = process.env.YONETIM_ANAHTARI;
+  const beklenen = app.yapilandirma.YONETIM_ANAHTARI;
 
   if (!beklenen || beklenen.length < 32) {
     throw Yasak(
@@ -29,10 +30,12 @@ function yonetimAnahtariniDogrula(app: FastifyInstance, anahtar: string | undefi
       'yonetim_kapali',
     );
   }
-  if (anahtar !== beklenen) {
+  // Sabit zamanlı karşılaştırma: `!==` ilk farklı karakterde döner ve süre farkı
+  // anahtarı karakter karakter tahmin ettirir. Uzunluk farkı özetle eşitleniyor.
+  const ozet = (d: string) => createHash('sha256').update(d).digest();
+  if (anahtar === undefined || !timingSafeEqual(ozet(anahtar), ozet(beklenen))) {
     throw Yasak('Geçersiz yönetim anahtarı.', 'yonetim_yetkisiz');
   }
-  void app;
 }
 
 export async function analitikRotalari(app: FastifyInstance): Promise<void> {

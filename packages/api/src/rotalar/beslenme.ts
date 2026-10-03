@@ -319,7 +319,9 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
    * doğrulanmış kayıtları öne alır; bu sıralama bozulmaz.
    */
   app.get('/besin/barkod/:barkod', { preHandler: app.kimlikDogrula }, async (istek) => {
-    const { barkod } = z.object({ barkod: z.string().min(6).max(20) }).parse(istek.params);
+    // Yalnız rakam: barkod ortak katalogda saklanıyor (`foods`), serbest metin oraya
+    // yazılmasın. UPC-E 6, GTIN-14 14 hane.
+    const { barkod } = z.object({ barkod: z.string().regex(/^\d{6,14}$/) }).parse(istek.params);
 
     const [yerel] = await db.select().from(foods).where(eq(foods.barcode, barkod)).limit(1);
     if (yerel) return { ...yerel, kaynak: 'yerel' };
