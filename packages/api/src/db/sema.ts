@@ -53,6 +53,12 @@ export const users = pgTable(
     doktor_onayi_at: timestamp('doktor_onayi_at', { withTimezone: true }),
 
     email_dogrulandi_at: timestamp('email_dogrulandi_at', { withTimezone: true }),
+    /**
+     * Oturum sürümü (göç 0012). Erişim tokenı bunu `tv` olarak taşıyor; artınca hesabın
+     * bütün erişim tokenları anında geçersiz. Parola sıfırlama, çıkış ve çalınmış
+     * yenileme tokenı tespitinde artırılıyor.
+     */
+    token_surumu: integer('token_surumu').notNull().default(0),
     son_giris_at: timestamp('son_giris_at', { withTimezone: true }),
     /** Hesap silme talebi; gerçekten siler, işaretleyip bırakmaz. */
     silme_talebi_at: timestamp('silme_talebi_at', { withTimezone: true }),
@@ -78,6 +84,26 @@ export const refresh_tokens = pgTable(
     uniqueIndex('refresh_token_hash_idx').on(t.token_hash),
     index('refresh_user_idx').on(t.user_id),
   ],
+);
+
+/**
+ * Kayıt kodları (göç 0012) — hesap AÇILMADAN önce e-postaya gönderilen kod.
+ *
+ * Kullanıcıya değil e-postaya bağlı, çünkü kullanıcı henüz yok. Gerekçe göçte: kayıt
+ * yanıtı adresin kayıtlı olup olmadığını artık ele vermiyor.
+ */
+export const kayit_kodlari = pgTable(
+  'kayit_kodlari',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    email: text('email').notNull(),
+    kod_hash: text('kod_hash').notNull(),
+    expires_at: timestamp('expires_at', { withTimezone: true }).notNull(),
+    kullanildi_at: timestamp('kullanildi_at', { withTimezone: true }),
+    deneme_sayisi: integer('deneme_sayisi').notNull().default(0),
+    created_at: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('kayit_kodlari_email_idx').on(t.email, t.created_at)],
 );
 
 export const dogrulama_kodlari = pgTable(

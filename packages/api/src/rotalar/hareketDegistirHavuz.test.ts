@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { havuzHazirla, muadilZinciri } from '@swiip/core';
 import type { Profil } from '@swiip/shared';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Hareket değiştirmede muadil yalnızca kullanıcının HAVUZUNDAN gelir.
@@ -47,7 +48,7 @@ beforeAll(async () => {
   uygulama = await testUygulamasi();
   app = uygulama.app;
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'muadil-havuz@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

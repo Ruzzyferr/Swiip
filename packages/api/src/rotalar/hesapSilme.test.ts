@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Hesap silme — KVKK "unutulma hakkı"nın somut karşılığı.
@@ -47,7 +48,7 @@ beforeAll(async () => {
   uygulama = await testUygulamasi();
   app = uygulama.app;
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'silme@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -151,7 +152,7 @@ describe('onay olmadan silinmez', () => {
       method: 'DELETE',
       url: '/v1/hesap',
       headers: { authorization: `Bearer ${token}` },
-      payload: { onay: 'evet sil' },
+      payload: { onay: 'evet sil', parola: 'Kirmizi-Bisiklet-42' },
     });
 
     expect(cevap.statusCode).toBe(400);
@@ -168,7 +169,7 @@ describe('silme tüm izleri süpürür', () => {
       method: 'DELETE',
       url: '/v1/hesap',
       headers: { authorization: `Bearer ${token}` },
-      payload: { onay: 'HESABIMI SİL' },
+      payload: { onay: 'HESABIMI SİL', parola: 'Kirmizi-Bisiklet-42' },
     });
 
     expect(cevap.statusCode).toBe(200);

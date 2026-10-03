@@ -7,6 +7,7 @@ import { uygulamaOlustur } from '../uygulama';
 import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
 import { besinSorgusu, sayilariTemizle } from './koc';
 import { besinleriTohumla } from '../db/tohum';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Koç ucu (F9) bitti kriterleri:
@@ -60,7 +61,7 @@ beforeAll(async () => {
   });
   await app.ready();
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'koc@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

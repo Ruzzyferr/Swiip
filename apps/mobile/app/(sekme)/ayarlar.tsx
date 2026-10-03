@@ -25,7 +25,7 @@ import {
   Yukleniyor,
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
-import { ApiHatasi, istek } from '../../src/veri/api';
+import { istek } from '../../src/veri/api';
 import { veriyiPaylas } from '../../src/veri/disaAktar';
 import { useDil, useMetinler, useOturum } from '../../src/durum/Oturum';
 import { tarihMetni } from '@swiip/shared';
@@ -126,42 +126,11 @@ export default function Ayarlar() {
     }
   };
 
-  const hesabiSil = () => {
-    /*
-      Ödeyen kullanıcıya: hesap silmek mağaza aboneliğini iptal etmiyor. Söylenmezse
-      kullanıcı silinmiş bir hesap için ödemeye devam ediyor (Apple 5.1.1(v)).
-    */
-    const govde =
-      abonelik && abonelik.plan !== 'ucretsiz'
-        ? `${a.silOnayGovde}
-
-${a.silAbonelikNotu}`
-        : a.silOnayGovde;
-    Alert.alert(a.silOnayBaslik, govde, [
-      { text: metinler.genel.iptal, style: 'cancel' },
-      {
-        text: a.sil,
-        style: 'destructive',
-        onPress: () => {
-          /**
-           * Silme basarisiz olursa kullanici bunu OGRENMELI.
-           *
-           * Once `void istek(...).then(...)` yaziliyordu: istek patlarsa yakalanmamis
-           * bir promise reddi kaliyor, ekran degismiyor ve kullanici hesabinin
-           * silindigini saniyordu. KVKK baglaminda bu, sessizce tutulmamis bir soz.
-           */
-          void istek('/v1/hesap', { yontem: 'DELETE', govde: { onay: 'HESABIMI SİL' } })
-            .then(() => cikisYap())
-            .then(() => router.replace('/'))
-            .catch((h) =>
-              setIslemHatasi(
-                h instanceof ApiHatasi ? h.mesaj : islemHatasiMetni('hesap_sil', aktifDil),
-              ),
-            );
-        },
-      },
-    ]);
-  };
+  /**
+   * Silme kendi ekranında: sunucu parolayı şart koşuyor ve Android'in onay penceresi
+   * metin alanı almıyor. Gerekçe `app/ayarlar/hesap-sil.tsx`.
+   */
+  const hesabiSil = () => router.push('/ayarlar/hesap-sil');
 
   const diliDegistir = async (dil: Dil) => {
     setDilYukleniyor(true);

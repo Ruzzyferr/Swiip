@@ -9,6 +9,7 @@ import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 import { uygulamaOlustur } from '../uygulama';
 import { sahteBarkodSaglayici } from '../servisler/barkod';
 import { VARSAYILAN_SAAT_DILIMI, yerelGunISO } from '../gun';
+import { kayitIstegi } from '../test/kayit';
 
 let uygulama: TestUygulama;
 let app: FastifyInstance;
@@ -19,7 +20,7 @@ beforeAll(async () => {
   app = uygulama.app;
   await besinleriTohumla(uygulama.ortam.db);
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'beslenme@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

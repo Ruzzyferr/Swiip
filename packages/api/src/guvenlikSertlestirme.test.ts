@@ -12,6 +12,7 @@ import { SIFIRLAMA_SINIRI } from './rotalar/kimlik';
 import { CEVAP_SINIRLARI } from './rotalar/degerlendirme';
 import { GENEL_GOVDE_SINIRI } from './govdeSinirlari';
 import { UYGULAMA_ROLU, uygulamaRolunuKur } from './db/uygulamaRolu';
+import { kayitIstegi } from './test/kayit';
 
 /**
  * 2026-10-03 güvenlik denetiminin kilitleri.
@@ -200,7 +201,7 @@ describe('uygulama uçları', () => {
   });
 
   async function kayit(email: string) {
-    const yanit = await app.inject({
+    const yanit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -252,16 +253,12 @@ describe('uygulama uçları', () => {
       for (let i = 0; i < 3; i++) {
         const y = await sinirli.inject({
           method: 'POST',
-          url: '/v1/kimlik/kayit',
-          payload: {
-            email: `seri${i}@swiip.app`,
-            parola: 'Kirmizi-Bisiklet-42',
-            saglik_onayi: true,
-          },
+          url: '/v1/kimlik/kayit-kod',
+          payload: { email: `seri${i}@swiip.app` },
         });
         kodlar.push(y.statusCode);
       }
-      expect(kodlar).toEqual([201, 201, 429]);
+      expect(kodlar).toEqual([200, 200, 429]);
     } finally {
       await sinirli.close();
     }

@@ -23,6 +23,7 @@ export default function AyarlarDuzeni() {
     <Stack screenOptions={secenekler}>
       <Stack.Screen name="bildirimler" options={{ title: m.sayfaBasligi }} />
       <Stack.Screen name="kaynaklar" options={{ title: metinler.kaynaklar.baslik }} />
+      <Stack.Screen name="hesap-sil" options={{ title: metinler.ayarlar.silOnayBaslik }} />
     </Stack>
   );
 }

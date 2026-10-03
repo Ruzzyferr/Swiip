@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Vücut analizi ucu (F4).
@@ -29,7 +30,7 @@ let sayac = 0;
 
 async function yeniKullanici(dil?: 'tr' | 'en'): Promise<string> {
   sayac += 1;
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {

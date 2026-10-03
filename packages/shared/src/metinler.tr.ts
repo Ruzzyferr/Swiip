@@ -282,6 +282,29 @@ export const tr = {
    * dayanikli.
    */
   postalar: {
+    kayitKodu: {
+      konu: 'Swiip hesap açma kodun',
+      govde: (d: Record<string, string | number>) =>
+        [
+          `Swiip hesabını açmak için kodun: ${d.kod}`,
+          '',
+          `Kod ${d.dakika} dakika geçerli.`,
+          '',
+          'Bu isteği sen yapmadıysan bir şey yapmana gerek yok; bu adresle hesap açılmadı.',
+          'Kimse senden bu kodu istemeyecek. Biz de istemeyiz.',
+        ].join('\n'),
+    },
+    zatenHesapVar: {
+      konu: 'Swiip hesabın zaten var',
+      govde: () =>
+        [
+          'Bu e-posta adresiyle yeni bir Swiip hesabı açılmak istendi, ama bu adresin zaten bir hesabı var.',
+          '',
+          'Sen istediysen uygulamada "Giriş yap"ı kullanabilirsin. Parolanı hatırlamıyorsan giriş ekranındaki "Parolamı unuttum" ile sıfırlayabilirsin.',
+          '',
+          'Bu isteği sen yapmadıysan bir şey yapmana gerek yok; hesabında hiçbir şey değişmedi.',
+        ].join('\n'),
+    },
     parolaSifirlama: {
       konu: 'Swiip parola sıfırlama kodun',
       govde: (d: Record<string, string | number>) =>
@@ -316,6 +339,11 @@ export const tr = {
     riza_gerekli: () =>
       'Sağlık verilerin özel nitelikli kişisel veridir; işleyebilmemiz için açık rıza vermen gerekiyor.',
     eposta_kullanimda: () => 'Bu e-posta ile bir hesap zaten var. Giriş yapmayı deneyebilirsin.',
+    kayit_kodu_gerekli: () =>
+      'Hesap açmak için uygulamanın güncel sürümü gerekiyor. Uygulamayı güncelleyip tekrar dene.',
+    parola_gerekli: () =>
+      'Hesabını silmek için parolanı girmen gerekiyor. Bu seçenek uygulamanın güncel sürümünde.',
+    parola_hatali: () => 'Parola yanlış. Hesabın silinmedi.',
     tanima_basarisiz: () =>
       'Fotoğrafta tanıyabildiğim bir yemek yok. Daha yakından ve daha aydınlık çekebilir ya da ' +
       'elle arayabilirsin. Bu deneme kotandan düşmedi.',
@@ -421,6 +449,9 @@ export const tr = {
     sifirlama_kodu_gonderildi: () =>
       'Bu adrese kayıtlı bir hesap varsa sıfırlama kodu gönderildi. Gelen kutunu ve ' +
       'gereksiz klasörünü kontrol et.',
+    kayit_kodu_gonderildi: (d: Record<string, string | number>) =>
+      `E-postana ${d.dakika} dakika geçerli bir kod gönderdik. Bu adresle zaten bir hesabın ` +
+      'varsa kod yerine bunu bildiren bir e-posta gelir. Gelen kutunu ve gereksiz klasörünü kontrol et.',
   },
   /** Çizim hatası ekranı. Beyaz ekran yerine ne olduğunu söyleyen bir sayfa. */
   hataEkrani: {
@@ -576,6 +607,12 @@ export const tr = {
       olcumRizasi: 'Çevre ölçülerimin işlenmesine açık rıza veriyorum',
       olcumRizasiAciklama: 'İsteğe bağlı. Vermezsen yağ oranı tahmini daha geniş bir aralık olur.',
       gonder: 'Hesabı aç ve değerlendirmeye başla',
+      devam: 'Devam et',
+      kodBasligi: 'E-postanı kontrol et',
+      kodEtiketi: 'E-postadaki 6 haneli kod',
+      kodErisim: 'Hesap açma kodu',
+      tekrarGonder: 'Kodu tekrar gönder',
+      epostayiDegistir: 'E-postayı değiştir',
       kullanimKosullari: 'Kullanım koşulları',
       gizlilikPolitikasi: 'Gizlilik politikası',
       yasNotu: 'Uygulamayı 18 yaş ve üzeri kullanabilir.',
@@ -1533,6 +1570,9 @@ Hesabım: ${eposta}
       'Hesabını silmek mağaza aboneliğini iptal ETMEZ. Ücret kesilmeye devam etmesin ' +
       'istiyorsan önce aboneliği iptal et.',
     sil: 'Sil',
+    silParolaEtiketi: 'Parolan',
+    silParolaAciklama: 'Hesabın sana ait olduğunu doğrulamak için parolanı gir.',
+    silKaliciDugme: 'Hesabımı kalıcı olarak sil',
     planKotaBasligi: 'Plan ve kota',
     planEtiketi: 'Plan',
     kotaAdaletNotu:

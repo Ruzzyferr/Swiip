@@ -5,6 +5,7 @@ import { sandboxYokSayilsinMi } from './abonelik';
 import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
 import { eq } from 'drizzle-orm';
 import { subscriptions } from '../db/sema';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * RevenueCat web kancası (F6.1).
@@ -46,7 +47,7 @@ beforeAll(async () => {
   });
   await app.ready();
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'kanca@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -440,7 +441,7 @@ describe('kanca ortam ve kimlik ayrımı', () => {
 describe('kanca: kayıt zamanı sıra korumasını tetiklemiyor', () => {
   it('damgası kayıt anından ÖNCE olan satın alma yine de işleniyor', async () => {
     const eposta = `sira-kayit-${Date.now()}@swiip.app`;
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email: eposta, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -478,7 +479,7 @@ describe('kanca: kayıt zamanı sıra korumasını tetiklemiyor', () => {
  */
 describe('kanca: plan yazmayan olay sırayı bozmaz', () => {
   it('iptalden sonra teslim edilen daha eski yenileme süreyi uzatır', async () => {
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: {
@@ -529,7 +530,7 @@ describe('kanca: plan yazmayan olay sırayı bozmaz', () => {
   });
 
   it('plan yazan daha yeni olay hâlâ eskisini engeller', async () => {
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email: 'sira-hala@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

@@ -4,6 +4,7 @@ import { uygulamaOlustur } from '../uygulama';
 import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
 import { body_analyses } from '../db/sema';
 import { eq } from 'drizzle-orm';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Vücut analizi hakkı EŞZAMANLI istekte de tek kalıyor mu?
@@ -81,7 +82,7 @@ beforeAll(async () => {
   });
   await app.ready();
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'yaris@swiip.app', parola: 'Yesil-Defter-91', saglik_onayi: true },
@@ -180,7 +181,7 @@ describe('görsel model başarısız olduğunda', () => {
   let hataKullaniciId: string;
 
   beforeAll(async () => {
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email: 'iade@swiip.app', parola: 'Yesil-Defter-91', saglik_onayi: true },

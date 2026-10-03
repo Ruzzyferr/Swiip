@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Sağlık kapılarının uçtaki karşılığı.
@@ -33,7 +34,7 @@ const TEMEL = {
 };
 
 async function kur(email: string, cevaplar: Record<string, unknown>): Promise<string> {
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

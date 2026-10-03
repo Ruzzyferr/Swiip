@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 import { besinleriTohumla, tarifleriTohumla } from '../db/tohum';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * A kullanıcısı B'nin verisine dokunabiliyor mu?
@@ -56,7 +57,7 @@ const CEVAPLAR = {
 const HAFTA = '2026-08-17';
 
 async function kur(email: string): Promise<Kullanici> {
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true, olcum_onayi: true },

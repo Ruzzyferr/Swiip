@@ -7,6 +7,7 @@ import { TARIF_TOHUMU } from '../db/tarifler';
 import { tarifMakrolariniHesapla } from '../db/malzemeEslemesi';
 import { eq } from 'drizzle-orm';
 import { shopping_lists } from '../db/sema';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Öğün planlama ucu (F8) bitti kriterleri:
@@ -48,7 +49,7 @@ async function kullaniciKur(
   ekCevaplar: Record<string, unknown> = {},
   plan: 'ucretsiz' | 'temel' | 'pro' = 'temel',
 ): Promise<string> {
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

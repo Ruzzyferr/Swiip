@@ -9,7 +9,7 @@ import {
   tokenOzeti,
   tokenUret,
 } from '../kimlik/parola';
-import { dogrulama_kodlari, refresh_tokens, subscriptions, users } from '../db/sema';
+import { dogrulama_kodlari, kayit_kodlari, refresh_tokens, subscriptions, users } from '../db/sema';
 import {
   KOD_DENEME_SINIRI,
   kodGecerliMi,
@@ -17,12 +17,20 @@ import {
   kodUret,
   KOD_OMRU_DAKIKA,
 } from '../kimlik/kod';
-import { epostaDogrulamaPostasi, parolaSifirlamaPostasi } from '../servisler/postaci';
+import {
+  epostaDogrulamaPostasi,
+  kayitKoduPostasi,
+  parolaSifirlamaPostasi,
+  zatenHesapVarPostasi,
+} from '../servisler/postaci';
 import { DILLER } from '@swiip/shared';
 import { istekSayaciKur } from '../servisler/istekSayaci';
 
 /** Hesap başına parola sıfırlama kodu sınırı. Gerekçe `/parola-sifirla-istek`te. */
 export const SIFIRLAMA_SINIRI = { saatlik: 3, gunluk: 10 };
+
+/** E-posta başına kayıt kodu sınırı — sıfırlamayla aynı gerekçe. */
+export const KAYIT_KODU_SINIRI = { saatlik: 3, gunluk: 10 };
 
 /**
  * Kimlik akışları.
@@ -33,8 +41,18 @@ export const SIFIRLAMA_SINIRI = { saatlik: 3, gunluk: 10 };
  *    ikinci kullanımda zincir kırılır.
  */
 
+const kayitKoduSemasi = z.object({
+  email: z.string().email('Geçerli bir e-posta gir.').max(254),
+  locale: z.string().min(2).max(35).default('tr-TR'),
+});
+
 const kayitSemasi = z.object({
   email: z.string().email('Geçerli bir e-posta gir.').max(254),
+  /**
+   * E-postaya gelen kod. Zorunlu — ama eksikliği şema hatası değil, AÇIK bir kodla
+   * dönülüyor: kodu göndermeyen eski uygulama sürümü kullanıcıya "güncelle" diyebilsin.
+   */
+  kod: z.string().optional(),
   parola: z.string().min(1).max(200),
   /** KVKK: sağlık verisi özel niteliklidir, açık rıza şarttır. */
   saglik_onayi: z.boolean(),
@@ -148,7 +166,13 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
   }
 
   async function oturumAc(kullaniciId: string, cihaz?: string) {
-    const erisim_token = app.jwt.sign({ sub: kullaniciId });
+    const [surum] = await db
+      .select({ tv: users.token_surumu })
+      .from(users)
+      .where(eq(users.id, kullaniciId))
+      .limit(1);
+    // `tv`: oturum sürümü. Kimlik katmanı her istekte hesabınkiyle karşılaştırıyor.
+    const erisim_token = app.jwt.sign({ sub: kullaniciId, tv: surum?.tv ?? 0 });
     const ham = tokenUret();
 
     const sonGecerlilik = new Date();
@@ -164,6 +188,17 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     return { erisim_token, yenileme_token: ham };
   }
 
+  /**
+   * Hesabın bütün erişim tokenlarını ANINDA geçersiz kılar (oturum sürümünü artırır).
+   * Yenileme tokenları ayrıca iptal ediliyor; ikisi birlikte "her yerden çıkış".
+   */
+  async function oturumSurumunuArtir(kullaniciId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ token_surumu: sql`${users.token_surumu} + 1` })
+      .where(eq(users.id, kullaniciId));
+  }
+
   const kayitSiniri = async (istek: FastifyRequest, cevap: FastifyReply) => {
     if (!kayitSayaci.izinVar(istek.ip, Date.now())) {
       await cevap.code(429).send({
@@ -173,8 +208,99 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     }
   };
 
-  app.post('/kayit', { preHandler: [darSinir, kayitSiniri] }, async (istek, cevap) => {
+  /**
+   * Kayıt, iki adım: önce e-postaya kod, sonra kodla hesap.
+   *
+   * Tek adımdı ve kayıtlı bir adres için 409 "bu e-posta ile bir hesap zaten var"
+   * dönüyordu: herkes, herhangi bir adresin Swiip'te — bir sağlık uygulamasında —
+   * hesabı olup olmadığını öğrenebiliyordu. Bu dosyanın başındaki ilk kural tam olarak
+   * bunu yasaklıyor.
+   *
+   * Artık yanıt HER ZAMAN aynı. Adres boştaysa kod gidiyor; kayıtlıysa sahibine "zaten
+   * hesabın var" postası gidiyor. Bilgi yalnız posta kutusunun sahibine ulaşıyor.
+   *
+   * Yan kazanç: her hesap gerçek bir posta kutusu istiyor ve e-postası doğrulanmış
+   * doğuyor. Hesap çiftliği (her ücretsiz hesap bir AI analizi hakkıyla doğuyor) artık
+   * her hesap için ayrı bir gelen kutusu gerektiriyor.
+   */
+  app.post('/kayit-kod', { preHandler: [darSinir, kayitSiniri] }, async (istek) => {
+    const { email, locale } = kayitKoduSemasi.parse(istek.body);
+
+    // Eski kodlar e-posta adresi taşıyor (kişisel veri); bir günden fazla kalmasın.
+    await db
+      .delete(kayit_kodlari)
+      .where(sql`${kayit_kodlari.created_at} < now() - interval '1 day'`);
+
+    const [sayim] = await db
+      .select({
+        saat: sql<number>`count(*) filter (where ${kayit_kodlari.created_at} > now() - interval '1 hour')`,
+        gun: sql<number>`count(*)`,
+      })
+      .from(kayit_kodlari)
+      .where(sql`lower(${kayit_kodlari.email}) = lower(${email})`);
+    const sinirda =
+      Number(sayim?.saat ?? 0) >= KAYIT_KODU_SINIRI.saatlik ||
+      Number(sayim?.gun ?? 0) >= KAYIT_KODU_SINIRI.gunluk;
+
+    if (sinirda) {
+      istek.log.warn('kayıt kodu: e-posta başına sınır doldu');
+    } else {
+      const [mevcut] = await db
+        .select({ locale: users.locale })
+        .from(users)
+        .where(sql`lower(${users.email}) = lower(${email})`)
+        .limit(1);
+
+      // Önceki açık kodlar kapanıyor: aynı anda tek geçerli kod.
+      await db
+        .update(kayit_kodlari)
+        .set({ kullanildi_at: new Date() })
+        .where(
+          and(
+            sql`lower(${kayit_kodlari.email}) = lower(${email})`,
+            isNull(kayit_kodlari.kullanildi_at),
+          ),
+        );
+
+      // Kayıtlı adres için de satır yazılıyor — kullanılamaz (hemen kapalı) ama
+      // sayılıyor: sınır iki durumda da aynı işlesin.
+      const kod = kodUret();
+      await db.insert(kayit_kodlari).values({
+        email,
+        kod_hash: tokenOzeti(kod),
+        expires_at: kodSonGecerlilik(),
+        ...(mevcut ? { kullanildi_at: new Date() } : {}),
+      });
+
+      const posta = mevcut
+        ? zatenHesapVarPostasi(email, mevcut.locale)
+        : kayitKoduPostasi(email, kod, KOD_OMRU_DAKIKA, locale);
+      const sonuc = await app.postaci.gonder(posta);
+      if (!sonuc.gonderildi) {
+        istek.log.warn({ sebep: sonuc.sebep }, 'kayıt postası gönderilemedi');
+      }
+    }
+
+    return {
+      durum: 'gonderildi',
+      kod: 'kayit_kodu_gonderildi',
+      degerler: { dakika: KOD_OMRU_DAKIKA },
+      mesaj:
+        `E-postana ${KOD_OMRU_DAKIKA} dakika geçerli bir kod gönderdik. Bu adresle zaten bir ` +
+        'hesabın varsa kod yerine bunu bildiren bir e-posta gelir. Gelen kutunu ve gereksiz klasörünü kontrol et.',
+      gecerlilik_dakika: KOD_OMRU_DAKIKA,
+    };
+  });
+
+  app.post('/kayit', { preHandler: darSinir }, async (istek, cevap) => {
     const govde = kayitSemasi.parse(istek.body);
+
+    if (!govde.kod) {
+      throw HataliIstek(
+        'Hesap açmak için uygulamanın güncel sürümü gerekiyor. Uygulamayı güncelleyip tekrar dene.',
+        'kayit_kodu_gerekli',
+      );
+    }
 
     if (!govde.saglik_onayi) {
       throw HataliIstek(
@@ -186,23 +312,43 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     const guc = parolaGucKontrolu(govde.parola);
     if (!guc.gecerli) throw HataliIstek(guc.mesaj!, guc.kod ?? 'zayif_parola', guc.degerler);
 
-    const mevcut = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(sql`lower(${users.email}) = lower(${govde.email})`)
+    const [kodKaydi] = await db
+      .select()
+      .from(kayit_kodlari)
+      .where(
+        and(
+          sql`lower(${kayit_kodlari.email}) = lower(${govde.email})`,
+          isNull(kayit_kodlari.kullanildi_at),
+        ),
+      )
+      .orderBy(sql`${kayit_kodlari.created_at} desc`)
       .limit(1);
 
-    if (mevcut.length > 0) {
-      throw Cakisma(
-        'Bu e-posta ile bir hesap zaten var. Giriş yapmayı deneyebilirsin.',
-        'eposta_kullanimda',
-      );
+    const kodTutuyor = kodKaydi ? kodGecerliMi(kodKaydi, govde.kod) : false;
+    if (kodKaydi && !kodTutuyor) {
+      // Yanlış deneme sayılıyor; sınırda kod yanıyor. Tek cümle: paralel denemeler sınırı delemesin.
+      await db
+        .update(kayit_kodlari)
+        .set({
+          deneme_sayisi: sql`${kayit_kodlari.deneme_sayisi} + 1`,
+          kullanildi_at: sql`case when ${kayit_kodlari.deneme_sayisi} + 1 >= ${KOD_DENEME_SINIRI} then now() else ${kayit_kodlari.kullanildi_at} end`,
+        })
+        .where(eq(kayit_kodlari.id, kodKaydi.id));
     }
+    if (!kodKaydi || !kodTutuyor) {
+      throw Yetkisiz('Kod geçersiz veya süresi dolmuş.', 'kod_gecersiz');
+    }
+    const tuketilen = await db
+      .update(kayit_kodlari)
+      .set({ kullanildi_at: new Date() })
+      .where(and(eq(kayit_kodlari.id, kodKaydi.id), isNull(kayit_kodlari.kullanildi_at)))
+      .returning({ id: kayit_kodlari.id });
+    if (tuketilen.length === 0) throw Yetkisiz('Kod geçersiz veya süresi dolmuş.', 'kod_gecersiz');
 
     const simdi = new Date();
     /**
-     * Varlık kontrolü ile yazma arasında ikinci bir kayıt (çift dokunuş) geçebiliyor.
-     * O durumda benzersiz indeks yazmayı reddediyor; çakışma 500 değil 409 olmalı.
+     * Buraya ulaşan kişi posta kutusunun sahibi olduğunu kanıtladı; adres bu arada
+     * (yarış) kayıtlı hâle geldiyse 409 artık kimseye yabancı bir bilgi vermiyor.
      */
     const [kullanici] = await db
       .insert(users)
@@ -211,6 +357,8 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
         parola_hash: await parolaHashle(govde.parola),
         locale: govde.locale,
         consent_health: simdi,
+        // Kod e-postaya gitti ve geri geldi: adres doğrulanmış.
+        email_dogrulandi_at: simdi,
         ...(govde.olcum_onayi ? { consent_measurements: simdi } : {}),
         ...(govde.yurt_disi_onayi ? { consent_yurt_disi: simdi } : {}),
       })
@@ -292,6 +440,8 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
           .update(refresh_tokens)
           .set({ iptal_at: new Date() })
           .where(and(eq(refresh_tokens.user_id, iptalli.user_id), isNull(refresh_tokens.iptal_at)));
+        // Saldırganın elindeki erişim tokenı da ölsün — yalnız yenileme zinciri değil.
+        await oturumSurumunuArtir(iptalli.user_id);
         app.log.warn(
           { kullaniciId: iptalli.user_id },
           'iptal edilmiş yenileme tokenı tekrar sunuldu; zincir kırıldı',
@@ -320,6 +470,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
         .update(refresh_tokens)
         .set({ iptal_at: new Date() })
         .where(and(eq(refresh_tokens.user_id, kayit.user_id), isNull(refresh_tokens.iptal_at)));
+      await oturumSurumunuArtir(kayit.user_id);
       app.log.warn(
         { kullaniciId: kayit.user_id },
         'yenileme tokenı eşzamanlı iki kez sunuldu; zincir kırıldı',
@@ -342,6 +493,13 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
           eq(refresh_tokens.user_id, istek.kullaniciId),
         ),
       );
+
+    /**
+     * Çıkış bu cihazın erişim tokenını da ANINDA öldürüyor (oturum sürümü). Bedeli: diğer
+     * cihazların erişim tokenı da düşüyor — ama onların yenileme tokenı geçerli,
+     * uygulama 401'de sessizce yeniliyor (`veri/api.ts`), kullanıcı bir şey fark etmiyor.
+     */
+    await oturumSurumunuArtir(istek.kullaniciId);
 
     return { durum: 'cikildi' };
   });
@@ -470,11 +628,13 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       .set({ parola_hash: await parolaHashle(govde.yeni_parola) })
       .where(eq(users.id, kullanici.id));
 
-    // Parola değişince tüm oturumlar kapanır: tokenı çalan kişi içeride kalmaz.
+    // Parola değişince tüm oturumlar kapanır: tokenı çalan kişi içeride kalmaz —
+    // erişim tokenı dahil (oturum sürümü), 15 dakikalık ömrünü doldurmayı beklemeden.
     await db
       .update(refresh_tokens)
       .set({ iptal_at: new Date() })
       .where(and(eq(refresh_tokens.user_id, kullanici.id), isNull(refresh_tokens.iptal_at)));
+    await oturumSurumunuArtir(kullanici.id);
 
     return {
       durum: 'degistirildi',

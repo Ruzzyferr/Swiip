@@ -7,6 +7,7 @@ import type { FastifyInstance } from 'fastify';
 import * as sema from '../db/sema';
 import { coach_messages } from '../db/sema';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * KVKK erişim hakkı: dışa aktarma GERÇEKTEN tüm kişisel veriyi içeriyor mu?
@@ -64,7 +65,7 @@ describe('dışa aktarma kapsamı', () => {
   });
 
   it('koç mesajları dosyada yer alıyor', async () => {
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email: 'kvkk-koc@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

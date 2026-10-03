@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Beslenme kısayollarının kilidi önceden söyleniyor (F6.4, F6.7).
@@ -28,7 +29,7 @@ afterAll(async () => {
 });
 
 async function kullaniciKur(eposta: string): Promise<string> {
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: eposta, parola: 'Mor-Kalem-2026', saglik_onayi: true },

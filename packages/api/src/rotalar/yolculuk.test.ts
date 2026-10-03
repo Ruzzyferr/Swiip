@@ -3,6 +3,7 @@ import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
 import { sonrakiSoru, type Cevaplar } from '@swiip/core';
 import { tr } from '@swiip/shared';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Uçtan uca kullanıcı yolculuğu.
@@ -19,7 +20,7 @@ beforeAll(async () => {
   uygulama = await testUygulamasi();
   app = uygulama.app;
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {

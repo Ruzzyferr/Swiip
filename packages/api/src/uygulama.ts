@@ -182,9 +182,12 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
 
   app.decorate('kimlikDogrula', async (istek) => {
     let kullaniciId: string;
+    let tokenSurumu: number;
     try {
-      const yuk = await istek.jwtVerify<{ sub: string }>();
+      const yuk = await istek.jwtVerify<{ sub: string; tv?: number }>();
       kullaniciId = yuk.sub;
+      // `tv` olmayan token oturum sürümü eklenmeden önce basıldı; sürüm 0 sayılıyor.
+      tokenSurumu = yuk.tv ?? 0;
     } catch {
       throw yetkisiz();
     }
@@ -202,12 +205,19 @@ export async function uygulamaOlustur(secenekler: UygulamaSecenekleri): Promise<
      * görmemeli.
      */
     const [kullanici] = await db
-      .select({ id: users.id })
+      .select({ id: users.id, tv: users.token_surumu })
       .from(users)
       .where(eq(users.id, kullaniciId))
       .limit(1);
 
     if (!kullanici) throw yetkisiz();
+
+    /**
+     * Oturum sürümü (göç 0012). İmzalı token sunucudan geri alınamıyordu: parola
+     * sıfırlansa ya da çalınmış bir yenileme tokenı yakalansa bile eldeki erişim tokenı
+     * 15 dakika daha geçerliydi. Sürüm artınca bütün eski tokenlar burada düşüyor.
+     */
+    if (kullanici.tv !== tokenSurumu) throw yetkisiz();
 
     istek.kullaniciId = kullaniciId;
   });

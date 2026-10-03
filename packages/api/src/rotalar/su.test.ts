@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { suHedefiMl } from '@swiip/core';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Su takibi.
@@ -27,7 +28,7 @@ afterAll(async () => {
 });
 
 async function kullaniciKur(eposta: string, cinsiyet = 'Erkek'): Promise<string> {
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: eposta, parola: 'Mor-Kalem-2026', saglik_onayi: true },

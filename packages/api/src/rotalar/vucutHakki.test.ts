@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Vücut analizi hakkı gerçekten uygulanıyor mu? (F4, F6.4)
@@ -29,7 +30,7 @@ beforeAll(async () => {
   uygulama = await testUygulamasi();
   app = uygulama.app;
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'hak@swiip.app', parola: 'Yesil-Defter-91', saglik_onayi: true },
@@ -110,7 +111,7 @@ describe('ücretsiz planda vücut analizi', () => {
  */
 describe('vücut analizi sayacı gösterimi', () => {
   async function kullaniciAc(email: string): Promise<string> {
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email, parola: 'Yesil-Defter-91', saglik_onayi: true },

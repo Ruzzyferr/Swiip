@@ -134,3 +134,19 @@ export function epostaDogrulamaPostasi(
   const m = metinleriAl(dilCozumle(locale)).postalar.epostaDogrulama;
   return { alici, konu: m.konu, govde: m.govde({ kod, dakika }) };
 }
+
+export function kayitKoduPostasi(
+  alici: string,
+  kod: string,
+  dakika: number,
+  locale?: string | null,
+): Posta {
+  const m = metinleriAl(dilCozumle(locale)).postalar.kayitKodu;
+  return { alici, konu: m.konu, govde: m.govde({ kod, dakika }) };
+}
+
+/** Kayıtlı bir adrese kayıt kodu istendiğinde: yanıt aynı kalıyor, bilgi yalnız sahibine gidiyor. */
+export function zatenHesapVarPostasi(alici: string, locale?: string | null): Posta {
+  const m = metinleriAl(dilCozumle(locale)).postalar.zatenHesapVar;
+  return { alici, konu: m.konu, govde: m.govde() };
+}

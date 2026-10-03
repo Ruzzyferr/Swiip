@@ -852,9 +852,20 @@ ifade değer DOLUYKEN değeri basar. Dört sır (`AI_GATEWAY_KEY`, `POSTA_API_KE
 sunucuda döndürüldü; diğer üçü sağlayıcı panelinden döndürülmeli (Vercel AI Gateway,
 Resend, RevenueCat webhook + sunucu `.env`). Sır kontrolünde `${x:+VAR}` tek başına.
 
-**Bilerek yapılmayanlar:** e-posta doğrulamasını AI için şart koşmak (ürün akışı
-değişir, inceleme hesapları etkilenir); hesap silmede parola tekrar sorma (mobil arayüz
-gerekir); erişim tokenının parola sıfırlamada anında iptali (15 dk ömür kabul edildi).
+**İkinci tur (kullanıcı "hiçbir açık kalmasın" dedi) — ilk turda bırakılan üçü de kapandı:**
+
+| Açık | Çözüm | Bedel |
+|---|---|---|
+| Kayıt 409 ile e-postanın kayıtlı olduğunu söylüyordu | İki adımlı kayıt: `/kayit-kod` → `/kayit` (kod zorunlu). Yanıt her durumda aynı; kayıtlı adrese "zaten hesabın var" postası gidiyor. Hesaplar e-postası doğrulanmış doğuyor — hesap çiftliği artık her hesap için ayrı posta kutusu istiyor | 1.2.0 öncesi uygulamalar kayıt olamaz (`kayit_kodu_gerekli`, "güncelle") |
+| Erişim tokenı 15 dk geri alınamıyordu | `users.token_surumu`, token'da `tv`; çıkış, parola sıfırlama ve çalınmış yenileme tokenı tespitinde artıyor | Çıkış diğer cihazların erişim tokenını da düşürüyor; uygulama 401'de sessizce yeniliyor |
+| Hesap silme yalnız token istiyordu | Parola şart, hesap başına saatte 5 deneme; silme kendi ekranında (`app/ayarlar/hesap-sil.tsx`) | Eski uygulamalardan silinemez (`parola_gerekli`); site üzerinden e-postayla silme duruyor |
+
+Kilitler: `kimlikSertlestirme.test.ts` (kayıt gerçek posta kutusundan okunan kodla;
+mutasyonla sınandı). Testlerdeki kayıtlar `test/kayit.ts` → `kayitIstegi` üzerinden.
+
+**Dağıtım sırası bu yüzden zorunluydu:** sunucu, incelemedeki/canlıdaki uygulamanın
+kayıt ve silme akışını kırıyor. Önce incelemedeki gönderim geri çekildi, sonra sunucu
+dağıtıldı, sonra yeni derleme gönderildi.
 
 ## Açık işler
 

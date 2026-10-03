@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 import { foods, recipes } from '../db/sema';
 import { besinleriTohumla, tarifleriTohumla } from '../db/tohum';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Besin ve tarif verisi yerele göre ayrışıyor (F10.2, F10.4).
@@ -34,7 +35,7 @@ beforeAll(async () => {
   await besinleriTohumla(uygulama.ortam.db);
   await tarifleriTohumla(uygulama.ortam.db);
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'yerel@swiip.app', parola: 'Sari-Kalem-1907', saglik_onayi: true },

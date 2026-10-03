@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 import { besinleriTohumla, tarifleriTohumla } from '../db/tohum';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * "Kaydırmalı öğün değiştirme" gerçekten değiştiriyor mu?
@@ -66,7 +67,7 @@ beforeAll(async () => {
   await besinleriTohumla(uygulama.ortam.db);
   await tarifleriTohumla(uygulama.ortam.db);
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: {

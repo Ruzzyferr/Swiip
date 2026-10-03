@@ -1,7 +1,9 @@
 import { asc, eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
-import { HataliIstek, Yetkisiz } from '../hatalar';
+import { HataliIstek, UygulamaHatasi, Yasak, Yetkisiz } from '../hatalar';
+import { parolaKarsilastir } from '../kimlik/parola';
+import { istekSayaciKur } from '../servisler/istekSayaci';
 import {
   assessments,
   body_analyses,
@@ -32,6 +34,9 @@ import {
  */
 
 const SILME_ONAY_METNI = 'HESABIMI SİL';
+
+/** Hesap başına saatte en çok bu kadar silme denemesi. Gerekçe `DELETE /`'ta. */
+export const SILME_DENEME_SINIRI = 5;
 
 export async function hesapRotalari(app: FastifyInstance): Promise<void> {
   const { db } = app;
@@ -136,8 +141,29 @@ export async function hesapRotalari(app: FastifyInstance): Promise<void> {
     };
   });
 
+  /**
+   * Hesap silme PAROLA istiyor.
+   *
+   * Yalnız erişim tokenı ve bir onay metni yetiyordu: tokenı ele geçiren biri — açık
+   * bırakılmış bir telefon da olur — hesabı ve bütün sağlık verisini geri dönüşsüz
+   * silebiliyordu. Parola yalnız sahibinin bildiği şey.
+   *
+   * Yanlış parola hesap başına saatte `SILME_DENEME_SINIRI` kez denenebilir: çalınmış
+   * bir token bu ucu parola tahmin makinesine çeviremesin.
+   */
+  const silmeSayaci = istekSayaciKur({ sinir: SILME_DENEME_SINIRI, pencereMs: 60 * 60_000 });
+
   app.delete('/', { preHandler: app.kimlikDogrula }, async (istek) => {
-    const { onay } = z.object({ onay: z.string() }).parse(istek.body);
+    const { onay, parola } = z
+      .object({ onay: z.string(), parola: z.string().max(200).optional() })
+      .parse(istek.body);
+
+    if (!parola) {
+      throw HataliIstek(
+        'Hesabını silmek için parolanı girmen gerekiyor. Bu seçenek uygulamanın güncel sürümünde.',
+        'parola_gerekli',
+      );
+    }
 
     if (onay !== SILME_ONAY_METNI) {
       throw HataliIstek(
@@ -145,6 +171,22 @@ export async function hesapRotalari(app: FastifyInstance): Promise<void> {
         'onay_gerekli',
         { onay: SILME_ONAY_METNI },
       );
+    }
+
+    if (!silmeSayaci.izinVar(istek.kullaniciId, Date.now())) {
+      throw new UygulamaHatasi(
+        429,
+        'cok_fazla_istek',
+        'Çok fazla deneme yapıldı. Bir saat sonra tekrar dene.',
+      );
+    }
+    const [sahip] = await db
+      .select({ parola_hash: users.parola_hash })
+      .from(users)
+      .where(eq(users.id, istek.kullaniciId))
+      .limit(1);
+    if (!sahip || !(await parolaKarsilastir(parola, sahip.parola_hash))) {
+      throw Yasak('Parola yanlış. Hesabın silinmedi.', 'parola_hatali');
     }
 
     // Cascade zinciri: tüm bağlı kayıtlar bu tek silmeyle gider.

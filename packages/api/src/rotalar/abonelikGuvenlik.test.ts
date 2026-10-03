@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { HAK_TABLOSU } from '../servisler/haklar';
 import { tr } from '@swiip/shared';
 import { urunPlani } from './abonelik';
+import { kayitIstegi } from '../test/kayit';
 
 const SATIR_SONU = String.fromCharCode(10);
 
@@ -68,7 +69,7 @@ beforeAll(async () => {
   });
   await uretimApp.ready();
 
-  const kayit = await uretimApp.inject({
+  const kayit = await kayitIstegi(uretimApp, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'paywall@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

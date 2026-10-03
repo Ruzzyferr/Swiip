@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Çerçeveden gelen 4xx hataları 500'e düşmemeli.
@@ -29,7 +30,7 @@ beforeAll(async () => {
   uygulama = await testUygulamasi();
   app = uygulama.app;
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'cerceve@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },

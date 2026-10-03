@@ -1,7 +1,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { sql as sqlHam } from 'drizzle-orm';
+import { eq, sql as sqlHam } from 'drizzle-orm';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
+import { kayitIstegi } from '../test/kayit';
+import { users } from '../db/sema';
 
 let uygulama: TestUygulama;
 let app: FastifyInstance;
@@ -22,7 +24,7 @@ const gecerliKayit = {
 };
 
 async function kayitOl(govde: Record<string, unknown>) {
-  return app.inject({ method: 'POST', url: '/v1/kimlik/kayit', payload: govde });
+  return kayitIstegi(app, { method: 'POST', url: '/v1/kimlik/kayit', payload: govde });
 }
 
 describe('POST /v1/kimlik/kayit', () => {
@@ -284,7 +286,7 @@ describe('KVKK — hesap silme ve veri dışa aktarma', () => {
       method: 'DELETE',
       url: '/v1/hesap',
       headers: { authorization: `Bearer ${erisim_token}` },
-      payload: { onay: 'HESABIMI SİL' },
+      payload: { onay: 'HESABIMI SİL', parola: 'Kirmizi-Bisiklet-42' },
     });
     expect(silme.statusCode).toBe(200);
 
@@ -304,7 +306,7 @@ describe('KVKK — hesap silme ve veri dışa aktarma', () => {
       method: 'DELETE',
       url: '/v1/hesap',
       headers: { authorization: `Bearer ${erisim_token}` },
-      payload: { onay: 'evet' },
+      payload: { onay: 'evet', parola: 'Kirmizi-Bisiklet-42' },
     });
 
     expect(cevap.statusCode).toBe(400);
@@ -531,6 +533,12 @@ describe('e-posta doğrulama', () => {
   it('kod gönderilir ve doğrulama çalışır', async () => {
     const kayit = await kayitOl({ ...gecerliKayit, email: 'dogrula@swiip.app' });
     const basliklar = { authorization: `Bearer ${kayit.json().erisim_token}` };
+    // Kayıt artık e-postayı doğrulayarak açıyor; bu uç kayıt kodundan ÖNCE açılmış
+    // hesaplar için duruyor. O durumu kur.
+    await uygulama.ortam.db
+      .update(users)
+      .set({ email_dogrulandi_at: null })
+      .where(eq(users.email, 'dogrula@swiip.app'));
 
     const gonder = await app.inject({
       method: 'POST',

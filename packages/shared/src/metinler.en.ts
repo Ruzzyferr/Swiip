@@ -264,6 +264,29 @@ export const en: Metinler = {
     },
   },
   postalar: {
+    kayitKodu: {
+      konu: 'Your Swiip sign-up code',
+      govde: (d: Record<string, string | number>) =>
+        [
+          `Your code to create your Swiip account: ${d.kod}`,
+          '',
+          `The code is valid for ${d.dakika} minutes.`,
+          '',
+          'If you did not request this, you need to do nothing; no account was created with this address.',
+          'Nobody will ask you for this code. Neither will we.',
+        ].join('\n'),
+    },
+    zatenHesapVar: {
+      konu: 'You already have a Swiip account',
+      govde: () =>
+        [
+          'Someone asked to create a new Swiip account with this email address, but this address already has an account.',
+          '',
+          'If it was you, use "Log in" in the app. If you do not remember your password, reset it with "Forgot password" on the login screen.',
+          '',
+          'If you did not request this, you need to do nothing; nothing changed in your account.',
+        ].join('\n'),
+    },
     parolaSifirlama: {
       konu: 'Your Swiip password reset code',
       govde: (d: Record<string, string | number>) =>
@@ -298,6 +321,11 @@ export const en: Metinler = {
     riza_gerekli: () =>
       'Your health data is special-category personal data; we need your explicit consent to process it.',
     eposta_kullanimda: () => 'An account with this email already exists. You can try signing in.',
+    kayit_kodu_gerekli: () =>
+      'Creating an account needs the latest version of the app. Please update the app and try again.',
+    parola_gerekli: () =>
+      'Enter your password to delete your account. This option is in the latest version of the app.',
+    parola_hatali: () => 'Wrong password. Your account was not deleted.',
     tanima_basarisiz: () =>
       'I cannot recognise a meal in this photo. You can shoot closer and better lit, or search ' +
       'manually. This attempt did not use your quota.',
@@ -387,6 +415,9 @@ export const en: Metinler = {
     sifirlama_kodu_gonderildi: () =>
       'If an account exists for this address, a reset code has been sent. Check your inbox ' +
       'and your spam folder.',
+    kayit_kodu_gonderildi: (d: Record<string, string | number>) =>
+      `We sent a code to your email, valid for ${d.dakika} minutes. If you already have an ` +
+      'account with this address, you get an email saying so instead. Check your inbox and spam folder.',
   },
   /** Render-error screen. A page that explains itself instead of a blank one. */
   hataEkrani: {
@@ -508,6 +539,12 @@ export const en: Metinler = {
       olcumRizasiAciklama:
         'Optional. Without it, the body fat estimate comes out as a wider range.',
       gonder: 'Create account and start the assessment',
+      devam: 'Continue',
+      kodBasligi: 'Check your email',
+      kodEtiketi: 'The 6-digit code in the email',
+      kodErisim: 'Sign-up code',
+      tekrarGonder: 'Send the code again',
+      epostayiDegistir: 'Change email',
       kullanimKosullari: 'Terms of use',
       gizlilikPolitikasi: 'Privacy policy',
       yasNotu: 'Swiip is for ages 18 and over.',
@@ -1383,6 +1420,9 @@ My account: ${eposta}
       'Deleting your account does NOT cancel your store subscription. Cancel the ' +
       'subscription first if you do not want to keep being charged.',
     sil: 'Delete',
+    silParolaEtiketi: 'Your password',
+    silParolaAciklama: 'Enter your password to confirm the account is yours.',
+    silKaliciDugme: 'Delete my account permanently',
     planKotaBasligi: 'Plan and quota',
     planEtiketi: 'Plan',
     kotaAdaletNotu:

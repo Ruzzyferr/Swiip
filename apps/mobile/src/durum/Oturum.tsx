@@ -52,6 +52,8 @@ interface OturumDurumu {
 export interface KayitGirdisi {
   email: string;
   parola: string;
+  /** E-postaya gelen kayıt kodu (`/v1/kimlik/kayit-kod`). */
+  kod: string;
   saglik_onayi: boolean;
   olcum_onayi?: boolean;
 }

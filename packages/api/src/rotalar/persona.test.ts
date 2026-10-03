@@ -3,6 +3,7 @@ import type { FastifyInstance, LightMyRequestResponse } from 'fastify';
 import { ATLANDI, gorunurSorular, type Cevaplar } from '@swiip/core';
 import { testUygulamasi, type TestUygulama } from '../test/uygulama';
 import { besinleriTohumla, tarifleriTohumla } from '../db/tohum';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Persona yolculukları — dört farklı insan, uçtan uca.
@@ -39,7 +40,7 @@ interface Kisi {
 }
 
 async function kayitOl(email: string): Promise<Kisi> {
-  const cevap = await app.inject({
+  const cevap = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true, olcum_onayi: true },

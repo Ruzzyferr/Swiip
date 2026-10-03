@@ -6,6 +6,7 @@ import { testVeritabaniAc, type TestOrtami } from '../test/veritabani';
 import { besinleriTohumla } from '../db/tohum';
 import { PLAN_AYLIK_BUTCE_USD } from '@swiip/core';
 import { ai_usage } from '../db/sema';
+import { kayitIstegi } from '../test/kayit';
 
 /**
  * Yemek tanıma ucu (F7).
@@ -77,7 +78,7 @@ beforeAll(async () => {
   });
   await app.ready();
 
-  const kayit = await app.inject({
+  const kayit = await kayitIstegi(app, {
     method: 'POST',
     url: '/v1/kimlik/kayit',
     payload: { email: 'tanima@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -277,7 +278,7 @@ describe('POST /v1/beslenme/tani/onayla', () => {
 
   /** Ek bir Pro hesabı açar ve tokenını döner. */
   async function yeniPro(eposta: string): Promise<string> {
-    const kayit = await app.inject({
+    const kayit = await kayitIstegi(app, {
       method: 'POST',
       url: '/v1/kimlik/kayit',
       payload: { email: eposta, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -332,7 +333,7 @@ describe('POST /v1/beslenme/tani/onayla', () => {
     const hedef = besin.json().sonuclar.at(-1);
 
     for (const e of ['sahte-oy-1@swiip.app', 'sahte-oy-2@swiip.app', 'sahte-oy-3@swiip.app']) {
-      const kayit = await app.inject({
+      const kayit = await kayitIstegi(app, {
         method: 'POST',
         url: '/v1/kimlik/kayit',
         payload: { email: e, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
@@ -571,7 +572,7 @@ describe('model bağlı değilken', () => {
     const { testUygulamasi } = await import('../test/uygulama');
     const yalin = await testUygulamasi();
     try {
-      const kayit = await yalin.app.inject({
+      const kayit = await kayitIstegi(yalin.app, {
         method: 'POST',
         url: '/v1/kimlik/kayit',
         payload: { email: 'modelsiz@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
