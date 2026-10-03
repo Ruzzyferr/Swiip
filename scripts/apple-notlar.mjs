@@ -23,7 +23,6 @@ import { apple } from './apple-api.mjs';
 
 const KOK = join(dirname(fileURLToPath(import.meta.url)), '..');
 const KAYNAK = join(KOK, 'magaza/appstore/inceleme-notlari.md');
-const INCELEME_DETAYI = '31422b95-9d10-44a1-8c17-cb7efa09e443';
 const SINIR = 4000;
 
 function argAl(ad) {
@@ -83,6 +82,30 @@ if (metin.length > SINIR) {
   );
   process.exit(1);
 }
+
+/**
+ * Hedef: DÜZENLENEBİLİR sürümün inceleme kaydı.
+ *
+ * Burada 1.0'ın kayıt kimliği sabit yazılıydı. Her sürümün kendi inceleme kaydı var ve
+ * Apple yeni sürüme öncekinin notlarını KOPYALIYOR; sabit kimliğe yazmak, yayındaki eski
+ * sürümün notunu değiştirip incelemeye giden sürümü eski metinle bırakmak demekti.
+ */
+const UYG = '6803979374';
+const surumler = await apple(
+  `/apps/${UYG}/appStoreVersions?filter[platform]=IOS&limit=10&fields[appStoreVersions]=versionString,appStoreState`,
+);
+const duzenlenebilir = surumler.data.find((v) =>
+  ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED'].includes(
+    v.attributes.appStoreState,
+  ),
+);
+if (!duzenlenebilir) {
+  console.error('Düzenlenebilir sürüm yok (hepsi incelemede ya da yayında).');
+  process.exit(1);
+}
+const detay = await apple(`/appStoreVersions/${duzenlenebilir.id}/appStoreReviewDetail`);
+const INCELEME_DETAYI = detay.data.id;
+console.log(`Hedef: ${duzenlenebilir.attributes.versionString} (${INCELEME_DETAYI})`);
 
 await apple(`/appStoreReviewDetails/${INCELEME_DETAYI}`, {
   method: 'PATCH',
