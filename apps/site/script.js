@@ -123,19 +123,26 @@
    *
    * Uydurma örnek koymadık: bunların hepsi motorun ürettiği karar izlerinin biçimi.
    * Sayfanın iddiası "gerekçeyi gösteririz" — örnek uydurmak o iddiayı çürütürdü.
+   *
+   * Soru kimlikleri ve kural adları `data/sorular.json` ve `packages/core` ile
+   * eşleşmeli. Değerlendirme sekiz karta indirildiğinde burası güncellenmemişti:
+   * "S7" artık doktor kısıtı, "T2" istenmeyen hareketler, "A8" teknik güveni
+   * soruyordu ve `bel_yuku_yuksek` diye bir kural motorda hiç yoktu. Bel fıtığı
+   * S17 → `eksenel_yuk_yasak`, uyku Y1 → `uyku_kisa`, ekipman E3 → `ekipman_yok`.
+   * Tekrar tavanı bir soru cevabından değil, seans sonrası geri bildirimden doğuyor.
    */
   const IZLER = [
     {
       cevap: 'Bel fıtığı tanısı aldım',
-      soru: 'S7',
-      kural: 'bel_yuku_yuksek',
+      soru: 'S17',
+      kural: 'eksenel_yuk_yasak',
       onceki: 'Yerden çekiş',
       sonraki: 'Kalça itme',
       not: 'Aynı kas zincirini çalıştıran, bele eksenel yük bindirmeyen muadil.',
     },
     {
       cevap: 'Gecede 5-6 saat uyuyorum',
-      soru: 'T2',
+      soru: 'Y1',
       kural: 'uyku_kisa',
       onceki: 'Haftada 18 set',
       sonraki: 'Haftada 16 set',
@@ -143,7 +150,7 @@
     },
     {
       cevap: 'Evde antrenman yapacağım · Dambıl var',
-      soru: 'E1',
+      soru: 'E3',
       kural: 'ekipman_yok',
       onceki: 'Barbell bench press',
       sonraki: 'Dambıl göğüs presi',
@@ -151,7 +158,7 @@
     },
     {
       cevap: 'Şınavda 20 tekrara ulaştım',
-      soru: 'A8',
+      soru: 'Seans',
       kural: 'tekrar_tavani',
       onceki: 'Şınav · 20 tekrar',
       sonraki: 'Arkadan yükseltilmiş şınav',
