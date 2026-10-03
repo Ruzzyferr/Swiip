@@ -14,25 +14,39 @@ YEDEK_DIZINI="${YEDEK_DIZINI:-/yedekler}"
 SAKLAMA_GUN="${YEDEK_SAKLAMA_GUN:-30}"
 DAMGA="$(date -u +%Y%m%dT%H%M%SZ)"
 DOSYA="${YEDEK_DIZINI}/swiip-${DAMGA}.dump"
+# Dump önce GEÇİCİ adla yazılıyor ve yalnızca boyut + bütünlük kontrolünden geçerse
+# `.dump` adını alıyor. Doğrudan `.dump`'a yazılıyordu: pg_dump yarıda düştüğünde
+# ya da kontroller başarısız olduğunda bozuk dosya `swiip-*.dump` adıyla kalıyor,
+# `yedek-indir.mjs` onu sağlam bir yedek sanıp bu makineye çekiyor ve saklama
+# sayacı onu da sayıyordu. Başarısız dosya `.bozuk` uzantısıyla incelemeye kalır.
+GECICI="${DOSYA}.yaziliyor"
 
 mkdir -p "$YEDEK_DIZINI"
 
 echo "[$(date -u +%FT%TZ)] yedek başlıyor: ${DOSYA}"
 
 # Özel biçim: seçmeli geri yükleme ve paralel restore mümkün olsun.
-pg_dump --format=custom --compress=9 --no-owner --no-privileges --file="$DOSYA"
+if ! pg_dump --format=custom --compress=9 --no-owner --no-privileges --file="$GECICI"; then
+  mv -f "$GECICI" "${DOSYA}.bozuk" 2> /dev/null || true
+  echo "HATA: pg_dump başarısız. ${DOSYA}.bozuk" >&2
+  exit 1
+fi
 
-BOYUT="$(wc -c < "$DOSYA")"
+BOYUT="$(wc -c < "$GECICI")"
 if [ "$BOYUT" -lt 4096 ]; then
-  echo "HATA: yedek şüpheli derecede küçük (${BOYUT} bayt). Silinmiyor, incele." >&2
+  mv -f "$GECICI" "${DOSYA}.bozuk"
+  echo "HATA: yedek şüpheli derecede küçük (${BOYUT} bayt). Silinmiyor, incele: ${DOSYA}.bozuk" >&2
   exit 1
 fi
 
 # Bütünlük kontrolü: dosya gerçekten okunabiliyor mu?
-if ! pg_restore --list "$DOSYA" > /dev/null 2>&1; then
-  echo "HATA: yedek okunamıyor, bozuk. ${DOSYA}" >&2
+if ! pg_restore --list "$GECICI" > /dev/null 2>&1; then
+  mv -f "$GECICI" "${DOSYA}.bozuk"
+  echo "HATA: yedek okunamıyor, bozuk. ${DOSYA}.bozuk" >&2
   exit 1
 fi
+
+mv -f "$GECICI" "$DOSYA"
 
 echo "[$(date -u +%FT%TZ)] yedek tamam: ${DOSYA} (${BOYUT} bayt)"
 

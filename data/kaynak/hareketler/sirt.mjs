@@ -26,6 +26,13 @@ export default [
       'Çenen barı geçtiğinde bir an dur, sonra kontrollü in.',
       'Aşağıda kolları tam gevşetme, omuz ekleminde gerginliği koru.',
     ],
+    talimat_en: [
+      'Grip the bar slightly wider than shoulder width with your palms facing forward.',
+      'While hanging, pull your shoulders down and don’t let your body swing.',
+      'Drive your elbows down and back to bring your chest toward the bar.',
+      'Pause for a moment once your chin clears the bar, then lower under control.',
+      'Don’t fully relax your arms at the bottom; keep tension in the shoulder joint.',
+    ],
   },
   {
     id: 'yardimli-barfiks',
@@ -53,6 +60,13 @@ export default [
       'Bandın seni fırlatmasına izin verme; iniş de kontrollü olsun.',
       'Zamanla daha ince banda geç, sonra bandı bırak.',
     ],
+    talimat_en: [
+      'Loop a resistance band around the bar and place your knee or foot in it.',
+      'The thicker the band, the more assistance it gives.',
+      'Pull your shoulders down first, then rise by driving your elbows back.',
+      'Don’t let the band launch you; keep the descent controlled too.',
+      'Over time, move to a thinner band, then drop the band entirely.',
+    ],
   },
   {
     id: 'lat-pulldown',
@@ -79,6 +93,13 @@ export default [
       'Barı köprücük kemiğine doğru çek, dirsekleri aşağı ve geriye götür.',
       'Barı ensene indirme; bu omuz için gereksiz risk.',
     ],
+    talimat_en: [
+      'Adjust the knee pad so your legs can’t lift off.',
+      'Grip the bar wider than shoulder width.',
+      'Don’t lean too far back; 10-15 degrees is enough.',
+      'Pull the bar toward your collarbone, driving your elbows down and back.',
+      'Don’t pull the bar behind your neck; it’s an unnecessary risk for the shoulders.',
+    ],
   },
   {
     id: 'barbell-row',
@@ -104,6 +125,13 @@ export default [
       'Barı göbek hizasına çek, dirsekleri gövdeye yakın tut.',
       'Yukarıda kürek kemiklerini birbirine sıkıştır.',
       'İndirirken barı serbest bırakma, kontrollü indir.',
+    ],
+    talimat_en: [
+      'Hinge forward at the hips so your torso is at about 45 degrees to the floor.',
+      'Keep your lower back flat; if your back rounds, reduce the weight.',
+      'Pull the bar to navel height, keeping your elbows close to your body.',
+      'At the top, squeeze your shoulder blades together.',
+      'Don’t let the bar drop on the way down; lower it under control.',
     ],
   },
   {
@@ -132,6 +160,13 @@ export default [
       'Yukarıda kürek kemiğini omurgaya doğru sık.',
       'Gövdeni döndürerek ağırlığı savurma; hareket koldan gelsin.',
     ],
+    talimat_en: [
+      'Place one knee and the same-side hand on a bench.',
+      'Keep your back flat and parallel to the floor, with your neck in line with your torso.',
+      'Pull the dumbbell toward your hip, driving your elbow back.',
+      'At the top, squeeze your shoulder blade toward your spine.',
+      'Don’t rotate your torso to swing the weight; the movement should come from your arm.',
+    ],
   },
   {
     id: 'kablo-oturarak-cekis',
@@ -157,6 +192,13 @@ export default [
       'Tutamağı göbeğine doğru çek, dirseklerin gövdeye yakın kalsın.',
       'Yukarıda kürekleri sık, gövdeni geriye yatırma.',
       'Bırakırken gövden öne düşmesin, sadece kollar uzasın.',
+    ],
+    talimat_en: [
+      'Plant your feet on the platform and keep your knees slightly bent.',
+      'Sit upright with your lower back in its natural curve.',
+      'Pull the handle toward your navel, keeping your elbows close to your body.',
+      'Squeeze your shoulder blades at the end; don’t lean your torso back.',
+      'On the return, don’t let your torso fall forward; only your arms should extend.',
     ],
   },
   {
@@ -184,6 +226,13 @@ export default [
       'Bırakırken omuzların öne yuvarlanmasına izin verme.',
       'Gövdeni pedden ayırarak ekstra ağırlık çekme.',
     ],
+    talimat_en: [
+      'Adjust the chest pad so it sits at the middle of your chest.',
+      'Rest your chest against the pad and keep your torso still.',
+      'Pull the handles back and squeeze your shoulder blades together.',
+      'On the return, don’t let your shoulders round forward.',
+      'Don’t lift your torso off the pad to pull extra weight.',
+    ],
   },
   {
     id: 't-bar-row',
@@ -209,6 +258,13 @@ export default [
       'Kalçandan öne eğil, belini düz tut.',
       'Barı göğsünün altına doğru çek, dirsekleri geriye götür.',
       'Yukarıda bir an dur, kontrollü indir.',
+    ],
+    talimat_en: [
+      'Anchor one end of the bar in a corner and load plates on the other end.',
+      'Stand over the bar so it sits between your legs.',
+      'Hinge forward at the hips and keep your back flat.',
+      'Pull the bar toward your lower chest, driving your elbows back.',
+      'Pause for a moment at the top, then lower under control.',
     ],
   },
   {
@@ -236,6 +292,13 @@ export default [
       'Aşağıda sırtının yan tarafını sık.',
       'Dirseğini bükerek çekme; bu bir triceps hareketi değil.',
     ],
+    talimat_en: [
+      'Set the pulley above head height and hold a straight bar.',
+      'Take a step back and hinge slightly forward at the hips.',
+      'With your arms nearly straight, bring the bar down toward your hips.',
+      'At the bottom, squeeze the sides of your back.',
+      'Don’t pull by bending your elbows; this isn’t a triceps exercise.',
+    ],
   },
   {
     id: 'ters-kavrama-lat-pulldown',
@@ -262,6 +325,13 @@ export default [
       'Dirseklerini gövdene yakın tutarak aşağı ve geriye götür.',
       'Bileğini bükme, düz bir çizgi olarak tut.',
     ],
+    talimat_en: [
+      'Grip the bar at shoulder width with your palms facing you.',
+      'Lock your knees under the pad and lean back slightly.',
+      'Pull the bar to your upper chest.',
+      'Keep your elbows close to your body as you drive them down and back.',
+      'Don’t bend your wrists; keep them in a straight line.',
+    ],
   },
   {
     id: 'face-pull',
@@ -287,6 +357,13 @@ export default [
       'Çekişin sonunda elleri kulaklarının hizasında iki yana ayır.',
       'Kürek kemiklerini sıkıştır, omuzlarını kaldırma.',
       'Ağır çalışma; bu hareket omuz sağlığı için, rekor için değil.',
+    ],
+    talimat_en: [
+      'Set the pulley to face height and attach a rope handle.',
+      'As you pull the rope toward your face, keep your elbows at shoulder height.',
+      'At the end of the pull, spread your hands apart at ear level.',
+      'Squeeze your shoulder blades together without shrugging your shoulders.',
+      'Don’t go heavy; this exercise is for shoulder health, not for records.',
     ],
   },
   {
@@ -315,6 +392,13 @@ export default [
       'Kürek kemiklerini birbirine yaklaştır.',
       'Boynunu yukarı kaldırma, bakışın yerde kalsın.',
     ],
+    talimat_en: [
+      'Hinge forward at the hips until your torso is nearly parallel to the floor.',
+      'Use light weights and keep your elbows slightly bent.',
+      'Raise your arms out to the sides and stop at shoulder height.',
+      'Draw your shoulder blades toward each other.',
+      'Don’t lift your head; keep your gaze on the floor.',
+    ],
   },
   {
     id: 'makine-arka-omuz',
@@ -340,6 +424,13 @@ export default [
       'Kolları yanlara doğru aç, dirseklerin hafif bükülü kalsın.',
       'Arkada bir an dur, kürekleri sık.',
       'Kontrollü geri bırak, ağırlıkları çarptırma.',
+    ],
+    talimat_en: [
+      'Use the machine in reverse, with your chest against the pad.',
+      'Grip the handles at shoulder height.',
+      'Open your arms out to the sides, keeping your elbows slightly bent.',
+      'Pause for a moment at the back and squeeze your shoulder blades.',
+      'Return under control; don’t let the weight stack slam.',
     ],
   },
   {
@@ -368,6 +459,13 @@ export default [
       'Omuzlarını kulaklara doğru kaldırma.',
       'Kontrollü geri bırak; bandın seni geri çekmesine izin verme.',
     ],
+    talimat_en: [
+      'Hold the band at shoulder width with your arms extended in front of you.',
+      'Pull the band apart to the sides, stretching it toward your chest.',
+      'Squeeze your shoulder blades together.',
+      'Don’t shrug your shoulders up toward your ears.',
+      'Return under control; don’t let the band pull you back.',
+    ],
   },
   {
     id: 'shrug-dumbbell',
@@ -395,6 +493,13 @@ export default [
       'Omuzlarını çevirme; dairesel hareket boyuna gereksiz yük bindirir.',
       'Kontrollü indir, ağırlığın seni aşağı çekmesine izin verme.',
     ],
+    talimat_en: [
+      'Hold the dumbbells at your sides with your arms straight.',
+      'Raise your shoulders straight up toward your ears.',
+      'Squeeze for one second at the top.',
+      'Don’t roll your shoulders; a circular motion puts unnecessary load on the neck.',
+      'Lower under control; don’t let the weight pull you down.',
+    ],
   },
   {
     id: 'shrug-barbell',
@@ -420,6 +525,13 @@ export default [
       'Yukarıda sık, sonra kontrollü indir.',
       'Belini düz tut, gövdeni geriye yatırma.',
       'Kavrama gücün bitiyorsa kayış kullanabilirsin.',
+    ],
+    talimat_en: [
+      'Hold the bar at shoulder width with your arms straight.',
+      'Raise your shoulders straight up without bending your elbows.',
+      'Squeeze at the top, then lower under control.',
+      'Keep your lower back flat; don’t lean your torso back.',
+      'If your grip gives out, you can use lifting straps.',
     ],
   },
   {
@@ -447,6 +559,13 @@ export default [
       'Göğsünü bara doğru çekerek yüksel.',
       'Bu kavrama biceps’i daha çok kattığı için düz barfiksten kolaydır.',
       'İnerken kolları tam gevşetme, kontrolü koru.',
+    ],
+    talimat_en: [
+      'Grip the bar at shoulder width with your palms facing you.',
+      'Pull your shoulders down and don’t let your body swing.',
+      'Rise by pulling your chest toward the bar.',
+      'Because this grip involves the biceps more, it’s easier than a regular pull-up.',
+      'Don’t fully relax your arms on the way down; stay in control.',
     ],
   },
 ];

@@ -26,6 +26,13 @@ export default [
       'Yukarıda bir an sık, sonra yavaş indir.',
       'Aşağıda kolları tam gevşetme, gerginliği koru.',
     ],
+    talimat_en: [
+      'Hold the dumbbells at your sides with your palms facing forward.',
+      'Pin your elbows to your sides; don’t swing them forward.',
+      'Don’t bend your wrists as you curl the weight up.',
+      'Squeeze for a moment at the top, then lower slowly.',
+      'Don’t fully relax your arms at the bottom; keep the tension.',
+    ],
   },
   {
     id: 'barbell-curl',
@@ -51,6 +58,13 @@ export default [
       'Barı yukarı kaldır, gövdeni geriye yatırma.',
       'Yukarıda sık, kontrollü indir.',
       'Bileğin ağrıyorsa EZ bar kullan.',
+    ],
+    talimat_en: [
+      'Grip the bar at shoulder width with your palms facing up.',
+      'Pin your elbows to your sides.',
+      'Curl the bar up without leaning your torso back.',
+      'Squeeze at the top and lower under control.',
+      'If your wrists hurt, use an EZ bar.',
     ],
   },
   {
@@ -78,6 +92,13 @@ export default [
       'Yukarıda bir an dur.',
       'İnerken üç saniyede indir, kas bu bölümde büyür.',
     ],
+    talimat_en: [
+      'Grip the EZ bar on its angled sections; it’s easier on your wrists.',
+      'Keep your elbows tucked against your sides.',
+      'Don’t bring your shoulders forward as you curl the bar up.',
+      'Pause for a moment at the top.',
+      'Take three seconds to lower the bar; this is the part where the muscle grows.',
+    ],
   },
   {
     id: 'kablo-biceps-curl',
@@ -103,6 +124,13 @@ export default [
       'Dirseklerini sabitleyerek yukarı kaldır.',
       'Kablo alt noktada da gerginlik verdiği için kas sürekli yük altında kalır.',
       'Gövdeni sallamadan çalış.',
+    ],
+    talimat_en: [
+      'Set the pulley to its lowest position and attach a straight or EZ handle.',
+      'Take a step back so the cable starts with slight tension.',
+      'Keep your elbows fixed and curl the handle up.',
+      'Because the cable keeps tension even at the bottom, the muscle stays under constant load.',
+      'Work without swinging your torso.',
     ],
   },
   {
@@ -131,6 +159,13 @@ export default [
       'Yukarı kaldır, tepede bir an dur.',
       'Yavaş indir; bu hareket ağır değil, kontrollü yapılır.',
     ],
+    talimat_en: [
+      'Adjust the seat so your armpits rest on top of the pad.',
+      'Rest your entire upper arm on the pad.',
+      'Don’t fully straighten your arm at the bottom; it strains the elbow.',
+      'Curl up and pause for a moment at the top.',
+      'Lower slowly; this exercise is done under control, not heavy.',
+    ],
   },
   {
     id: 'cekic-curl',
@@ -158,6 +193,13 @@ export default [
       'Bu varyant önkolu ve kolun dış kısmını daha çok çalıştırır.',
       'Dirsek ağrısı olanlar genelde bu varyantı daha rahat bulur.',
     ],
+    talimat_en: [
+      'Hold the dumbbells with your palms facing each other.',
+      'Keep your elbows fixed and curl the weights up.',
+      'Don’t let your wrist position change at all.',
+      'This variation works the forearm and the outer part of the arm more.',
+      'People with elbow pain usually find this variation more comfortable.',
+    ],
   },
   {
     id: 'ters-curl',
@@ -183,6 +225,13 @@ export default [
       'Ağırlığı düşük tut; bu varyant çok daha zordur.',
       'Bileğini geriye kırma, düz tut.',
       'Tenisçi dirseği geçmişi olanlar için faydalı bir hareket.',
+    ],
+    talimat_en: [
+      'Grip the bar with your palms facing down.',
+      'Keep your elbows fixed and curl the bar up.',
+      'Keep the weight light; this variation is much harder.',
+      'Don’t bend your wrists back; keep them straight.',
+      'A useful exercise for people with a history of tennis elbow.',
     ],
   },
   {
@@ -211,6 +260,13 @@ export default [
       'Menzil kısa; hafif ağırlıkla yüksek tekrar yap.',
       'Bilek ağrın varsa bu hareketi atla.',
     ],
+    talimat_en: [
+      'Rest your forearm on your thigh or a bench with your wrist hanging over the edge.',
+      'Hold the dumbbell with your palm facing up.',
+      'Let your wrist drop down, then curl it up.',
+      'The range is short; use a light weight for high reps.',
+      'If you have wrist pain, skip this exercise.',
+    ],
   },
   {
     id: 'triceps-pushdown',
@@ -236,6 +292,13 @@ export default [
       'Barı aşağı it, kolları tam düzleştir.',
       'Aşağıda bir an sık.',
       'Gövdeni öne eğerek ağırlık bastırma; hareket sadece dirsekten gelsin.',
+    ],
+    talimat_en: [
+      'Set the pulley above chest height and grip a straight bar.',
+      'Pin your elbows to your sides and keep them there.',
+      'Push the bar down until your arms are fully straight.',
+      'Squeeze for a moment at the bottom.',
+      'Don’t lean forward to push the weight down; the movement should come only from the elbows.',
     ],
   },
   {
@@ -263,6 +326,13 @@ export default [
       'Aşağıda kolları tam düzleştir ve sık.',
       'Yukarı bırakırken dirseğin öne kaçmasın.',
     ],
+    talimat_en: [
+      'Attach a rope handle and grip it by the ends.',
+      'Pin your elbows to your sides.',
+      'As you push down, spread the ends of the rope apart.',
+      'At the bottom, fully straighten your arms and squeeze.',
+      'As you let it back up, don’t let your elbows drift forward.',
+    ],
   },
   {
     id: 'yatarak-triceps-ekstansiyon',
@@ -289,6 +359,13 @@ export default [
       'Yukarı iterken kolları tam kilitleme.',
       'Dirseğinde ağrı hissedersen menzili kısalt veya pushdown’a geç.',
     ],
+    talimat_en: [
+      'Lie on your back on a bench and hold the bar above your chest.',
+      'Keep your elbows fixed and lower the bar toward your forehead.',
+      'Keep your upper arms vertical; don’t let them drift forward or back.',
+      'Don’t fully lock out your arms as you press up.',
+      'If you feel pain in your elbows, shorten the range or switch to pushdowns.',
+    ],
   },
   {
     id: 'overhead-triceps',
@@ -314,6 +391,13 @@ export default [
       'Ağırlığı ensenin arkasına doğru indir.',
       'Gerilme hissettiğin noktadan yukarı it.',
       'Bu pozisyon triceps’in uzun başını en iyi geren pozisyondur.',
+    ],
+    talimat_en: [
+      'Hold a single dumbbell overhead with both hands.',
+      'Keep your elbows fixed next to your ears.',
+      'Lower the weight behind your head.',
+      'Press back up from the point where you feel a stretch.',
+      'This position stretches the long head of the triceps better than any other.',
     ],
   },
   {
@@ -342,6 +426,13 @@ export default [
       'Yukarı iterken triceps’i sık.',
       'Omuzda batma varsa bu hareketi yapma.',
     ],
+    talimat_en: [
+      'Get up on the bars and keep your torso as upright as possible.',
+      'Bend your elbows backward; don’t flare them out to the sides.',
+      'Stop when your upper arms are parallel to the floor.',
+      'Squeeze your triceps as you press up.',
+      'If you feel a sharp pain in your shoulder, don’t do this exercise.',
+    ],
   },
   {
     id: 'bench-dip',
@@ -368,6 +459,13 @@ export default [
       'Dirseklerini geriye bükerek in.',
       'Üst kol yere paralel olunca dur; daha derine inme.',
       'Omuz önünde rahatsızlık varsa dizlerini bük ve menzili kısalt.',
+    ],
+    talimat_en: [
+      'Sit on the edge of a bench with your hands next to your hips.',
+      'Slide your hips forward off the bench and extend your legs.',
+      'Lower yourself by bending your elbows backward.',
+      'Stop when your upper arms are parallel to the floor; don’t go any deeper.',
+      'If you feel discomfort at the front of your shoulder, bend your knees and shorten the range.',
     ],
   },
   {
@@ -396,6 +494,13 @@ export default [
       'Yukarı it, triceps’i sık.',
       'Bileğin zorlanıyorsa yumruk üstünde veya dizden yap.',
     ],
+    talimat_en: [
+      'Place your hands under your chest with your thumbs and index fingers forming a triangle.',
+      'Keep your body in a straight line from head to heels.',
+      'Lower your chest toward your hands, keeping your elbows close to your body.',
+      'Push back up and squeeze your triceps.',
+      'If your wrists are strained, do them on your fists or from your knees.',
+    ],
   },
   {
     id: 'ciftci-yuruyusu',
@@ -422,6 +527,13 @@ export default [
       'Kısa ve kontrollü adımlarla düz yürü.',
       'Karnını sık, gövden yana yatmasın.',
       'Mesafe veya süre hedefle çalış: 30-40 saniye tipiktir.',
+    ],
+    talimat_en: [
+      'Pick up a heavy dumbbell in each hand.',
+      'Pull your shoulders back and open your chest.',
+      'Walk in a straight line with short, controlled steps.',
+      'Brace your core; don’t let your torso lean to the side.',
+      'Work toward a distance or time target: 30-40 seconds is typical.',
     ],
   },
   {
@@ -451,6 +563,13 @@ export default [
       'Yukarı çıkarken 3 saniye, inerken 3 saniye say.',
       'Ekipmanın yokken biceps’i yükte tutmanın en pratik yoludur.',
     ],
+    talimat_en: [
+      'Pin one end of the towel down with your foot or your other hand.',
+      'Grip the other end with your palm facing up.',
+      'As you curl your arm up, apply resistance from the other side.',
+      'Count 3 seconds on the way up and 3 seconds on the way down.',
+      'It’s the most practical way to keep your biceps under load without equipment.',
+    ],
   },
   {
     id: 'masa-alti-cekis',
@@ -477,6 +596,13 @@ export default [
       'Göğsünü masanın kenarına doğru çek.',
       'Kürek kemiklerini sıkıştır, sonra kontrollü in.',
       'Masanın devrilmeyeceğinden emin ol; dizlerini bükerek kolaylaştırabilirsin.',
+    ],
+    talimat_en: [
+      'Lie on your back under a sturdy table and grip its edge.',
+      'Keep your body in a straight line from heels to head.',
+      'Pull your chest toward the edge of the table.',
+      'Squeeze your shoulder blades together, then lower under control.',
+      'Make sure the table won’t tip over; you can make it easier by bending your knees.',
     ],
   },
 ];

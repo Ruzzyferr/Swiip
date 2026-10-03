@@ -10,7 +10,13 @@ import {
   tokenUret,
 } from '../kimlik/parola';
 import { dogrulama_kodlari, refresh_tokens, subscriptions, users } from '../db/sema';
-import { kodGecerliMi, kodSonGecerlilik, kodUret, KOD_OMRU_DAKIKA } from '../kimlik/kod';
+import {
+  KOD_DENEME_SINIRI,
+  kodGecerliMi,
+  kodSonGecerlilik,
+  kodUret,
+  KOD_OMRU_DAKIKA,
+} from '../kimlik/kod';
 import { epostaDogrulamaPostasi, parolaSifirlamaPostasi } from '../servisler/postaci';
 import { DILLER } from '@swiip/shared';
 import { istekSayaciKur } from '../servisler/istekSayaci';
@@ -31,7 +37,11 @@ const kayitSemasi = z.object({
   saglik_onayi: z.boolean(),
   olcum_onayi: z.boolean().optional(),
   yurt_disi_onayi: z.boolean().optional(),
-  locale: z.string().default('tr-TR'),
+  /**
+   * Üst sınır şart: alan olduğu gibi `users.locale`'e yazılıyor ve her e-postanın dili
+   * buradan seçiliyor. Sınırsızken gövde sınırı (12 MB) kadar bir dize kaydedilebiliyordu.
+   */
+  locale: z.string().min(2).max(35).default('tr-TR'),
 });
 
 const girisSemasi = z.object({
@@ -78,6 +88,49 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     }
   };
 
+  /**
+   * Kodu dener; yanlışsa deneme sayacını artırır, sınıra ulaşınca kodu yakar.
+   *
+   * Kodun kendi deneme sınırı yoktu. Tek koruma IP başına dakikalık istek sınırıydı ve
+   * o, IP değiştiren bir saldırganı durdurmuyor: altı haneli bir kod 15 dakika boyunca
+   * sınırsız denenebiliyordu. Artık her kod en fazla `KOD_DENEME_SINIRI` kez denenir.
+   *
+   * Artırma tek SQL cümlesinde: paralel denemeler aynı eski sayıyı okuyup sınırı
+   * delemesin.
+   */
+  async function kodDene(
+    kayit: typeof dogrulama_kodlari.$inferSelect,
+    girilen: string,
+  ): Promise<boolean> {
+    if (kodGecerliMi(kayit, girilen)) return true;
+
+    await db
+      .update(dogrulama_kodlari)
+      .set({
+        deneme_sayisi: sql`${dogrulama_kodlari.deneme_sayisi} + 1`,
+        kullanildi_at: sql`case when ${dogrulama_kodlari.deneme_sayisi} + 1 >= ${KOD_DENEME_SINIRI} then now() else ${dogrulama_kodlari.kullanildi_at} end`,
+      })
+      .where(eq(dogrulama_kodlari.id, kayit.id));
+
+    return false;
+  }
+
+  /**
+   * Kodu TEK KULLANIMLIK olarak tüketir. Başka bir istek onu az önce tükettiyse `false`.
+   *
+   * Okuma ile "kullanıldı" damgası arasındaki boşlukta aynı kod iki paralel istekte
+   * birden geçebiliyordu. Koşullu güncelleme bunu tek cümlede kapatıyor.
+   */
+  async function kodTuket(id: string): Promise<boolean> {
+    const tuketilen = await db
+      .update(dogrulama_kodlari)
+      .set({ kullanildi_at: new Date() })
+      .where(and(eq(dogrulama_kodlari.id, id), isNull(dogrulama_kodlari.kullanildi_at)))
+      .returning({ id: dogrulama_kodlari.id });
+
+    return tuketilen.length > 0;
+  }
+
   async function oturumAc(kullaniciId: string, cihaz?: string) {
     const erisim_token = app.jwt.sign({ sub: kullaniciId });
     const ham = tokenUret();
@@ -122,6 +175,10 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
     }
 
     const simdi = new Date();
+    /**
+     * Varlık kontrolü ile yazma arasında ikinci bir kayıt (çift dokunuş) geçebiliyor.
+     * O durumda benzersiz indeks yazmayı reddediyor; çakışma 500 değil 409 olmalı.
+     */
     const [kullanici] = await db
       .insert(users)
       .values({
@@ -132,11 +189,19 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
         ...(govde.olcum_onayi ? { consent_measurements: simdi } : {}),
         ...(govde.yurt_disi_onayi ? { consent_yurt_disi: simdi } : {}),
       })
+      .onConflictDoNothing()
       .returning({ id: users.id, email: users.email, locale: users.locale });
 
-    await db.insert(subscriptions).values({ user_id: kullanici!.id, plan: 'ucretsiz' });
+    if (!kullanici) {
+      throw Cakisma(
+        'Bu e-posta ile bir hesap zaten var. Giriş yapmayı deneyebilirsin.',
+        'eposta_kullanimda',
+      );
+    }
 
-    const oturum = await oturumAc(kullanici!.id);
+    await db.insert(subscriptions).values({ user_id: kullanici.id, plan: 'ucretsiz' });
+
+    const oturum = await oturumAc(kullanici.id);
     return cevap.status(201).send({ ...oturum, kullanici });
   });
 
@@ -211,11 +276,31 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       throw Yetkisiz('Oturumun sona ermiş. Tekrar giriş yap.', 'oturum_bitti');
     }
 
-    // Rotasyon: eski token anında iptal edilir.
-    await db
+    /**
+     * Rotasyon: eski token anında iptal edilir — KOŞULLU olarak.
+     *
+     * Okuma ile iptal arasındaki boşlukta aynı token iki paralel istekte birden
+     * geçebiliyordu: çalınan tokenı kurbanla aynı anda sunan saldırgan da taze bir çift
+     * alıyor ve yukarıdaki "zincir kırılır" koruması hiç tetiklenmiyordu. İptal artık
+     * yalnızca hâlâ açıksa yapılıyor; yarışı kaybeden istek tekrar kullanım sayılıyor.
+     */
+    const iptalEdilen = await db
       .update(refresh_tokens)
       .set({ iptal_at: new Date() })
-      .where(eq(refresh_tokens.id, kayit.id));
+      .where(and(eq(refresh_tokens.id, kayit.id), isNull(refresh_tokens.iptal_at)))
+      .returning({ id: refresh_tokens.id });
+
+    if (iptalEdilen.length === 0) {
+      await db
+        .update(refresh_tokens)
+        .set({ iptal_at: new Date() })
+        .where(and(eq(refresh_tokens.user_id, kayit.user_id), isNull(refresh_tokens.iptal_at)));
+      app.log.warn(
+        { kullaniciId: kayit.user_id },
+        'yenileme tokenı eşzamanlı iki kez sunuldu; zincir kırıldı',
+      );
+      throw Yetkisiz('Oturumun sona ermiş. Tekrar giriş yap.', 'oturum_bitti');
+    }
 
     return oturumAc(kayit.user_id, kayit.cihaz ?? undefined);
   });
@@ -318,7 +403,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       )
       .limit(1);
 
-    if (!kayit || !kodGecerliMi(kayit, govde.kod)) {
+    if (!kayit || !(await kodDene(kayit, govde.kod)) || !(await kodTuket(kayit.id))) {
       throw Yetkisiz('Kod geçersiz veya süresi dolmuş.', 'kod_gecersiz');
     }
 
@@ -326,11 +411,6 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       .update(users)
       .set({ parola_hash: await parolaHashle(govde.yeni_parola) })
       .where(eq(users.id, kullanici.id));
-
-    await db
-      .update(dogrulama_kodlari)
-      .set({ kullanildi_at: new Date() })
-      .where(eq(dogrulama_kodlari.id, kayit.id));
 
     // Parola değişince tüm oturumlar kapanır: tokenı çalan kişi içeride kalmaz.
     await db
@@ -399,7 +479,7 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       )
       .limit(1);
 
-    if (!kayit || !kodGecerliMi(kayit, kod)) {
+    if (!kayit || !(await kodDene(kayit, kod)) || !(await kodTuket(kayit.id))) {
       throw Yetkisiz('Kod geçersiz veya süresi dolmuş.', 'kod_gecersiz');
     }
 
@@ -407,11 +487,6 @@ export async function kimlikRotalari(app: FastifyInstance): Promise<void> {
       .update(users)
       .set({ email_dogrulandi_at: new Date() })
       .where(eq(users.id, istek.kullaniciId));
-
-    await db
-      .update(dogrulama_kodlari)
-      .set({ kullanildi_at: new Date() })
-      .where(eq(dogrulama_kodlari.id, kayit.id));
 
     return { durum: 'dogrulandi' };
   });

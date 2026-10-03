@@ -87,6 +87,19 @@ describe('kisitlariDerle — sakatlık', () => {
     expect(k.eksenel_yuk_yasak).toBe(true);
   });
 
+  /*
+   * Karar izi her kontrendikasyonu GELDİĞİ soruya atfediyor. Hepsi S8'e yazılıyordu:
+   * S17'de verilen "Bel fıtığı" ekranda "ağrı bölgelerini işaretle" sorusundan çıkmış
+   * görünüyordu (emülatörde, hareket ekranının "Hangi cevaplarından çıktı" bölümünde).
+   */
+  it('kontrendikasyonun kaynağı tutuluyor: S17 tanı, S8 ağrı haritası', () => {
+    const tani = kisitlariDerle({ ...salonKullanicisi, S17: ['Bel fıtığı'] });
+    expect(tani.kontrendikasyon_sorulari?.bel_fitigi).toBe('S17');
+
+    const agri = kisitlariDerle({ ...salonKullanicisi, S8: ['bel'], 'S11:bel': 6 });
+    expect(agri.kontrendikasyon_sorulari?.bel_fitigi).toBe('S8');
+  });
+
   it('boyun fıtığı baş üstü ve eksenel yükü yasaklar', () => {
     const k = kisitlariDerle({ ...salonKullanicisi, S17: ['Boyun fıtığı'] });
 

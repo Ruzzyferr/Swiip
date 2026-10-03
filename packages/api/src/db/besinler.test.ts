@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { besinDegerleriMakulMu } from '@swiip/core';
+import { DILLER, metinleriAl } from '@swiip/shared';
 import { BESIN_TOHUMU, EV_OLCULERI } from './besinler';
 
 /**
@@ -134,5 +135,44 @@ describe('besin veritabanı — kapsam', () => {
 
   it('toplam kayıt sayısı hedefe doğru ilerliyor', () => {
     expect(BESIN_TOHUMU.length).toBeGreaterThanOrEqual(360);
+  });
+});
+
+/*
+ * İngilizce ad ve ev ölçüsü çevirisi.
+ *
+ * Uygulama 175 ülkede açıldığında 439 besinin yalnızca ikisinde `name_en` vardı:
+ * İngilizce arayüzdeki kullanıcı "chicken" aradığında hiçbir şey bulmuyor, günlüğünde
+ * Türkçe adlar okuyordu. Yeni eklenen besin İngilizce adsız giremesin.
+ */
+describe('besin veritabanı — İngilizce', () => {
+  /** Türkçeye özgü harfler. Parantez içindeki Türkçe açıklamada serbest. */
+  const TURKCE_HARF = /[çğıöşüÇĞİÖŞÜ]/;
+
+  it('her besinin boş olmayan bir İngilizce adı var', () => {
+    const eksik = BESIN_TOHUMU.filter((b) => !b.name_en || b.name_en.trim().length === 0);
+
+    expect(eksik.map((b) => b.name_tr)).toEqual([]);
+  });
+
+  it('İngilizce adda parantez dışında Türkçe harf yok', () => {
+    const turkceKalan = BESIN_TOHUMU.filter((b) =>
+      TURKCE_HARF.test(b.name_en.replace(/\([^)]*\)/g, '')),
+    );
+
+    expect(turkceKalan.map((b) => `${b.name_tr} → ${b.name_en}`)).toEqual([]);
+  });
+
+  it('her ev ölçüsünün iki dilde de sözlük karşılığı var', () => {
+    const idler = new Set(BESIN_TOHUMU.flatMap((b) => b.portions.map((p) => p.id)));
+    for (const id of Object.values(EV_OLCULERI).map((f) => f(1).id)) idler.add(id);
+
+    for (const dil of DILLER) {
+      const sozluk = metinleriAl(dil).beslenme.porsiyonlar as Record<string, unknown>;
+      expect(
+        [...idler].filter((id) => typeof sozluk[id] !== 'function'),
+        dil,
+      ).toEqual([]);
+    }
   });
 });

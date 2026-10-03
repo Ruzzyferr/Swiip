@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { barkodGecerliMi } from '@swiip/core';
-import { islemHatasiMetni } from '@swiip/shared';
+import { besinAdi, islemHatasiMetni, ogunTahmini, yerelGun } from '@swiip/shared';
 import {
   Ayirac,
   Dugme,
@@ -33,6 +33,8 @@ import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 interface BesinCevabi {
   id: string;
   name_tr: string;
+  /** Open Food Facts İngilizce ad verdiyse; İngilizce arayüzde bu gösterilir. */
+  name_en?: string | null;
   brand: string | null;
   per_100g_jsonb: {
     kalori: number;
@@ -61,6 +63,10 @@ export default function Barkod() {
   const [miktar, setMiktar] = useState('100');
   const [hata, setHata] = useState<string | null>(null);
   const [araniyor, setAraniyor] = useState(false);
+  const [ekleniyor, setEkleniyor] = useState(false);
+  /** Ondalık ayırıcı dile göre: Türkçede "6,3 g". */
+  const ayirac = metinler.gerekce.ondalikAyirac;
+  const ondalik = (deger: number) => String(Math.round(deger * 10) / 10).replace('.', ayirac);
 
   const girisStili = {
     minHeight: tema.dokunmaHedefi,
@@ -120,26 +126,36 @@ export default function Barkod() {
     return araBarkod(girdi);
   };
 
+  const miktarSayisi = Number(miktar.replace(',', '.'));
+  /* Boş ya da sıfır miktar sessizce 100 g sayılıyordu; artık düğme kapanıyor. */
+  const miktarGecerli = Number.isFinite(miktarSayisi) && miktarSayisi > 0;
+
   const gunEkle = async () => {
-    if (!besin) return;
+    // Çift dokunuş ürünü iki kez yazıyordu.
+    if (!besin || ekleniyor || !miktarGecerli) return;
 
     setHata(null);
+    setEkleniyor(true);
     try {
       await istek('/v1/beslenme/kayit', {
         yontem: 'POST',
         govde: {
           food_id: besin.id,
-          miktar: Number(miktar.replace(',', '.')) || 100,
+          miktar: miktarSayisi,
           entry_method: 'barkod',
+          // Gün ve öğün cihazdan; yoksa kayıt sunucunun gününe ve "öğünsüz"e düşüyordu.
+          gun: yerelGun(),
+          ogun: ogunTahmini(new Date()),
         },
       });
     } catch {
       // Sessiz başarısızlık, kullanıcının ürünü eklediğini sanmasına yol açar.
       setHata(islemHatasiMetni('barkod_ekle', dil));
+      setEkleniyor(false);
       return;
     }
 
-    router.replace('/(sekme)/beslenme');
+    router.dismissTo('/(sekme)/beslenme');
   };
 
   return (
@@ -149,7 +165,7 @@ export default function Barkod() {
         <Yazi tur="baslik1">{m.baslik}</Yazi>
         <Yazi renk="metinYumusak">{m.girisMetni}</Yazi>
 
-        {izin?.granted === false ? (
+        {izin?.status === 'denied' ? (
           <View style={{ gap: tema.bosluk.sm }}>
             <Uyari tur="uyari" govde={m.izinYok} />
             {izin.canAskAgain ? (
@@ -165,6 +181,12 @@ export default function Barkod() {
                 setTarariyor(false);
                 return;
               }
+              /*
+                Tarayıcı yeniden açılınca mandal da açılıyor. Açılmıyordu: ilk taramadan
+                sonra "Tara"ya basan kullanıcı kamerayı görüyor ama hiçbir barkod
+                okunmuyordu — mandalı yalnızca elle arama sıfırlıyordu.
+              */
+              kilitli.current = false;
               if (izin?.granted) setTarariyor(true);
               else void izinIste().then((sonuc) => setTarariyor(sonuc.granted));
             }}
@@ -219,7 +241,7 @@ export default function Barkod() {
           <Kart vurgulu>
             <Satir dagit="space-between" hizala="flex-start">
               <View style={{ flex: 1, gap: 2 }}>
-                <Yazi tur="baslik3">{besin.name_tr}</Yazi>
+                <Yazi tur="baslik3">{besinAdi(besin, dil)}</Yazi>
                 {besin.brand ? (
                   <Yazi tur="kucuk" renk="metinSilik">
                     {besin.brand}
@@ -240,7 +262,8 @@ export default function Barkod() {
                 </Yazi>
                 <Satir dagit="space-between">
                   <Yazi tur="kucuk" renk="metinYumusak">
-                    {metinler.beslenme.kaloriHedefi}
+                    {/* "Günlük hedef" yazıyordu: ürünün 100 g'ı kullanıcının hedefi değil. */}
+                    {metinler.beslenme.enerji}
                   </Yazi>
                   <Sayi tur="kucuk" renk="aksan">
                     {besin.per_100g_jsonb.kalori} kcal
@@ -250,19 +273,19 @@ export default function Barkod() {
                   <Yazi tur="kucuk" renk="metinYumusak">
                     {metinler.beslenme.protein}
                   </Yazi>
-                  <Sayi tur="kucuk">{besin.per_100g_jsonb.protein_g} g</Sayi>
+                  <Sayi tur="kucuk">{ondalik(besin.per_100g_jsonb.protein_g)} g</Sayi>
                 </Satir>
                 <Satir dagit="space-between">
                   <Yazi tur="kucuk" renk="metinYumusak">
                     {metinler.beslenme.karbonhidrat}
                   </Yazi>
-                  <Sayi tur="kucuk">{besin.per_100g_jsonb.karbonhidrat_g} g</Sayi>
+                  <Sayi tur="kucuk">{ondalik(besin.per_100g_jsonb.karbonhidrat_g)} g</Sayi>
                 </Satir>
                 <Satir dagit="space-between">
                   <Yazi tur="kucuk" renk="metinYumusak">
                     {metinler.beslenme.yag}
                   </Yazi>
-                  <Sayi tur="kucuk">{besin.per_100g_jsonb.yag_g} g</Sayi>
+                  <Sayi tur="kucuk">{ondalik(besin.per_100g_jsonb.yag_g)} g</Sayi>
                 </Satir>
               </>
             ) : null}
@@ -287,7 +310,12 @@ export default function Barkod() {
               accessibilityLabel={m.miktarGram}
               style={girisStili}
             />
-            <Dugme baslik={m.gune} onPress={() => void gunEkle()} />
+            <Dugme
+              baslik={m.gune}
+              onPress={() => void gunEkle()}
+              yukleniyor={ekleniyor}
+              pasif={!miktarGecerli}
+            />
           </View>
         ) : null}
       </Ekran>

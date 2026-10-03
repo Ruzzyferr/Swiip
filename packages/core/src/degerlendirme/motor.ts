@@ -245,26 +245,34 @@ export function blokIlerlemesi(cevaplar: Cevaplar): BlokIlerlemesi {
 
 export interface DogrulamaSonucu {
   gecerli: boolean;
+  /** Türkçe iz. Ekran cümleyi `kod`dan, kullanıcının dilinde kurar. */
   mesaj?: string;
+  /** Sözlük anahtarı: `metinler.degerlendirme.dogrulama[kod]`. */
+  kod?: string;
+  degerler?: Record<string, string | number>;
 }
 
 const GECERLI = { gecerli: true } as const;
 
-function gecersiz(mesaj: string): DogrulamaSonucu {
-  return { gecerli: false, mesaj };
+function gecersiz(
+  mesaj: string,
+  kod: string,
+  degerler?: Record<string, string | number>,
+): DogrulamaSonucu {
+  return degerler ? { gecerli: false, mesaj, kod, degerler } : { gecerli: false, mesaj, kod };
 }
 
 export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
   // Atlama, isteğe bağlı soruya özgü. Zorunlu bir soru atlanmış sayılamaz.
   if (atlandiMi(cevap)) {
     return soru.required
-      ? gecersiz('Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.')
+      ? gecersiz('Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.', 'zorunlu')
       : GECERLI;
   }
 
   if (!dolu(cevap)) {
     return soru.required
-      ? gecersiz('Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.')
+      ? gecersiz('Bu soruyu cevaplaman gerekiyor; programın buna dayanıyor.', 'zorunlu')
       : GECERLI;
   }
 
@@ -272,12 +280,18 @@ export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
     case 'number':
     case 'scale': {
       const sayi = typeof cevap === 'number' ? cevap : Number(String(cevap).replace(',', '.'));
-      if (!Number.isFinite(sayi)) return gecersiz('Lütfen bir sayı gir.');
+      if (!Number.isFinite(sayi)) return gecersiz('Lütfen bir sayı gir.', 'sayiGir');
       if (soru.min !== undefined && sayi < soru.min) {
-        return gecersiz(`Değer ${soru.min} ile ${soru.max} arasında olmalı.`);
+        return gecersiz(`Değer ${soru.min} ile ${soru.max} arasında olmalı.`, 'aralik', {
+          min: soru.min ?? '',
+          max: soru.max ?? '',
+        });
       }
       if (soru.max !== undefined && sayi > soru.max) {
-        return gecersiz(`Değer ${soru.min} ile ${soru.max} arasında olmalı.`);
+        return gecersiz(`Değer ${soru.min} ile ${soru.max} arasında olmalı.`, 'aralik', {
+          min: soru.min ?? '',
+          max: soru.max ?? '',
+        });
       }
       return GECERLI;
     }
@@ -287,7 +301,7 @@ export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
       if (!soru.options) return GECERLI;
       return soru.options.includes(String(cevap))
         ? GECERLI
-        : gecersiz('Listedeki seçeneklerden birini seç.');
+        : gecersiz('Listedeki seçeneklerden birini seç.', 'listedenSec');
     }
 
     case 'multi': {
@@ -295,11 +309,15 @@ export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
       if (soru.options) {
         const gecersizler = secimler.filter((s) => !soru.options!.includes(s));
         if (gecersizler.length > 0) {
-          return gecersiz(`Tanımadığım seçenek var: ${gecersizler.join(', ')}`);
+          return gecersiz(`Tanımadığım seçenek var: ${gecersizler.join(', ')}`, 'tanimsizSecenek', {
+            liste: gecersizler.join(', '),
+          });
         }
       }
       if (soru.maxSelect !== undefined && secimler.length > soru.maxSelect) {
-        return gecersiz(`En fazla ${soru.maxSelect} seçim yapabilirsin.`);
+        return gecersiz(`En fazla ${soru.maxSelect} seçim yapabilirsin.`, 'enFazlaSecim', {
+          adet: soru.maxSelect,
+        });
       }
       return GECERLI;
     }
@@ -308,24 +326,36 @@ export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
       const secimler = Array.isArray(cevap) ? cevap : [String(cevap)];
       if (soru.regions) {
         const gecersizler = secimler.filter((s) => !soru.regions!.includes(s));
-        if (gecersizler.length > 0) return gecersiz('Tanımadığım bir bölge işaretlendi.');
+        if (gecersizler.length > 0) {
+          return gecersiz('Tanımadığım bir bölge işaretlendi.', 'tanimsizBolge');
+        }
       }
       if (soru.maxSelect !== undefined && secimler.length > soru.maxSelect) {
-        return gecersiz(`En fazla ${soru.maxSelect} bölge seçebilirsin.`);
+        return gecersiz(`En fazla ${soru.maxSelect} bölge seçebilirsin.`, 'enFazlaBolge', {
+          adet: soru.maxSelect,
+        });
       }
       return GECERLI;
     }
 
     case 'date': {
       const metin = String(cevap);
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(metin)) return gecersiz('Tarihi gün/ay/yıl olarak seç.');
-      const tarih = new Date(`${metin}T00:00:00.000Z`);
-      if (Number.isNaN(tarih.getTime())) return gecersiz('Bu tarih geçerli değil.');
-      if (soru.id === 'K1' && tarih.getTime() > Date.parse('2100-01-01')) {
-        return gecersiz('Doğum tarihi gelecekte olamaz.');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(metin)) {
+        return gecersiz('Tarihi gün/ay/yıl olarak seç.', 'tarihBicimi');
       }
-      if (soru.id === 'K1' && tarih.getUTCFullYear() > new Date().getUTCFullYear()) {
-        return gecersiz('Doğum tarihi gelecekte olamaz.');
+      const tarih = new Date(`${metin}T00:00:00.000Z`);
+      if (Number.isNaN(tarih.getTime())) {
+        return gecersiz('Bu tarih geçerli değil.', 'tarihGecersiz');
+      }
+      /**
+       * Gelecek, yıl değil GÜN düzeyinde.
+       *
+       * Yalnızca yıl karşılaştırılıyordu: Ekim'de girilen "bu yılın Aralık'ı" geçiyordu.
+       * Sonra `yasHesapla` -1 yaş buluyor ve kullanıcı 18 yaş kapısına, yani kalıcı
+       * kayıt reddine düşüyordu — elinin kaydığı bir tarih yüzünden.
+       */
+      if (soru.id === 'K1' && tarih.getTime() > Date.now()) {
+        return gecersiz('Doğum tarihi gelecekte olamaz.', 'dogumGelecekte');
       }
       return GECERLI;
     }
@@ -333,7 +363,7 @@ export function cevabiDogrula(soru: Soru, cevap: CevapDegeri): DogrulamaSonucu {
     case 'consent':
       return cevap === true || cevap === 'evet'
         ? GECERLI
-        : gecersiz('Devam etmek için bu onayı vermen gerekiyor.');
+        : gecersiz('Devam etmek için bu onayı vermen gerekiyor.', 'onayGerekli');
 
     default:
       return GECERLI;

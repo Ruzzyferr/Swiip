@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import {
   aramaAnahtari,
+  kalemEtiketi,
+  secenekEtiketi,
+  soruMetni,
   tarihBirlestir,
   tarihParcala,
   type Soru,
@@ -9,7 +12,7 @@ import {
 } from '@swiip/shared';
 import { Ayirac, Kart, Sayi, Satir, SecimDugmesi, Yazi } from '../tasarim/bilesenler';
 import { useTema } from '../tasarim/tema';
-import { useMetinler } from '../durum/Oturum';
+import { useDil, useMetinler } from '../durum/Oturum';
 import { VucutHaritasi } from './VucutHaritasi';
 import { HedefVucutSecimi } from './HedefVucutSecimi';
 import { EkipmanEnvanteri } from './EkipmanEnvanteri';
@@ -46,11 +49,16 @@ export interface SoruAlaniProps {
 export function SoruAlani({ soru, deger, onDegisim, hata, cevaplar }: SoruAlaniProps) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
+  const dil = useDil();
 
   return (
     <View style={{ gap: tema.bosluk.md }}>
       <View style={{ gap: tema.bosluk.xs }}>
-        <Yazi tur="baslik2">{soru.text}</Yazi>
+        {/*
+          Metin ve seçenek ETİKETİ kullanıcının dilinde; kaydedilen DEĞER her dilde
+          bankadaki kanonik Türkçe değer (bkz. `soruDili.ts`).
+        */}
+        <Yazi tur="baslik2">{soruMetni(soru, dil)}</Yazi>
         {/*
           İşaret ZORUNLU olanda; isteğe bağlı olanda değil.
 
@@ -125,6 +133,7 @@ function konumu(cevaplar: Record<string, unknown> | undefined): { konum?: string
 
 function TekSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
+  const dil = useDil();
 
   // Ekipman envanteri görsel çoklu seçim olarak ayrı ele alınır.
   if (soru.id === 'E3') {
@@ -145,7 +154,7 @@ function TekSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'ha
       {secenekler.map((secenek) => (
         <SecimDugmesi
           key={secenek}
-          baslik={secenek}
+          baslik={secenekEtiketi(soru, secenek, dil)}
           secili={deger === secenek}
           onPress={() => onDegisim(secenek)}
         />
@@ -164,7 +173,9 @@ function TekSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'ha
 function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
+  const dil = useDil();
   const [sorgu, setSorgu] = useState('');
+  const etiket = (deger: string) => secenekEtiketi(soru, deger, dil);
 
   const secenekler = soru.options ?? [];
   const secili = typeof deger === 'string' ? deger : undefined;
@@ -173,7 +184,7 @@ function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) 
   const eslesen =
     anahtar === ''
       ? secenekler.slice(0, ARAMALI_ESIK)
-      : secenekler.filter((s) => aramaAnahtari(s).includes(anahtar)).slice(0, ARAMALI_ESIK);
+      : secenekler.filter((s) => aramaAnahtari(etiket(s)).includes(anahtar)).slice(0, ARAMALI_ESIK);
 
   return (
     <View style={{ gap: tema.bosluk.sm }}>
@@ -197,7 +208,7 @@ function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) 
       />
 
       {secili && !eslesen.includes(secili) ? (
-        <SecimDugmesi baslik={secili} secili onPress={() => onDegisim(secili)} />
+        <SecimDugmesi baslik={etiket(secili)} secili onPress={() => onDegisim(secili)} />
       ) : null}
 
       {eslesen.length === 0 ? (
@@ -208,7 +219,7 @@ function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) 
         eslesen.map((secenek) => (
           <SecimDugmesi
             key={secenek}
-            baslik={secenek}
+            baslik={etiket(secenek)}
             secili={secili === secenek}
             onPress={() => onDegisim(secenek)}
           />
@@ -221,6 +232,7 @@ function AramaliSecim({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) 
 function CokluSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
+  const dil = useDil();
   if (soru.id === 'E3') {
     return (
       <EkipmanEnvanteri soru={soru} deger={deger} onDegisim={onDegisim} {...konumu(cevaplar)} />
@@ -251,7 +263,7 @@ function CokluSecim({ soru, deger, onDegisim, cevaplar }: Omit<SoruAlaniProps, '
       {secenekler.map((secenek) => (
         <SecimDugmesi
           key={secenek}
-          baslik={secenek}
+          baslik={secenekEtiketi(soru, secenek, dil)}
           secili={secili.includes(secenek)}
           onPress={() => degistir(secenek)}
           cokluSecim
@@ -332,6 +344,7 @@ function Olcek({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
  */
 function SayiGirisi({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
+  const dil = useDil();
   const [metin, setMetin] = useState(deger === undefined || deger === null ? '' : String(deger));
   const aralikVar = soru.min !== undefined && soru.max !== undefined;
 
@@ -359,7 +372,7 @@ function SayiGirisi({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
             onDegisim(temiz === '' || !Number.isFinite(sayi) ? null : sayi);
           }}
           keyboardType="decimal-pad"
-          accessibilityLabel={soru.text}
+          accessibilityLabel={soruMetni(soru, dil)}
           style={{
             flex: 1,
             minHeight: tema.dokunmaHedefi,
@@ -449,6 +462,32 @@ function TarihGirisi({
 
   const { gun, ay, yil } = parca;
 
+  /*
+    Odak KENDİLİĞİNDEN ilerliyor.
+
+    Emülatörde ölçüldü: "15031994" yazan kullanıcının yalnızca "15"i giriyor, gerisi
+    sessizce kayboluyordu — gün alanı iki haneyle doluyor, odak yerinde kalıyor ve
+    `maxLength` sonraki rakamları yutuyordu. Ay ve yıl alanına ayrıca dokunmak
+    gerekiyordu ve bunu söyleyen hiçbir şey yoktu. Boş alanda geri silme bir önceki
+    alana dönüyor.
+  */
+  const gunAlani = useRef<TextInput>(null);
+  const ayAlani = useRef<TextInput>(null);
+  const yilAlani = useRef<TextInput>(null);
+  /*
+    Odak, tuş olayı BİTTİKTEN sonra değişiyor. Aynı olay içinde değiştirildiğinde klavye
+    son rakamı yeni alana bir kez daha işliyordu: "15" yazan kullanıcının ay alanında
+    "5" beliriyordu (emülatörde ölçüldü: gün 15, ay 50).
+  */
+  const sonrakineGec = (alan: { current: TextInput | null }) => {
+    setTimeout(() => alan.current?.focus(), 60);
+  };
+  const geriDon =
+    (onceki: { current: TextInput | null }, bos: boolean) =>
+    ({ nativeEvent }: { nativeEvent: { key: string } }) => {
+      if (nativeEvent.key === 'Backspace' && bos) onceki.current?.focus();
+    };
+
   const alanStili = {
     minHeight: tema.dokunmaHedefi,
     borderWidth: StyleSheet.hairlineWidth,
@@ -465,8 +504,12 @@ function TarihGirisi({
   return (
     <Satir arasi="sm">
       <TextInput
+        ref={gunAlani}
         value={gun}
-        onChangeText={(v) => guncelle({ gun: v })}
+        onChangeText={(v) => {
+          guncelle({ gun: v });
+          if (v.length === 2) sonrakineGec(ayAlani);
+        }}
         placeholder={m.gunKisa}
         placeholderTextColor={tema.renk.metinSilik}
         keyboardType="number-pad"
@@ -475,8 +518,13 @@ function TarihGirisi({
         style={[alanStili, { flex: 1 }]}
       />
       <TextInput
+        ref={ayAlani}
         value={ay}
-        onChangeText={(v) => guncelle({ ay: v })}
+        onChangeText={(v) => {
+          guncelle({ ay: v });
+          if (v.length === 2) sonrakineGec(yilAlani);
+        }}
+        onKeyPress={geriDon(gunAlani, ay === '')}
         placeholder={m.ayKisa}
         placeholderTextColor={tema.renk.metinSilik}
         keyboardType="number-pad"
@@ -485,8 +533,10 @@ function TarihGirisi({
         style={[alanStili, { flex: 1 }]}
       />
       <TextInput
+        ref={yilAlani}
         value={yil}
         onChangeText={(v) => guncelle({ yil: v })}
+        onKeyPress={geriDon(ayAlani, yil === '')}
         placeholder={m.yilKisa}
         placeholderTextColor={tema.renk.metinSilik}
         keyboardType="number-pad"
@@ -608,12 +658,13 @@ function OlcuGrubu({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
 function YukGirisi({ soru, deger, onDegisim }: Omit<SoruAlaniProps, 'hata'>) {
   const tema = useTema();
   const m = useMetinler().degerlendirme;
+  const dil = useDil();
   const mevcut = (deger ?? {}) as { kg?: number | null; tekrar?: number | null };
 
   return (
     <Kart>
       <Yazi tur="kucuk" renk="metinSilik">
-        {soru.kalem ?? 'Hareket'} — en iyi setin
+        {m.enIyiSet(soru.kalem ? kalemEtiketi(soru, soru.kalem, dil) : m.hareketVarsayilan)}
       </Yazi>
       <Satir arasi="md">
         <View style={{ flex: 1, gap: tema.bosluk.xs }}>

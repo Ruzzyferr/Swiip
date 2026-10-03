@@ -107,6 +107,16 @@ export async function degerlendirmeRotalari(app: FastifyInstance): Promise<void>
         .update(users)
         .set({ medical_gate_status: 'yas_engeli' })
         .where(eq(users.id, istek.kullaniciId));
+    } else {
+      /**
+       * Doğum tarihini yanlış girip düzelten kullanıcı kalıcı olarak "yaş engeli"nde
+       * kalıyordu: durum yalnızca bir yönde yazılıyordu. Kapının kendisi her uçta
+       * güncel cevaplardan değerlendiriliyor; bu alan yalnızca onu yansıtıyor.
+       */
+      await db
+        .update(users)
+        .set({ medical_gate_status: 'temiz' })
+        .where(and(eq(users.id, istek.kullaniciId), eq(users.medical_gate_status, 'yas_engeli')));
     }
 
     const ilerleme = blokIlerlemesi(birlesik);

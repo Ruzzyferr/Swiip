@@ -26,6 +26,13 @@ export default [
       'Boynunu gövdenin devamı olarak tut, bakışın yerde.',
       'Süre hedefle çalış; şeklin bozulduğu anda seti bitir.',
     ],
+    talimat_en: [
+      'Keep your elbows directly under your shoulders.',
+      'Keep your body in a straight line from head to heels.',
+      'Squeeze your core and glutes; don’t let your hips sag or pike up.',
+      'Keep your neck in line with your torso, eyes on the floor.',
+      'Work toward a time target; end the set as soon as your form breaks.',
+    ],
   },
   {
     id: 'yan-plank',
@@ -54,6 +61,13 @@ export default [
       'Kalçanın öne veya arkaya dönmesine izin verme.',
       'Zorlanıyorsan dizlerin üstünde yap.',
     ],
+    talimat_en: [
+      'Lie on your side with your elbow under your shoulder.',
+      'Lift your hips off the floor so your body forms one line.',
+      'Keep your top hand on your hip or raised in the air.',
+      'Don’t let your hips rotate forward or backward.',
+      'If it’s too hard, do it from your knees.',
+    ],
   },
   {
     id: 'dead-bug',
@@ -80,6 +94,13 @@ export default [
       'Karşıt kol ve bacağı yavaşça yere doğru uzat.',
       'Belin yerden kalkarsa menzili kısalt.',
       'Bel ağrısı olanlar için en güvenli karın hareketlerinden biridir.',
+    ],
+    talimat_en: [
+      'Lie on your back, reach your arms to the ceiling and bend your knees to 90 degrees.',
+      'Press your lower back into the floor and keep it there throughout.',
+      'Slowly extend the opposite arm and leg toward the floor.',
+      'If your lower back lifts off the floor, shorten the range.',
+      'It is one of the safest core exercises for people with lower back pain.',
     ],
   },
   {
@@ -108,6 +129,13 @@ export default [
       'Gövdeni dönmeye karşı sabit tut.',
       'Bu bir dönme hareketi değil, dönmeye direnme hareketidir.',
     ],
+    talimat_en: [
+      'Set the pulley at chest height and stand side-on to the machine.',
+      'Hold the handle with both hands in front of your chest.',
+      'Press your arms straight out; the cable will try to rotate you.',
+      'Keep your torso stable against the rotation.',
+      'This is not a rotation exercise; it is an anti-rotation exercise.',
+    ],
   },
   {
     id: 'ab-wheel',
@@ -135,6 +163,13 @@ export default [
       'Karnınla çekerek geri dön.',
       'Duvara doğru çalışarak menzili güvenle sınırlayabilirsin.',
     ],
+    talimat_en: [
+      'Kneel down and hold the wheel in front of you.',
+      'Brace your core and roll forward without rounding your lower back.',
+      'Don’t go past the point where you feel your lower back sag.',
+      'Pull back with your abs to return.',
+      'Rolling toward a wall lets you limit the range safely.',
+    ],
   },
   {
     id: 'kablo-crunch',
@@ -160,6 +195,13 @@ export default [
       'Omurganı yuvarlayarak dirseklerini dizlerine yaklaştır.',
       'Kalçandan eğilme; hareket sadece karından gelsin.',
       'Yukarı dönerken kontrolü bırakma.',
+    ],
+    talimat_en: [
+      'Set the pulley high and hold the rope beside your head.',
+      'Kneel down on your knees.',
+      'Round your spine to bring your elbows toward your knees.',
+      'Don’t bend at the hips; the movement should come only from your abs.',
+      'Stay in control as you return to the top.',
     ],
   },
   {
@@ -188,6 +230,13 @@ export default [
       'Boynunu elinle çekme; bakışın tavanda kalsın.',
       'Yavaş in, ivmeyle çalışma.',
     ],
+    talimat_en: [
+      'Lie on your back, bend your knees and keep your feet on the floor.',
+      'Cross your hands over your chest or place them beside your ears.',
+      'Lift your shoulders off the floor while keeping your lower back down.',
+      'Don’t pull on your neck with your hands; keep your eyes on the ceiling.',
+      'Lower slowly; don’t use momentum.',
+    ],
   },
   {
     id: 'ters-mekik',
@@ -214,6 +263,13 @@ export default [
       'Bacaklarını savurma; hareket karından gelsin.',
       'Kontrollü indir, ayaklarını yere değdirme.',
       'Belini yere yapışık tutmaya çalış.',
+    ],
+    talimat_en: [
+      'Lie on your back with your hands at your sides.',
+      'Pull your knees toward your chest and lift your hips off the floor.',
+      'Don’t swing your legs; the movement should come from your abs.',
+      'Lower under control without letting your feet touch the floor.',
+      'Try to keep your lower back pressed into the floor.',
     ],
   },
   {
@@ -242,6 +298,13 @@ export default [
       'Sallanmayı durdur; her tekrar sıfırdan başlasın.',
       'Kolaylaştığında bacakları düz kaldırarak zorlaştır.',
     ],
+    talimat_en: [
+      'Hang from the bar and pull your shoulders down.',
+      'Raise your knees toward your chest.',
+      'Curl your pelvis slightly upward; that is the final part of the movement.',
+      'Stop any swinging; start every rep from a dead stop.',
+      'When it gets easy, make it harder by raising your legs straight.',
+    ],
   },
   {
     id: 'hiperekstansiyon',
@@ -268,6 +331,13 @@ export default [
       'Kalçandan öne eğil, belini yuvarlamadan in.',
       'Kalçanı sıkarak doğrul; gövde yere paralel olunca dur.',
       'Geriye aşırı kavis yapma; bel için gereksiz baskıdır.',
+    ],
+    talimat_en: [
+      'Set the pad just below your hip bones.',
+      'Cross your arms over your chest.',
+      'Hinge forward at the hips and lower without rounding your back.',
+      'Squeeze your glutes to come up; stop when your torso is parallel to the floor.',
+      'Don’t overarch backward; it puts unnecessary stress on your lower back.',
     ],
   },
   {
@@ -297,6 +367,13 @@ export default [
       'Üç saniye tut, sonra değiştir.',
       'Bel ağrısında en sık önerilen egzersizlerden biridir.',
     ],
+    talimat_en: [
+      'Get on all fours, hands under your shoulders and knees under your hips.',
+      'Extend the opposite arm and leg at the same time.',
+      'Keep your back flat and don’t let your hips rotate to the side.',
+      'Hold for three seconds, then switch sides.',
+      'It is one of the most commonly recommended exercises for lower back pain.',
+    ],
   },
   {
     id: 'yan-egilme-dumbbell',
@@ -323,6 +400,13 @@ export default [
       'Karşı taraf karın yanını sıkarak doğrul.',
       'Öne veya arkaya eğilme; hareket tam yanlamasına olsun.',
       'Bel fıtığın varsa bu hareketi yapma.',
+    ],
+    talimat_en: [
+      'Stand with a dumbbell in one hand and the other hand on your hip.',
+      'Bend your torso sideways toward the dumbbell.',
+      'Squeeze the obliques on the opposite side to come back up.',
+      'Don’t lean forward or back; keep the movement purely sideways.',
+      'If you have a lumbar disc herniation, don’t do this exercise.',
     ],
   },
 ];

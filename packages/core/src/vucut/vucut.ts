@@ -56,6 +56,9 @@ export interface YagOraniAraligi {
 /** Tek yöntemin belirsizliği; iki yöntem uyuşursa daralır, çelişirse genişler. */
 const TEK_YONTEM_PAYI = 4;
 const CAPRAZ_PAYI = 2.5;
+/** Yağ oranı ölçeğinin uçları (%). */
+const ORAN_ALT = 3;
+const ORAN_UST = 65;
 
 export function yagOraniAralik(girdi: YagOraniAralikGirdisi): YagOraniAraligi | undefined {
   const { gorselTahmin, navyTahmin } = girdi;
@@ -78,9 +81,16 @@ function aralikKur(
   pay: number,
   kaynak: YagOraniAraligi['kaynak'],
 ): YagOraniAraligi {
+  /**
+   * Merkez önce ölçeğin içine çekilir.
+   *
+   * Yalnızca uçlar kırpılıyordu. Görsel model ölçeğin dışında bir tahmin verdiğinde
+   * (ör. %70) alt sınır 66, üst sınır 65 çıkıyordu: alt üstten büyük, ters bir aralık.
+   */
+  const m = kirp(merkez, ORAN_ALT, ORAN_UST);
   return {
-    alt: Math.max(3, Math.floor(merkez - pay)),
-    ust: Math.min(65, Math.ceil(merkez + pay)),
+    alt: Math.max(ORAN_ALT, Math.floor(m - pay)),
+    ust: Math.min(ORAN_UST, Math.ceil(m + pay)),
     kaynak,
   };
 }

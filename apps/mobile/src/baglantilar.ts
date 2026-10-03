@@ -17,3 +17,9 @@ export const GIZLILIK_URL = 'https://swiip.app/gizlilik.html';
  * koşullarımız" diye bir sayfa açmak, olmayan bir belgeye bağlantı vermek olurdu.
  */
 export const KULLANIM_KOSULLARI_URL = 'https://www.apple.com/legal/itunes/appstore/dev/stdeula';
+
+/**
+ * Destek adresi — sitedeki destek sayfasının verdiği adresle aynı.
+ * Doktor onayı da buraya geliyor (bkz. `app/degerlendirme/kapi.tsx`).
+ */
+export const DESTEK_EPOSTASI = 'info@swiip.app';

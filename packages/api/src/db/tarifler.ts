@@ -999,7 +999,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 288, protein_g: 28, yag_g: 4, karbonhidrat_g: 35, lif_g: 2 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 35,
-    etiketler: ['glutenli', 'laktozsuz', 'corba', 'yuksek_protein'],
+    etiketler: ['et', 'glutenli', 'laktozsuz', 'corba', 'yuksek_protein'],
     adimlar_tr: [
       'Tavuğu, içinde pembelik kalmayana kadar yirmi dakika haşlayıp didikle.',
       'Suyuna şehriye ve havucu ekleyip pişir.',
@@ -1035,7 +1035,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 482, protein_g: 42, yag_g: 18, karbonhidrat_g: 38, lif_g: 6 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Sebzeleri iri doğrayıp yağla harmanla.',
       'Tavuğu üzerine yerleştir, baharatla.',
@@ -1111,7 +1111,14 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 346, protein_g: 45, yag_g: 14, karbonhidrat_g: 10, lif_g: 4 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 25,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: [
+      'et',
+      'glutensiz',
+      'laktozsuz',
+      'ana_yemek',
+      'yuksek_protein',
+      'dusuk_karbonhidrat',
+    ],
     adimlar_tr: [
       'Hindiyi ince doğrayıp mühürle, içinde pembelik kalmayana kadar pişir.',
       'Mantar ve biberi ekleyip suyunu çektir.',
@@ -1517,7 +1524,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 584, protein_g: 40, yag_g: 32, karbonhidrat_g: 34, lif_g: 4 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 55,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Butları baharatla ovup yarım saat beklet.',
       'Patateslerle birlikte 190 derecede kırk beş dakika pişir.',
@@ -1780,6 +1787,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     maliyet_kademesi: 2,
     hazirlik_dakika: 18,
     etiketler: [
+      'et',
       'glutensiz',
       'laktozsuz',
       'salata',
@@ -1824,7 +1832,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 496, protein_g: 42, yag_g: 16, karbonhidrat_g: 46, lif_g: 6 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 40,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Kinoayı haşla.',
       'Tavuğu kabakla fırında otuz dakika pişir.',
@@ -1863,7 +1871,14 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 377, protein_g: 44, yag_g: 17, karbonhidrat_g: 12, lif_g: 5 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: [
+      'et',
+      'glutensiz',
+      'laktozsuz',
+      'ana_yemek',
+      'yuksek_protein',
+      'dusuk_karbonhidrat',
+    ],
     adimlar_tr: [
       'Tavuğu baharatlayıp tepsiye al.',
       'Brokoliyi yanına diz, yağ gezdir.',
@@ -1994,7 +2009,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 310, protein_g: 33, yag_g: 10, karbonhidrat_g: 22, lif_g: 4 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozsuz', 'corba', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'corba', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Tavuğu, içinde pembelik kalmayana kadar yirmi dakika haşlayıp didikle.',
       'Sebzeleri suyunda pişir, tavuğu geri ekle.',
@@ -2013,7 +2028,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 416, protein_g: 54, yag_g: 16, karbonhidrat_g: 14, lif_g: 5 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 40,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Hindiyi baharatlayıp dinlendir.',
       'Sebzelerle tepsiye alıp 190 derecede otuz beş dakika pişir.',
@@ -2088,7 +2103,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 431, protein_g: 37, yag_g: 27, karbonhidrat_g: 10, lif_g: 3 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Butları baharatlayıp yarım saat beklet.',
       'Kabaklarla tepsiye alıp 190 derecede kırk dakika pişir.',
@@ -2122,7 +2137,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 322, protein_g: 50, yag_g: 10, karbonhidrat_g: 8, lif_g: 2 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozlu', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: ['et', 'glutensiz', 'laktozlu', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
     adimlar_tr: [
       'Tavuğu yassılaştırıp ıspanak ve loru içine yerleştir.',
       'Rulo yapıp fırında otuz dakika pişir.',
@@ -2281,7 +2296,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 338, protein_g: 32, yag_g: 10, karbonhidrat_g: 30, lif_g: 2 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 35,
-    etiketler: ['laktozsuz', 'glutenli', 'corba', 'ramazan_uygun', 'yuksek_protein'],
+    etiketler: ['et', 'laktozsuz', 'glutenli', 'corba', 'ramazan_uygun', 'yuksek_protein'],
     adimlar_tr: [
       'Tavuğu, içinde pembelik kalmayana kadar yirmi dakika haşlayıp didikle.',
       'Suyuna şehriye ve havuç ekleyip pişir.',
@@ -2301,7 +2316,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 448, protein_g: 40, yag_g: 16, karbonhidrat_g: 36, lif_g: 5 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Sebzeleri iri doğrayıp yağla harmanla.',
       'Tavuğu üzerine yerleştirip baharatla.',
@@ -2349,6 +2364,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     maliyet_kademesi: 2,
     hazirlik_dakika: 20,
     etiketler: [
+      'et',
       'glutensiz',
       'laktozlu',
       'salata',
@@ -2452,7 +2468,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 402, protein_g: 33, yag_g: 22, karbonhidrat_g: 18, lif_g: 6 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 55,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere'],
     adimlar_tr: [
       'Tavuğu mühürle, güvece al.',
       'Doğranmış sebzeleri ekleyip fırında kırk beş dakika pişir.',
@@ -2510,7 +2526,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 372, protein_g: 37, yag_g: 8, karbonhidrat_g: 38, lif_g: 3 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 20,
-    etiketler: ['laktozlu', 'glutenli', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'laktozlu', 'glutenli', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Tavuğu ızgarada, içinde pembelik kalmayana kadar pişirip dilimle.',
       'Yufkaya yoğurt sür, marul ve tavuğu yerleştirip sar.',
@@ -2548,7 +2564,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 390, protein_g: 46, yag_g: 14, karbonhidrat_g: 20, lif_g: 2 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 40,
-    etiketler: ['laktozsuz', 'glutenli', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'laktozsuz', 'glutenli', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Hindiyi kıyma hâline getirip soğan ve galeta unuyla yoğur.',
       'Köfte yapıp fırında otuz dakika pişir.',
@@ -2674,7 +2690,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 342, protein_g: 32, yag_g: 6, karbonhidrat_g: 40, lif_g: 1 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 40,
-    etiketler: ['vejetaryen', 'laktozlu', 'glutenli', 'corba'],
+    etiketler: ['et', 'laktozlu', 'glutenli', 'corba'],
     adimlar_tr: [
       'Tavuk ve pirinci birlikte haşla.',
       'Yoğurt ve unu çırpıp yavaşça ekle, kaynatmadan ocaktan al.',
@@ -2692,7 +2708,14 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 377, protein_g: 44, yag_g: 17, karbonhidrat_g: 12, lif_g: 5 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 40,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: [
+      'et',
+      'glutensiz',
+      'laktozsuz',
+      'ana_yemek',
+      'yuksek_protein',
+      'dusuk_karbonhidrat',
+    ],
     adimlar_tr: [
       'Karnabaharı buketlere ayırıp yağla harmanla.',
       'Tavukla birlikte 200 derecede otuz beş dakika pişir.',
@@ -2711,7 +2734,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 454, protein_g: 43, yag_g: 18, karbonhidrat_g: 30, lif_g: 9 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 25,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Nohut ve tahini ezip humus yap.',
       'Tavuğu ızgarada içinde pembelik kalmayana kadar pişir; dilimleyip humusun yanına, sebzelerle diz.',
@@ -2781,7 +2804,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 471, protein_g: 50, yag_g: 15, karbonhidrat_g: 34, lif_g: 4 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Hindiyi baharatlayıp yarım saat beklet.',
       'Patateslerle tepsiye alıp 190 derecede kırk dakika pişir.',
@@ -2844,7 +2867,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 492, protein_g: 37, yag_g: 24, karbonhidrat_g: 32, lif_g: 11 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 55,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Tavuğu mühürleyip güvece al.',
       'Nohut ve domatesle birlikte fırında kırk beş dakika pişir.',
@@ -2939,7 +2962,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 481, protein_g: 38, yag_g: 17, karbonhidrat_g: 44, lif_g: 5 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 25,
-    etiketler: ['glutensiz', 'laktozsuz', 'salata', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'salata', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Kinoayı haşlayıp soğut.',
       'Tavuğu ızgarada içinde pembelik kalmayana kadar pişir; kinoa ve sebzelerle harmanla, yağ ve limon ekle.',
@@ -2996,7 +3019,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 321, protein_g: 52, yag_g: 9, karbonhidrat_g: 8, lif_g: 2 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozlu', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: ['et', 'glutensiz', 'laktozlu', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
     adimlar_tr: [
       'Hindiyi yassılaştırıp ıspanak ve loru yerleştir.',
       'Rulo yapıp fırında otuz dakika pişir.',
@@ -3014,7 +3037,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 361, protein_g: 35, yag_g: 5, karbonhidrat_g: 44, lif_g: 5 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 55,
-    etiketler: ['glutensiz', 'laktozlu', 'ana_yemek', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozlu', 'ana_yemek', 'tek_tencere'],
     adimlar_tr: [
       'Patatesleri fırında pişir.',
       'Tavuğu ızgarada içinde pembelik kalmayana kadar pişirip üzerine koy, yoğurt gezdir.',
@@ -3107,7 +3130,15 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 266, protein_g: 32, yag_g: 10, karbonhidrat_g: 12, lif_g: 3 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozsuz', 'corba', 'yuksek_protein', 'dusuk_kalori', 'tek_tencere'],
+    etiketler: [
+      'et',
+      'glutensiz',
+      'laktozsuz',
+      'corba',
+      'yuksek_protein',
+      'dusuk_kalori',
+      'tek_tencere',
+    ],
     adimlar_tr: [
       'Tavuğu, içinde pembelik kalmayana kadar yirmi dakika haşlayıp didikle.',
       'Sebzeleri suyunda pişir, tavuğu geri ekle.',
@@ -3192,7 +3223,14 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 377, protein_g: 46, yag_g: 17, karbonhidrat_g: 10, lif_g: 4 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: [
+      'et',
+      'glutensiz',
+      'laktozsuz',
+      'ana_yemek',
+      'yuksek_protein',
+      'dusuk_karbonhidrat',
+    ],
     adimlar_tr: [
       'Mantarları dilimleyip tepsiye yay.',
       'Tavuğu üzerine koyup 200 derecede otuz dakika pişir.',
@@ -3356,7 +3394,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 256, protein_g: 20.4, yag_g: 4.7, karbonhidrat_g: 33.5, lif_g: 5.9 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 6,
-    etiketler: ['laktozsuz', 'glutenli', 'kahvalti', 'yuksek_protein', 'pisirme_yok'],
+    etiketler: ['et', 'laktozsuz', 'glutenli', 'kahvalti', 'yuksek_protein', 'pisirme_yok'],
     adimlar_tr: [
       'Ekmeği ikiye ayır.',
       'Hindi füme, marul ve domatesi yerleştirip kapat.',
@@ -3495,7 +3533,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 442, protein_g: 31.1, yag_g: 28.8, karbonhidrat_g: 14.7, lif_g: 6.6 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 40,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere', 'dusuk_karbonhidrat'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere', 'dusuk_karbonhidrat'],
     adimlar_tr: [
       'Kıymayı soğanla, suyunu çekene kadar kavur.',
       'Karnabaharı ekleyip az suyla yumuşayana kadar pişir.',
@@ -3513,7 +3551,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 598, protein_g: 48.1, yag_g: 44.1, karbonhidrat_g: 2.5, lif_g: 0.3 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Kanatları yağ ve baharatla harmanla.',
       '200 derecede kırk dakika, içinde pembelik kalmayana kadar fırınla.',
@@ -3532,7 +3570,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 411, protein_g: 52.9, yag_g: 16, karbonhidrat_g: 16.1, lif_g: 6.2 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Hindiyi baharatlayıp sebzelerle tepsiye al.',
       '190 derecede kırk dakika, hindide pembelik kalmayana kadar fırınla.',
@@ -4019,7 +4057,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 620, protein_g: 55.7, yag_g: 18.4, karbonhidrat_g: 55.5, lif_g: 13.3 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 35,
-    etiketler: ['laktozsuz', 'glutenli', 'ana_yemek', 'yuksek_protein', 'ramazan_uygun'],
+    etiketler: ['et', 'laktozsuz', 'glutenli', 'ana_yemek', 'yuksek_protein', 'ramazan_uygun'],
     adimlar_tr: [
       'Tavuğu mühürleyip içinde pembelik kalmayana kadar pişir.',
       'Bulguru ekleyip suyunu çekene kadar demlendir.',
@@ -4169,7 +4207,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 419, protein_g: 36.3, yag_g: 14.3, karbonhidrat_g: 34.4, lif_g: 2.6 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 30,
-    etiketler: ['laktozsuz', 'glutenli', 'corba', 'yuksek_protein'],
+    etiketler: ['et', 'laktozsuz', 'glutenli', 'corba', 'yuksek_protein'],
     adimlar_tr: [
       'Tavuğu, içinde pembelik kalmayana kadar yirmi dakika haşlayıp didikle.',
       'Suyuna şehriye ve havucu ekleyip kaynat.',
@@ -4188,7 +4226,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 666, protein_g: 50.5, yag_g: 34.1, karbonhidrat_g: 37.7, lif_g: 4.9 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 55,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Tavuk ve sebzeleri yağ ve baharatla harmanla.',
       '190 derecede elli dakika, tavukta pembelik kalmayana kadar fırınla.',
@@ -4207,7 +4245,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 446, protein_g: 57.1, yag_g: 18.7, karbonhidrat_g: 8.9, lif_g: 2.3 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 30,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Tavuğu yoğurtsuz baharatlı sosta yarım saat beklet.',
       'Sebzelerle şişe diz, ızgarada içinde pembelik kalmayana kadar pişir.',
@@ -4227,7 +4265,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 530, protein_g: 44.2, yag_g: 32.2, karbonhidrat_g: 14.5, lif_g: 6 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 60,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'tek_tencere'],
     adimlar_tr: [
       'Tavuğu mühürle, sebzelerle güvece al.',
       '180 derecede elli dakika, tavukta pembelik kalmayana kadar fırınla.',
@@ -4246,7 +4284,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 435, protein_g: 34.1, yag_g: 29.1, karbonhidrat_g: 14.2, lif_g: 6.9 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 35,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere', 'dusuk_karbonhidrat'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere', 'dusuk_karbonhidrat'],
     adimlar_tr: [
       'Kıymayı soğanla suyunu çekene kadar kavur.',
       'Ispanağı ekleyip yumuşayana kadar pişir.',
@@ -4265,7 +4303,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 440, protein_g: 28.6, yag_g: 27.3, karbonhidrat_g: 20.6, lif_g: 9 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 45,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere'],
+    etiketler: ['et', 'glutensiz', 'laktozsuz', 'ana_yemek', 'tek_tencere'],
     adimlar_tr: [
       'Kıymayı suyunu çekene kadar kavur.',
       'Fasulye ve domatesle otuz beş dakika pişir.',
@@ -5053,6 +5091,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     maliyet_kademesi: 2,
     hazirlik_dakika: 18,
     etiketler: [
+      'et',
       'glutensiz',
       'laktozsuz',
       'ana_yemek',
@@ -5205,7 +5244,14 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 353, protein_g: 49.5, yag_g: 15.7, karbonhidrat_g: 4, lif_g: 2.2 },
     maliyet_kademesi: 3,
     hazirlik_dakika: 18,
-    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek', 'yuksek_protein', 'dusuk_karbonhidrat'],
+    etiketler: [
+      'et',
+      'glutensiz',
+      'laktozsuz',
+      'ana_yemek',
+      'yuksek_protein',
+      'dusuk_karbonhidrat',
+    ],
     adimlar_tr: [
       'Hindiyi ince doğrayıp yüksek ateşte içinde pembelik kalmayana kadar pişir.',
       'Mantarı ekleyip suyunu çekene kadar kavur.',
@@ -5299,7 +5345,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     makrolar: { kalori: 614, protein_g: 56.1, yag_g: 18, karbonhidrat_g: 54, lif_g: 4.8 },
     maliyet_kademesi: 2,
     hazirlik_dakika: 20,
-    etiketler: ['laktozsuz', 'glutenli', 'ana_yemek', 'yuksek_protein'],
+    etiketler: ['et', 'laktozsuz', 'glutenli', 'ana_yemek', 'yuksek_protein'],
     adimlar_tr: [
       'Kuskusu sıcak suda şişir.',
       'Tavuğu ince doğrayıp içinde pembelik kalmayana kadar pişir, kuskusla harmanla.',
@@ -6069,6 +6115,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     maliyet_kademesi: 2,
     hazirlik_dakika: 20,
     etiketler: [
+      'et',
       'glutensiz',
       'laktozsuz',
       'ana_yemek',
@@ -6227,6 +6274,7 @@ export const TARIF_TOHUMU: Tarif[] = [
     maliyet_kademesi: 3,
     hazirlik_dakika: 20,
     etiketler: [
+      'et',
       'glutensiz',
       'laktozsuz',
       'ana_yemek',

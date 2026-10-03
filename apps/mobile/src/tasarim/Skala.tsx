@@ -23,13 +23,27 @@ export interface SkalaProps {
   isaretAlt: number;
   isaretUst: number;
   birim?: string;
+  /**
+   * Birim sayının ÖNÜNDE mi. Türkçede yüzde işareti önde yazılır ("%13-22"); raporun
+   * kendi cümlesi öyle yazarken hemen altındaki ölçek "13-22%" diyordu.
+   */
+  birimOnde?: boolean;
   /** Ölçeğin altında duran açıklama; okumanın ne olduğunu söyler. */
   etiket?: string;
 }
 
 const YUKSEK = 26;
 
-export function Skala({ alt, ust, isaretAlt, isaretUst, birim = '', etiket }: SkalaProps) {
+export function Skala({
+  alt,
+  ust,
+  isaretAlt,
+  isaretUst,
+  birim = '',
+  birimOnde = false,
+  etiket,
+}: SkalaProps) {
+  const yaz = (metin: string) => (birimOnde ? `${birim}${metin}` : `${metin}${birim}`);
   const tema = useTema();
   const aralik = ust - alt || 1;
   const oran = (deger: number) => Math.max(0, Math.min(1, (deger - alt) / aralik));
@@ -84,17 +98,13 @@ export function Skala({ alt, ust, isaretAlt, isaretUst, birim = '', etiket }: Sk
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
         <Sayi tur="etiket" renk="metinSilik">
-          {alt}
-          {birim}
+          {yaz(String(alt))}
         </Sayi>
         <Sayi tur="etiket" renk="aksan">
-          {isaretAlt}
-          {isaretAlt === isaretUst ? '' : `-${isaretUst}`}
-          {birim}
+          {yaz(isaretAlt === isaretUst ? String(isaretAlt) : `${isaretAlt}-${isaretUst}`)}
         </Sayi>
         <Sayi tur="etiket" renk="metinSilik">
-          {ust}
-          {birim}
+          {yaz(String(ust))}
         </Sayi>
       </View>
 

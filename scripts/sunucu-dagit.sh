@@ -29,7 +29,15 @@ fi
 
 SURUM="$(git rev-parse HEAD)"
 KISA="$(git rev-parse --short HEAD)"
-PAKET="$(mktemp -d)/swiip.tar.gz"
+# Paket bir geçici dosyaya yazılıyor ama `git archive -o` ile DEĞİL, kabuk
+# yönlendirmesiyle. Git Bash'te `mktemp -d` bir MSYS yolu (/tmp/...) üretiyor ve
+# Windows `git.exe` o yola `-o` ile yazamıyordu; çözüm diye her seferinde TMPDIR
+# elle ayarlanıyordu. Yönlendirmeyi kabuğun kendisi açtığı için yol her iki
+# dünyada da geçerli. Yükleme de `scp` yerine ssh'in standart girdisinden
+# yapılıyor: `scp "C:/..."` iki nokta üst üsteden önceki kısmı ana makine adı sanıyor.
+GECICI="$(mktemp -d)"
+trap 'rm -rf "$GECICI"' EXIT
+PAKET="$GECICI/swiip.tar.gz"
 
 # `apps/site` GONDERILIYOR — Caddy marka sitesini oradan sunuyor.
 #
@@ -51,15 +59,21 @@ PAKET="$(mktemp -d)/swiip.tar.gz"
 #
 # `apps/mobile` hala gonderilmiyor: sunucuda derlenmiyor ve bosuna yer kaplar.
 # `yedekler/` sunucunun kendi urettigi klasor, dokunulmuyor.
-git archive --format=tar.gz -o "$PAKET" HEAD \
+git archive --format=tar.gz HEAD >"$PAKET" \
   infra magaza packages scripts apps/site \
   package.json package-lock.json tsconfig.base.json tsconfig.json vitest.config.ts
 
 echo "  paket: $(du -h "$PAKET" | cut -f1) · sürüm $KISA"
 
-scp -q "$PAKET" "$HEDEF:/tmp/swiip.tar.gz"
+ssh "$HEDEF" 'cat > /tmp/swiip.tar.gz' <"$PAKET"
 
-ssh "$HEDEF" bash -s <<UZAK
+# Uzak betik TIRNAKLI heredoc (<<'UZAK'): içindeki hiçbir şey YERELDE genişlemiyor.
+#
+# Tırnaksızdı ve aşağıdaki yorumlardaki ters tırnaklı ifadeler (tar -xzf, up -d,
+# caddy reload, infra/Caddyfile ...) dağıtımı yapan makinede KOMUT olarak
+# çalıştırılıyordu: heredoc genişlemesi kabuk yorumunu tanımaz. Gereken iki değer
+# ssh komut satırından veriliyor.
+ssh "$HEDEF" "SURUM='$SURUM' UZAK_DIZIN='$UZAK_DIZIN' bash -s" <<'UZAK'
 set -euo pipefail
 cd "$UZAK_DIZIN"
 
@@ -101,7 +115,11 @@ docker compose -f infra/docker-compose.yml up -d
 # okudugu dosyanin kendisi eskiydi.
 #
 # Ayni sinif kusur: bir sey yapildigi saniliyor, hicbir sey uyarmiyor.
-docker compose -f infra/docker-compose.yml up -d --force-recreate caddy
+#
+# `yedekleyici` da AYNI sebeple burada: `scripts/yedek-al.sh` ona tek dosya olarak
+# bağlanıyor. Yeniden oluşturulmadan yedek betiğindeki hiçbir değişiklik gece işine
+# ulaşmıyordu.
+docker compose -f infra/docker-compose.yml up -d --force-recreate caddy yedekleyici
 
 # SURUM en sonda yazılıyor. Önce yazılıyordu ve derleme yarıda kaldığında dosya yeni
 # commit'i gösterirken konteynerde hâlâ eski kod dönüyordu — "hangi kod dönüyor?"

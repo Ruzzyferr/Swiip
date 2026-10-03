@@ -654,3 +654,112 @@ describe('POST /v1/kimlik/dil', () => {
     expect(cevap.statusCode).toBe(401);
   });
 });
+
+/**
+ * Kodun KENDİ deneme sınırı.
+ *
+ * Tek koruma IP başına dakikalık istek sınırıydı; IP değiştiren bir saldırgan altı
+ * haneli kodu 15 dakika boyunca sınırsız deneyebiliyordu. Artık beş yanlış denemeden
+ * sonra kod yanıyor — doğru kod bile o noktadan sonra çalışmıyor.
+ */
+describe('doğrulama kodu deneme sınırı', () => {
+  const kisi = { email: 'kaba-kuvvet@swiip.app', parola: 'Kirmizi-Bisiklet-42' };
+
+  beforeAll(async () => {
+    await kayitOl({ ...kisi, saglik_onayi: true });
+  });
+
+  function sonKod(): string {
+    const posta = uygulama.kutu[uygulama.kutu.length - 1];
+    return posta?.govde.match(/\b\d{6}\b/)?.[0] ?? '';
+  }
+
+  const sifirla = (kod: string) =>
+    app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/parola-sifirla',
+      payload: { email: kisi.email, kod, yeni_parola: 'Mavi-Deniz-Feneri-8' },
+    });
+
+  it('beş yanlış denemeden sonra doğru kod da reddedilir', async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/parola-sifirla-istek',
+      payload: { email: kisi.email },
+    });
+    const dogru = sonKod();
+    const yanlis = dogru === '000000' ? '111111' : '000000';
+
+    for (let i = 0; i < 5; i += 1) {
+      expect((await sifirla(yanlis)).statusCode).toBe(401);
+    }
+
+    const cevap = await sifirla(dogru);
+    expect(cevap.statusCode, 'yanan kod tahmin edilse bile işe yaramamalı').toBe(401);
+  });
+
+  it('sınırın altındaki yanlış denemeler doğru kodu bozmaz', async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/parola-sifirla-istek',
+      payload: { email: kisi.email },
+    });
+    const dogru = sonKod();
+    const yanlis = dogru === '000000' ? '111111' : '000000';
+
+    for (let i = 0; i < 4; i += 1) await sifirla(yanlis);
+
+    expect((await sifirla(dogru)).statusCode).toBe(200);
+  });
+});
+
+describe('eşzamanlı kimlik istekleri', () => {
+  /**
+   * Okuma ile iptal arasındaki boşlukta aynı yenileme tokenı iki istekte birden
+   * geçiyordu: çalınan tokenı kurbanla aynı anda sunan saldırgan da taze bir çift
+   * alıyor, zincir kırma koruması hiç tetiklenmiyordu.
+   */
+  it('aynı yenileme tokenı paralel sunulunca yalnızca biri geçer', async () => {
+    const kayit = await kayitOl({ ...gecerliKayit, email: 'yaris-yenile@swiip.app' });
+    const yenileme = kayit.json().yenileme_token;
+
+    const cevaplar = await Promise.all(
+      Array.from({ length: 4 }, () =>
+        app.inject({
+          method: 'POST',
+          url: '/v1/kimlik/yenile',
+          payload: { yenileme_token: yenileme },
+        }),
+      ),
+    );
+
+    const basarili = cevaplar.filter((c) => c.statusCode === 200);
+    expect(basarili.length, 'tek kullanımlık token birden fazla çift üretmemeli').toBe(1);
+
+    // Yarış tekrar kullanım sayıldı: kazanan tarafın aldığı çift de geçersiz.
+    const sonraki = await app.inject({
+      method: 'POST',
+      url: '/v1/kimlik/yenile',
+      payload: { yenileme_token: basarili[0]!.json().yenileme_token },
+    });
+    expect(sonraki.statusCode).toBe(401);
+  });
+
+  it('aynı e-postayla paralel kayıt 500 değil 409 döner', async () => {
+    const govde = { ...gecerliKayit, email: 'cift-dokunus@swiip.app' };
+    const cevaplar = await Promise.all([kayitOl(govde), kayitOl(govde)]);
+    const kodlar = cevaplar.map((c) => c.statusCode).sort();
+
+    expect(kodlar).toEqual([201, 409]);
+  });
+
+  it('dil alanı sınırsız uzunlukta kaydedilemez', async () => {
+    const cevap = await kayitOl({
+      ...gecerliKayit,
+      email: 'uzun-dil@swiip.app',
+      locale: 'x'.repeat(10_000),
+    });
+
+    expect(cevap.statusCode).toBe(400);
+  });
+});

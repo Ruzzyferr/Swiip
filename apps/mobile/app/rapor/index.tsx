@@ -18,7 +18,7 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { Skala } from '../../src/tasarim/Skala';
 import { ApiHatasi, istek } from '../../src/veri/api';
-import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
+import { useDil, useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
 
 /**
  * Vücut analizi raporu (F4.7) — ücretsiz katmanın en somut çıktısı.
@@ -39,34 +39,34 @@ export default function Rapor() {
   const tema = useTema();
   const m = useMetinler().rapor;
   const sayilarGizli = useSayilarGizli();
+  const dil = useDil();
 
   const [analiz, setAnaliz] = useState<AnalizCevabi | null>(null);
   const [hata, setHata] = useState<string | null>(null);
+  const [analizYok, setAnalizYok] = useState(false);
 
   useEffect(() => {
     void (async () => {
       try {
         /**
-         * ÖNCE OKU, gerekirse üret.
+         * Bu ekran YALNIZCA OKUR.
          *
-         * Bu ekran raporu görmek için `POST /vucut/analiz` çağırıyordu ve o uç her
-         * çağrıda yeni analiz üretiyor. Çekim ekranı da aynı ucu çağırdığı için tek
-         * dokunuşta iki istek gidiyordu: ilki başarılı (hak harcanır), ikincisi 403.
-         * Kullanıcı kendi analizini hiç göremiyordu — ücretsiz katmanda ömür boyu tek
-         * hak olduğu için kalıcı olarak.
-         *
-         * Okuma ve yazma ayrıldı: rapor varsa okunur, yoksa (ölçülerle devam eden
-         * kullanıcı) bir kez üretilir.
+         * Önce rapor yoksa `POST /vucut/analiz` ile boş gövdeyle bir tane üretiyordu.
+         * Fotoğrafsız ve ölçüsüz gelen kullanıcı için bu, içinde hiçbir veri olmayan bir
+         * rapor demekti — ve ücretsiz katmanda ömür boyu TEK olan analiz hakkı ona
+         * harcanıyordu. Sonradan fotoğrafla analiz yapmak isteyen kullanıcı "hakkın
+         * bitti" duvarına çarpıyordu. Analiz artık yalnızca gerçek veriyle (çekim ya da
+         * ölçü ekranından) üretiliyor; burada yoksa iki yol gösteriliyor.
          */
         try {
           setAnaliz(await istek<AnalizCevabi>('/v1/vucut/analiz/son'));
-          return;
         } catch (okumaHatasi) {
-          // 404 dışında bir şeyse üretmeyi denemek yanlış olur; sebebi kullanıcıya söylenir.
-          if (!(okumaHatasi instanceof ApiHatasi) || okumaHatasi.durum !== 404) throw okumaHatasi;
+          if (okumaHatasi instanceof ApiHatasi && okumaHatasi.durum === 404) {
+            setAnalizYok(true);
+            return;
+          }
+          throw okumaHatasi;
         }
-
-        setAnaliz(await istek<AnalizCevabi>('/v1/vucut/analiz', { yontem: 'POST', govde: {} }));
       } catch (h) {
         /**
          * Sunucunun söylediği sebebi gösteriyoruz.
@@ -84,7 +84,26 @@ export default function Rapor() {
     return (
       <Ekran>
         <BosDurum baslik={m.hataBaslik} govde={hata} />
-        <Dugme baslik={m.programaGec} onPress={() => router.replace('/(sekme)/program')} />
+        <Dugme baslik={m.programaGec} onPress={() => router.dismissTo('/(sekme)/program')} />
+      </Ekran>
+    );
+  }
+
+  if (analizYok) {
+    return (
+      <Ekran>
+        <BosDurum baslik={m.analizYokBaslik} govde={m.analizYokGovde} />
+        <Dugme baslik={m.fotografla} onPress={() => router.push('/fotograf/gizlilik')} />
+        <Dugme
+          baslik={m.olculerle}
+          tur="ikincil"
+          onPress={() => router.push('/fotograf/olculer')}
+        />
+        <Dugme
+          baslik={m.programaGec}
+          tur="sessiz"
+          onPress={() => router.dismissTo('/(sekme)/program')}
+        />
       </Ekran>
     );
   }
@@ -125,6 +144,7 @@ export default function Rapor() {
               isaretAlt={rapor.yag_orani.alt}
               isaretUst={rapor.yag_orani.ust}
               birim="%"
+              birimOnde={dil === 'tr'}
             />
             <Yazi tur="kucuk" renk="metinYumusak">
               {rapor.yag_orani.kaynak === 'capraz'
@@ -225,7 +245,7 @@ export default function Rapor() {
         />
         <Dugme
           baslik={m.programimiGor}
-          onPress={() => router.replace('/(sekme)/program')}
+          onPress={() => router.dismissTo('/(sekme)/program')}
           erisimIpucu={m.programErisimIpucu}
         />
       </Ekran>

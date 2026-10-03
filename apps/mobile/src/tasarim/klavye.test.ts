@@ -111,6 +111,32 @@ describe('klavye çözümü tek yerde', () => {
 
   const ISTISNA = ['koc.tsx'];
 
+  /**
+   * Metin alanı olan bir ekran düz `ScrollView` ile çizilmiyor.
+   *
+   * 2026-10-03'te bulundu: `Ekran`'ın klavye çözümü yalnızca `Ekran` kullanan
+   * ekranlarda çalışıyordu. Kendi `ScrollView`'ini kuran sekmeler (Beslenme'deki
+   * arama ve miktar, İlerleme'deki kilo, Ayarlar'daki doğrulama kodu) Android 15'te
+   * alanı klavyenin ARKASINDA bırakıyordu — aynı kusur, başka bir kapta.
+   */
+  it('metin alanı olan ekran klavyeyi bilen bir kap kullanıyor', () => {
+    const suclular = tsxDosyalari(APP)
+      .filter((yol) => !ISTISNA.some((ad) => yol.endsWith(ad)))
+      .filter((yol) => {
+        const k = kod(yol);
+        return (
+          /<TextInput\b/.test(k) && /<ScrollView\b/.test(k) && !/<(Ekran|KlavyeKaydirma)\b/.test(k)
+        );
+      })
+      .map((yol) => yol.slice(APP.length + 1));
+
+    expect(
+      suclular,
+      'Bu ekranda metin alanı var ama kap düz `ScrollView`: Android 15’te alan klavyenin ' +
+        'arkasında kalır. `KlavyeKaydirma` (ya da `Ekran`) kullan.',
+    ).toEqual([]);
+  });
+
   it('ekranlar kendi klavye kabını kurmuyor', () => {
     const suclular = tsxDosyalari(APP)
       .filter((yol) => !ISTISNA.some((ad) => yol.endsWith(ad)))

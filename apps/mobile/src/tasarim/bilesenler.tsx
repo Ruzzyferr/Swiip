@@ -1,4 +1,14 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import {
   ActivityIndicator,
   Image,
@@ -11,11 +21,14 @@ import {
   Text,
   TextInput,
   View,
+  type RefreshControlProps,
+  type TextInputProps,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
 import { gorselOrani } from './gorselOrani';
 import { paraParcalari } from './para';
 import { useTema, type Tema } from './tema';
@@ -356,27 +369,64 @@ function useKlavyeYuksekligi(): number {
   return yukseklik;
 }
 
-export function Ekran({
+/**
+ * Klavyenin bu ekranın içeriğiyle ÇAKIŞAN yüksekliği (yalnızca Android; iOS'ta 0).
+ *
+ * `KlavyeKaydirma` ve kendi düzenini kuran sohbet ekranı (`koc.tsx`) aynı hesabı
+ * kullanıyor; hesap tek yerde.
+ */
+export function useKlavyePayi(): number {
+  const klavyeHam = useKlavyeYuksekligi();
+  /**
+   * Sekme çubuğunun yüksekliği (sekme dışındaki ekranlarda 0).
+   *
+   * Kap klavyenin TAMAMI kadar daraltılıyordu. Tam ekran bir sayfada doğru; ama sekme
+   * ekranlarında kap zaten sekme çubuğunun üstünde bitiyor ve sekme çubuğu klavyenin
+   * arkasında kalıyor. Pay iki kez düşülüyordu: emülatörde Beslenme aramasında, arama
+   * sonuçlarıyla klavye arasında BOŞ bir şerit kalıyor ve sonuçlar onun altında
+   * kesiliyordu. Daraltma artık klavyenin içerikle ÇAKIŞAN kısmı kadar.
+   *
+   * Pay ÖLÇÜLMÜYOR, gezginden okunuyor: `measureInWindow` ile pencere yüksekliği
+   * aynı koordinat uzayında değil (durum çubuğu kadar kayık, emülatörde ~32 dp) ve
+   * ölçüme dayanan ilk deneme arama kutusunu klavyenin arkasına itti.
+   */
+  const sekmePayi = useContext(BottomTabBarHeightContext) ?? 0;
+  /*
+    Klavyenin bildirdiği yükseklik alttaki gezinme çubuğu payını SAYMIYOR: emülatörde
+    olay 278,9 dp derken klavye ekranda ~306 dp kaplıyordu; fark alt güvenli alan
+    (~27 dp). Önceki "tutarlı biçimde 15 dp eksik" gözlemi de buydu. Gerçek örtü =
+    bildirilen + alt güvenli alan.
+  */
+  const altKenar = useSafeAreaInsets().bottom;
+  const klavye = klavyeHam > 0 ? Math.max(0, klavyeHam + altKenar - sekmePayi) : 0;
+  return klavye;
+}
+
+/**
+ * Klavyeyi hesaba katan kaydırma kabı — uygulamadaki TEK klavye çözümü.
+ *
+ * `Ekran` bunu kullanıyor. Kendi `ScrollView`'ini kuran sekmeler (yenileme kontrolü,
+ * sayfa ortasında arama kutusu, kilo girişi, doğrulama kodu) da bunu kullanıyor:
+ * onlar düz `ScrollView` kullanırken Android 15'te alanları klavyenin arkasında
+ * kalıyordu — `Ekran` için düzeltilen kusurun aynısı, yalnızca başka bir kapta.
+ */
+export function KlavyeKaydirma({
   children,
-  altBoslugu = true,
-  ustGuvenliAlan = false,
-  ortala = false,
+  kaydirmaRef,
+  refreshControl,
+  icerikStili,
 }: {
   children: ReactNode;
-  altBoslugu?: boolean;
-  /** Ekranın gezinme başlığı yoksa true: üst kenar boşluğunu bu kap verir. */
-  ustGuvenliAlan?: boolean;
-  /** Yer varken içeriği dikeyde ortalar; yer yokken normal kaydırmaya döner. */
-  ortala?: boolean;
+  kaydirmaRef?: RefObject<ScrollView>;
+  refreshControl?: ReactElement<RefreshControlProps>;
+  icerikStili?: (klavyeAcik: boolean) => StyleProp<ViewStyle>;
 }) {
   const tema = useTema();
-  const kenar = useSafeAreaInsets();
-  const ustEk = ustGuvenliAlan ? kenar.top : 0;
-
-  const kaydirma = useRef<ScrollView>(null);
+  const icRef = useRef<ScrollView>(null);
+  const kaydirma = kaydirmaRef ?? icRef;
   const kap = useRef<View>(null);
   const kaydirmaY = useRef(0);
-  const klavye = useKlavyeYuksekligi();
+  const klavye = useKlavyePayi();
 
   /**
    * Odaklanılan alanı klavyenin üstüne taşı.
@@ -401,26 +451,19 @@ export function Ekran({
     if (!girdi || !liste || !dis) return;
 
     /*
-      Bir kare bekleniyor: ölçüm, kap klavye kadar daraltıldıktan SONRA alınmalı.
-      Aynı işlemede ölçülürse hem kabın kenarı hem kaydırma tavanı eski değerdir.
-    */
-    /*
       Bekleme `requestAnimationFrame` DEĞİL, kısa bir zamanlayıcı.
 
-      Tek kare yetmedi: ölçüm bazen kap daraltılmadan önce alınıyor ve kaydırma
-      eksik kalıyordu. `keyboardDidShow` klavyenin tamamen açıldığını söylüyor;
-      kalan tek yarış kendi yeniden çizimimiz ve o bu süre içinde bitiyor.
+      Ölçüm, kap klavye kadar daraltıldıktan SONRA alınmalı; aynı işlemede ölçülürse
+      hem kabın kenarı hem kaydırma tavanı eski değerdir. Tek kare yetmedi: ölçüm
+      bazen kap daraltılmadan önce alınıyor ve kaydırma eksik kalıyordu.
     */
     const zamanlayici = setTimeout(() => {
       dis.measureInWindow((_kx, kapY, _kg, kapYukseklik) => {
         girdi.measureInWindow((_x, y, _genislik, yukseklik) => {
           /*
             Kabın GÖRÜNÜR alt kenarı = kutunun altı eksi klavye payı.
-
-            Önce doğrudan `kapY + kapYukseklik` kullanılıyordu ve tutarlı biçimde
-            eksik kaydırıyordu: `paddingBottom` bir görünümün kendi kutusunu
-            küçültmez, İÇİNDEKİNİ küçültür. Yani ölçülen alt kenar hâlâ ekranın
-            dibiydi, klavyenin üstü değil.
+            `paddingBottom` bir görünümün kendi kutusunu küçültmez, İÇİNDEKİNİ
+            küçültür: ölçülen alt kenar hâlâ ekranın dibi, klavyenin üstü değil.
           */
           const kapAlt = kapY + kapYukseklik - klavye;
           const tasma = y + yukseklik + KLAVYE_PAYI - kapAlt;
@@ -429,7 +472,7 @@ export function Ekran({
       });
     }, 120);
     return () => clearTimeout(zamanlayici);
-  }, [klavye]);
+  }, [klavye, kaydirma]);
 
   return (
     /*
@@ -440,11 +483,6 @@ export function Ekran({
       kaldığı için kaydırmanın tavanı da değişmiyor — alan klavyenin kenarında
       yarım kalıyordu (emülatörde ölçüldü: 35 dp eksik).
 
-      Kabı daraltmak `adjustResize`'ın eskiden yaptığı şeyin ta kendisi: görünür
-      alan gerçekten klavyenin üstünde kalıyor, kaydırma oraya erişebiliyor ve
-      Android'in "odaklanan çocuğu görünüre kaydır" davranışı da yeniden doğru
-      ölçüyle çalışıyor.
-
       iOS'ta `klavye` her zaman 0 — orada işi `automaticallyAdjustKeyboardInsets`
       yapıyor ve bu sarmalayıcı hiçbir şey değiştirmiyor.
     */
@@ -452,35 +490,147 @@ export function Ekran({
       <ScrollView
         ref={kaydirma}
         style={{ flex: 1, backgroundColor: tema.renk.zemin }}
-        contentContainerStyle={{
-          flexGrow: 1,
-          alignItems: 'center',
-          padding: tema.bosluk.lg,
-          paddingTop: tema.bosluk.lg + ustEk,
-          paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + (klavye > 0 ? 0 : kenar.bottom),
-        }}
+        contentContainerStyle={icerikStili?.(klavye > 0)}
+        refreshControl={refreshControl}
         contentInsetAdjustmentBehavior="automatic"
         /* iOS: inset ve odaklı alana kaydırma natif tarafta. */
         automaticallyAdjustKeyboardInsets
         keyboardShouldPersistTaps="handled"
+        /* Liste sürüklenince klavye iner — açık klavye sayfanın yarısını kapatmasın. */
+        keyboardDismissMode="on-drag"
         onScroll={(olay) => {
           kaydirmaY.current = olay.nativeEvent.contentOffset.y;
         }}
         scrollEventThrottle={16}
       >
-        <Sutun
-          stil={{
-            padding: 0,
-            flexGrow: 1,
-            justifyContent: ortala ? 'center' : undefined,
-          }}
-        >
-          {children}
-        </Sutun>
+        {children}
       </ScrollView>
     </View>
   );
 }
+
+export function Ekran({
+  children,
+  altBoslugu = true,
+  ustGuvenliAlan = false,
+  ortala = false,
+}: {
+  children: ReactNode;
+  altBoslugu?: boolean;
+  /** Ekranın gezinme başlığı yoksa true: üst kenar boşluğunu bu kap verir. */
+  ustGuvenliAlan?: boolean;
+  /** Yer varken içeriği dikeyde ortalar; yer yokken normal kaydırmaya döner. */
+  ortala?: boolean;
+}) {
+  const tema = useTema();
+  const kenar = useSafeAreaInsets();
+  const ustEk = ustGuvenliAlan ? kenar.top : 0;
+
+  return (
+    <KlavyeKaydirma
+      icerikStili={(klavyeAcik) => ({
+        flexGrow: 1,
+        alignItems: 'center',
+        padding: tema.bosluk.lg,
+        paddingTop: tema.bosluk.lg + ustEk,
+        paddingBottom: (altBoslugu ? tema.bosluk.xxxl : 0) + (klavyeAcik ? 0 : kenar.bottom),
+      })}
+    >
+      <Sutun
+        stil={{
+          padding: 0,
+          flexGrow: 1,
+          justifyContent: ortala ? 'center' : undefined,
+        }}
+      >
+        {children}
+      </Sutun>
+    </KlavyeKaydirma>
+  );
+}
+
+/**
+ * Metin alanı — uygulamanın tek giriş kutusu stili.
+ *
+ * Giriş, kayıt ve parola ekranları aynı stil nesnesini üç kez kopyalıyordu ve hiçbiri
+ * klavyenin "sonraki / gönder" tuşunu kullanmıyordu: e-postadan sonra klavyedeki tuş
+ * "bitti" diyor, kullanıcı parola kutusuna ayrıca dokunmak zorunda kalıyordu.
+ * Otomatik düzeltme de kapalı değildi; e-posta adresi yazılırken klavye "düzeltiyordu".
+ */
+export const MetinAlani = forwardRef<TextInput, TextInputProps>(function MetinAlani(
+  { style, ...ozellikler },
+  ref,
+) {
+  const tema = useTema();
+  return (
+    <TextInput
+      ref={ref}
+      autoCorrect={false}
+      placeholderTextColor={tema.renk.metinSilik}
+      {...ozellikler}
+      style={[
+        {
+          minHeight: tema.dokunmaHedefi,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: tema.renk.kenar,
+          borderRadius: tema.yaricap.md,
+          paddingHorizontal: tema.bosluk.lg,
+          fontSize: 16,
+          fontFamily: tema.tipografi.aileler.govde,
+          color: tema.renk.metin,
+          backgroundColor: tema.renk.yuzey,
+        },
+        style,
+      ]}
+    />
+  );
+});
+
+/**
+ * Parola alanı — göster/gizle düğmesiyle.
+ *
+ * Kayıtta 10 karakterlik bir parola isteniyor ve kullanıcı yazdığını hiç göremiyordu;
+ * mobilde yanlış dokunulan tek bir harf, "parola hatalı" döngüsü demek. Düğme alanın
+ * İÇİNDE: yanına konan bir satır, alanın altındaki ipucunu ve düğmeleri kaydırırdı.
+ */
+export const ParolaAlani = forwardRef<TextInput, Omit<TextInputProps, 'secureTextEntry'>>(
+  function ParolaAlani({ style, ...ozellikler }, ref) {
+    const tema = useTema();
+    const g = useMetinler().genel;
+    const [acik, setAcik] = useState(false);
+    return (
+      <View style={{ justifyContent: 'center' }}>
+        <MetinAlani
+          ref={ref}
+          {...ozellikler}
+          secureTextEntry={!acik}
+          autoCapitalize="none"
+          style={[{ paddingRight: 88 }, style]}
+        />
+        <Pressable
+          onPress={() => setAcik((a) => !a)}
+          accessibilityRole="button"
+          accessibilityLabel={acik ? g.parolayiGizleErisim : g.parolayiGosterErisim}
+          hitSlop={8}
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            minWidth: tema.dokunmaHedefi + 32,
+            paddingHorizontal: tema.bosluk.lg,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+          }}
+        >
+          <Yazi tur="kucuk" renk="aksan">
+            {acik ? g.parolayiGizle : g.parolayiGoster}
+          </Yazi>
+        </Pressable>
+      </View>
+    );
+  },
+);
 
 /**
  * Kart.
@@ -712,6 +862,11 @@ interface DugmeProps {
    * bir şeyi vadetmekti.
    */
   kilitPlan?: 'temel' | 'pro';
+  /**
+   * Kabını dikeyde doldur. Yan yana iki düğmenin üst/alt kenarı tutsun diye: biri
+   * kilit alt metni taşıdığında ya da iki satıra sarıldığında öteki kısa kalıyordu.
+   */
+  uzat?: boolean;
 }
 
 export function Dugme({
@@ -724,6 +879,7 @@ export function Dugme({
   erisimIpucu,
   kilitli = false,
   kilitPlan = 'temel',
+  uzat = false,
 }: DugmeProps) {
   const tema = useTema();
   const genel = useMetinler().genel;
@@ -764,6 +920,7 @@ export function Dugme({
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: tamGenislik ? 'stretch' : 'flex-start',
+        flexGrow: uzat ? 1 : 0,
         opacity: pasif ? 0.45 : pressed ? 0.85 : 1,
       })}
     >
@@ -780,6 +937,12 @@ export function Dugme({
               color: metinler[tur],
               fontSize: 16,
               fontFamily: tema.tipografi.aileler.baslik,
+              /*
+                İki satıra sarılan başlık da ortada. Kap ortalıyordu ama satırlar sola
+                hizalıydı: "İsteğe bağlı soruları sonra cevaplayacağım" düğmenin içinde
+                sağa kaymış, girintili bir paragraf gibi duruyordu.
+              */
+              textAlign: 'center',
             }}
           >
             {baslik}
@@ -837,8 +1000,14 @@ export function SecimDugmesi({
       accessibilityState={{ checked: secili }}
       style={({ pressed }) => ({
         minHeight: tema.dokunmaHedefi + 6,
-        paddingVertical: tema.bosluk.md,
-        paddingHorizontal: tema.bosluk.lg,
+        /*
+          Kenarlık kalınlaşırken iç boşluk AYNI miktarda inceliyor: kutunun dış ölçüsü
+          seçimle değişmiyor. Değişiyordu — seçilen her şık 6 px uzuyor ve altındaki
+          bütün sorular o kadar aşağı kayıyordu (emülatörde ölçüldü, 1147 → 1153).
+          CLAUDE.md bunu "kaçınılmaz" diye kaydetmişti; değilmiş.
+        */
+        paddingVertical: tema.bosluk.md - (secili ? 2 - StyleSheet.hairlineWidth : 0),
+        paddingHorizontal: tema.bosluk.lg - (secili ? 2 - StyleSheet.hairlineWidth : 0),
         borderRadius: tema.yaricap.md,
         borderWidth: secili ? 2 : StyleSheet.hairlineWidth,
         // Seçilmemiş onay kutusu 1,46:1'de fiilen yoktu.

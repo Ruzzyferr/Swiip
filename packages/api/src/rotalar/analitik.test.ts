@@ -284,3 +284,43 @@ describe('birim ekonomisi', () => {
     expect(cevap.statusCode).toBe(400);
   });
 });
+
+describe('doktor onayı (yönetim)', () => {
+  it('anahtarsız istek reddedilir', async () => {
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/analitik/doktor-onayi',
+      payload: { email: 'tamamlayan@swiip.app' },
+    });
+    expect(cevap.statusCode).toBe(403);
+  });
+
+  it('onay yazılıyor ve geri alınabiliyor', async () => {
+    const ver = await app.inject({
+      method: 'POST',
+      url: '/v1/analitik/doktor-onayi',
+      headers: yonetim(),
+      payload: { email: 'TAMAMLAYAN@swiip.app' },
+    });
+    expect(ver.statusCode).toBe(200);
+    expect(ver.json().doktor_onayi_at).not.toBeNull();
+
+    const geri = await app.inject({
+      method: 'POST',
+      url: '/v1/analitik/doktor-onayi',
+      headers: yonetim(),
+      payload: { email: 'tamamlayan@swiip.app', geri_al: true },
+    });
+    expect(geri.json().doktor_onayi_at).toBeNull();
+  });
+
+  it('olmayan hesap 404', async () => {
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/analitik/doktor-onayi',
+      headers: yonetim(),
+      payload: { email: 'yok@swiip.app' },
+    });
+    expect(cevap.statusCode).toBe(404);
+  });
+});

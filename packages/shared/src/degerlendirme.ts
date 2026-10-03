@@ -114,3 +114,23 @@ export interface SoruBankasi {
   blocks: SoruBlogu[];
   [ek: string]: unknown;
 }
+
+/**
+ * Soru bankasının bir dildeki görünen metinleri (`data/sorular.<dil>.json`).
+ *
+ * Yalnızca ETİKET. Cevap değerleri her dilde bankadaki kanonik Türkçe değerdir:
+ * çekirdek ve API 'Evet', 'Ev', 'Barbell ve plaka' gibi değerleri okuyor ve
+ * üretimdeki cevaplar bu değerlerle saklı. `options` ve `lifts` bu değerden etikete
+ * giden haritalar.
+ */
+export interface SoruCevirisi {
+  text: string;
+  options?: Record<string, string>;
+  lifts?: Record<string, string>;
+}
+
+export interface SoruBankasiCevirisi {
+  locale: string;
+  blocks: Record<string, { title: string }>;
+  questions: Record<string, SoruCevirisi>;
+}

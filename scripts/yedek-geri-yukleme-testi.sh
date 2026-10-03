@@ -37,7 +37,6 @@ DB_KULLANICI="$(env_oku POSTGRES_USER swiip)"
 DB_ADI="$(env_oku POSTGRES_DB swiip)"
 TEST_KABI="swiip-geri-yukleme-testi"
 TEST_PAROLA="geri-yukleme-testi-gecici"
-TEST_PORT="55439"
 GECICI_DIZIN="$(mktemp -d)"
 
 temizle() {
@@ -75,18 +74,31 @@ docker run -d --name "$TEST_KABI" \
   -e POSTGRES_PASSWORD="$TEST_PAROLA" \
   -e POSTGRES_USER=swiip \
   -e POSTGRES_DB=swiip_test \
-  -p "${TEST_PORT}:5432" \
   postgres:17-alpine > /dev/null
+# Port YAYINLANMIYOR. Burada `-p 55439:5432` vardı: betik sunucuda koşuyor ve Docker
+# yayınladığı portu 0.0.0.0'a açıp güvenlik duvarını (ufw) atlıyor. Yani test
+# süresince ÜRETİM VERİSİNİN tam kopyası, depoda yazılı sabit bir parolayla
+# internete açık duruyordu. Bütün erişim zaten `docker exec` ile; port gereksizdi.
 
+# TCP üzerinden soruluyor: imajın ilk kurulumunda geçici bir sunucu yalnızca unix
+# soketinde dinliyor ve sonra yeniden başlıyor. Soketten sorulan pg_isready o ara
+# durumda "hazır" deyip geri yüklemeyi yeniden başlatmaya denk getirebiliyordu.
 echo -n "→ hazır olması bekleniyor"
+HAZIR=0
 for _ in $(seq 1 60); do
-  if docker exec "$TEST_KABI" pg_isready -U swiip -d swiip_test > /dev/null 2>&1; then
+  if docker exec "$TEST_KABI" pg_isready -h 127.0.0.1 -U swiip -d swiip_test > /dev/null 2>&1; then
     echo " ✓"
+    HAZIR=1
     break
   fi
   echo -n "."
   sleep 1
 done
+if [ "$HAZIR" -ne 1 ]; then
+  echo
+  echo "HATA: geçici Postgres 60 saniyede hazır olmadı." >&2
+  exit 1
+fi
 
 # --- 3. Geri yükleme ---
 echo "→ yedek geri yükleniyor"

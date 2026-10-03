@@ -186,11 +186,18 @@ const T2_ANAHTAR: Record<string, string[]> = {
 
 export function kisitlariDerle(cevaplar: Cevaplar): Kisitlar {
   const ekipman = ekipmaniDerle(cevaplar);
-  const { sakatliklar, kontrendikasyonlar, kisitli_hacim_gruplari, kisitli_paternler, bayraklar } =
-    sakatlikDerle(cevaplar);
+  const {
+    sakatliklar,
+    kontrendikasyonlar,
+    kaynaklar,
+    kisitli_hacim_gruplari,
+    kisitli_paternler,
+    bayraklar,
+  } = sakatlikDerle(cevaplar);
 
   if (metin(cevaplar, 'S15') === 'Kontrolsüz / bilmiyorum') {
     kontrendikasyonlar.add('tansiyon_kontrolsuz');
+    if (!kaynaklar.has('tansiyon_kontrolsuz')) kaynaklar.set('tansiyon_kontrolsuz', 'S15');
     bayraklar.bas_ustu_yasak = true;
   }
 
@@ -212,6 +219,9 @@ export function kisitlariDerle(cevaplar: Cevaplar): Kisitlar {
     ekipman,
     sakatliklar,
     kontrendikasyonlar: [...kontrendikasyonlar].sort(),
+    kontrendikasyon_sorulari: Object.fromEntries(
+      [...kaynaklar.entries()].sort(([a], [b]) => a.localeCompare(b)),
+    ),
     reddedilen_anahtarlar: [...reddedilen].sort(),
     kisitli_hacim_gruplari: [...kisitli_hacim_gruplari].sort(),
     kisitli_paternler: [...kisitli_paternler].sort(),
@@ -290,6 +300,8 @@ function ekipmaniDerle(cevaplar: Cevaplar): Ekipman[] {
 interface SakatlikDerleme {
   sakatliklar: Sakatlik[];
   kontrendikasyonlar: Set<Kontrendikasyon>;
+  /** Kontrendikasyonun İLK geldiği soru. */
+  kaynaklar: Map<Kontrendikasyon, string>;
   kisitli_hacim_gruplari: Set<HacimGrubu>;
   kisitli_paternler: Set<Patern>;
   bayraklar: { bas_ustu_yasak: boolean; eksenel_yuk_yasak: boolean; zipla_yasak: boolean };
@@ -297,6 +309,12 @@ interface SakatlikDerleme {
 
 function sakatlikDerle(cevaplar: Cevaplar): SakatlikDerleme {
   const kontrendikasyonlar = new Set<Kontrendikasyon>();
+  const kaynaklar = new Map<Kontrendikasyon, string>();
+  /** Ekle ve kaynağını not et — kaynak ilk ekleyen soru. */
+  const ekle = (kod: Kontrendikasyon, soru: string) => {
+    kontrendikasyonlar.add(kod);
+    if (!kaynaklar.has(kod)) kaynaklar.set(kod, soru);
+  };
   const kisitli_hacim_gruplari = new Set<HacimGrubu>();
   const kisitli_paternler = new Set<Patern>();
   const bayraklar = { bas_ustu_yasak: false, eksenel_yuk_yasak: false, zipla_yasak: false };
@@ -304,7 +322,7 @@ function sakatlikDerle(cevaplar: Cevaplar): SakatlikDerleme {
 
   for (const bolge of dizi(cevaplar, 'S8')) {
     const kodlar = BOLGE_KONTRENDIKASYON[bolge] ?? [];
-    kodlar.forEach((k) => kontrendikasyonlar.add(k));
+    kodlar.forEach((k) => ekle(k, 'S8'));
 
     // Ağrı seviyesi bilinmiyorsa muhafazakâr davran: aktif say.
     const agri = sayi(cevaplar, `S11:${bolge}`) ?? sayi(cevaplar, 'S11') ?? AKTIF_AGRI_ESIGI;
@@ -330,7 +348,7 @@ function sakatlikDerle(cevaplar: Cevaplar): SakatlikDerleme {
 
   for (const fitik of dizi(cevaplar, 'S17')) {
     if (fitik === 'Bel fıtığı') {
-      kontrendikasyonlar.add('bel_fitigi');
+      ekle('bel_fitigi', 'S17');
       bayraklar.eksenel_yuk_yasak = true;
     }
     /**
@@ -345,22 +363,29 @@ function sakatlikDerle(cevaplar: Cevaplar): SakatlikDerleme {
      * dinlendiği yanılgısını veriyor.
      */
     if (fitik === 'Osteoporoz / kemik erimesi') {
-      kontrendikasyonlar.add('bel_fitigi');
+      ekle('bel_fitigi', 'S17');
       bayraklar.eksenel_yuk_yasak = true;
       kisitli_paternler.add('kalca_baskin');
     }
     if (fitik === 'Boyun fıtığı') {
-      kontrendikasyonlar.add('boyun_fitigi');
+      ekle('boyun_fitigi', 'S17');
       bayraklar.eksenel_yuk_yasak = true;
       bayraklar.bas_ustu_yasak = true;
     }
     if (fitik === 'Kasık fıtığı') {
-      kontrendikasyonlar.add('kalca_impingement');
+      ekle('kalca_impingement', 'S17');
       bayraklar.eksenel_yuk_yasak = true;
     }
   }
 
-  return { sakatliklar, kontrendikasyonlar, kisitli_hacim_gruplari, kisitli_paternler, bayraklar };
+  return {
+    sakatliklar,
+    kontrendikasyonlar,
+    kaynaklar,
+    kisitli_hacim_gruplari,
+    kisitli_paternler,
+    bayraklar,
+  };
 }
 
 /**

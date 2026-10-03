@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { grupAdi } from '@swiip/core';
 import type { HacimGrubu, Karar as DomainKarar, KararParametreleri, Metinler } from '@swiip/shared';
-import { kararMetni } from '@swiip/shared';
+import { girdiDegeri, girdiSorusu, kararGirdisiMetni, kararMetni } from '@swiip/shared';
 import {
   BosDurum,
   Dugme,
@@ -17,7 +17,7 @@ import {
 } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { istek } from '../../src/veri/api';
-import { useMetinler } from '../../src/durum/Oturum';
+import { useDil, useMetinler } from '../../src/durum/Oturum';
 
 /**
  * "Neden bu program" — karar izinin tamamı.
@@ -195,6 +195,7 @@ function KararSatiri({ karar }: { karar: Karar }) {
   const tema = useTema();
   const m = useMetinler().program.neden;
   const gerekce = useMetinler().gerekce;
+  const dil = useDil();
 
   return (
     <View
@@ -208,14 +209,24 @@ function KararSatiri({ karar }: { karar: Karar }) {
       <Yazi tur="kucuk" renk="metinYumusak">
         {kararCumlesi(karar, gerekce)}
       </Yazi>
-      <Satir arasi="xs">
+      {/* Kural etiketleri SARIYOR: dört etiket dar ekranda sağdan taşıyordu. */}
+      <Satir arasi="xs" sar>
         {karar.rule_fired.slice(0, 4).map((kural) => (
           <Etiket key={kural} metin={m.kuralAdlari[kural as keyof typeof m.kuralAdlari] ?? kural} />
         ))}
       </Satir>
       {karar.inputs_jsonb.length > 0 ? (
         <Yazi tur="etiket" renk="metinSilik">
-          {karar.inputs_jsonb.map((g) => `${g.soru_id}: ${g.deger}`).join(' · ')}
+          {/* Kimlik değil soru; değer kullanıcının dilinde (bkz. `hareket.tsx`). */}
+          {karar.inputs_jsonb
+            .map(
+              (g) =>
+                `${girdiSorusu(g.soru_id, dil) ?? g.soru_id}: ${kararGirdisiMetni(
+                  girdiDegeri(g.soru_id, g.deger, dil),
+                  gerekce,
+                )}`,
+            )
+            .join(' · ')}
         </Yazi>
       ) : null}
     </View>

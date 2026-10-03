@@ -3,6 +3,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { HataliIstek } from '../hatalar';
 import { ilgi_kayitlari } from '../db/sema';
+import { istekSayaciKur } from '../servisler/istekSayaci';
 
 /**
  * Yayın haberi listesi — marka sitesinin tek dönüşüm yolu.
@@ -26,7 +27,25 @@ const semaGirdi = z.object({
 export async function ilgiRotalari(app: FastifyInstance): Promise<void> {
   const { db } = app;
 
+  /**
+   * Yukarıdaki not "kimlik uçlarındaki dakikalık sınırın aynısına bağlı" diyordu ama
+   * uç yalnızca genel 120/dk kovasındaydı: tek bir IP dakikada 120 yabancı adresi
+   * listeye yazabiliyordu. Haber e-postası o adreslere gidecek — listeyi istenmeyen
+   * postayla doldurmak, gönderen alan adının itibarını yakmak demek.
+   */
+  const sayac = istekSayaciKur({
+    sinir: app.yapilandirma.KIMLIK_ISTEK_SINIRI,
+    pencereMs: 60_000,
+  });
+
   app.post('/', async (istek, yanit) => {
+    if (!sayac.izinVar(istek.ip, Date.now())) {
+      return yanit.code(429).send({
+        kod: 'cok_fazla_istek',
+        mesaj: 'Çok fazla deneme yapıldı. Bir dakika sonra tekrar dene.',
+      });
+    }
+
     const ayristirma = semaGirdi.safeParse(istek.body);
     if (!ayristirma.success) {
       throw HataliIstek('Geçerli bir e-posta adresi ve açık rıza gerekiyor.', 'ilgi_gecersiz');

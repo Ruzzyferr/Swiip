@@ -92,6 +92,8 @@ export const dogrulama_kodlari = pgTable(
     kod_hash: text('kod_hash').notNull(),
     expires_at: timestamp('expires_at', { withTimezone: true }).notNull(),
     kullanildi_at: timestamp('kullanildi_at', { withTimezone: true }),
+    /** Yanlış deneme sayısı; sınıra ulaşınca kod kullanılmış sayılır (göç 0011). */
+    deneme_sayisi: integer('deneme_sayisi').notNull().default(0),
   },
   (t) => [index('dogrulama_user_idx').on(t.user_id, t.tip)],
 );
@@ -659,6 +661,11 @@ export const kanca_olaylari = pgTable('kanca_olaylari', {
   /** Olayın RevenueCat'teki damgası; sıra kontrolü buna göre. */
   olay_at: timestamp('olay_at', { withTimezone: true }),
   islendi_at: timestamp('islendi_at', { withTimezone: true }).notNull().defaultNow(),
+  /**
+   * Olay planı gerçekten YAZDI mı? Sıra koruması yalnızca bunlara bakıyor (göç 0011):
+   * plan yazmayan bir CANCELLATION, gecikmiş bir RENEWAL'ı "eski" sayıp düşürmemeli.
+   */
+  uygulandi: boolean('uygulandi').notNull().default(false),
 });
 
 /**

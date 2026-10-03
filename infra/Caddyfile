@@ -64,10 +64,22 @@
 	}
 
 	# Bulunamayan sayfa GERÇEKTEN 404 döner ve bir sayfası vardır.
+	#
+	# `/en/` altındaki hata İngilizce sayfaya gidiyor. Önce her hata Türkçe
+	# 404.html'e düşüyordu ve en/404.html hiçbir yoldan sunulmuyordu. İki sayfa da
+	# kök-mutlak yol kullanıyor (/stil.css): hangi derinlikteki yolda sunulursa
+	# sunulsun stil ve bağlantılar kırılmıyor.
 	handle_errors {
 		root * /site
-		rewrite * /404.html
-		file_server
+		@ingilizce path /en /en/*
+		handle @ingilizce {
+			rewrite * /en/404.html
+			file_server
+		}
+		handle {
+			rewrite * /404.html
+			file_server
+		}
 	}
 
 	log {

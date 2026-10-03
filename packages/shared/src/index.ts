@@ -18,3 +18,6 @@ export * from './disaAktarma';
 export * from './haftaDurumu';
 export * from './hareketAdi';
 export * from './kaynaklar';
+export * from './besinAdi';
+export * from './sorular.en.uretilmis';
+export * from './soruDili';

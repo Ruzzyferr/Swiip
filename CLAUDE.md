@@ -225,8 +225,8 @@ ilk isteğe bağlı sorusunun üstü, blok açıldığı anda orada). Ön doldur
 kaybolmuyor; düğmesi de artık ezmiyor, **ekliyor**. Sayaç satırına sabit yükseklik
 verildi ("Temizle" belirince 24 px itiyordu — aynı sınıfın küçüğü).
 
-Düzeltme sonrası ölçüm: sıçrama **310 px → 5 px** (o 5 px seçili kenarlığın
-kalınlaşması, kaçınılmaz).
+Düzeltme sonrası ölçüm: sıçrama **310 px → 5 px**. Kalan 5 px seçili kenarlığın
+kalınlaşmasıydı; 2026-10-03'te dolgu kenarlık farkını telafi edecek şekilde ayarlandı → **0 px**.
 
 ### 3. Klavye içeriği örtüyordu — iki katmanlı
 
@@ -762,6 +762,27 @@ yapılmıştı. **Play'de "okuma" gibi görünen iş bile düzenleme nesnesi yar
 biz RN 0.76.5'teyiz. `expo install` bu pakette uyumluluk kaydı tutmuyor —
 "expo install kullandım, o hâlde uyumludur" varsayımı geçerli değil. 14.11.0'a
 inildi ve yerelde `assembleDebug` ile doğrulandı.
+
+## 2026-10-03: tam ekran turu — iki çökme sınıfı, yayımlanmadı
+
+Her ekran emülatörde tıklanarak, yazılarak ve klavye açılarak gezildi. Commit ve
+dağıtım YOK; değişiklikler çalışma ağacında.
+
+**Android geri tuşu uygulamayı kapatıyordu.** `targetSdk 36` + Android 16'da tahmini
+geri zorunlu ve RN 0.76 `OnBackInvokedCallback`'i dinlemiyor: her "geri" uygulamadan
+çıkıyordu. `eklentiler/geriTusu.js` manifeste `enableOnBackInvokedCallback="false"`
+yazıyor (`geriTusu.test.ts`). **Yerel değişiklik: yeni bir mağaza derlemesi gerekiyor.**
+
+**Girişte çökme — hesap dili ≠ cihaz dili.** Giriş `kullanici`yı doldurunca sözlük
+hesabın diline dönüyor, `(giris)` yığınının başlıkları güncelleniyor; aynı karede
+`router.replace` yığını sökünce yerel katman *"ScreenStackFragment added into a
+non-stack container"* ile çöküyor. İki kez üretildi, diller eşleşince yok.
+`sozlukKaresiniBekle()` yönlendirmeden önce iki kare bekliyor (`oturumSonrasi.test.ts`).
+**Kural:** oturum durumunu değiştirip AYNI işleyicide yığın söken her akış bu beklemeyi
+kullanır.
+
+**Dağıtım sırası (bu tur için):** önce `gocler/0011` göçü, sonra `api`; besinlerin
+`name_en` alanı için tohumcu çalışmalı; sunucu ve yeni mobil derleme birlikte çıkar.
 
 ## Açık işler
 

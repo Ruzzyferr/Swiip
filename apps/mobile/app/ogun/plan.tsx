@@ -16,7 +16,8 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
-import { buyukHarf, yerelHaftaBasi } from '@swiip/shared';
+import { buyukHarf, gunAyUzunMetni, yerelHaftaBasi } from '@swiip/shared';
+import { useOdaktaTazele } from '../../src/durum/tazele';
 
 /**
  * Haftalık öğün planı (F8.7).
@@ -67,7 +68,13 @@ export default function HaftalikPlan() {
   const [plan, setPlan] = useState<PlanCevabi | null>(null);
   const [durum, setDurum] = useState<'yukleniyor' | 'hazir' | 'yok' | 'kilit'>('yukleniyor');
   const [mesaj, setMesaj] = useState<string | null>(null);
-  const [acikGun, setAcikGun] = useState(0);
+  /*
+    Açılışta BUGÜN seçili (hafta Pazartesi = 0). Hep Pazartesi açılıyordu: Cumartesi
+    akşamı planına bakan kullanıcı önce altı gün ileri dokunmak zorundaydı.
+  */
+  const [acikGun, setAcikGun] = useState(() => (new Date().getDay() + 6) % 7);
+  /** Pazartesiden başlayan kısaltmalar: "Pzt Sal Çar…" ("PA, SA… CU, CU, PA" belirsizdi). */
+  const kisaltmalar = useMetinler().program.hafta.gunKisaltmalari;
 
   const yukle = useCallback(async () => {
     try {
@@ -89,6 +96,8 @@ export default function HaftalikPlan() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+  // Desteden öğün değiştirip dönüldüğünde yeni öğün görünsün; eskisi kalıyordu.
+  useOdaktaTazele(yukle);
 
   const uret = async () => {
     setDurum('yukleniyor');
@@ -146,7 +155,10 @@ export default function HaftalikPlan() {
     <>
       <Stack.Screen options={{ headerShown: true, title: m.sayfaBasligi }} />
       <Ekran>
-        <Yazi tur="baslik1">{m.haftaBasligi(hafta)}</Yazi>
+        {/* "2026-09-28 haftası" makine biçimiydi; "28 Eylül haftası". */}
+        <Yazi tur="baslik1">
+          {m.haftaBasligi(gunAyUzunMetni(new Date(`${hafta}T00:00:00`), dil))}
+        </Yazi>
 
         <Satir arasi="xs">
           {plan.gunler.map((g, i) => (
@@ -168,7 +180,7 @@ export default function HaftalikPlan() {
               }}
             >
               <Yazi tur="etiket" renk={acikGun === i ? 'aksan' : 'metinSilik'}>
-                {buyukHarf(gunAdlari[i]?.slice(0, 2) ?? '', dil)}
+                {kisaltmalar[(i + 1) % 7]}
               </Yazi>
             </Pressable>
           ))}

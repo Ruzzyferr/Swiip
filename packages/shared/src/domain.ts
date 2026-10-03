@@ -124,6 +124,8 @@ export interface Hareket {
   artis_kg: number;
   alternatifler: string[];
   talimat_tr: string[];
+  /** İngilizce talimat; `talimat_tr` ile adım adım hizalı (derleyici doğruluyor). */
+  talimat_en: string[];
   /** Başlangıç yükü tahmini: hangi referans lifte, hangi katsayıyla bağlı. */
   yuk_referansi: YukReferansi;
   /** Tek taraflı hareketlerde yük tek tarafa yazılır. */
@@ -182,6 +184,13 @@ export interface Kisitlar {
   ekipman: Ekipman[];
   sakatliklar: Sakatlik[];
   kontrendikasyonlar: Kontrendikasyon[];
+  /**
+   * Her kontrendikasyonun hangi sorudan geldiği (S8 ağrı haritası, S17 yapısal tanı,
+   * S15 tansiyon). Karar izi bunu kullanıcıya gösteriyor; hepsi S8'e atfediliyordu ve
+   * "Bel fıtığı" cevabı "ağrı bölgelerini işaretle" sorusundan çıkmış görünüyordu.
+   * İsteğe bağlı: alandan önce kaydedilmiş profillerde yok.
+   */
+  kontrendikasyon_sorulari?: Partial<Record<Kontrendikasyon, string>>;
   /** T2'de reddedilen hareketler; id ve İngilizce ad üzerinde anahtar kelime eşlemesi. */
   reddedilen_anahtarlar: string[];
   /** Aktif sakatlık bölgeleriyle örtüşen hacim grupları — hacim ×0,60. */

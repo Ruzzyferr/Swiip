@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import {
@@ -17,6 +17,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { buyukHarf, islemHatasiMetni } from '@swiip/shared';
+import { useAbonelik } from '../../src/reklam/ReklamHakki';
 
 /**
  * Kaydırmalı öğün değiştirme (F8.10).
@@ -53,6 +54,7 @@ export default function OgunDestesi() {
   const tema = useTema();
   const ogunler = useMetinler().ogun;
   const genel = useMetinler().genel;
+  const etiketAdlari = useMetinler().ogun.etiketAdlari;
   const m = ogunler.deste;
   const dil = useDil();
 
@@ -84,6 +86,8 @@ export default function OgunDestesi() {
   const [hataTuru, setHataTuru] = useState<'kilit' | 'baglanti' | 'sunucu' | null>(null);
   const [islemHatasi, setIslemHatasi] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(true);
+  /** Kilit 403 de olabiliyor (ör. sağlık kapısı): ödeyene "Planlara bak" yok. */
+  const promosyon = useAbonelik().durum?.promosyon_goster === true;
 
   const yukle = useCallback(async () => {
     setYukleniyor(true);
@@ -111,11 +115,32 @@ export default function OgunDestesi() {
     void yukle();
   }, [yukle]);
 
+  /*
+    Kaydırma sürerken ikinci dokunuş YOK SAYILIYOR. Çift "geç" görülmemiş bir kartı
+    atlıyor; çift "bunu seç" iki değişiklik ve iki `router.back()` gönderiyor, ikincisi
+    plan ekranını da kapatıp kullanıcıyı bir üst ekrana atıyordu.
+  */
+  const kaydiriliyor = useRef(false);
+  const [secimSuruyor, setSecimSuruyor] = useState(false);
+
   const kaydir = async (yon: 'saga' | 'sola') => {
     const kart = deste?.kartlar[indeks];
-    if (!kart) return;
+    if (!kart || kaydiriliyor.current) return;
+    kaydiriliyor.current = true;
+    try {
+      await kaydirIsle(kart, yon);
+    } finally {
+      kaydiriliyor.current = false;
+      setSecimSuruyor(false);
+    }
+  };
 
+  const kaydirIsle = async (
+    kart: NonNullable<DesteCevabi['kartlar'][number]>,
+    yon: 'saga' | 'sola',
+  ) => {
     setIslemHatasi(null);
+    if (yon === 'saga') setSecimSuruyor(true);
 
     // Tercih öğrenmesi. Kaybolursa kullanıcı bir şey kaybetmez, o yüzden yolu bloke etmiyor.
     await istek('/v1/ogun/kaydirma', {
@@ -170,7 +195,7 @@ export default function OgunDestesi() {
     return (
       <Ekran>
         <BosDurum baslik={hataTuru === 'kilit' ? m.kilitBaslik : m.bosBaslik} govde={hata} />
-        {hataTuru === 'kilit' ? (
+        {hataTuru === 'kilit' && promosyon ? (
           <Dugme baslik={genel.planlaraBak} onPress={() => router.push('/odeme/paywall')} />
         ) : (
           <Dugme baslik={genel.yeniden} onPress={() => void yukle()} />
@@ -287,21 +312,21 @@ export default function OgunDestesi() {
 
             <Satir arasi="lg">
               <Yazi tur="kucuk" renk="metinYumusak">
-                P {Math.round(kart.makrolar.protein_g)} g
+                {genel.makroKisa.protein} {Math.round(kart.makrolar.protein_g)} g
               </Yazi>
               <Yazi tur="kucuk" renk="metinYumusak">
-                K {Math.round(kart.makrolar.karbonhidrat_g)} g
+                {genel.makroKisa.karbonhidrat} {Math.round(kart.makrolar.karbonhidrat_g)} g
               </Yazi>
               <Yazi tur="kucuk" renk="metinYumusak">
-                Y {Math.round(kart.makrolar.yag_g)} g
+                {genel.makroKisa.yag} {Math.round(kart.makrolar.yag_g)} g
               </Yazi>
             </Satir>
 
-            <Satir arasi="xs">
+            <Satir arasi="xs" sar>
               <Etiket metin={genel.dakikaKisa(kart.hazirlik_dakika)} />
               <Etiket metin={genel.butceKademesi(kart.maliyet_kademesi)} />
               {kart.etiketler.slice(0, 2).map((e) => (
-                <Etiket key={e} metin={buyukHarf(e, dil)} />
+                <Etiket key={e} metin={buyukHarf(etiketAdlari[e] ?? e.replace(/_/g, ' '), dil)} />
               ))}
             </Satir>
 
@@ -317,7 +342,11 @@ export default function OgunDestesi() {
                 <Dugme baslik={m.begenmedim} tur="ikincil" onPress={() => void kaydir('sola')} />
               </View>
               <View style={{ flex: 1 }}>
-                <Dugme baslik={m.bunuSec} onPress={() => void kaydir('saga')} />
+                <Dugme
+                  baslik={m.bunuSec}
+                  onPress={() => void kaydir('saga')}
+                  yukleniyor={secimSuruyor}
+                />
               </View>
             </Satir>
           </Kart>

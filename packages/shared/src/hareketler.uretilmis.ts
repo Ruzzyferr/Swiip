@@ -43,6 +43,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Belinin çöktüğünü hissettiğin noktadan öteye gitme.",
       "Karnınla çekerek geri dön.",
       "Duvara doğru çalışarak menzili güvenle sınırlayabilirsin."
+    ],
+    "talimat_en": [
+      "Kneel down and hold the wheel in front of you.",
+      "Brace your core and roll forward without rounding your lower back.",
+      "Don’t go past the point where you feel your lower back sag.",
+      "Pull back with your abs to return.",
+      "Rolling toward a wall lets you limit the range safely."
     ]
   },
   {
@@ -88,6 +95,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "İnerken ters yönde çevir.",
       "Dönüş yumuşak olsun, ani çevirme.",
       "Omuz sıkışması geçmişi varsa düz dumbbell presi tercih et."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells at chin height with your palms facing you.",
+      "As you press up, rotate your wrists so your palms face forward at the top.",
+      "Rotate in the opposite direction on the way down.",
+      "Keep the rotation smooth; don’t twist abruptly.",
+      "If you have a history of shoulder impingement, choose a regular dumbbell press instead."
     ]
   },
   {
@@ -130,6 +144,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanı hafif yukarı kıvır; hareketin son kısmı budur.",
       "Sallanmayı durdur; her tekrar sıfırdan başlasın.",
       "Kolaylaştığında bacakları düz kaldırarak zorlaştır."
+    ],
+    "talimat_en": [
+      "Hang from the bar and pull your shoulders down.",
+      "Raise your knees toward your chest.",
+      "Curl your pelvis slightly upward; that is the final part of the movement.",
+      "Stop any swinging; start every rep from a dead stop.",
+      "When it gets easy, make it harder by raising your legs straight."
     ]
   },
   {
@@ -169,6 +190,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Topuğunu yerden kaldırmadan dizini duvara doğru it.",
       "Değdiriyorsan ayağını biraz daha geri al.",
       "Squat derinliği ayak bileğinden kısıtlıysa buradan başla."
+    ],
+    "talimat_en": [
+      "Get into a half-kneeling position facing a wall.",
+      "Place the toes of your front foot about a hand’s width from the wall.",
+      "Push your knee toward the wall without lifting your heel.",
+      "If your knee touches, move your foot back a little.",
+      "If your squat depth is limited by your ankles, start here."
     ]
   },
   {
@@ -208,6 +236,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Parmak uçlarına yüksel, tepede iki saniye sık.",
       "Zıplayarak yapma; her tekrar kontrollü olsun.",
       "Tam menzil kullan; yarım tekrar bu kasta işe yaramaz."
+    ],
+    "talimat_en": [
+      "Place the balls of your feet on the platform with your heels hanging free.",
+      "Lower your heels and feel the stretch in your calves.",
+      "Rise onto your toes and squeeze for two seconds at the top.",
+      "Don’t bounce; keep every rep controlled.",
+      "Use the full range of motion; half reps don’t work for this muscle."
     ]
   },
   {
@@ -248,6 +283,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kürek kemiklerini birbirine sıkıştır.",
       "Omuzlarını kulaklara doğru kaldırma.",
       "Kontrollü geri bırak; bandın seni geri çekmesine izin verme."
+    ],
+    "talimat_en": [
+      "Hold the band at shoulder width with your arms extended in front of you.",
+      "Pull the band apart to the sides, stretching it toward your chest.",
+      "Squeeze your shoulder blades together.",
+      "Don’t shrug your shoulders up toward your ears.",
+      "Return under control; don’t let the band pull you back."
     ]
   },
   {
@@ -287,6 +329,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Önkolunu dışa doğru çevir; dirseğin gövdeden ayrılmasın.",
       "Kontrollü geri getir.",
       "Bu bir güç hareketi değil; omuz eklemi sağlığı için yapılır."
+    ],
+    "talimat_en": [
+      "Anchor the band somewhere at navel height.",
+      "Pin your elbow to your side and keep it bent at 90 degrees.",
+      "Rotate your forearm outward; don’t let your elbow leave your side.",
+      "Bring it back under control.",
+      "This isn’t a strength exercise; it’s done for shoulder joint health."
     ]
   },
   {
@@ -327,6 +376,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yana doğru adım at, bandın gerginliğini koru.",
       "Dizlerinin içe çökmesine izin verme.",
       "Isınma ve kalça aktivasyonu için idealdir."
+    ],
+    "talimat_en": [
+      "Place the band just above your knees or around your ankles.",
+      "Drop into a shallow squat position.",
+      "Step sideways while keeping tension on the band.",
+      "Don’t let your knees cave inward.",
+      "Ideal for warming up and activating your glutes."
     ]
   },
   {
@@ -371,6 +427,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı göğüs alt kısmına, meme hizasına indir.",
       "Dirseklerin gövdeyle yaklaşık 45 derece açı yapsın, yanlara tam açılmasın.",
       "Bar göğsüne değdiğinde durma, kontrollü şekilde yukarı it."
+    ],
+    "talimat_en": [
+      "Keep your back flat on the bench and pull your shoulder blades back and down.",
+      "Plant your feet firmly on the floor and keep your hips on the bench.",
+      "Lower the bar to your lower chest, at nipple level.",
+      "Keep your elbows at about 45 degrees to your torso, not flared all the way out.",
+      "Don’t pause when the bar touches your chest; press it back up under control."
     ]
   },
   {
@@ -413,6 +476,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı yukarı kaldır, gövdeni geriye yatırma.",
       "Yukarıda sık, kontrollü indir.",
       "Bileğin ağrıyorsa EZ bar kullan."
+    ],
+    "talimat_en": [
+      "Grip the bar at shoulder width with your palms facing up.",
+      "Pin your elbows to your sides.",
+      "Curl the bar up without leaning your torso back.",
+      "Squeeze at the top and lower under control.",
+      "If your wrists hurt, use an EZ bar."
     ]
   },
   {
@@ -459,6 +529,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Göğsünü yukarı çek, belini düzleştir; sırt yuvarlanmasın.",
       "Bacaklarınla yeri iterek kalk, bar vücuduna yakın kalsın.",
       "Tepede kalçanı öne kilitle; geriye yaslanma."
+    ],
+    "talimat_en": [
+      "Set the bar over the middle of your feet, close to your shins.",
+      "Hinge at the hips and grip the bar at shoulder width.",
+      "Lift your chest and flatten your lower back; don’t let your back round.",
+      "Stand up by pushing the floor away with your legs, keeping the bar close to your body.",
+      "Lock out by driving your hips forward at the top; don’t lean back."
     ]
   },
   {
@@ -505,6 +582,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı yukarı iterken başını hafif geriye çek, bar yüzünü sıyırsın.",
       "Bar tepede kulaklarının hizasına gelsin, öne kalmasın.",
       "Belini geriye kavislendirerek itme; bu bel için en yaygın hata."
+    ],
+    "talimat_en": [
+      "Grip the bar at shoulder width, resting at collarbone height.",
+      "Brace your core and squeeze your glutes; keep your body as one solid unit.",
+      "As you press the bar up, pull your head slightly back so the bar just clears your face.",
+      "At the top, the bar should be in line with your ears, not out in front.",
+      "Don’t arch your lower back to press; this is the most common mistake for the lower back."
     ]
   },
   {
@@ -548,6 +632,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı göbek hizasına çek, dirsekleri gövdeye yakın tut.",
       "Yukarıda kürek kemiklerini birbirine sıkıştır.",
       "İndirirken barı serbest bırakma, kontrollü indir."
+    ],
+    "talimat_en": [
+      "Hinge forward at the hips so your torso is at about 45 degrees to the floor.",
+      "Keep your lower back flat; if your back rounds, reduce the weight.",
+      "Pull the bar to navel height, keeping your elbows close to your body.",
+      "At the top, squeeze your shoulder blades together.",
+      "Don’t let the bar drop on the way down; lower it under control."
     ]
   },
   {
@@ -596,6 +687,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Karnını sık, göğsünü yukarıda tut.",
       "Kalçanı geriye ve aşağı götürerek in; dizlerin ayak parmakları yönünde açılsın.",
       "Uyluk yere paralel olana kadar in, belin yuvarlanmaya başladığı noktayı geçme."
+    ],
+    "talimat_en": [
+      "Set the bar on top of your traps, not on your neck.",
+      "Feet shoulder-width apart, toes turned slightly out.",
+      "Brace your core and keep your chest up.",
+      "Descend by sending your hips back and down; let your knees track over your toes.",
+      "Lower until your thighs are parallel to the floor; don’t go past the point where your lower back starts to round."
     ]
   },
   {
@@ -641,6 +739,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dirseklerini aşağı ve geriye çekerek göğsünü bara doğru götür.",
       "Çenen barı geçtiğinde bir an dur, sonra kontrollü in.",
       "Aşağıda kolları tam gevşetme, omuz ekleminde gerginliği koru."
+    ],
+    "talimat_en": [
+      "Grip the bar slightly wider than shoulder width with your palms facing forward.",
+      "While hanging, pull your shoulders down and don’t let your body swing.",
+      "Drive your elbows down and back to bring your chest toward the bar.",
+      "Pause for a moment once your chin clears the bar, then lower under control.",
+      "Don’t fully relax your arms at the bottom; keep tension in the shoulder joint."
     ]
   },
   {
@@ -685,6 +790,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dirseklerini geriye bükerek in.",
       "Üst kol yere paralel olunca dur; daha derine inme.",
       "Omuz önünde rahatsızlık varsa dizlerini bük ve menzili kısalt."
+    ],
+    "talimat_en": [
+      "Sit on the edge of a bench with your hands next to your hips.",
+      "Slide your hips forward off the bench and extend your legs.",
+      "Lower yourself by bending your elbows backward.",
+      "Stop when your upper arms are parallel to the floor; don’t go any deeper.",
+      "If you feel discomfort at the front of your shoulder, bend your knees and shorten the range."
     ]
   },
   {
@@ -727,6 +839,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ağırlığı yukarı kaldırırken bileğini bükme.",
       "Yukarıda bir an sık, sonra yavaş indir.",
       "Aşağıda kolları tam gevşetme, gerginliği koru."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells at your sides with your palms facing forward.",
+      "Pin your elbows to your sides; don’t swing them forward.",
+      "Don’t bend your wrists as you curl the weight up.",
+      "Squeeze for a moment at the top, then lower slowly.",
+      "Don’t fully relax your arms at the bottom; keep the tension."
     ]
   },
   {
@@ -767,6 +886,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Bileği aşağı bırak, sonra yukarı kıvır.",
       "Menzil kısa; hafif ağırlıkla yüksek tekrar yap.",
       "Bilek ağrın varsa bu hareketi atla."
+    ],
+    "talimat_en": [
+      "Rest your forearm on your thigh or a bench with your wrist hanging over the edge.",
+      "Hold the dumbbell with your palm facing up.",
+      "Let your wrist drop down, then curl it up.",
+      "The range is short; use a light weight for high reps.",
+      "If you have wrist pain, skip this exercise."
     ]
   },
   {
@@ -807,6 +933,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Sırtın düz kalsın, kalçan yana dönmesin.",
       "Üç saniye tut, sonra değiştir.",
       "Bel ağrısında en sık önerilen egzersizlerden biridir."
+    ],
+    "talimat_en": [
+      "Get on all fours, hands under your shoulders and knees under your hips.",
+      "Extend the opposite arm and leg at the same time.",
+      "Keep your back flat and don’t let your hips rotate to the side.",
+      "Hold for three seconds, then switch sides.",
+      "It is one of the most commonly recommended exercises for lower back pain."
     ]
   },
   {
@@ -846,6 +979,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "20-30 saniye tut.",
       "Diğer tarafa geç.",
       "Ani ve hızlı hareketten kaçın."
+    ],
+    "talimat_en": [
+      "Slowly tilt your head toward one shoulder.",
+      "Place your hand on top of your head for light support; don’t pull.",
+      "Hold for 20-30 seconds.",
+      "Switch to the other side.",
+      "Avoid sudden, fast movements."
     ]
   },
   {
@@ -890,6 +1030,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ön dizin ayak bileğinin üstünde kalacak şekilde aşağı in.",
       "Arka dizin yere yaklaşsın ama değmesin.",
       "Ön ayağın topuğuyla yeri iterek kalk."
+    ],
+    "talimat_en": [
+      "Rest your rear foot on the bench, with your front foot one step ahead.",
+      "Keep your torso upright; don’t lean forward.",
+      "Lower down, keeping your front knee over your ankle.",
+      "Bring your rear knee close to the floor without touching it.",
+      "Drive through your front heel to stand back up."
     ]
   },
   {
@@ -937,6 +1084,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ayaklarını geri topla ve yukarı zıpla.",
       "Yorgunlukta şeklin bozulur; şekil bozulunca seti bitir.",
       "Uyaran/yorgunluk oranı düşüktür; kas geliştirmek için verimli değildir."
+    ],
+    "talimat_en": [
+      "Squat down and place your hands on the floor.",
+      "Kick your feet back into a push-up position.",
+      "Bring your feet back in and jump up.",
+      "Your form breaks down as you fatigue; end the set when it does.",
+      "Its stimulus-to-fatigue ratio is low; it’s not an efficient way to build muscle."
     ]
   },
   {
@@ -979,6 +1133,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Bilek pozisyonu hiç değişmesin.",
       "Bu varyant önkolu ve kolun dış kısmını daha çok çalıştırır.",
       "Dirsek ağrısı olanlar genelde bu varyantı daha rahat bulur."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells with your palms facing each other.",
+      "Keep your elbows fixed and curl the weights up.",
+      "Don’t let your wrist position change at all.",
+      "This variation works the forearm and the outer part of the arm more.",
+      "People with elbow pain usually find this variation more comfortable."
     ]
   },
   {
@@ -1023,6 +1184,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kısa ve kontrollü adımlarla düz yürü.",
       "Karnını sık, gövden yana yatmasın.",
       "Mesafe veya süre hedefle çalış: 30-40 saniye tipiktir."
+    ],
+    "talimat_en": [
+      "Pick up a heavy dumbbell in each hand.",
+      "Pull your shoulders back and open your chest.",
+      "Walk in a straight line with short, controlled steps.",
+      "Brace your core; don’t let your torso lean to the side.",
+      "Work toward a distance or time target: 30-40 seconds is typical."
     ]
   },
   {
@@ -1061,6 +1229,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Karşıt kol ve bacağı yavaşça yere doğru uzat.",
       "Belin yerden kalkarsa menzili kısalt.",
       "Bel ağrısı olanlar için en güvenli karın hareketlerinden biridir."
+    ],
+    "talimat_en": [
+      "Lie on your back, reach your arms to the ceiling and bend your knees to 90 degrees.",
+      "Press your lower back into the floor and keep it there throughout.",
+      "Slowly extend the opposite arm and leg toward the floor.",
+      "If your lower back lifts off the floor, shorten the range.",
+      "It is one of the safest core exercises for people with lower back pain."
     ]
   },
   {
@@ -1104,6 +1279,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dirseklerini omuz hizasının üstüne çıkarma.",
       "Omzunda sıkışma hissediyorsan bu hareketi yapma.",
       "Geniş kavrama omuz için daha güvenlidir."
+    ],
+    "talimat_en": [
+      "Set the pulley to its lowest position and grip a straight bar at shoulder width.",
+      "Pull the bar up to mid-chest, leading with your elbows.",
+      "Don’t raise your elbows above shoulder height.",
+      "If you feel pinching in your shoulder, don’t do this exercise.",
+      "A wider grip is safer for the shoulders."
     ]
   },
   {
@@ -1145,6 +1327,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Gövdeni sabit tut, belini kullanma.",
       "Her tarafta 10 tekrar öne-arkaya, 10 tekrar yana yap.",
       "Bacak günü öncesi ısınmanın standart parçasıdır."
+    ],
+    "talimat_en": [
+      "Hold on to a wall or a rack.",
+      "Swing one leg forward and back through a comfortable range.",
+      "Keep your torso still; don’t use your lower back.",
+      "Do 10 forward-back swings and 10 side-to-side swings on each leg.",
+      "This is a standard part of the warm-up before leg day."
     ]
   },
   {
@@ -1189,6 +1378,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Üst kolun yere paralel olana kadar in, daha derine inme.",
       "Omzunda batma hissi varsa bu hareketi yapma, alternatifine geç.",
       "Kolaylaştığında bele ağırlık kemeri takarak zorlaştır."
+    ],
+    "talimat_en": [
+      "Get up on the bars, lock your arms and pull your shoulders away from your ears.",
+      "To target the chest, lean your torso slightly forward and bend your knees back.",
+      "Lower until your upper arms are parallel to the floor; don’t go any deeper.",
+      "If you feel a pinching sensation in your shoulder, skip this exercise and switch to an alternative.",
+      "When it gets easy, add load with a dip belt around your waist."
     ]
   },
   {
@@ -1233,6 +1429,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Üst kol yere paralel olunca dur.",
       "Yukarı iterken triceps’i sık.",
       "Omuzda batma varsa bu hareketi yapma."
+    ],
+    "talimat_en": [
+      "Get up on the bars and keep your torso as upright as possible.",
+      "Bend your elbows backward; don’t flare them out to the sides.",
+      "Stop when your upper arms are parallel to the floor.",
+      "Squeeze your triceps as you press up.",
+      "If you feel a sharp pain in your shoulder, don’t do this exercise."
     ]
   },
   {
@@ -1273,6 +1476,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Günlük adım sayın antrenman dışı kalori yakımının en büyük parçasıdır.",
       "Ekipman gerektirmez, toparlanmayı bozmaz.",
       "Kardiyoyu sevmeyenler için en sürdürülebilir seçenek budur."
+    ],
+    "talimat_en": [
+      "Keep a pace at which you can talk but not sing.",
+      "Choosing a hilly route lets you do more work in the same time.",
+      "Your daily step count is the biggest part of your non-exercise calorie burn.",
+      "It needs no equipment and doesn’t interfere with recovery.",
+      "For people who don’t enjoy cardio, this is the most sustainable option."
     ]
   },
   {
@@ -1314,6 +1524,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Göğsünü yere yaklaştır, dirseklerin gövdeye yakın kalsın.",
       "Yukarı iterken avuç içlerinle yeri it.",
       "Dizinin altına bir havlu koyabilirsin."
+    ],
+    "talimat_en": [
+      "Place your knees on the floor and cross your feet in the air.",
+      "Keep your body in a straight line from knees to head; don’t let your hips shift back.",
+      "Bring your chest toward the floor, keeping your elbows close to your body.",
+      "Push the floor away with your palms as you press up.",
+      "You can place a towel under your knees."
     ]
   },
   {
@@ -1354,6 +1571,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Topuklarını indir, sonra parmak uçlarına yüksel.",
       "Tepede iki saniye sık.",
       "Tek ayakla yaparak zorlaştırabilirsin."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells at your sides.",
+      "Stand with the balls of your feet on a raised surface (a book or a plate).",
+      "Lower your heels, then rise onto your toes.",
+      "Squeeze for two seconds at the top.",
+      "You can make it harder by doing it on one leg."
     ]
   },
   {
@@ -1398,6 +1622,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dumbbell’ları göğüs hizasında, bilekler düz olacak şekilde tut.",
       "Aşağıda göğsünde gerginlik hissedeceğin noktaya kadar in, omzunu zorlama.",
       "Yukarıda dirseklerini tam kilitleme, gerginliği kasta tut."
+    ],
+    "talimat_en": [
+      "Rest the dumbbells on your knees and use your knees to kick them up as you lie back.",
+      "Squeeze your shoulder blades together and lift your chest slightly.",
+      "Hold the dumbbells at chest level with your wrists straight.",
+      "Lower until you feel tension in your chest; don’t strain your shoulders.",
+      "Don’t fully lock out your elbows at the top; keep tension on the muscle."
     ]
   },
   {
@@ -1442,6 +1673,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolları yanlara doğru geniş bir yay çizerek aç.",
       "Omuz hizasının altına inme; gerilme hissettiğin yerde dur.",
       "Ağırlığı hafif tut — bu hareket ağırlıkla değil kontrolle çalışır."
+    ],
+    "talimat_en": [
+      "Lie on your back on the bench and hold the dumbbells above your chest.",
+      "Lock your elbows in a slight bend and never change that angle.",
+      "Open your arms out to the sides in a wide arc.",
+      "Don’t go below shoulder level; stop where you feel the stretch.",
+      "Keep the weight light; this exercise works through control, not load."
     ]
   },
   {
@@ -1484,6 +1722,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dumbbell’ı kalçana doğru çek, dirseğini geriye götür.",
       "Yukarıda kürek kemiğini omurgaya doğru sık.",
       "Gövdeni döndürerek ağırlığı savurma; hareket koldan gelsin."
+    ],
+    "talimat_en": [
+      "Place one knee and the same-side hand on a bench.",
+      "Keep your back flat and parallel to the floor, with your neck in line with your torso.",
+      "Pull the dumbbell toward your hip, driving your elbow back.",
+      "At the top, squeeze your shoulder blade toward your spine.",
+      "Don’t rotate your torso to swing the weight; the movement should come from your arm."
     ]
   },
   {
@@ -1524,6 +1769,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Belini duvardan ayırma.",
       "Kollar duvardan ayrılmaya başladığı yerde dur.",
       "Omuz presi öncesi ısınma olarak idealdir."
+    ],
+    "talimat_en": [
+      "Stand with your back against a wall and your arms bent at 90 degrees, touching the wall.",
+      "Slide your arms up without lifting them off the wall.",
+      "Keep your lower back against the wall.",
+      "Stop where your arms start to come off the wall.",
+      "Ideal as a warm-up before overhead pressing."
     ]
   },
   {
@@ -1568,6 +1820,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kürekleri sıkıştır, kalçan bench’te kalsın.",
       "Barı yukarı iterken omuzların öne doğru yuvarlanmasın.",
       "Son tekrarlarda yardım alacak kimse yoksa güvenlik pimlerini ayarla."
+    ],
+    "talimat_en": [
+      "Set the bench angle to around 30 degrees.",
+      "Lower the bar to just below your collarbone.",
+      "Squeeze your shoulder blades and keep your hips on the bench.",
+      "Don’t let your shoulders roll forward as you press the bar up.",
+      "If no one is there to spot your last reps, set the safety pins."
     ]
   },
   {
@@ -1612,6 +1871,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dumbbell’ları köprücük kemiği hizasına indir.",
       "Dirseklerin gövdeyle 45 derece açıda kalsın.",
       "Yukarı iterken dumbbell’ları birbirine çarpma, gerginliği koru."
+    ],
+    "talimat_en": [
+      "Set the bench to 30-45 degrees; a steeper angle shifts the work to your shoulders.",
+      "Lean back against the bench and squeeze your shoulder blades together.",
+      "Lower the dumbbells to collarbone level.",
+      "Keep your elbows at a 45-degree angle to your torso.",
+      "Don’t clash the dumbbells together as you press; maintain tension."
     ]
   },
   {
@@ -1653,6 +1919,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Gövden baştan topuğa düz bir çizgi olsun.",
       "Göğsünü yükseltiye yaklaştır, kontrollü in.",
       "Kolaylaştıkça yükseltinin yüksekliğini azalt."
+    ],
+    "talimat_en": [
+      "Place your hands on a table, bench or other sturdy raised surface.",
+      "The higher the surface, the easier the exercise.",
+      "Keep your body in a straight line from head to heels.",
+      "Bring your chest toward the surface, lowering under control.",
+      "As it gets easier, reduce the height of the surface."
     ]
   },
   {
@@ -1695,6 +1968,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Göğsünü ellerine doğru indir, dirsekler gövdeye yakın kalsın.",
       "Yukarı it, triceps’i sık.",
       "Bileğin zorlanıyorsa yumruk üstünde veya dizden yap."
+    ],
+    "talimat_en": [
+      "Place your hands under your chest with your thumbs and index fingers forming a triangle.",
+      "Keep your body in a straight line from head to heels.",
+      "Lower your chest toward your hands, keeping your elbows close to your body.",
+      "Push back up and squeeze your triceps.",
+      "If your wrists are strained, do them on your fists or from your knees."
     ]
   },
   {
@@ -1736,6 +2016,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı yukarı kaldırırken omuzlarını öne getirme.",
       "Yukarıda bir an dur.",
       "İnerken üç saniyede indir, kas bu bölümde büyür."
+    ],
+    "talimat_en": [
+      "Grip the EZ bar on its angled sections; it’s easier on your wrists.",
+      "Keep your elbows tucked against your sides.",
+      "Don’t bring your shoulders forward as you curl the bar up.",
+      "Pause for a moment at the top.",
+      "Take three seconds to lower the bar; this is the part where the muscle grows."
     ]
   },
   {
@@ -1776,6 +2063,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Çekişin sonunda elleri kulaklarının hizasında iki yana ayır.",
       "Kürek kemiklerini sıkıştır, omuzlarını kaldırma.",
       "Ağır çalışma; bu hareket omuz sağlığı için, rekor için değil."
+    ],
+    "talimat_en": [
+      "Set the pulley to face height and attach a rope handle.",
+      "As you pull the rope toward your face, keep your elbows at shoulder height.",
+      "At the end of the pull, spread your hands apart at ear level.",
+      "Squeeze your shoulder blades together without shrugging your shoulders.",
+      "Don’t go heavy; this exercise is for shoulder health, not for records."
     ]
   },
   {
@@ -1814,6 +2108,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Tepede kalçanı iki saniye sık.",
       "Belini aşırı kavislendirme; karnını hafif sık.",
       "Kolaylaştığında karnına ağırlık koyabilir veya hip thrust’a geçebilirsin."
+    ],
+    "talimat_en": [
+      "Lie on your back, bend your knees and plant your feet on the floor.",
+      "Lift your hips so your body forms a straight line from knees to shoulders.",
+      "Squeeze your glutes for two seconds at the top.",
+      "Don’t overarch your lower back; keep your core lightly braced.",
+      "When it gets easy, you can place a weight on your hips or progress to hip thrusts."
     ]
   },
   {
@@ -1856,6 +2157,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dirseklerin dizlerinin içine değecek şekilde derine in.",
       "Göğsünü yukarıda tut; ağırlık öne düşmesine izin verme.",
       "Bu varyant squat tekniğini öğrenmenin en güvenli yoludur."
+    ],
+    "talimat_en": [
+      "Hold a dumbbell vertically in front of your chest.",
+      "Feet shoulder-width apart, toes turned slightly out.",
+      "Squat deep enough that your elbows touch the inside of your knees.",
+      "Keep your chest up; don’t let the weight pull you forward.",
+      "This variation is the safest way to learn squat technique."
     ]
   },
   {
@@ -1896,6 +2204,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Gövdeni öne eğerek gerilmeyi artır.",
       "Dizinde ağrı hissedersen bu hareketi yapma.",
       "30-45 saniye tut."
+    ],
+    "talimat_en": [
+      "Bend your front leg in front of you and extend your back leg behind you.",
+      "Let your hips sink toward the floor.",
+      "Lean your torso forward to deepen the stretch.",
+      "If you feel pain in your knee, don’t do this exercise.",
+      "Hold for 30-45 seconds."
     ]
   },
   {
@@ -1938,6 +2253,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kilidi aç, kontrollü in.",
       "Uyluk yere paralel olana kadar in.",
       "Dizlerin ayak parmakları yönünde açılsın, içe çökmesin."
+    ],
+    "talimat_en": [
+      "Position your shoulders under the pads with your back flat against the backrest.",
+      "Place your feet in the middle of the platform.",
+      "Release the safety and lower under control.",
+      "Lower until your thighs are parallel to the floor.",
+      "Let your knees track over your toes; don’t let them cave in."
     ]
   },
   {
@@ -1979,6 +2301,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolunu yukarı kıvırırken diğer taraftan direnç uygula.",
       "Yukarı çıkarken 3 saniye, inerken 3 saniye say.",
       "Ekipmanın yokken biceps’i yükte tutmanın en pratik yoludur."
+    ],
+    "talimat_en": [
+      "Pin one end of the towel down with your foot or your other hand.",
+      "Grip the other end with your palm facing up.",
+      "As you curl your arm up, apply resistance from the other side.",
+      "Count 3 seconds on the way up and 3 seconds on the way down.",
+      "It’s the most practical way to keep your biceps under load without equipment."
     ]
   },
   {
@@ -2020,6 +2349,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ayakların dizlerin altına gelecek şekilde konumlansın.",
       "Kalçanı yukarı it, tepede gövden yere paralel olsun ve kalçanı sık.",
       "Belini geriye kavislendirme; hareket kalçadan gelsin."
+    ],
+    "talimat_en": [
+      "Rest your upper back against the edge of a bench.",
+      "Place the bar over your hips with a pad underneath.",
+      "Position your feet so they end up under your knees.",
+      "Drive your hips up until your torso is parallel to the floor at the top, and squeeze your glutes.",
+      "Don’t arch your lower back; the movement should come from your hips."
     ]
   },
   {
@@ -2063,6 +2399,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçandan öne eğil, belini yuvarlamadan in.",
       "Kalçanı sıkarak doğrul; gövde yere paralel olunca dur.",
       "Geriye aşırı kavis yapma; bel için gereksiz baskıdır."
+    ],
+    "talimat_en": [
+      "Set the pad just below your hip bones.",
+      "Cross your arms over your chest.",
+      "Hinge forward at the hips and lower without rounding your back.",
+      "Squeeze your glutes to come up; stop when your torso is parallel to the floor.",
+      "Don’t overarch backward; it puts unnecessary stress on your lower back."
     ]
   },
   {
@@ -2108,6 +2451,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ayak ön kısmına in, dizlerini hafif bük.",
       "Apartmanda alt komşun varsa bu hareketi yapma.",
       "Kısa aralıklarla başla: 30 saniye atlama, 30 saniye dinlenme."
+    ],
+    "talimat_en": [
+      "Turn the rope with your elbows bent and your hands at hip height.",
+      "Keep your jumps low; just high enough for the rope to pass.",
+      "Land on the balls of your feet with your knees slightly bent.",
+      "If you live in an apartment with a neighbor below, don’t do this exercise.",
+      "Start with short intervals: 30 seconds of jumping, 30 seconds of rest."
     ]
   },
   {
@@ -2152,6 +2502,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanı geriye iterek gövdeni öne eğ.",
       "Belini düz tut; yuvarlandığı anda dur.",
       "Hafif ağırlıkla çalış; bu hareket ağırlık yarışı değildir."
+    ],
+    "talimat_en": [
+      "Set the bar on your traps as you would for a squat.",
+      "Bend your knees slightly and keep them fixed.",
+      "Push your hips back to tilt your torso forward.",
+      "Keep your back flat; stop the moment it starts to round.",
+      "Use a light weight; this exercise is not about lifting heavy."
     ]
   },
   {
@@ -2193,6 +2550,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dirseklerini sabitleyerek yukarı kaldır.",
       "Kablo alt noktada da gerginlik verdiği için kas sürekli yük altında kalır.",
       "Gövdeni sallamadan çalış."
+    ],
+    "talimat_en": [
+      "Set the pulley to its lowest position and attach a straight or EZ handle.",
+      "Take a step back so the cable starts with slight tension.",
+      "Keep your elbows fixed and curl the handle up.",
+      "Because the cable keeps tension even at the bottom, the muscle stays under constant load.",
+      "Work without swinging your torso."
     ]
   },
   {
@@ -2233,6 +2597,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Omurganı yuvarlayarak dirseklerini dizlerine yaklaştır.",
       "Kalçandan eğilme; hareket sadece karından gelsin.",
       "Yukarı dönerken kontrolü bırakma."
+    ],
+    "talimat_en": [
+      "Set the pulley high and hold the rope beside your head.",
+      "Kneel down on your knees.",
+      "Round your spine to bring your elbows toward your knees.",
+      "Don’t bend at the hips; the movement should come only from your abs.",
+      "Stay in control as you return to the top."
     ]
   },
   {
@@ -2274,6 +2645,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dirseklerini hafif bükülü sabitle, kolunu bükerek çekme.",
       "Elleri göğsünün önünde birleştirirken göğsünü sık.",
       "Geri açarken kontrolü bırakma, omuzda gerilme hissedince dur."
+    ],
+    "talimat_en": [
+      "Set the pulleys slightly above shoulder height.",
+      "Step forward one step and keep your torso leaning slightly forward.",
+      "Lock your elbows in a slight bend; don’t pull by bending your arms.",
+      "Squeeze your chest as you bring your hands together in front of it.",
+      "Stay in control as you open back up, and stop when you feel a stretch in your shoulders."
     ]
   },
   {
@@ -2314,6 +2692,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolu yanlara doğru omuz hizasına kaldır.",
       "Kablo alt noktada bile gerginliği koruduğu için hareket boyunca yük sabit kalır.",
       "Gövdeni yana yatırarak ivme verme."
+    ],
+    "talimat_en": [
+      "Set the pulley to its lowest position and hold the cable so it crosses in front of your body.",
+      "Stand side-on to the machine and grip the handle with your outside hand.",
+      "Raise your arm out to the side up to shoulder height.",
+      "Because the cable keeps tension even at the bottom, the load stays constant throughout the movement.",
+      "Don’t lean your torso to the side to build momentum."
     ]
   },
   {
@@ -2354,6 +2739,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Tutamağı göbeğine doğru çek, dirseklerin gövdeye yakın kalsın.",
       "Yukarıda kürekleri sık, gövdeni geriye yatırma.",
       "Bırakırken gövden öne düşmesin, sadece kollar uzasın."
+    ],
+    "talimat_en": [
+      "Plant your feet on the platform and keep your knees slightly bent.",
+      "Sit upright with your lower back in its natural curve.",
+      "Pull the handle toward your navel, keeping your elbows close to your body.",
+      "Squeeze your shoulder blades at the end; don’t lean your torso back.",
+      "On the return, don’t let your torso fall forward; only your arms should extend."
     ]
   },
   {
@@ -2393,6 +2785,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanı geriye it, gövden öne eğilsin.",
       "Kalçanı öne iterek doğrul, tepede kalçanı sık.",
       "Bu hareket kalça menteşesini bele yük binmeden öğretir."
+    ],
+    "talimat_en": [
+      "Set the pulley to the lowest position and grab the rope through your legs.",
+      "Face away from the machine and walk a few steps forward.",
+      "Push your hips back and let your torso tilt forward.",
+      "Drive your hips forward to stand tall and squeeze your glutes at the top.",
+      "This movement teaches the hip hinge without loading your lower back."
     ]
   },
   {
@@ -2435,6 +2834,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kollar neredeyse düzken barı kalçana doğru indir.",
       "Aşağıda sırtının yan tarafını sık.",
       "Dirseğini bükerek çekme; bu bir triceps hareketi değil."
+    ],
+    "talimat_en": [
+      "Set the pulley above head height and hold a straight bar.",
+      "Take a step back and hinge slightly forward at the hips.",
+      "With your arms nearly straight, bring the bar down toward your hips.",
+      "At the bottom, squeeze the sides of your back.",
+      "Don’t pull by bending your elbows; this isn’t a triceps exercise."
     ]
   },
   {
@@ -2473,6 +2879,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanın dışında gerilme hissetmelisin.",
       "30 saniye tut, taraf değiştir.",
       "Squat derinliği kısıtlı olanlar için birinci sırada gelir."
+    ],
+    "talimat_en": [
+      "Sit on the floor with your front leg bent at 90 degrees in front of you and your back leg bent at 90 degrees to the side.",
+      "Keep your back straight and lean forward over your front knee.",
+      "You should feel a stretch on the outside of your hip.",
+      "Hold for 30 seconds, then switch sides.",
+      "It is the top priority for anyone with limited squat depth."
     ]
   },
   {
@@ -2510,6 +2923,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Bacaklarını dışa doğru aç.",
       "Dışarıda bir an sık.",
       "Kontrollü kapat, ağırlıkları çarptırma."
+    ],
+    "talimat_en": [
+      "Sit so the pads rest against the outside of your knees.",
+      "Lean your torso slightly forward; this works your glutes more.",
+      "Push your legs outward.",
+      "Squeeze briefly at the outer position.",
+      "Close under control; don’t let the weights slam."
     ]
   },
   {
@@ -2550,6 +2970,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Arka bacağın kalça önünde gerilme hissetmelisin.",
       "Belini kavislendirme; kalçanı hafif içe kıvır.",
       "Uzun süre oturanlar için en gerekli esnetme budur."
+    ],
+    "talimat_en": [
+      "Place one knee on the floor and bend the other leg in front at 90 degrees.",
+      "Push your hips forward and keep your torso upright.",
+      "You should feel a stretch at the front of the hip on your back leg.",
+      "Don’t arch your lower back; tuck your pelvis slightly under.",
+      "This is the most essential stretch for anyone who sits for long periods."
     ]
   },
   {
@@ -2590,6 +3017,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "15 tekrar yap, ağırlık kullanma.",
       "Uzun süre oturanlarda kalça kasları uyumakta gecikir; bu onları uyandırır.",
       "Bacak veya kalça günü öncesi yap."
+    ],
+    "talimat_en": [
+      "Lie on your back with your knees bent.",
+      "Lift your hips and squeeze your glutes for two seconds at the top.",
+      "Do 15 reps without any added weight.",
+      "In people who sit for long periods, the glutes are slow to activate; this wakes them up.",
+      "Do this before a leg or glute day."
     ]
   },
   {
@@ -2630,6 +3064,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Nefes alırken göğsünü öne aç, belini hafif çukurlaştır.",
       "Yavaş ve akıcı hareket et.",
       "Bel ısınması için 8-10 tekrar yeterlidir."
+    ],
+    "talimat_en": [
+      "Get into an all-fours position.",
+      "As you exhale, round your back up toward the ceiling.",
+      "As you inhale, open your chest forward and let your lower back arch slightly.",
+      "Move slowly and smoothly.",
+      "8-10 reps are enough to warm up your lower back."
     ]
   },
   {
@@ -2674,6 +3115,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kısa adımlarla düz yürü.",
       "Gövdenin geriye yaslanmasına izin verme.",
       "30-45 saniyelik yürüyüşler yeterlidir."
+    ],
+    "talimat_en": [
+      "Hold the kettlebell in front of your chest with both hands.",
+      "Pull your shoulders back and brace your core.",
+      "Walk in a straight line with short steps.",
+      "Don’t let your torso lean back.",
+      "Walks of 30-45 seconds are enough."
     ]
   },
   {
@@ -2719,6 +3167,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Karnını sık, yukarı it.",
       "Tepede kol kulağının yanında olsun.",
       "İnerken kettlebell’ı yavaşça rack pozisyonuna geri al."
+    ],
+    "talimat_en": [
+      "Hold the kettlebell at shoulder height in front of your body in the rack position.",
+      "Keep your wrist straight and let the kettlebell rest on your forearm.",
+      "Brace your core and press the kettlebell overhead.",
+      "At the top, your arm should be next to your ear.",
+      "On the way down, slowly bring the kettlebell back to the rack position."
     ]
   },
   {
@@ -2762,6 +3217,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanı hızla öne iterek gövdeni doğrult.",
       "Kettlebell göğüs hizasına kadar çıksın; kolla kaldırma.",
       "Hareket kalçadan gelir, omuzdan değil."
+    ],
+    "talimat_en": [
+      "Place the kettlebell in front of your feet and grab it by hinging at the hips.",
+      "Hike the kettlebell back between your legs.",
+      "Snap your hips forward to stand up straight.",
+      "Let the kettlebell rise to chest height; don’t lift it with your arms.",
+      "The movement comes from your hips, not your shoulders."
     ]
   },
   {
@@ -2803,6 +3265,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "15 saniye ileri, 15 saniye geri çevir.",
       "Omuzda takılma hissediyorsan daireyi küçült.",
       "Üst vücut günü öncesi ilk hareket olarak uygundur."
+    ],
+    "talimat_en": [
+      "Extend your arms out to the sides.",
+      "Start with small circles and gradually make them bigger.",
+      "Circle forward for 15 seconds, then backward for 15 seconds.",
+      "If you feel catching in your shoulder, make the circles smaller.",
+      "A good first movement before an upper-body day."
     ]
   },
   {
@@ -2845,6 +3314,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Gövden dik, adımların doğal olsun.",
       "Nefesin cümle kurabileceğin seviyede kalsın.",
       "Kalori yakımı için en düşük yorgunluk maliyetli seçenektir."
+    ],
+    "talimat_en": [
+      "Set the incline to 8-12% and the speed to a pace at which you can still talk.",
+      "Don’t lean on the handrails; keep your hands free.",
+      "Stand tall and keep your stride natural.",
+      "Keep your breathing at a level where you can still speak in sentences.",
+      "It’s the lowest-fatigue option for burning calories."
     ]
   },
   {
@@ -2890,6 +3366,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Belini yuvarlamadan çalış.",
       "Tutamağı göğüs altına çek, boynuna değil.",
       "Vuruş sayısını değil, her vuruştaki gücü hedefle."
+    ],
+    "talimat_en": [
+      "Order: legs push first, then the torso opens, and the arms pull last.",
+      "On the return, reverse it: arms extend first, then the torso, and the knees bend last.",
+      "Work without rounding your lower back.",
+      "Pull the handle to just below your chest, not to your neck.",
+      "Focus on the power of each stroke, not the stroke count."
     ]
   },
   {
@@ -2937,6 +3420,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "İki ayakla kutunun üstüne yumuşak in.",
       "Kutudan zıplayarak inme; adımla in.",
       "Yorgunken bu hareketi yapma."
+    ],
+    "talimat_en": [
+      "Choose a height you can comfortably land on; ego height leads to injuries.",
+      "Swing your arms to build momentum.",
+      "Land softly on top of the box with both feet.",
+      "Don’t jump down from the box; step down.",
+      "Don’t do this exercise when you’re fatigued."
     ]
   },
   {
@@ -2977,6 +3467,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Gövdeni çok geriye yatırma; 10-15 derece yeterli.",
       "Barı köprücük kemiğine doğru çek, dirsekleri aşağı ve geriye götür.",
       "Barı ensene indirme; bu omuz için gereksiz risk."
+    ],
+    "talimat_en": [
+      "Adjust the knee pad so your legs can’t lift off.",
+      "Grip the bar wider than shoulder width.",
+      "Don’t lean too far back; 10-15 degrees is enough.",
+      "Pull the bar toward your collarbone, driving your elbows down and back.",
+      "Don’t pull the bar behind your neck; it’s an unnecessary risk for the shoulders."
     ]
   },
   {
@@ -3016,6 +3513,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Bacaklarını yukarı uzat, tepede bir an sık.",
       "Yavaş indir, ağırlığı düşürme.",
       "Diz önü ağrın varsa menzilin üst yarısında çalış."
+    ],
+    "talimat_en": [
+      "Set the pad just above your ankles.",
+      "Sit back against the backrest and hold the handles.",
+      "Extend your legs and squeeze briefly at the top.",
+      "Lower slowly; don’t let the weight drop.",
+      "If you have pain at the front of the knee, work in the upper half of the range."
     ]
   },
   {
@@ -3058,6 +3562,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Dizler 90 dereceye gelene kadar in.",
       "Kalçan sırtlıktan kalkmaya başladığı noktayı geçme; bel için en riskli hata bu.",
       "Yukarıda dizlerini tam kilitleme."
+    ],
+    "talimat_en": [
+      "Place your feet in the middle of the platform, shoulder-width apart.",
+      "Keep your back and hips pressed firmly against the pad.",
+      "Lower until your knees reach 90 degrees.",
+      "Don’t go past the point where your hips start to lift off the pad; this is the riskiest mistake for your lower back.",
+      "Don’t fully lock out your knees at the top."
     ]
   },
   {
@@ -3102,6 +3613,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ön dizin ayak parmaklarını çok geçmesin.",
       "Ön topuğunla iterek kalk ve diğer ayakla devam et.",
       "Dengeni zor buluyorsan sabit lunge yaparak başla."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells at your sides and keep your torso upright.",
+      "Step forward and lower your back knee toward the floor.",
+      "Don’t let your front knee travel far past your toes.",
+      "Push through your front heel to rise and continue with the other leg.",
+      "If balance is hard, start with stationary lunges."
     ]
   },
   {
@@ -3141,6 +3659,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolları yanlara doğru aç, dirseklerin hafif bükülü kalsın.",
       "Arkada bir an dur, kürekleri sık.",
       "Kontrollü geri bırak, ağırlıkları çarptırma."
+    ],
+    "talimat_en": [
+      "Use the machine in reverse, with your chest against the pad.",
+      "Grip the handles at shoulder height.",
+      "Open your arms out to the sides, keeping your elbows slightly bent.",
+      "Pause for a moment at the back and squeeze your shoulder blades.",
+      "Return under control; don’t let the weight stack slam."
     ]
   },
   {
@@ -3181,6 +3706,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolları ileri iterken dirseklerini tam kilitleme.",
       "Geri dönüşte ağırlığı bırakma, kontrollü indir.",
       "Boynunu ileri uzatma, başın sırtlıkta kalsın."
+    ],
+    "talimat_en": [
+      "Adjust the seat height so the handles line up with your chest.",
+      "Lean fully back against the pad and pull your shoulders back.",
+      "Don’t fully lock out your elbows as you press forward.",
+      "Don’t let the weight drop on the way back; lower it under control.",
+      "Don’t push your neck forward; keep your head against the pad."
     ]
   },
   {
@@ -3220,6 +3752,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Topuklarını kalçana doğru çek.",
       "Tepede bir an sık.",
       "Yavaş indir; hamstring en çok bu bölümde çalışır."
+    ],
+    "talimat_en": [
+      "Set the pad just above your ankles.",
+      "Keep your hips pressed into the pad; don’t let them lift.",
+      "Curl your heels toward your glutes.",
+      "Squeeze briefly at the top.",
+      "Lower slowly; this is where the hamstrings work the most."
     ]
   },
   {
@@ -3259,6 +3798,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yanlara doğru omuz hizasına kadar kaldır.",
       "Yukarıda bir an dur.",
       "Kontrollü indir, ağırlığı düşürme."
+    ],
+    "talimat_en": [
+      "Align the seat with the pivot point of your shoulder joint.",
+      "Rest your arms against the pads.",
+      "Raise your arms out to the sides up to shoulder height.",
+      "Pause for a moment at the top.",
+      "Lower under control; don’t let the weight drop."
     ]
   },
   {
@@ -3301,6 +3847,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yukarı it, tepede dirsekleri tam kilitleme.",
       "İndirirken kontrolü bırakma.",
       "Omzunda batma varsa menzili kısalt veya alternatife geç."
+    ],
+    "talimat_en": [
+      "Adjust the seat so the handles are at shoulder height.",
+      "Keep your back fully against the back pad.",
+      "Press up without fully locking out your elbows at the top.",
+      "Stay in control as you lower the weight.",
+      "If you feel a sharp pain in your shoulder, shorten the range or switch to an alternative."
     ]
   },
   {
@@ -3341,6 +3894,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Tutamakları geriye çek, kürek kemiklerini sıkıştır.",
       "Bırakırken omuzların öne yuvarlanmasına izin verme.",
       "Gövdeni pedden ayırarak ekstra ağırlık çekme."
+    ],
+    "talimat_en": [
+      "Adjust the chest pad so it sits at the middle of your chest.",
+      "Rest your chest against the pad and keep your torso still.",
+      "Pull the handles back and squeeze your shoulder blades together.",
+      "On the return, don’t let your shoulders round forward.",
+      "Don’t lift your torso off the pad to pull extra weight."
     ]
   },
   {
@@ -3382,6 +3942,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Göğsünü masanın kenarına doğru çek.",
       "Kürek kemiklerini sıkıştır, sonra kontrollü in.",
       "Masanın devrilmeyeceğinden emin ol; dizlerini bükerek kolaylaştırabilirsin."
+    ],
+    "talimat_en": [
+      "Lie on your back under a sturdy table and grip its edge.",
+      "Keep your body in a straight line from heels to head.",
+      "Pull your chest toward the edge of the table.",
+      "Squeeze your shoulder blades together, then lower under control.",
+      "Make sure the table won’t tip over; you can make it easier by bending your knees."
     ]
   },
   {
@@ -3421,6 +3988,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Omuzlarını yerden kaldır, belin yerde kalsın.",
       "Boynunu elinle çekme; bakışın tavanda kalsın.",
       "Yavaş in, ivmeyle çalışma."
+    ],
+    "talimat_en": [
+      "Lie on your back, bend your knees and keep your feet on the floor.",
+      "Cross your hands over your chest or place them beside your ears.",
+      "Lift your shoulders off the floor while keeping your lower back down.",
+      "Don’t pull on your neck with your hands; keep your eyes on the ceiling.",
+      "Lower slowly; don’t use momentum."
     ]
   },
   {
@@ -3465,6 +4039,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "İnerken dizini koru; inişte asansör kullanmak makuldür.",
       "Diz önü ağrın varsa bu hareketi atla.",
       "Süre veya kat sayısı hedefle."
+    ],
+    "talimat_en": [
+      "Place your whole foot on each step; don’t climb on your toes.",
+      "Keep your torso upright; don’t lean on the handrail.",
+      "Protect your knees on the way down; taking the elevator down is reasonable.",
+      "If you have pain at the front of your knee, skip this exercise.",
+      "Aim for a target duration or number of floors."
     ]
   },
   {
@@ -3507,6 +4088,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçan yukarı zıplamasın; gövden sabit kalsın.",
       "Tempoyu kontrol edebildiğin seviyede tut.",
       "Gürültüsüzdür; apartman için uygundur."
+    ],
+    "talimat_en": [
+      "Start in a push-up position with your hands under your shoulders.",
+      "Drive your knees toward your chest one at a time.",
+      "Don’t let your hips bounce up; keep your torso still.",
+      "Keep the pace at a level you can control.",
+      "It’s quiet, so it works well in an apartment."
     ]
   },
   {
@@ -3547,6 +4135,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Öne doğru kontrollü şekilde yavaşça eğil.",
       "Dayanabildiğin yere kadar in, sonra ellerinle yeri iterek dön.",
       "Çok zorlayıcı bir harekettir; 3-5 tekrarla başla."
+    ],
+    "talimat_en": [
+      "Kneel down and have someone hold your ankles or anchor them.",
+      "Keep your body in a straight line from knees to head.",
+      "Lean forward slowly and under control.",
+      "Lower as far as you can hold, then push off the floor with your hands to return.",
+      "This is a very demanding exercise; start with 3-5 reps."
     ]
   },
   {
@@ -3589,9 +4184,16 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
     "talimat_tr": [
       "Bara asıl, omuzların kulaklarına yaklaşsın.",
       "Sonra omuzlarını aşağı çekerek aktif asılmaya geç.",
-      "Nefesini tut, gövden sallanmasın.",
+      "Düzenli nefes al, gövden sallanmasın.",
       "20-40 saniye asılı kal.",
       "Kavrama gücünü ve omuz sağlığını birlikte geliştirir."
+    ],
+    "talimat_en": [
+      "Hang from the bar and let your shoulders rise toward your ears.",
+      "Then pull your shoulders down to switch to an active hang.",
+      "Breathe steadily and don’t let your body swing.",
+      "Stay hanging for 20-40 seconds.",
+      "It builds grip strength and shoulder health together."
     ]
   },
   {
@@ -3637,6 +4239,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Omuzlarını aşağı çek.",
       "Kavrama gücün yetersizse buradan başla.",
       "30 saniyeye ulaşınca bandı bırak."
+    ],
+    "talimat_en": [
+      "Loop the band around the bar and place your foot in the band.",
+      "Hang from the bar and let the band carry part of your weight.",
+      "Pull your shoulders down.",
+      "If your grip strength isn’t enough yet, start here.",
+      "Once you reach 30 seconds, drop the band."
     ]
   },
   {
@@ -3682,6 +4291,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yukarı iterken dumbbell’lar birbirine hafif yaklaşsın.",
       "Tepede dirseklerini tam kilitleme.",
       "İnerken dirseğin omuz hizasının biraz altına gelsin, daha fazla inme."
+    ],
+    "talimat_en": [
+      "Set the bench back close to upright and lean your back against it.",
+      "Hold the dumbbells at ear height with your palms facing forward.",
+      "As you press up, let the dumbbells come slightly closer together.",
+      "Don’t fully lock out your elbows at the top.",
+      "On the way down, bring your elbows slightly below shoulder height and no lower."
     ]
   },
   {
@@ -3722,6 +4338,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Gövdeni geriye yatırarak ivme verme.",
       "Kontrollü indir.",
       "Bu kas zaten her itme hareketinde çalışır; az hacim yeterlidir."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells in front of your thighs.",
+      "Keeping your arm straight, raise it up to shoulder height.",
+      "Don’t lean your torso back to build momentum.",
+      "Lower the weight under control.",
+      "This muscle already works in every pressing movement; a little volume is enough."
     ]
   },
   {
@@ -3761,6 +4384,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Topuklarını indir, sonra yüksel.",
       "Diz bükülü olduğu için baldırın derin kası daha çok çalışır.",
       "Yavaş ve tam menzille çalış."
+    ],
+    "talimat_en": [
+      "Set the pad on top of your thighs, close to your knees.",
+      "Place the balls of your feet on the platform.",
+      "Lower your heels, then rise up.",
+      "Because the knee is bent, the deeper calf muscle does more of the work.",
+      "Work slowly and through the full range of motion."
     ]
   },
   {
@@ -3801,6 +4431,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ağırlığı ensenin arkasına doğru indir.",
       "Gerilme hissettiğin noktadan yukarı it.",
       "Bu pozisyon triceps’in uzun başını en iyi geren pozisyondur."
+    ],
+    "talimat_en": [
+      "Hold a single dumbbell overhead with both hands.",
+      "Keep your elbows fixed next to your ears.",
+      "Lower the weight behind your head.",
+      "Press back up from the point where you feel a stretch.",
+      "This position stretches the long head of the triceps better than any other."
     ]
   },
   {
@@ -3841,6 +4478,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kollarını öne uzat; kablo seni döndürmeye çalışacak.",
       "Gövdeni dönmeye karşı sabit tut.",
       "Bu bir dönme hareketi değil, dönmeye direnme hareketidir."
+    ],
+    "talimat_en": [
+      "Set the pulley at chest height and stand side-on to the machine.",
+      "Hold the handle with both hands in front of your chest.",
+      "Press your arms straight out; the cable will try to rotate you.",
+      "Keep your torso stable against the rotation.",
+      "This is not a rotation exercise; it is an anti-rotation exercise."
     ]
   },
   {
@@ -3882,6 +4526,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolları öne kapatırken göğsünü sık, bir saniye tut.",
       "Açarken kontrollü geri bırak, ağırlıkları çarptırma.",
       "Aşırı geriye açma; omuz önünde zorlanma hissediyorsan menzili kısalt."
+    ],
+    "talimat_en": [
+      "Adjust the seat so the handles line up with your chest.",
+      "Lean back against the pad and pull your shoulders back and down.",
+      "Squeeze your chest as you bring your arms together, and hold for one second.",
+      "Release back under control as you open; don’t let the weights slam.",
+      "Don’t open too far back; if you feel strain at the front of your shoulder, shorten the range."
     ]
   },
   {
@@ -3924,6 +4575,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Başını ellerinin arasına doğru indir.",
       "Yukarı iterken kalçanı yerinde tut.",
       "Ayaklarını yükseltiye koyarak zorlaştırabilirsin."
+    ],
+    "talimat_en": [
+      "From a push-up position, raise your hips to form an inverted V.",
+      "Place your hands slightly wider than shoulder width.",
+      "Lower your head down between your hands.",
+      "Keep your hips in place as you press up.",
+      "You can make it harder by putting your feet on an elevated surface."
     ]
   },
   {
@@ -3965,6 +4623,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Karnını ve kalçanı sık; kalçan ne düşsün ne yukarı kalksın.",
       "Boynunu gövdenin devamı olarak tut, bakışın yerde.",
       "Süre hedefle çalış; şeklin bozulduğu anda seti bitir."
+    ],
+    "talimat_en": [
+      "Keep your elbows directly under your shoulders.",
+      "Keep your body in a straight line from head to heels.",
+      "Squeeze your core and glutes; don’t let your hips sag or pike up.",
+      "Keep your neck in line with your torso, eyes on the floor.",
+      "Work toward a time target; end the set as soon as your form breaks."
     ]
   },
   {
@@ -4008,6 +4673,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Aşağıda kolu tam düzleştirme; dirsekte zorlanma yaratır.",
       "Yukarı kaldır, tepede bir an dur.",
       "Yavaş indir; bu hareket ağır değil, kontrollü yapılır."
+    ],
+    "talimat_en": [
+      "Adjust the seat so your armpits rest on top of the pad.",
+      "Rest your entire upper arm on the pad.",
+      "Don’t fully straighten your arm at the bottom; it strains the elbow.",
+      "Curl up and pause for a moment at the top.",
+      "Lower slowly; this exercise is done under control, not heavy."
     ]
   },
   {
@@ -4051,6 +4723,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanı geriye it, bar bacaklarına değerek insin.",
       "Hamstringlerinde gerilme hissettiğin noktada dur.",
       "Belin yuvarlanmaya başlıyorsa hemen dur; menzilin sınırı orasıdır."
+    ],
+    "talimat_en": [
+      "Hold the bar at hip height with a shoulder-width grip.",
+      "Bend your knees slightly and keep that angle fixed.",
+      "Push your hips back and let the bar slide down along your legs.",
+      "Stop at the point where you feel a stretch in your hamstrings.",
+      "If your lower back starts to round, stop right there; that is the limit of your range."
     ]
   },
   {
@@ -4093,6 +4772,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Direnci pedal çevirmenin zorlaştığı ama akıcı kaldığı seviyede tut.",
       "Diz eklemine yük binmediği için sakatlık sonrası dönüşte uygundur.",
       "Süre ve direnç hedefiyle çalış."
+    ],
+    "talimat_en": [
+      "Set the seat height so your knee stays slightly bent when the pedal is at its lowest point.",
+      "Keep your back upright and your shoulders relaxed.",
+      "Set the resistance so pedaling feels hard but stays smooth.",
+      "Because it puts little load on the knee joint, it’s a good option when returning from injury.",
+      "Work toward a target duration and resistance."
     ]
   },
   {
@@ -4135,6 +4821,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yukarıda sık, sonra kontrollü indir.",
       "Belini düz tut, gövdeni geriye yatırma.",
       "Kavrama gücün bitiyorsa kayış kullanabilirsin."
+    ],
+    "talimat_en": [
+      "Hold the bar at shoulder width with your arms straight.",
+      "Raise your shoulders straight up without bending your elbows.",
+      "Squeeze at the top, then lower under control.",
+      "Keep your lower back flat; don’t lean your torso back.",
+      "If your grip gives out, you can use lifting straps."
     ]
   },
   {
@@ -4177,6 +4870,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yukarıda bir saniye sık.",
       "Omuzlarını çevirme; dairesel hareket boyuna gereksiz yük bindirir.",
       "Kontrollü indir, ağırlığın seni aşağı çekmesine izin verme."
+    ],
+    "talimat_en": [
+      "Hold the dumbbells at your sides with your arms straight.",
+      "Raise your shoulders straight up toward your ears.",
+      "Squeeze for one second at the top.",
+      "Don’t roll your shoulders; a circular motion puts unnecessary load on the neck.",
+      "Lower under control; don’t let the weight pull you down."
     ]
   },
   {
@@ -4219,6 +4919,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Göğsün yere yaklaşana kadar in, dirseklerin 45 derece açıda kalsın.",
       "Karnını sıkı tut, bel çukurun derinleşmesin.",
       "Bileğin ağrıyorsa yumruk üstünde veya paralet üstünde çalış."
+    ],
+    "talimat_en": [
+      "Hands slightly wider than shoulder-width, fingers pointing forward.",
+      "Keep your body in one straight line from head to heels; don’t let your hips sag.",
+      "Lower until your chest is close to the floor, with your elbows at 45 degrees.",
+      "Keep your core tight so your lower back doesn’t arch.",
+      "If your wrists hurt, work on your fists or on push-up handles."
     ]
   },
   {
@@ -4262,6 +4969,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı göğüs altına indir, dirseklerin 45 derece açıda kalsın.",
       "Sabit ray dengeyi senin yerine tutar; bu yüzden yardımcıya ihtiyaç yok.",
       "Set bitince barı çevirip kilide oturt."
+    ],
+    "talimat_en": [
+      "Position the bench under the bar so the bar lines up with your chest.",
+      "Rotate the bar to unhook it.",
+      "Lower the bar to your lower chest, keeping your elbows at 45 degrees.",
+      "The fixed track handles balance for you, so you don’t need a spotter.",
+      "When the set is done, rotate the bar to rack it back on the hooks."
     ]
   },
   {
@@ -4306,6 +5020,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Üstteki bacağınla iterek çık; arkadaki ayakla zıplama.",
       "Kontrollü in, aynı ayakla devam et.",
       "Basamak yüksekliğini dizin rahat ettiği seviyede tut."
+    ],
+    "talimat_en": [
+      "Choose a sturdy box or step at about knee height.",
+      "Place your whole foot on the step.",
+      "Step up by pushing through your top leg; don’t bounce off your back foot.",
+      "Step down under control and repeat with the same foot.",
+      "Keep the step at a height that is comfortable for your knee."
     ]
   },
   {
@@ -4351,6 +5072,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçanı alçalt, göğsünü yukarı çek.",
       "Dizlerini dışa doğru iterek kalk.",
       "Bu varyant gövdeyi daha dik tuttuğu için bele daha az yük bindirir."
+    ],
+    "talimat_en": [
+      "Take a wide stance with your toes turned out.",
+      "Grip the bar between your legs at shoulder width.",
+      "Lower your hips and lift your chest.",
+      "Stand up while pushing your knees outward.",
+      "This variation keeps your torso more upright, so it puts less load on your lower back."
     ]
   },
   {
@@ -4390,6 +5118,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Uzatırken göğsünü sık, nefesini ver.",
       "Kontrollü geri getir, baskı hiç azalmasın.",
       "Ağır plaka gerekmez; 5-10 kg fazlasıyla yeterli."
+    ],
+    "talimat_en": [
+      "Press two plates together between your palms in front of your chest.",
+      "Extend your arms forward without releasing the pressure.",
+      "Squeeze your chest and exhale as you extend.",
+      "Bring them back under control without letting the pressure drop.",
+      "No heavy plates needed; 5-10 kg is more than enough."
     ]
   },
   {
@@ -4433,6 +5168,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kalçandan öne eğil, belini düz tut.",
       "Barı göğsünün altına doğru çek, dirsekleri geriye götür.",
       "Yukarıda bir an dur, kontrollü indir."
+    ],
+    "talimat_en": [
+      "Anchor one end of the bar in a corner and load plates on the other end.",
+      "Stand over the bar so it sits between your legs.",
+      "Hinge forward at the hips and keep your back flat.",
+      "Pull the bar toward your lower chest, driving your elbows back.",
+      "Pause for a moment at the top, then lower under control."
     ]
   },
   {
@@ -4475,6 +5217,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Ağırlığı düşük tut; bu varyant çok daha zordur.",
       "Bileğini geriye kırma, düz tut.",
       "Tenisçi dirseği geçmişi olanlar için faydalı bir hareket."
+    ],
+    "talimat_en": [
+      "Grip the bar with your palms facing down.",
+      "Keep your elbows fixed and curl the bar up.",
+      "Keep the weight light; this variation is much harder.",
+      "Don’t bend your wrists back; keep them straight.",
+      "A useful exercise for people with a history of tennis elbow."
     ]
   },
   {
@@ -4516,6 +5265,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolları yanlara doğru aç, omuz hizasında dur.",
       "Kürek kemiklerini birbirine yaklaştır.",
       "Boynunu yukarı kaldırma, bakışın yerde kalsın."
+    ],
+    "talimat_en": [
+      "Hinge forward at the hips until your torso is nearly parallel to the floor.",
+      "Use light weights and keep your elbows slightly bent.",
+      "Raise your arms out to the sides and stop at shoulder height.",
+      "Draw your shoulder blades toward each other.",
+      "Don’t lift your head; keep your gaze on the floor."
     ]
   },
   {
@@ -4560,6 +5316,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Göğsünü bara doğru çekerek yüksel.",
       "Bu kavrama biceps’i daha çok kattığı için düz barfiksten kolaydır.",
       "İnerken kolları tam gevşetme, kontrolü koru."
+    ],
+    "talimat_en": [
+      "Grip the bar at shoulder width with your palms facing you.",
+      "Pull your shoulders down and don’t let your body swing.",
+      "Rise by pulling your chest toward the bar.",
+      "Because this grip involves the biceps more, it’s easier than a regular pull-up.",
+      "Don’t fully relax your arms on the way down; stay in control."
     ]
   },
   {
@@ -4601,6 +5364,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı göğsünün üst kısmına çek.",
       "Dirseklerini gövdene yakın tutarak aşağı ve geriye götür.",
       "Bileğini bükme, düz bir çizgi olarak tut."
+    ],
+    "talimat_en": [
+      "Grip the bar at shoulder width with your palms facing you.",
+      "Lock your knees under the pad and lean back slightly.",
+      "Pull the bar to your upper chest.",
+      "Keep your elbows close to your body as you drive them down and back.",
+      "Don’t bend your wrists; keep them in a straight line."
     ]
   },
   {
@@ -4639,6 +5409,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Bacaklarını savurma; hareket karından gelsin.",
       "Kontrollü indir, ayaklarını yere değdirme.",
       "Belini yere yapışık tutmaya çalış."
+    ],
+    "talimat_en": [
+      "Lie on your back with your hands at your sides.",
+      "Pull your knees toward your chest and lift your hips off the floor.",
+      "Don’t swing your legs; the movement should come from your abs.",
+      "Lower under control without letting your feet touch the floor.",
+      "Try to keep your lower back pressed into the floor."
     ]
   },
   {
@@ -4680,6 +5457,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Belini döndürme; hareket göğüs kafesinden gelsin.",
       "Bakışını dirseğini takip ettir.",
       "Her tarafta 8 tekrar yap."
+    ],
+    "talimat_en": [
+      "On all fours, place one hand behind your head.",
+      "Rotate your upper back by turning your elbow toward the ceiling.",
+      "Don’t rotate your lower back; the movement should come from your rib cage.",
+      "Follow your elbow with your eyes.",
+      "Do 8 reps on each side."
     ]
   },
   {
@@ -4724,6 +5508,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Yükü ayaklarının ortasından kaldır.",
       "Bu varyantta yük vücudun merkezine daha yakındır; bel için daha güvenlidir.",
       "Tepede omuzlarını geriye çek, kalçanı kilitle."
+    ],
+    "talimat_en": [
+      "Stand in the center of the trap bar and grip the handles.",
+      "Send your hips back and down and lift your chest.",
+      "Lift the load from the middle of your feet.",
+      "In this variation the load sits closer to your center of mass, making it safer for your lower back.",
+      "At the top, pull your shoulders back and lock out your hips."
     ]
   },
   {
@@ -4763,6 +5554,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Aşağı iterken halatın uçlarını iki yana ayır.",
       "Aşağıda kolları tam düzleştir ve sık.",
       "Yukarı bırakırken dirseğin öne kaçmasın."
+    ],
+    "talimat_en": [
+      "Attach a rope handle and grip it by the ends.",
+      "Pin your elbows to your sides.",
+      "As you push down, spread the ends of the rope apart.",
+      "At the bottom, fully straighten your arms and squeeze.",
+      "As you let it back up, don’t let your elbows drift forward."
     ]
   },
   {
@@ -4802,6 +5600,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Barı aşağı it, kolları tam düzleştir.",
       "Aşağıda bir an sık.",
       "Gövdeni öne eğerek ağırlık bastırma; hareket sadece dirsekten gelsin."
+    ],
+    "talimat_en": [
+      "Set the pulley above chest height and grip a straight bar.",
+      "Pin your elbows to your sides and keep them there.",
+      "Push the bar down until your arms are fully straight.",
+      "Squeeze for a moment at the bottom.",
+      "Don’t lean forward to push the weight down; the movement should come only from the elbows."
     ]
   },
   {
@@ -4840,6 +5645,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Topukları indir, sonra yüksel.",
       "Yüksek tekrar çalış: 15-25 tekrar uygundur.",
       "Tek ayakla yaparak yükü ikiye katlayabilirsin."
+    ],
+    "talimat_en": [
+      "Stand with the balls of your feet on the edge of a step.",
+      "You can use a wall for balance.",
+      "Lower your heels, then rise up.",
+      "Work with high reps: 15-25 reps is appropriate.",
+      "Doing it on one leg doubles the load."
     ]
   },
   {
@@ -4880,6 +5692,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Topuklarını yerden kaldırma.",
       "Uyluk yere paralel olana kadar in.",
       "Yukarı kalkarken topuklarınla yeri it."
+    ],
+    "talimat_en": [
+      "Feet shoulder-width apart, arms out in front for balance.",
+      "Lower by sending your hips back.",
+      "Keep your heels on the floor.",
+      "Lower until your thighs are parallel to the floor.",
+      "Drive through your heels as you stand back up."
     ]
   },
   {
@@ -4922,6 +5741,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Karşı taraf karın yanını sıkarak doğrul.",
       "Öne veya arkaya eğilme; hareket tam yanlamasına olsun.",
       "Bel fıtığın varsa bu hareketi yapma."
+    ],
+    "talimat_en": [
+      "Stand with a dumbbell in one hand and the other hand on your hip.",
+      "Bend your torso sideways toward the dumbbell.",
+      "Squeeze the obliques on the opposite side to come back up.",
+      "Don’t lean forward or back; keep the movement purely sideways.",
+      "If you have a lumbar disc herniation, don’t do this exercise."
     ]
   },
   {
@@ -4964,6 +5790,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Kolları yanlara doğru omuz hizasına kadar kaldır.",
       "Baş parmağın hafif aşağı baksın, su döker gibi.",
       "Omuz hizasını geçme; yukarısı trapeze geçer."
+    ],
+    "talimat_en": [
+      "Start with light dumbbells; this exercise breaks down with heavy weight.",
+      "Keep your torso upright and your elbows slightly bent.",
+      "Raise your arms out to the sides up to shoulder height.",
+      "Let your thumbs point slightly down, as if pouring water.",
+      "Don’t go above shoulder height; beyond that the traps take over."
     ]
   },
   {
@@ -5006,6 +5839,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Üstteki eli belinde veya havada tut.",
       "Kalçanın öne veya arkaya dönmesine izin verme.",
       "Zorlanıyorsan dizlerin üstünde yap."
+    ],
+    "talimat_en": [
+      "Lie on your side with your elbow under your shoulder.",
+      "Lift your hips off the floor so your body forms one line.",
+      "Keep your top hand on your hip or raised in the air.",
+      "Don’t let your hips rotate forward or backward.",
+      "If it’s too hard, do it from your knees."
     ]
   },
   {
@@ -5050,6 +5890,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Omuzları önce aşağı çek, sonra dirsekleri geriye çekerek yüksel.",
       "Bandın seni fırlatmasına izin verme; iniş de kontrollü olsun.",
       "Zamanla daha ince banda geç, sonra bandı bırak."
+    ],
+    "talimat_en": [
+      "Loop a resistance band around the bar and place your knee or foot in it.",
+      "The thicker the band, the more assistance it gives.",
+      "Pull your shoulders down first, then rise by driving your elbows back.",
+      "Don’t let the band launch you; keep the descent controlled too.",
+      "Over time, move to a thinner band, then drop the band entirely."
     ]
   },
   {
@@ -5091,6 +5938,13 @@ export const HAREKET_KATALOGU: readonly Hareket[] = [
       "Üst kolun yere dik kalsın, öne geriye gitmesin.",
       "Yukarı iterken kolları tam kilitleme.",
       "Dirseğinde ağrı hissedersen menzili kısalt veya pushdown’a geç."
+    ],
+    "talimat_en": [
+      "Lie on your back on a bench and hold the bar above your chest.",
+      "Keep your elbows fixed and lower the bar toward your forehead.",
+      "Keep your upper arms vertical; don’t let them drift forward or back.",
+      "Don’t fully lock out your arms as you press up.",
+      "If you feel pain in your elbows, shorten the range or switch to pushdowns."
     ]
   }
 ];

@@ -31,8 +31,8 @@ const IZIN_VERILDI: SinirSonucu = { izin: true, cevap: '' };
 /**
  * Desenler ASCII'ye normalize edilmiş metin üzerinde çalışır.
  *
- * Neden: JavaScript'te `` sözcük sınırı yalnızca ASCII harfleri tanır. "ağrı" içindeki
- * "ı" sözcük karakteri sayılmadığı için `/ağrı/` hiçbir zaman eşleşmez — Türkçe metinde
+ * Neden: JavaScript'te `\b` sözcük sınırı yalnızca ASCII harfleri tanır. "ağrı" içindeki
+ * "ı" sözcük karakteri sayılmadığı için `/\bağrı\b/` hiçbir zaman eşleşmez — Türkçe metinde
  * sessizce çalışmayan bir güvenlik kuralı, hiç olmayan bir kuraldan daha tehlikelidir.
  * Bu yüzden önce `turkceNormalize` ile sadeleştirip sonra eşliyoruz.
  */
@@ -56,6 +56,14 @@ const TANI_DESENLERI = [
   /tutuldu/,
   /zonkl/,
   /sakatlan/,
+  // İngilizce — gerekçesi dosyanın sonundaki `INGILIZCE_NOTU`nda.
+  /\b(pain|painful|hurts?|aching)\b/,
+  /\binjur/,
+  /\bdiagnos/,
+  /\bsymptom/,
+  /\bhernia/,
+  /\btendinitis\b/,
+  /\b(swollen|swelling|numb|numbness|sprain)/,
 ];
 
 /**
@@ -85,6 +93,9 @@ const DOZ_DESENLERI = [
   /antrenmandan (once|sonra).*(ilac|hap)/,
   // Zamanlama sorusu iki yonlu sorulabiliyor: "ilaci antrenmandan once alabilir miyim".
   /(ilac|hap)\w*.{0,24}(antrenman|yemek|yatmadan)\w*\s*(once|sonra)/,
+  /\bdos(e|es|age|ing)\b/,
+  /how (much|many)\b.*\b(mg|mcg|iu|creatine|vitamin|zinc|magnesium|omega|pills?|medication|medicine)\b/,
+  /\b(stop|quit|increase|reduce|skip|change)\b.*\b(medication|medicine|pills?)\b/,
 ];
 
 /** Aşırı kısıtlayıcı veya tehlikeli hedefler. */
@@ -98,6 +109,13 @@ const ASIRI_HEDEF_DESENLERI = [
   /(kusma|kusarak)/,
   /laksatif/,
   /aclik grevi/,
+  /(^|[^0-9])[0-9]{1,3}\s*(kcal|calories|cals?)\b/,
+  /\bstop eating\b/,
+  /\b(not|without) eat(ing)? (at all|anything)\b/,
+  /\b(water|dry) fast/,
+  /\b(vomit|purg)/,
+  /\blaxative/,
+  /\blose ([5-9]|[1-9][0-9])\s*(kg|kilos?|pounds|lbs?)\b.*\b(week|days?)\b/,
 ];
 
 /** Kapsam dışı konular. */
@@ -121,6 +139,12 @@ const ED_SAYI_DESENLERI = [
   /kilo.*(hedef|dusmeli|vermeli)/,
   /makro.*kac/,
   /kac\s*gram\s*(protein|karbonhidrat|yag)/,
+  /how many (calories|kcal)/,
+  /\bcalories?\b.*\b(ate|eaten|left|target|goal|should)\b/,
+  /how (much|many) (do i|should i|to) (weigh|lose|gain)/,
+  /\bweight (goal|target)\b/,
+  /\bmacros?\b.*\bhow\b|\bhow\b.*\bmacros?\b/,
+  /how (many|much) (grams|g) of (protein|carbs?|carbohydrates?|fat)/,
 ];
 
 /** Fitness ve beslenme bağlamı: kapsam kontrolünde yanlış pozitifi azaltır. */
@@ -143,6 +167,16 @@ const KAPSAM_ICI_ANAHTARLAR = [
   'salon',
   'agirlik',
 ];
+
+/**
+ * INGILIZCE_NOTU — desenlerin İngilizce karşılıkları neden var.
+ *
+ * Koç 2026-08-31'den beri İngilizce de konuşuyor (`kocSistemMesaji` dili seçiyor) ama
+ * kapılar yalnızca Türkçe desen tanıyordu. ED modundaki İngilizce bir kullanıcının
+ * "how many calories should I eat" sorusu ED kapısından geçip modele ulaşıyordu; aynı
+ * şey tanı, doz ve aşırı hedef için de geçerliydi. Kural modele "lütfen yapma" demek
+ * değil, isteği modele ulaşmadan kesmek — bu kural İngilizcede hiç çalışmıyordu.
+ */
 
 /** Bir desen kümesi normalize metinle eşleşiyor mu. */
 function eslesir(desenler: readonly RegExp[], normal: string): boolean {

@@ -1,6 +1,6 @@
 import type { Kapi, KapiDurumu } from '@swiip/shared';
 import { metinler } from '@swiip/shared';
-import { metin, type Cevaplar } from '../cevaplar';
+import { atlandiMi, metin, type Cevaplar } from '../cevaplar';
 
 /**
  * Dört sert kapı — spec bölüm 4.
@@ -50,7 +50,16 @@ export function kapilariDegerlendir(cevaplar: Cevaplar, secenekler: KapiSecenekl
     if (id === 'K6' && gebelikTaramasiGereksizMi(cevaplar)) return false;
 
     const deger = cevaplar[id];
-    return deger === undefined || deger === null || deger === '';
+    /**
+     * Atlanmış tarama sorusu CEVAPLANMAMIŞ sayılır.
+     *
+     * Burada yalnızca boşluğa bakılıyordu ve `ATLANDI` işareti dolu bir dize. Atlanan
+     * S2 ("göğüs ağrısı") hem `metin()` tarafından görünmez kılınıyor — kardiyak kapı
+     * tetiklenmiyor — hem de "cevaplanmış" sayılıyordu: kapı iki yönden birden açık
+     * kalıyordu. Zorunlu sorunun atlanmasını doğrulama zaten reddediyor; ama kapı
+     * kendi başına sağlam olmalı, başka bir katmanın hatasız olmasına yaslanmamalı.
+     */
+    return deger === undefined || deger === null || deger === '' || atlandiMi(deger);
   });
 
   // 1. Yaş kapısı — beyan ve doğum tarihi birlikte kontrol edilir.

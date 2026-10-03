@@ -17,7 +17,8 @@ export interface PorsiyonTanimi {
 
 export interface BesinTohumu {
   name_tr: string;
-  name_en?: string;
+  /** İngilizce görünen ad. Zorunlu: uygulama 175 ülkede ve arama bu alanda da yapılıyor. */
+  name_en: string;
   per_100g: {
     kalori: number;
     protein_g: number;
@@ -63,6 +64,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk but, pişmiş',
+    name_en: 'Chicken thigh, cooked',
     per_100g: { kalori: 209, protein_g: 26, yag_g: 11, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(150), adet(120)],
     source: 'turkomp',
@@ -70,6 +72,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Dana kıyma, %15 yağlı, pişmiş',
+    name_en: 'Ground beef, 15% fat, cooked',
     per_100g: { kalori: 250, protein_g: 26, yag_g: 16, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(120), yemekKasigi(20)],
     source: 'turkomp',
@@ -77,6 +80,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Dana bonfile, ızgara',
+    name_en: 'Beef tenderloin, grilled',
     per_100g: { kalori: 187, protein_g: 30, yag_g: 7, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(150)],
     source: 'turkomp',
@@ -84,6 +88,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuzu pirzola, ızgara',
+    name_en: 'Lamb chops, grilled',
     per_100g: { kalori: 282, protein_g: 25, yag_g: 20, karbonhidrat_g: 0, lif_g: 0 },
     portions: [adet(60), porsiyon(180)],
     source: 'turkomp',
@@ -91,6 +96,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Hamsi, tavada',
+    name_en: 'Anchovies, pan-fried',
     per_100g: { kalori: 210, protein_g: 20, yag_g: 14, karbonhidrat_g: 2, lif_g: 0 },
     portions: [porsiyon(150), adet(15)],
     source: 'turkomp',
@@ -98,6 +104,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Somon, fırında',
+    name_en: 'Salmon, baked',
     per_100g: { kalori: 208, protein_g: 22, yag_g: 13, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(150)],
     source: 'turkomp',
@@ -105,6 +112,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Levrek, ızgara',
+    name_en: 'Sea bass, grilled',
     per_100g: { kalori: 124, protein_g: 24, yag_g: 3, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(200), adet(250)],
     source: 'turkomp',
@@ -112,6 +120,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yumurta, haşlanmış',
+    name_en: 'Egg, boiled',
     per_100g: { kalori: 155, protein_g: 13, yag_g: 11, karbonhidrat_g: 1.1, lif_g: 0 },
     portions: [adet(50)],
     source: 'turkomp',
@@ -119,6 +128,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yumurta akı',
+    name_en: 'Egg white',
     per_100g: { kalori: 52, protein_g: 11, yag_g: 0.2, karbonhidrat_g: 0.7, lif_g: 0 },
     portions: [adet(33)],
     source: 'turkomp',
@@ -126,6 +136,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ton balığı, suda, konserve',
+    name_en: 'Tuna, canned in water',
     per_100g: { kalori: 116, protein_g: 26, yag_g: 1, karbonhidrat_g: 0, lif_g: 0 },
     portions: [adet(160), porsiyon(80)],
     source: 'openfoodfacts',
@@ -135,6 +146,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Süt ve süt ürünleri ---
   {
     name_tr: 'Süt, yarım yağlı',
+    name_en: 'Milk, semi-skimmed',
     per_100g: { kalori: 50, protein_g: 3.4, yag_g: 1.6, karbonhidrat_g: 4.8, lif_g: 0 },
     portions: [bardak(200), kase(250)],
     source: 'turkomp',
@@ -142,6 +154,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yoğurt, yarım yağlı',
+    name_en: 'Yogurt, reduced-fat',
     per_100g: { kalori: 63, protein_g: 3.5, yag_g: 3.3, karbonhidrat_g: 4.7, lif_g: 0 },
     portions: [kase(200), yemekKasigi(25), bardak(200)],
     source: 'turkomp',
@@ -149,6 +162,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Süzme yoğurt',
+    name_en: 'Strained yogurt',
     per_100g: { kalori: 97, protein_g: 10, yag_g: 5, karbonhidrat_g: 3.6, lif_g: 0 },
     portions: [kase(200), yemekKasigi(25)],
     source: 'turkomp',
@@ -156,6 +170,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Beyaz peynir, yarım yağlı',
+    name_en: 'White cheese, reduced-fat',
     per_100g: { kalori: 240, protein_g: 17, yag_g: 18, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(30), avuc(50)],
     source: 'turkomp',
@@ -163,6 +178,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kaşar peyniri',
+    name_en: 'Kashar cheese',
     per_100g: { kalori: 350, protein_g: 25, yag_g: 27, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(25)],
     source: 'turkomp',
@@ -170,6 +186,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ayran',
+    name_en: 'Ayran (salted yogurt drink)',
     per_100g: { kalori: 36, protein_g: 1.7, yag_g: 1.8, karbonhidrat_g: 3.2, lif_g: 0 },
     portions: [bardak(200), adet(300)],
     source: 'turkomp',
@@ -177,6 +194,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Lor peyniri',
+    name_en: 'Whey cheese (lor)',
     per_100g: { kalori: 98, protein_g: 12, yag_g: 4, karbonhidrat_g: 3, lif_g: 0 },
     portions: [yemekKasigi(25), kase(150)],
     source: 'turkomp',
@@ -186,6 +204,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Tahıl ve baklagil ---
   {
     name_tr: 'Pirinç pilavı',
+    name_en: 'Rice pilaf',
     per_100g: { kalori: 160, protein_g: 3, yag_g: 3.5, karbonhidrat_g: 29, lif_g: 0.5 },
     portions: [kepce(90), kase(180), tabak(250), yemekKasigi(30)],
     source: 'bizim',
@@ -193,6 +212,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bulgur pilavı',
+    name_en: 'Bulgur pilaf',
     per_100g: { kalori: 143, protein_g: 4, yag_g: 3, karbonhidrat_g: 25, lif_g: 4 },
     portions: [kepce(90), kase(180), tabak(250)],
     source: 'bizim',
@@ -200,6 +220,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Makarna, haşlanmış',
+    name_en: 'Pasta, boiled',
     per_100g: { kalori: 158, protein_g: 5.8, yag_g: 0.9, karbonhidrat_g: 31, lif_g: 1.8 },
     portions: [kase(200), tabak(250)],
     source: 'turkomp',
@@ -207,6 +228,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ekmek, beyaz',
+    name_en: 'Bread, white',
     per_100g: { kalori: 265, protein_g: 9, yag_g: 3.2, karbonhidrat_g: 49, lif_g: 2.7 },
     portions: [dilim(30)],
     source: 'turkomp',
@@ -214,6 +236,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ekmek, tam buğday',
+    name_en: 'Bread, whole wheat',
     per_100g: { kalori: 247, protein_g: 13, yag_g: 3.4, karbonhidrat_g: 41, lif_g: 7 },
     portions: [dilim(30)],
     source: 'turkomp',
@@ -221,6 +244,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yulaf ezmesi, kuru',
+    name_en: 'Rolled oats, dry',
     per_100g: { kalori: 379, protein_g: 13, yag_g: 6.5, karbonhidrat_g: 67, lif_g: 10 },
     portions: [yemekKasigi(10), bardak(80), kase(50)],
     source: 'turkomp',
@@ -228,6 +252,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru fasulye yemeği',
+    name_en: 'White bean stew (kuru fasulye)',
     per_100g: { kalori: 127, protein_g: 7, yag_g: 3.5, karbonhidrat_g: 17, lif_g: 6 },
     portions: [kepce(120), kase(220), tabak(280)],
     source: 'bizim',
@@ -235,6 +260,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Nohut yemeği',
+    name_en: 'Chickpea stew (nohut yemeği)',
     per_100g: { kalori: 135, protein_g: 7, yag_g: 4, karbonhidrat_g: 18, lif_g: 5.5 },
     portions: [kepce(120), kase(220)],
     source: 'bizim',
@@ -242,6 +268,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mercimek çorbası',
+    name_en: 'Lentil soup (mercimek çorbası)',
     per_100g: { kalori: 65, protein_g: 3.2, yag_g: 2, karbonhidrat_g: 9, lif_g: 2 },
     portions: [kase(250), kepce(100)],
     source: 'bizim',
@@ -249,6 +276,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kırmızı mercimek, kuru',
+    name_en: 'Red lentils, dry',
     per_100g: { kalori: 352, protein_g: 25, yag_g: 1.1, karbonhidrat_g: 60, lif_g: 11 },
     portions: [bardak(190), yemekKasigi(15)],
     source: 'turkomp',
@@ -258,6 +286,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Pişmiş Türk yemekleri (biz gireriz) ---
   {
     name_tr: 'İzmir köfte',
+    name_en: 'Meatballs with potatoes in tomato sauce (İzmir köfte)',
     per_100g: { kalori: 168, protein_g: 12, yag_g: 11, karbonhidrat_g: 6, lif_g: 1.2 },
     portions: [porsiyon(250), adet(45)],
     source: 'bizim',
@@ -265,6 +294,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Izgara köfte',
+    name_en: 'Grilled meatballs (ızgara köfte)',
     per_100g: { kalori: 240, protein_g: 19, yag_g: 17, karbonhidrat_g: 3, lif_g: 0.3 },
     portions: [adet(40), porsiyon(160)],
     source: 'bizim',
@@ -272,6 +302,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karnıyarık',
+    name_en: 'Stuffed eggplant with ground meat (karnıyarık)',
     per_100g: { kalori: 128, protein_g: 5, yag_g: 9, karbonhidrat_g: 7, lif_g: 3 },
     portions: [adet(200), porsiyon(250)],
     source: 'bizim',
@@ -279,6 +310,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Menemen',
+    name_en: 'Eggs scrambled with tomato and peppers (menemen)',
     per_100g: { kalori: 118, protein_g: 6, yag_g: 8.5, karbonhidrat_g: 4, lif_g: 1.2 },
     portions: [porsiyon(250), tabak(300)],
     source: 'bizim',
@@ -286,6 +318,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mantı, yoğurtlu',
+    name_en: 'Turkish dumplings with yogurt (mantı)',
     per_100g: { kalori: 208, protein_g: 8, yag_g: 9, karbonhidrat_g: 24, lif_g: 1.4 },
     portions: [porsiyon(250), kase(200)],
     source: 'bizim',
@@ -293,6 +326,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı taze fasulye',
+    name_en: 'Green beans in olive oil',
     per_100g: { kalori: 71, protein_g: 1.9, yag_g: 5, karbonhidrat_g: 5, lif_g: 3 },
     portions: [kepce(110), kase(200)],
     source: 'bizim',
@@ -300,6 +334,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli türlü',
+    name_en: 'Mixed vegetable stew with meat (etli türlü)',
     per_100g: { kalori: 96, protein_g: 6, yag_g: 5, karbonhidrat_g: 7, lif_g: 2.2 },
     portions: [kepce(120), kase(220)],
     source: 'bizim',
@@ -307,6 +342,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk sote',
+    name_en: 'Chicken saute',
     per_100g: { kalori: 142, protein_g: 17, yag_g: 6, karbonhidrat_g: 5, lif_g: 1 },
     portions: [porsiyon(200), kepce(110)],
     source: 'bizim',
@@ -314,6 +350,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Lahmacun',
+    name_en: 'Thin flatbread with spiced ground meat (lahmacun)',
     per_100g: { kalori: 245, protein_g: 11, yag_g: 8, karbonhidrat_g: 33, lif_g: 2 },
     portions: [adet(120)],
     source: 'bizim',
@@ -321,6 +358,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pide, kıymalı',
+    name_en: 'Turkish flatbread with ground meat (kıymalı pide)',
     per_100g: { kalori: 268, protein_g: 12, yag_g: 10, karbonhidrat_g: 33, lif_g: 1.8 },
     portions: [adet(300), dilim(50)],
     source: 'bizim',
@@ -328,6 +366,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Simit',
+    name_en: 'Sesame bread ring (simit)',
     per_100g: { kalori: 322, protein_g: 10, yag_g: 6, karbonhidrat_g: 57, lif_g: 3 },
     portions: [adet(100)],
     source: 'bizim',
@@ -335,6 +374,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Börek, peynirli',
+    name_en: 'Cheese pastry (börek)',
     per_100g: { kalori: 296, protein_g: 9, yag_g: 18, karbonhidrat_g: 25, lif_g: 1.2 },
     portions: [dilim(120), porsiyon(150)],
     source: 'bizim',
@@ -342,6 +382,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çiğ köfte, etsiz',
+    name_en: 'Spicy bulgur patties, meatless (çiğ köfte)',
     per_100g: { kalori: 180, protein_g: 5, yag_g: 5, karbonhidrat_g: 29, lif_g: 5 },
     portions: [adet(30), porsiyon(150)],
     source: 'bizim',
@@ -349,6 +390,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Cacık',
+    name_en: 'Yogurt with cucumber and garlic (cacık)',
     per_100g: { kalori: 42, protein_g: 2.4, yag_g: 2.4, karbonhidrat_g: 3, lif_g: 0.4 },
     portions: [kase(200), kepce(100)],
     source: 'bizim',
@@ -358,6 +400,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Sebze ve meyve ---
   {
     name_tr: 'Domates',
+    name_en: 'Tomato',
     per_100g: { kalori: 18, protein_g: 0.9, yag_g: 0.2, karbonhidrat_g: 3.9, lif_g: 1.2 },
     portions: [adet(120), dilim(20)],
     source: 'turkomp',
@@ -365,6 +408,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Salatalık',
+    name_en: 'Cucumber',
     per_100g: { kalori: 15, protein_g: 0.7, yag_g: 0.1, karbonhidrat_g: 3.6, lif_g: 0.5 },
     portions: [adet(150)],
     source: 'turkomp',
@@ -372,6 +416,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ispanak, haşlanmış',
+    name_en: 'Spinach, boiled',
     per_100g: { kalori: 23, protein_g: 3, yag_g: 0.4, karbonhidrat_g: 3.8, lif_g: 2.4 },
     portions: [kase(180), avuc(50)],
     source: 'turkomp',
@@ -379,6 +424,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Brokoli, haşlanmış',
+    name_en: 'Broccoli, boiled',
     per_100g: { kalori: 35, protein_g: 2.4, yag_g: 0.4, karbonhidrat_g: 7, lif_g: 3.3 },
     portions: [kase(150), avuc(50)],
     source: 'turkomp',
@@ -386,6 +432,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patates, haşlanmış',
+    name_en: 'Potato, boiled',
     per_100g: { kalori: 87, protein_g: 2, yag_g: 0.1, karbonhidrat_g: 20, lif_g: 1.8 },
     portions: [adet(150), kase(180)],
     source: 'turkomp',
@@ -393,6 +440,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patates kızartması',
+    name_en: 'French fries',
     per_100g: { kalori: 312, protein_g: 3.4, yag_g: 15, karbonhidrat_g: 41, lif_g: 3.8 },
     portions: [porsiyon(150), avuc(50)],
     source: 'bizim',
@@ -400,6 +448,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Muz',
+    name_en: 'Banana',
     per_100g: { kalori: 89, protein_g: 1.1, yag_g: 0.3, karbonhidrat_g: 23, lif_g: 2.6 },
     portions: [adet(120)],
     source: 'turkomp',
@@ -407,6 +456,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Elma',
+    name_en: 'Apple',
     per_100g: { kalori: 52, protein_g: 0.3, yag_g: 0.2, karbonhidrat_g: 14, lif_g: 2.4 },
     portions: [adet(180)],
     source: 'turkomp',
@@ -414,6 +464,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Portakal',
+    name_en: 'Orange',
     per_100g: { kalori: 47, protein_g: 0.9, yag_g: 0.1, karbonhidrat_g: 12, lif_g: 2.4 },
     portions: [adet(180)],
     source: 'turkomp',
@@ -421,6 +472,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karpuz',
+    name_en: 'Watermelon',
     per_100g: { kalori: 30, protein_g: 0.6, yag_g: 0.2, karbonhidrat_g: 8, lif_g: 0.4 },
     portions: [dilim(280)],
     source: 'turkomp',
@@ -430,6 +482,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Yağ ve kuruyemiş ---
   {
     name_tr: 'Zeytinyağı',
+    name_en: 'Olive oil',
     per_100g: { kalori: 884, protein_g: 0, yag_g: 100, karbonhidrat_g: 0, lif_g: 0 },
     portions: [yemekKasigi(13), cayKasigi(5)],
     source: 'turkomp',
@@ -437,6 +490,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tereyağı',
+    name_en: 'Butter',
     per_100g: { kalori: 717, protein_g: 0.9, yag_g: 81, karbonhidrat_g: 0.1, lif_g: 0 },
     portions: [yemekKasigi(14), cayKasigi(5)],
     source: 'turkomp',
@@ -444,6 +498,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ceviz içi',
+    name_en: 'Walnuts, shelled',
     per_100g: { kalori: 654, protein_g: 15, yag_g: 65, karbonhidrat_g: 14, lif_g: 6.7 },
     portions: [avuc(30), adet(5)],
     source: 'turkomp',
@@ -451,6 +506,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Badem',
+    name_en: 'Almonds',
     per_100g: { kalori: 579, protein_g: 21, yag_g: 50, karbonhidrat_g: 22, lif_g: 12.5 },
     portions: [avuc(30), adet(1.2)],
     source: 'turkomp',
@@ -458,6 +514,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fındık',
+    name_en: 'Hazelnuts',
     per_100g: { kalori: 628, protein_g: 15, yag_g: 61, karbonhidrat_g: 17, lif_g: 9.7 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -465,6 +522,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytin, siyah',
+    name_en: 'Olives, black',
     per_100g: { kalori: 115, protein_g: 0.8, yag_g: 11, karbonhidrat_g: 6, lif_g: 3.2 },
     portions: [adet(4), avuc(30)],
     source: 'turkomp',
@@ -472,6 +530,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tahin',
+    name_en: 'Tahini',
     per_100g: { kalori: 595, protein_g: 17, yag_g: 54, karbonhidrat_g: 21, lif_g: 9 },
     portions: [yemekKasigi(15), cayKasigi(6)],
     source: 'turkomp',
@@ -481,6 +540,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Takviye ve hazır ürün ---
   {
     name_tr: 'Whey protein tozu',
+    name_en: 'Whey protein powder',
     per_100g: { kalori: 380, protein_g: 78, yag_g: 5, karbonhidrat_g: 6, lif_g: 1 },
     portions: [{ id: 'olcek', ad: '1 ölçek', gram: 30 }],
     source: 'openfoodfacts',
@@ -488,6 +548,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bal',
+    name_en: 'Honey',
     per_100g: { kalori: 304, protein_g: 0.3, yag_g: 0, karbonhidrat_g: 82, lif_g: 0.2 },
     portions: [yemekKasigi(21), cayKasigi(7)],
     source: 'turkomp',
@@ -495,6 +556,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Reçel, vişne',
+    name_en: 'Jam, sour cherry',
     per_100g: { kalori: 278, protein_g: 0.4, yag_g: 0.1, karbonhidrat_g: 69, lif_g: 1 },
     portions: [yemekKasigi(20), cayKasigi(7)],
     source: 'turkomp',
@@ -502,6 +564,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Baklava',
+    name_en: 'Baklava',
     per_100g: { kalori: 428, protein_g: 6, yag_g: 24, karbonhidrat_g: 48, lif_g: 1.5 },
     portions: [dilim(60), porsiyon(120)],
     source: 'bizim',
@@ -509,6 +572,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sütlaç',
+    name_en: 'Rice pudding (sütlaç)',
     per_100g: { kalori: 143, protein_g: 3.4, yag_g: 3, karbonhidrat_g: 25, lif_g: 0.2 },
     portions: [kase(150)],
     source: 'bizim',
@@ -516,6 +580,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çay, şekersiz',
+    name_en: 'Tea, unsweetened',
     per_100g: { kalori: 1, protein_g: 0, yag_g: 0, karbonhidrat_g: 0.3, lif_g: 0 },
     portions: [bardak(100)],
     source: 'turkomp',
@@ -523,6 +588,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Türk kahvesi, şekersiz',
+    name_en: 'Turkish coffee, unsweetened',
     per_100g: { kalori: 2, protein_g: 0.1, yag_g: 0, karbonhidrat_g: 0.3, lif_g: 0 },
     portions: [{ id: 'fincan', ad: '1 fincan', gram: 70 }],
     source: 'turkomp',
@@ -532,6 +598,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Çorbalar ---
   {
     name_tr: 'Ezogelin çorbası',
+    name_en: 'Red lentil and bulgur soup (ezogelin)',
     per_100g: { kalori: 71, protein_g: 3.4, yag_g: 2.2, karbonhidrat_g: 9.5, lif_g: 1.6 },
     portions: [kase(250), kepce(120)],
     source: 'bizim',
@@ -539,6 +606,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yayla çorbası',
+    name_en: 'Yogurt and rice soup (yayla çorbası)',
     per_100g: { kalori: 67, protein_g: 3, yag_g: 2.6, karbonhidrat_g: 8, lif_g: 0.4 },
     portions: [kase(250), kepce(120)],
     source: 'bizim',
@@ -546,6 +614,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tarhana çorbası',
+    name_en: 'Tarhana soup',
     per_100g: { kalori: 71, protein_g: 3.2, yag_g: 1.8, karbonhidrat_g: 10.5, lif_g: 1.2 },
     portions: [kase(250), kepce(120)],
     source: 'bizim',
@@ -553,6 +622,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Domates çorbası',
+    name_en: 'Tomato soup',
     per_100g: { kalori: 67, protein_g: 2, yag_g: 2.8, karbonhidrat_g: 8.5, lif_g: 1 },
     portions: [kase(250), kepce(120)],
     source: 'bizim',
@@ -560,6 +630,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk suyu çorba, şehriyeli',
+    name_en: 'Chicken noodle soup',
     per_100g: { kalori: 59, protein_g: 3.6, yag_g: 1.6, karbonhidrat_g: 7.5, lif_g: 0.3 },
     portions: [kase(250), kepce(120)],
     source: 'bizim',
@@ -567,6 +638,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'İşkembe çorbası',
+    name_en: 'Tripe soup (işkembe çorbası)',
     per_100g: { kalori: 76, protein_g: 5.5, yag_g: 4, karbonhidrat_g: 4.5, lif_g: 0.2 },
     portions: [kase(250)],
     source: 'bizim',
@@ -574,6 +646,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Düğün çorbası',
+    name_en: 'Lamb and yogurt wedding soup (düğün çorbası)',
     per_100g: { kalori: 84, protein_g: 4, yag_g: 4.5, karbonhidrat_g: 7, lif_g: 0.4 },
     portions: [kase(250)],
     source: 'bizim',
@@ -581,6 +654,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Brokoli çorbası',
+    name_en: 'Broccoli soup',
     per_100g: { kalori: 61, protein_g: 2.6, yag_g: 3, karbonhidrat_g: 6, lif_g: 1.8 },
     portions: [kase(250)],
     source: 'bizim',
@@ -590,6 +664,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Etli yemekler ---
   {
     name_tr: 'Tas kebabı',
+    name_en: 'Braised meat stew (tas kebabı)',
     per_100g: { kalori: 148, protein_g: 13, yag_g: 8, karbonhidrat_g: 6, lif_g: 1 },
     portions: [porsiyon(250), kepce(130)],
     source: 'bizim',
@@ -597,6 +672,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli güveç',
+    name_en: 'Meat and vegetable casserole (etli güveç)',
     per_100g: { kalori: 135, protein_g: 11, yag_g: 7, karbonhidrat_g: 7, lif_g: 1.6 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -604,6 +680,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Orman kebabı',
+    name_en: 'Lamb stew with vegetables (orman kebabı)',
     per_100g: { kalori: 158, protein_g: 12.5, yag_g: 8.5, karbonhidrat_g: 8, lif_g: 1.4 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -611,6 +688,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çoban kavurma',
+    name_en: 'Sauteed meat with peppers and tomato (çoban kavurma)',
     per_100g: { kalori: 188, protein_g: 17, yag_g: 12, karbonhidrat_g: 3, lif_g: 0.8 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -618,6 +696,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk şiş, ızgara',
+    name_en: 'Chicken skewers, grilled (tavuk şiş)',
     per_100g: { kalori: 170, protein_g: 26, yag_g: 6.5, karbonhidrat_g: 2, lif_g: 0.3 },
     portions: [porsiyon(180), adet(90)],
     source: 'bizim',
@@ -625,6 +704,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Adana kebap',
+    name_en: 'Adana kebab (spicy minced meat kebab)',
     per_100g: { kalori: 256, protein_g: 17, yag_g: 20, karbonhidrat_g: 2, lif_g: 0.4 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -632,6 +712,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Urfa kebap',
+    name_en: 'Urfa kebab (mild minced meat kebab)',
     per_100g: { kalori: 240, protein_g: 17.5, yag_g: 18, karbonhidrat_g: 2, lif_g: 0.4 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -639,6 +720,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Et döner',
+    name_en: 'Beef doner',
     per_100g: { kalori: 245, protein_g: 21, yag_g: 17, karbonhidrat_g: 2, lif_g: 0.2 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -646,6 +728,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk döner',
+    name_en: 'Chicken doner',
     per_100g: { kalori: 181, protein_g: 22, yag_g: 9, karbonhidrat_g: 3, lif_g: 0.2 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -653,6 +736,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'İskender kebap',
+    name_en: 'Doner over bread with tomato sauce and yogurt (İskender)',
     per_100g: { kalori: 260, protein_g: 13, yag_g: 16, karbonhidrat_g: 16, lif_g: 1 },
     portions: [porsiyon(350)],
     source: 'bizim',
@@ -660,6 +744,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kadınbudu köfte',
+    name_en: 'Fried rice and meat patties (kadınbudu köfte)',
     per_100g: { kalori: 230, protein_g: 14, yag_g: 14, karbonhidrat_g: 12, lif_g: 0.6 },
     portions: [adet(70), porsiyon(210)],
     source: 'bizim',
@@ -667,6 +752,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli kuru fasulye',
+    name_en: 'White bean stew with meat',
     per_100g: { kalori: 131, protein_g: 8.5, yag_g: 5, karbonhidrat_g: 13, lif_g: 5.5 },
     portions: [kepce(130), kase(250)],
     source: 'bizim',
@@ -674,6 +760,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli nohut yemeği',
+    name_en: 'Chickpea stew with meat',
     per_100g: { kalori: 128, protein_g: 8, yag_g: 4.5, karbonhidrat_g: 14, lif_g: 5 },
     portions: [kepce(130), kase(250)],
     source: 'bizim',
@@ -681,6 +768,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fırın tavuk but',
+    name_en: 'Baked chicken thigh',
     per_100g: { kalori: 206, protein_g: 24, yag_g: 12, karbonhidrat_g: 0.5, lif_g: 0 },
     portions: [adet(150)],
     source: 'bizim',
@@ -688,6 +776,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Hünkar beğendi',
+    name_en: 'Lamb stew on eggplant puree (hünkar beğendi)',
     per_100g: { kalori: 177, protein_g: 10.5, yag_g: 11, karbonhidrat_g: 9, lif_g: 2.4 },
     portions: [porsiyon(280)],
     source: 'bizim',
@@ -697,6 +786,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Zeytinyağlılar ---
   {
     name_tr: 'İmambayıldı',
+    name_en: 'Eggplant stuffed with onion and tomato (imambayıldı)',
     per_100g: { kalori: 120, protein_g: 1.8, yag_g: 9, karbonhidrat_g: 8, lif_g: 3.4 },
     portions: [adet(200), porsiyon(250)],
     source: 'bizim',
@@ -704,6 +794,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı enginar',
+    name_en: 'Artichokes in olive oil',
     per_100g: { kalori: 106, protein_g: 2.2, yag_g: 7, karbonhidrat_g: 8.5, lif_g: 4.5 },
     portions: [adet(130)],
     source: 'bizim',
@@ -711,6 +802,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Barbunya pilaki',
+    name_en: 'Borlotti beans in olive oil (barbunya pilaki)',
     per_100g: { kalori: 123, protein_g: 5.5, yag_g: 5, karbonhidrat_g: 14, lif_g: 5 },
     portions: [kepce(120), kase(220)],
     source: 'bizim',
@@ -718,6 +810,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı yaprak sarma',
+    name_en: 'Stuffed grape leaves in olive oil (yaprak sarma)',
     per_100g: { kalori: 141, protein_g: 2.4, yag_g: 7.5, karbonhidrat_g: 16, lif_g: 2.6 },
     portions: [adet(30), porsiyon(180)],
     source: 'bizim',
@@ -725,6 +818,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kabak mücver',
+    name_en: 'Zucchini fritters (mücver)',
     per_100g: { kalori: 149, protein_g: 5, yag_g: 9, karbonhidrat_g: 12, lif_g: 1.6 },
     portions: [adet(60), porsiyon(180)],
     source: 'bizim',
@@ -732,6 +826,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı pırasa',
+    name_en: 'Leeks in olive oil',
     per_100g: { kalori: 89, protein_g: 1.8, yag_g: 5.5, karbonhidrat_g: 8, lif_g: 2.8 },
     portions: [kepce(120), kase(220)],
     source: 'bizim',
@@ -739,6 +834,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı kereviz',
+    name_en: 'Celeriac in olive oil',
     per_100g: { kalori: 79, protein_g: 1.4, yag_g: 5, karbonhidrat_g: 7, lif_g: 2.2 },
     portions: [kepce(120), kase(220)],
     source: 'bizim',
@@ -746,6 +842,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı bakla',
+    name_en: 'Fava beans in olive oil',
     per_100g: { kalori: 102, protein_g: 4, yag_g: 5.5, karbonhidrat_g: 9, lif_g: 4 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -755,6 +852,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Sebze yemekleri ---
   {
     name_tr: 'Sebze türlü',
+    name_en: 'Mixed vegetable stew (türlü)',
     per_100g: { kalori: 81, protein_g: 2.2, yag_g: 4.5, karbonhidrat_g: 8, lif_g: 2.6 },
     portions: [kepce(130), kase(250)],
     source: 'bizim',
@@ -762,6 +860,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ispanak yemeği',
+    name_en: 'Spinach stew (ıspanak yemeği)',
     per_100g: { kalori: 68, protein_g: 3, yag_g: 4, karbonhidrat_g: 5, lif_g: 2.6 },
     portions: [kepce(130), kase(250)],
     source: 'bizim',
@@ -769,6 +868,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kabak yemeği, etli',
+    name_en: 'Zucchini stew with meat',
     per_100g: { kalori: 87, protein_g: 5.5, yag_g: 5, karbonhidrat_g: 5, lif_g: 1.6 },
     portions: [kepce(130)],
     source: 'bizim',
@@ -776,6 +876,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patlıcan musakka',
+    name_en: 'Eggplant moussaka',
     per_100g: { kalori: 135, protein_g: 6.5, yag_g: 9, karbonhidrat_g: 7, lif_g: 2.8 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -783,6 +884,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fırında sebze',
+    name_en: 'Roasted vegetables',
     per_100g: { kalori: 80, protein_g: 2, yag_g: 4, karbonhidrat_g: 9, lif_g: 3 },
     portions: [porsiyon(220)],
     source: 'bizim',
@@ -790,6 +892,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Biber dolma, etli',
+    name_en: 'Stuffed peppers with meat (biber dolma)',
     per_100g: { kalori: 126, protein_g: 5, yag_g: 6, karbonhidrat_g: 13, lif_g: 1.8 },
     portions: [adet(120)],
     source: 'bizim',
@@ -797,6 +900,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Lahana sarma, etli',
+    name_en: 'Stuffed cabbage rolls with meat (lahana sarma)',
     per_100g: { kalori: 116, protein_g: 4.5, yag_g: 5.5, karbonhidrat_g: 12, lif_g: 2.2 },
     portions: [adet(45), porsiyon(225)],
     source: 'bizim',
@@ -806,6 +910,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Pilav ve makarna ---
   {
     name_tr: 'Şehriyeli pirinç pilavı',
+    name_en: 'Rice pilaf with orzo (şehriyeli pilav)',
     per_100g: { kalori: 166, protein_g: 3.4, yag_g: 4.5, karbonhidrat_g: 28, lif_g: 0.8 },
     portions: [kepce(120), kase(200)],
     source: 'bizim',
@@ -813,6 +918,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Nohutlu pilav',
+    name_en: 'Rice pilaf with chickpeas',
     per_100g: { kalori: 166, protein_g: 4.5, yag_g: 4.5, karbonhidrat_g: 27, lif_g: 2 },
     portions: [kepce(120), kase(200)],
     source: 'bizim',
@@ -820,6 +926,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuskus',
+    name_en: 'Couscous',
     per_100g: { kalori: 130, protein_g: 4, yag_g: 2.5, karbonhidrat_g: 23, lif_g: 1.6 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -827,6 +934,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Makarna, domates soslu',
+    name_en: 'Pasta with tomato sauce',
     per_100g: { kalori: 150, protein_g: 4.5, yag_g: 3.5, karbonhidrat_g: 25, lif_g: 1.6 },
     portions: [kase(220), tabak(300)],
     source: 'bizim',
@@ -834,6 +942,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fırın makarna',
+    name_en: 'Baked pasta',
     per_100g: { kalori: 192, protein_g: 8, yag_g: 8, karbonhidrat_g: 22, lif_g: 1.2 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -841,6 +950,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Erişte',
+    name_en: 'Egg noodles (erişte)',
     per_100g: { kalori: 155, protein_g: 5, yag_g: 3, karbonhidrat_g: 27, lif_g: 1.4 },
     portions: [kase(200)],
     source: 'bizim',
@@ -850,6 +960,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Baklagil ---
   {
     name_tr: 'Nohut yemeği, etsiz',
+    name_en: 'Chickpea stew, meatless',
     per_100g: { kalori: 109, protein_g: 5.5, yag_g: 3, karbonhidrat_g: 15, lif_g: 5 },
     portions: [kepce(130), kase(250)],
     source: 'bizim',
@@ -857,6 +968,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru fasulye, etsiz',
+    name_en: 'White bean stew, meatless',
     per_100g: { kalori: 107, protein_g: 6, yag_g: 3, karbonhidrat_g: 14, lif_g: 6 },
     portions: [kepce(130), kase(250)],
     source: 'bizim',
@@ -864,6 +976,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mercimek yemeği',
+    name_en: 'Lentil stew (mercimek yemeği)',
     per_100g: { kalori: 111, protein_g: 6, yag_g: 3, karbonhidrat_g: 15, lif_g: 5.5 },
     portions: [kepce(130)],
     source: 'bizim',
@@ -871,6 +984,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Barbunya yemeği',
+    name_en: 'Borlotti bean stew (barbunya)',
     per_100g: { kalori: 110, protein_g: 5.5, yag_g: 3.5, karbonhidrat_g: 14, lif_g: 5.5 },
     portions: [kepce(130)],
     source: 'bizim',
@@ -880,6 +994,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Hamur işi ---
   {
     name_tr: 'Su böreği',
+    name_en: 'Layered boiled-dough cheese pastry (su böreği)',
     per_100g: { kalori: 235, protein_g: 8, yag_g: 11, karbonhidrat_g: 26, lif_g: 1 },
     portions: [dilim(120), porsiyon(180)],
     source: 'bizim',
@@ -887,6 +1002,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sigara böreği',
+    name_en: 'Fried cheese rolls (sigara böreği)',
     per_100g: { kalori: 290, protein_g: 8.5, yag_g: 16, karbonhidrat_g: 28, lif_g: 1.2 },
     portions: [adet(35)],
     source: 'bizim',
@@ -894,6 +1010,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Poğaça, peynirli',
+    name_en: 'Savory bun with cheese (poğaça)',
     per_100g: { kalori: 292, protein_g: 7.5, yag_g: 14, karbonhidrat_g: 34, lif_g: 1.4 },
     portions: [adet(80)],
     source: 'bizim',
@@ -901,6 +1018,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Açma',
+    name_en: 'Soft bread roll (açma)',
     per_100g: { kalori: 298, protein_g: 7, yag_g: 10, karbonhidrat_g: 45, lif_g: 1.8 },
     portions: [adet(90)],
     source: 'bizim',
@@ -908,6 +1026,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Gözleme, peynirli',
+    name_en: 'Stuffed flatbread with cheese (gözleme)',
     per_100g: { kalori: 237, protein_g: 9, yag_g: 9, karbonhidrat_g: 30, lif_g: 1.8 },
     portions: [adet(150), porsiyon(200)],
     source: 'bizim',
@@ -915,6 +1034,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kaşarlı tost',
+    name_en: 'Grilled cheese sandwich (kaşarlı tost)',
     per_100g: { kalori: 281, protein_g: 13, yag_g: 13, karbonhidrat_g: 28, lif_g: 1.6 },
     portions: [adet(150)],
     source: 'bizim',
@@ -924,6 +1044,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Kahvaltılık ---
   {
     name_tr: 'Sucuklu yumurta',
+    name_en: 'Eggs with Turkish sausage (sucuklu yumurta)',
     per_100g: { kalori: 238, protein_g: 13, yag_g: 20, karbonhidrat_g: 1.5, lif_g: 0.1 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -931,6 +1052,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Omlet, sade',
+    name_en: 'Omelette, plain',
     per_100g: { kalori: 156, protein_g: 11, yag_g: 12, karbonhidrat_g: 1, lif_g: 0 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -938,6 +1060,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Peynirli omlet',
+    name_en: 'Cheese omelette',
     per_100g: { kalori: 194, protein_g: 13.5, yag_g: 15, karbonhidrat_g: 1.2, lif_g: 0 },
     portions: [porsiyon(160)],
     source: 'bizim',
@@ -945,6 +1068,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bal ve kaymak',
+    name_en: 'Honey and clotted cream (bal kaymak)',
     per_100g: { kalori: 370, protein_g: 3, yag_g: 22, karbonhidrat_g: 40, lif_g: 0.2 },
     portions: [porsiyon(60)],
     source: 'bizim',
@@ -952,6 +1076,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytin ezmesi',
+    name_en: 'Olive paste',
     per_100g: { kalori: 202, protein_g: 1.5, yag_g: 20, karbonhidrat_g: 4, lif_g: 3 },
     portions: [yemekKasigi(15)],
     source: 'bizim',
@@ -959,6 +1084,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuymak / muhlama',
+    name_en: 'Cornmeal and cheese fondue (kuymak / muhlama)',
     per_100g: { kalori: 294, protein_g: 12, yag_g: 22, karbonhidrat_g: 12, lif_g: 0.6 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -968,6 +1094,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Deniz ürünleri ---
   {
     name_tr: 'Hamsi tava',
+    name_en: 'Fried anchovies (hamsi tava)',
     per_100g: { kalori: 230, protein_g: 18, yag_g: 14, karbonhidrat_g: 8, lif_g: 0.4 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -975,6 +1102,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Somon, ızgara',
+    name_en: 'Salmon, grilled',
     per_100g: { kalori: 213, protein_g: 24, yag_g: 13, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(180)],
     source: 'turkomp',
@@ -982,6 +1110,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karides, haşlanmış',
+    name_en: 'Shrimp, boiled',
     per_100g: { kalori: 101, protein_g: 22, yag_g: 1.2, karbonhidrat_g: 0.5, lif_g: 0 },
     portions: [porsiyon(120)],
     source: 'turkomp',
@@ -989,6 +1118,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ton balığı, suda',
+    name_en: 'Tuna in water',
     per_100g: { kalori: 105, protein_g: 24, yag_g: 1, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(80), adet(160)],
     source: 'turkomp',
@@ -996,6 +1126,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sardalya, konserve',
+    name_en: 'Sardines, canned',
     per_100g: { kalori: 174, protein_g: 21, yag_g: 10, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(90)],
     source: 'turkomp',
@@ -1003,6 +1134,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Midye dolma',
+    name_en: 'Stuffed mussels with rice (midye dolma)',
     per_100g: { kalori: 139, protein_g: 5.5, yag_g: 5, karbonhidrat_g: 18, lif_g: 1 },
     portions: [adet(25)],
     source: 'bizim',
@@ -1012,6 +1144,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Salata ve meze ---
   {
     name_tr: 'Çoban salata',
+    name_en: 'Tomato, cucumber and onion salad (çoban salata)',
     per_100g: { kalori: 59, protein_g: 1.2, yag_g: 4, karbonhidrat_g: 4.5, lif_g: 1.6 },
     portions: [kase(200), tabak(250)],
     source: 'bizim',
@@ -1019,6 +1152,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Gavurdağı salata',
+    name_en: 'Tomato and walnut salad (gavurdağı salata)',
     per_100g: { kalori: 108, protein_g: 3, yag_g: 8, karbonhidrat_g: 6, lif_g: 2 },
     portions: [kase(200)],
     source: 'bizim',
@@ -1026,6 +1160,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Haydari',
+    name_en: 'Strained yogurt dip with herbs (haydari)',
     per_100g: { kalori: 121, protein_g: 6, yag_g: 9, karbonhidrat_g: 4, lif_g: 0.4 },
     portions: [yemekKasigi(25), porsiyon(80)],
     source: 'bizim',
@@ -1033,6 +1168,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Acılı ezme',
+    name_en: 'Spicy tomato and pepper dip (acılı ezme)',
     per_100g: { kalori: 75, protein_g: 1.4, yag_g: 5, karbonhidrat_g: 6, lif_g: 2 },
     portions: [yemekKasigi(25)],
     source: 'bizim',
@@ -1040,6 +1176,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Humus',
+    name_en: 'Hummus',
     per_100g: { kalori: 167, protein_g: 7.5, yag_g: 9, karbonhidrat_g: 14, lif_g: 6 },
     portions: [yemekKasigi(25), porsiyon(100)],
     source: 'bizim',
@@ -1047,6 +1184,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patlıcan salatası',
+    name_en: 'Roasted eggplant salad',
     per_100g: { kalori: 102, protein_g: 1.6, yag_g: 8, karbonhidrat_g: 6, lif_g: 3 },
     portions: [yemekKasigi(25)],
     source: 'bizim',
@@ -1054,6 +1192,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mevsim yeşillik salata',
+    name_en: 'Seasonal green salad',
     per_100g: { kalori: 51, protein_g: 1.4, yag_g: 3.5, karbonhidrat_g: 3.5, lif_g: 1.8 },
     portions: [tabak(150)],
     source: 'bizim',
@@ -1063,6 +1202,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Tatlı ---
   {
     name_tr: 'Kazandibi',
+    name_en: 'Caramelized milk pudding (kazandibi)',
     per_100g: { kalori: 172, protein_g: 4, yag_g: 4, karbonhidrat_g: 30, lif_g: 0.1 },
     portions: [porsiyon(120)],
     source: 'bizim',
@@ -1070,6 +1210,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Revani',
+    name_en: 'Semolina cake in syrup (revani)',
     per_100g: { kalori: 289, protein_g: 4, yag_g: 9, karbonhidrat_g: 48, lif_g: 0.6 },
     portions: [dilim(90)],
     source: 'bizim',
@@ -1077,6 +1218,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Künefe',
+    name_en: 'Shredded pastry with cheese in syrup (künefe)',
     per_100g: { kalori: 336, protein_g: 8, yag_g: 16, karbonhidrat_g: 40, lif_g: 0.8 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -1084,6 +1226,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Aşure',
+    name_en: 'Grain, legume and fruit pudding (aşure)',
     per_100g: { kalori: 162, protein_g: 3, yag_g: 2.5, karbonhidrat_g: 32, lif_g: 2.4 },
     portions: [kase(180)],
     source: 'bizim',
@@ -1091,6 +1234,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Muhallebi',
+    name_en: 'Milk pudding (muhallebi)',
     per_100g: { kalori: 129, protein_g: 3.4, yag_g: 3, karbonhidrat_g: 22, lif_g: 0.1 },
     portions: [kase(150)],
     source: 'bizim',
@@ -1098,6 +1242,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Dondurma, sade',
+    name_en: 'Ice cream, plain',
     per_100g: { kalori: 200, protein_g: 3.6, yag_g: 10, karbonhidrat_g: 24, lif_g: 0.3 },
     portions: [porsiyon(100), kase(120)],
     source: 'bizim',
@@ -1105,6 +1250,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şekerpare',
+    name_en: 'Semolina cookies in syrup (şekerpare)',
     per_100g: { kalori: 306, protein_g: 4, yag_g: 10, karbonhidrat_g: 50, lif_g: 0.8 },
     portions: [adet(45)],
     source: 'bizim',
@@ -1112,6 +1258,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'İrmik helvası',
+    name_en: 'Semolina halva (irmik helvası)',
     per_100g: { kalori: 333, protein_g: 4.5, yag_g: 15, karbonhidrat_g: 45, lif_g: 1 },
     portions: [porsiyon(120)],
     source: 'bizim',
@@ -1121,6 +1268,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- İçecek ---
   {
     name_tr: 'Limonata',
+    name_en: 'Lemonade',
     per_100g: { kalori: 41, protein_g: 0.2, yag_g: 0, karbonhidrat_g: 10, lif_g: 0.2 },
     portions: [bardak(200)],
     source: 'bizim',
@@ -1128,6 +1276,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şalgam suyu',
+    name_en: 'Fermented turnip and carrot juice (şalgam)',
     per_100g: { kalori: 15, protein_g: 0.6, yag_g: 0.1, karbonhidrat_g: 3, lif_g: 0.6 },
     portions: [bardak(200)],
     source: 'bizim',
@@ -1135,6 +1284,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Boza',
+    name_en: 'Boza (fermented millet drink)',
     per_100g: { kalori: 95, protein_g: 1.4, yag_g: 0.2, karbonhidrat_g: 22, lif_g: 1 },
     portions: [bardak(200)],
     source: 'bizim',
@@ -1142,6 +1292,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Portakal suyu, taze',
+    name_en: 'Orange juice, fresh',
     per_100g: { kalori: 46, protein_g: 0.7, yag_g: 0.2, karbonhidrat_g: 10.4, lif_g: 0.2 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -1151,6 +1302,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Ham gıda: protein ---
   {
     name_tr: 'Hindi göğsü, pişmiş',
+    name_en: 'Turkey breast, cooked',
     per_100g: { kalori: 134, protein_g: 29, yag_g: 2, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(150), avuc(100)],
     source: 'turkomp',
@@ -1158,6 +1310,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çökelek',
+    name_en: 'Dry curd cheese (çökelek)',
     per_100g: { kalori: 105, protein_g: 17, yag_g: 3, karbonhidrat_g: 2.5, lif_g: 0 },
     portions: [yemekKasigi(25)],
     source: 'turkomp',
@@ -1165,6 +1318,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kefir',
+    name_en: 'Kefir',
     per_100g: { kalori: 60, protein_g: 3.3, yag_g: 3.2, karbonhidrat_g: 4.5, lif_g: 0 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -1172,6 +1326,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kinoa, pişmiş',
+    name_en: 'Quinoa, cooked',
     per_100g: { kalori: 119, protein_g: 4.4, yag_g: 1.9, karbonhidrat_g: 21, lif_g: 2.8 },
     portions: [kase(180), kepce(120)],
     source: 'turkomp',
@@ -1179,6 +1334,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karabuğday, pişmiş',
+    name_en: 'Buckwheat, cooked',
     per_100g: { kalori: 103, protein_g: 3.4, yag_g: 1, karbonhidrat_g: 20, lif_g: 2.7 },
     portions: [kase(180)],
     source: 'turkomp',
@@ -1186,6 +1342,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yulaf kepeği',
+    name_en: 'Oat bran',
     per_100g: { kalori: 331, protein_g: 17, yag_g: 7, karbonhidrat_g: 50, lif_g: 15 },
     portions: [yemekKasigi(10)],
     source: 'turkomp',
@@ -1193,6 +1350,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Chia tohumu',
+    name_en: 'Chia seeds',
     per_100g: { kalori: 515, protein_g: 17, yag_g: 31, karbonhidrat_g: 42, lif_g: 34 },
     portions: [yemekKasigi(12)],
     source: 'turkomp',
@@ -1200,6 +1358,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Keten tohumu',
+    name_en: 'Flaxseed',
     per_100g: { kalori: 566, protein_g: 18, yag_g: 42, karbonhidrat_g: 29, lif_g: 27 },
     portions: [yemekKasigi(10)],
     source: 'turkomp',
@@ -1207,6 +1366,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tam buğday makarna, pişmiş',
+    name_en: 'Whole wheat pasta, cooked',
     per_100g: { kalori: 135, protein_g: 5.3, yag_g: 1.1, karbonhidrat_g: 26, lif_g: 3.9 },
     portions: [kase(200)],
     source: 'turkomp',
@@ -1216,6 +1376,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Ham gıda: sebze ---
   {
     name_tr: 'Karnabahar, haşlanmış',
+    name_en: 'Cauliflower, boiled',
     per_100g: { kalori: 26, protein_g: 1.8, yag_g: 0.3, karbonhidrat_g: 4, lif_g: 2.3 },
     portions: [kase(150)],
     source: 'turkomp',
@@ -1223,6 +1384,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kabak, haşlanmış',
+    name_en: 'Zucchini, boiled',
     per_100g: { kalori: 19, protein_g: 1, yag_g: 0.3, karbonhidrat_g: 3, lif_g: 1 },
     portions: [kase(150)],
     source: 'turkomp',
@@ -1230,6 +1392,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patlıcan, közlenmiş',
+    name_en: 'Eggplant, fire-roasted',
     per_100g: { kalori: 30, protein_g: 1, yag_g: 0.2, karbonhidrat_g: 6, lif_g: 3 },
     portions: [adet(120)],
     source: 'turkomp',
@@ -1237,6 +1400,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kırmızı biber, çiğ',
+    name_en: 'Red pepper, raw',
     per_100g: { kalori: 31, protein_g: 1, yag_g: 0.3, karbonhidrat_g: 6, lif_g: 2.1 },
     portions: [adet(100)],
     source: 'turkomp',
@@ -1260,6 +1424,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Havuç, çiğ',
+    name_en: 'Carrot, raw',
     per_100g: { kalori: 44, protein_g: 0.9, yag_g: 0.2, karbonhidrat_g: 9.6, lif_g: 2.8 },
     portions: [adet(70)],
     source: 'turkomp',
@@ -1267,6 +1432,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pancar, haşlanmış',
+    name_en: 'Beetroot, boiled',
     per_100g: { kalori: 48, protein_g: 1.6, yag_g: 0.2, karbonhidrat_g: 10, lif_g: 2.8 },
     portions: [adet(80)],
     source: 'turkomp',
@@ -1274,6 +1440,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Beyaz lahana, çiğ',
+    name_en: 'White cabbage, raw',
     per_100g: { kalori: 29, protein_g: 1.3, yag_g: 0.1, karbonhidrat_g: 5.8, lif_g: 2.5 },
     portions: [kase(120)],
     source: 'turkomp',
@@ -1281,6 +1448,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Marul',
+    name_en: 'Lettuce',
     per_100g: { kalori: 19, protein_g: 1.4, yag_g: 0.2, karbonhidrat_g: 2.9, lif_g: 1.3 },
     portions: [avuc(40)],
     source: 'turkomp',
@@ -1288,6 +1456,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Roka',
+    name_en: 'Arugula',
     per_100g: { kalori: 32, protein_g: 2.6, yag_g: 0.7, karbonhidrat_g: 3.7, lif_g: 1.6 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -1295,6 +1464,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tere',
+    name_en: 'Garden cress',
     per_100g: { kalori: 39, protein_g: 2.6, yag_g: 0.7, karbonhidrat_g: 5.5, lif_g: 1.1 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -1302,6 +1472,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mantar, pişmiş',
+    name_en: 'Mushrooms, cooked',
     per_100g: { kalori: 33, protein_g: 3.1, yag_g: 0.5, karbonhidrat_g: 4, lif_g: 2.2 },
     portions: [kase(150)],
     source: 'turkomp',
@@ -1311,6 +1482,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Ham gıda: meyve ---
   {
     name_tr: 'Kavun',
+    name_en: 'Melon',
     per_100g: { kalori: 38, protein_g: 0.8, yag_g: 0.2, karbonhidrat_g: 8.2, lif_g: 0.9 },
     portions: [dilim(180)],
     source: 'turkomp',
@@ -1318,6 +1490,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kayısı',
+    name_en: 'Apricot',
     per_100g: { kalori: 53, protein_g: 1.4, yag_g: 0.4, karbonhidrat_g: 11, lif_g: 2 },
     portions: [adet(35)],
     source: 'turkomp',
@@ -1325,6 +1498,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Erik',
+    name_en: 'Plum',
     per_100g: { kalori: 51, protein_g: 0.7, yag_g: 0.3, karbonhidrat_g: 11.4, lif_g: 1.4 },
     portions: [adet(60)],
     source: 'turkomp',
@@ -1332,6 +1506,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'İncir, taze',
+    name_en: 'Fig, fresh',
     per_100g: { kalori: 82, protein_g: 0.8, yag_g: 0.3, karbonhidrat_g: 19, lif_g: 2.9 },
     portions: [adet(50)],
     source: 'turkomp',
@@ -1339,6 +1514,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Üzüm',
+    name_en: 'Grapes',
     per_100g: { kalori: 73, protein_g: 0.7, yag_g: 0.2, karbonhidrat_g: 17, lif_g: 0.9 },
     portions: [avuc(80)],
     source: 'turkomp',
@@ -1346,6 +1522,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Nar',
+    name_en: 'Pomegranate',
     per_100g: { kalori: 94, protein_g: 1.7, yag_g: 1.2, karbonhidrat_g: 19, lif_g: 4 },
     portions: [adet(200)],
     source: 'turkomp',
@@ -1353,6 +1530,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mandalina',
+    name_en: 'Tangerine',
     per_100g: { kalori: 59, protein_g: 0.8, yag_g: 0.3, karbonhidrat_g: 13.3, lif_g: 1.8 },
     portions: [adet(90)],
     source: 'turkomp',
@@ -1360,6 +1538,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çilek',
+    name_en: 'Strawberries',
     per_100g: { kalori: 36, protein_g: 0.7, yag_g: 0.3, karbonhidrat_g: 7.7, lif_g: 2 },
     portions: [kase(150), avuc(80)],
     source: 'turkomp',
@@ -1367,6 +1546,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kivi',
+    name_en: 'Kiwi',
     per_100g: { kalori: 68, protein_g: 1.1, yag_g: 0.5, karbonhidrat_g: 14.7, lif_g: 3 },
     portions: [adet(75)],
     source: 'turkomp',
@@ -1374,6 +1554,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şeftali',
+    name_en: 'Peach',
     per_100g: { kalori: 44, protein_g: 0.9, yag_g: 0.3, karbonhidrat_g: 9.5, lif_g: 1.5 },
     portions: [adet(150)],
     source: 'turkomp',
@@ -1381,6 +1562,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Armut',
+    name_en: 'Pear',
     per_100g: { kalori: 63, protein_g: 0.4, yag_g: 0.1, karbonhidrat_g: 15.2, lif_g: 3.1 },
     portions: [adet(170)],
     source: 'turkomp',
@@ -1390,6 +1572,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Tariflerde geçen malzemeler ---
   {
     name_tr: 'Asma yaprağı, salamura',
+    name_en: 'Grape leaves, brined',
     per_100g: { kalori: 59, protein_g: 4.3, yag_g: 2, karbonhidrat_g: 6, lif_g: 4 },
     portions: [adet(4), porsiyon(60)],
     source: 'turkomp',
@@ -1397,6 +1580,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Avokado',
+    name_en: 'Avocado',
     per_100g: { kalori: 177, protein_g: 2, yag_g: 15, karbonhidrat_g: 8.5, lif_g: 6.7 },
     portions: [adet(170), porsiyon(80)],
     source: 'turkomp',
@@ -1404,6 +1588,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ayçiçek yağı',
+    name_en: 'Sunflower oil',
     per_100g: { kalori: 900, protein_g: 0, yag_g: 100, karbonhidrat_g: 0, lif_g: 0 },
     portions: [yemekKasigi(12), cayKasigi(4)],
     source: 'turkomp',
@@ -1411,6 +1596,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bezelye, haşlanmış',
+    name_en: 'Peas, boiled',
     per_100g: { kalori: 88, protein_g: 5.4, yag_g: 0.4, karbonhidrat_g: 15.6, lif_g: 5.5 },
     portions: [kase(150), kepce(110)],
     source: 'turkomp',
@@ -1418,6 +1604,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Dereotu',
+    name_en: 'Dill',
     per_100g: { kalori: 52, protein_g: 3.5, yag_g: 1.1, karbonhidrat_g: 7, lif_g: 2.1 },
     portions: [yemekKasigi(5)],
     source: 'turkomp',
@@ -1425,6 +1612,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Domates salçası',
+    name_en: 'Tomato paste',
     per_100g: { kalori: 97, protein_g: 4.3, yag_g: 0.5, karbonhidrat_g: 18.9, lif_g: 4.1 },
     portions: [yemekKasigi(18)],
     source: 'turkomp',
@@ -1432,6 +1620,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fesleğen',
+    name_en: 'Basil',
     per_100g: { kalori: 29, protein_g: 3.2, yag_g: 0.6, karbonhidrat_g: 2.6, lif_g: 1.6 },
     portions: [yemekKasigi(5)],
     source: 'turkomp',
@@ -1439,6 +1628,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Galeta unu',
+    name_en: 'Breadcrumbs',
     per_100g: { kalori: 389, protein_g: 13.4, yag_g: 5.3, karbonhidrat_g: 72, lif_g: 4.5 },
     portions: [yemekKasigi(10)],
     source: 'turkomp',
@@ -1446,6 +1636,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yeşil mercimek, haşlanmış',
+    name_en: 'Green lentils, boiled',
     per_100g: { kalori: 120, protein_g: 9, yag_g: 0.4, karbonhidrat_g: 20, lif_g: 8 },
     portions: [kepce(120), kase(200)],
     source: 'turkomp',
@@ -1453,6 +1644,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Hurma',
+    name_en: 'Dates',
     per_100g: { kalori: 314, protein_g: 2.5, yag_g: 0.4, karbonhidrat_g: 75, lif_g: 8 },
     portions: [adet(8)],
     source: 'turkomp',
@@ -1460,6 +1652,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kekik, kuru',
+    name_en: 'Thyme, dried',
     per_100g: { kalori: 359, protein_g: 9, yag_g: 7.4, karbonhidrat_g: 64, lif_g: 37 },
     portions: [cayKasigi(1)],
     source: 'turkomp',
@@ -1467,6 +1660,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kereviz kökü, haşlanmış',
+    name_en: 'Celeriac, boiled',
     per_100g: { kalori: 31, protein_g: 1, yag_g: 0.3, karbonhidrat_g: 6, lif_g: 1.6 },
     portions: [kase(150)],
     source: 'turkomp',
@@ -1474,6 +1668,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kimyon, toz',
+    name_en: 'Cumin, ground',
     per_100g: { kalori: 449, protein_g: 17.8, yag_g: 22.3, karbonhidrat_g: 44.2, lif_g: 10.5 },
     portions: [cayKasigi(2)],
     source: 'turkomp',
@@ -1481,6 +1676,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru kayısı',
+    name_en: 'Dried apricots',
     per_100g: { kalori: 270, protein_g: 3.4, yag_g: 0.5, karbonhidrat_g: 63, lif_g: 7.3 },
     portions: [adet(8), avuc(40)],
     source: 'turkomp',
@@ -1488,6 +1684,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Makarna, pişmiş',
+    name_en: 'Pasta, cooked',
     per_100g: { kalori: 155, protein_g: 5.8, yag_g: 0.9, karbonhidrat_g: 31, lif_g: 1.8 },
     portions: [kase(200), tabak(280)],
     source: 'turkomp',
@@ -1495,6 +1692,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mantı, haşlanmış',
+    name_en: 'Turkish dumplings, boiled (mantı)',
     per_100g: { kalori: 179, protein_g: 8, yag_g: 3, karbonhidrat_g: 30, lif_g: 1.4 },
     portions: [kase(200)],
     source: 'turkomp',
@@ -1502,6 +1700,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Maydanoz',
+    name_en: 'Parsley',
     per_100g: { kalori: 44, protein_g: 3, yag_g: 0.8, karbonhidrat_g: 6.3, lif_g: 3.3 },
     portions: [yemekKasigi(5), avuc(25)],
     source: 'turkomp',
@@ -1509,6 +1708,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mısır, haşlanmış',
+    name_en: 'Corn, boiled',
     per_100g: { kalori: 111, protein_g: 3.4, yag_g: 1.5, karbonhidrat_g: 21, lif_g: 2.4 },
     portions: [adet(90), kase(150)],
     source: 'turkomp',
@@ -1516,6 +1716,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mısır unu',
+    name_en: 'Cornmeal',
     per_100g: { kalori: 370, protein_g: 6.9, yag_g: 3.9, karbonhidrat_g: 76.9, lif_g: 7.3 },
     portions: [yemekKasigi(10)],
     source: 'turkomp',
@@ -1523,6 +1724,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Nohut, çiğ',
+    name_en: 'Chickpeas, raw',
     per_100g: { kalori: 380, protein_g: 20.5, yag_g: 6, karbonhidrat_g: 61, lif_g: 17 },
     portions: [bardak(180)],
     source: 'turkomp',
@@ -1530,6 +1732,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pekmez',
+    name_en: 'Grape molasses (pekmez)',
     per_100g: { kalori: 285, protein_g: 1, yag_g: 0.1, karbonhidrat_g: 70, lif_g: 0 },
     portions: [yemekKasigi(20)],
     source: 'turkomp',
@@ -1537,6 +1740,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sarımsak',
+    name_en: 'Garlic',
     per_100g: { kalori: 162, protein_g: 6.4, yag_g: 0.5, karbonhidrat_g: 33, lif_g: 2.1 },
     portions: [adet(4)],
     source: 'turkomp',
@@ -1544,6 +1748,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tarhana, kuru',
+    name_en: 'Tarhana, dry (fermented soup mix)',
     per_100g: { kalori: 332, protein_g: 12, yag_g: 4, karbonhidrat_g: 62, lif_g: 5 },
     portions: [yemekKasigi(12)],
     source: 'turkomp',
@@ -1551,6 +1756,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tarçın, toz',
+    name_en: 'Cinnamon, ground',
     per_100g: { kalori: 351, protein_g: 4, yag_g: 1.2, karbonhidrat_g: 81, lif_g: 53 },
     portions: [cayKasigi(2)],
     source: 'turkomp',
@@ -1558,6 +1764,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Taze fasulye, haşlanmış',
+    name_en: 'Green beans, boiled',
     per_100g: { kalori: 38, protein_g: 1.8, yag_g: 0.3, karbonhidrat_g: 7, lif_g: 3.2 },
     portions: [kepce(120), kase(200)],
     source: 'turkomp',
@@ -1565,6 +1772,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Buğday unu',
+    name_en: 'Wheat flour',
     per_100g: { kalori: 354, protein_g: 10.3, yag_g: 1, karbonhidrat_g: 76, lif_g: 2.7 },
     portions: [yemekKasigi(10), bardak(130)],
     source: 'turkomp',
@@ -1572,6 +1780,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şehriye, çiğ',
+    name_en: 'Orzo, uncooked (şehriye)',
     per_100g: { kalori: 358, protein_g: 12, yag_g: 1.5, karbonhidrat_g: 74, lif_g: 3 },
     portions: [yemekKasigi(12)],
     source: 'turkomp',
@@ -1579,6 +1788,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Limon suyu',
+    name_en: 'Lemon juice',
     per_100g: { kalori: 31, protein_g: 0.4, yag_g: 0.2, karbonhidrat_g: 6.9, lif_g: 0.3 },
     portions: [yemekKasigi(15)],
     source: 'turkomp',
@@ -1586,6 +1796,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Siyah zeytin',
+    name_en: 'Black olives',
     per_100g: { kalori: 163, protein_g: 1, yag_g: 15, karbonhidrat_g: 6, lif_g: 3.2 },
     portions: [adet(4), porsiyon(30)],
     source: 'turkomp',
@@ -1593,6 +1804,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sucuk',
+    name_en: 'Turkish beef sausage (sucuk)',
     per_100g: { kalori: 411, protein_g: 22, yag_g: 35, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(10), porsiyon(50)],
     source: 'turkomp',
@@ -1600,6 +1812,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Soğan',
+    name_en: 'Onion',
     per_100g: { kalori: 42, protein_g: 1.1, yag_g: 0.1, karbonhidrat_g: 9.3, lif_g: 1.7 },
     portions: [adet(100)],
     source: 'turkomp',
@@ -1609,6 +1822,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Çiğ/pişmiş ayrımı: tarif hesabı için gerekli ---
   {
     name_tr: 'Hamsi, çiğ',
+    name_en: 'Anchovies, raw',
     per_100g: { kalori: 125, protein_g: 20.0, yag_g: 5.0, karbonhidrat_g: 0.0, lif_g: 0.0 },
     portions: [porsiyon(150)],
     source: 'turkomp',
@@ -1616,6 +1830,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Makarna, çiğ',
+    name_en: 'Pasta, uncooked',
     per_100g: { kalori: 348, protein_g: 12.5, yag_g: 1.5, karbonhidrat_g: 71.0, lif_g: 3.0 },
     portions: [bardak(90)],
     source: 'turkomp',
@@ -1623,6 +1838,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuskus, çiğ',
+    name_en: 'Couscous, uncooked',
     per_100g: { kalori: 345, protein_g: 12.8, yag_g: 0.6, karbonhidrat_g: 72.0, lif_g: 5.0 },
     portions: [bardak(120)],
     source: 'turkomp',
@@ -1630,6 +1846,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pirinç, çiğ',
+    name_en: 'Rice, uncooked',
     per_100g: { kalori: 349, protein_g: 7.0, yag_g: 0.6, karbonhidrat_g: 79.0, lif_g: 1.3 },
     portions: [bardak(180), yemekKasigi(15)],
     source: 'turkomp',
@@ -1637,6 +1854,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bulgur, çiğ',
+    name_en: 'Bulgur, uncooked',
     per_100g: { kalori: 365, protein_g: 12.3, yag_g: 1.3, karbonhidrat_g: 76.0, lif_g: 18.0 },
     portions: [bardak(150), yemekKasigi(12)],
     source: 'turkomp',
@@ -1644,6 +1862,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mantı, çiğ',
+    name_en: 'Turkish dumplings, uncooked (mantı)',
     per_100g: { kalori: 296, protein_g: 11.0, yag_g: 3.5, karbonhidrat_g: 55.0, lif_g: 2.4 },
     portions: [bardak(100)],
     source: 'turkomp',
@@ -1653,6 +1872,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Bölgesel ana yemekler ---
   {
     name_tr: 'Ali Nazik',
+    name_en: 'Lamb over smoky eggplant yogurt (Ali Nazik)',
     per_100g: { kalori: 184, protein_g: 12, yag_g: 12, karbonhidrat_g: 7, lif_g: 2.4 },
     portions: [porsiyon(280)],
     source: 'bizim',
@@ -1660,6 +1880,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Beyti sarma',
+    name_en: 'Ground meat kebab wrapped in lavash (Beyti sarma)',
     per_100g: { kalori: 263, protein_g: 14, yag_g: 15, karbonhidrat_g: 18, lif_g: 1.2 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -1667,6 +1888,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çökertme kebabı',
+    name_en: 'Beef strips on fried potatoes and yogurt (çökertme)',
     per_100g: { kalori: 242, protein_g: 13, yag_g: 14, karbonhidrat_g: 16, lif_g: 1.4 },
     portions: [porsiyon(300)],
     source: 'bizim',
@@ -1674,6 +1896,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuzu tandır',
+    name_en: 'Slow-roasted lamb (kuzu tandır)',
     per_100g: { kalori: 262, protein_g: 24, yag_g: 18, karbonhidrat_g: 1, lif_g: 0 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -1681,6 +1904,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuzu incik',
+    name_en: 'Lamb shank',
     per_100g: { kalori: 248, protein_g: 22, yag_g: 16, karbonhidrat_g: 4, lif_g: 0.8 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -1688,6 +1912,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli patlıcan kebabı',
+    name_en: 'Eggplant and meat kebab (patlıcan kebabı)',
     per_100g: { kalori: 201, protein_g: 13, yag_g: 13, karbonhidrat_g: 8, lif_g: 2.6 },
     portions: [porsiyon(280)],
     source: 'bizim',
@@ -1695,6 +1920,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru patlıcan dolması',
+    name_en: 'Stuffed dried eggplant (kuru patlıcan dolması)',
     per_100g: { kalori: 163, protein_g: 5, yag_g: 7, karbonhidrat_g: 20, lif_g: 3.4 },
     portions: [adet(60)],
     source: 'bizim',
@@ -1702,6 +1928,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'İçli köfte',
+    name_en: 'Stuffed bulgur meatballs (içli köfte)',
     per_100g: { kalori: 244, protein_g: 8, yag_g: 12, karbonhidrat_g: 26, lif_g: 2.6 },
     portions: [adet(90)],
     source: 'bizim',
@@ -1709,6 +1936,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Analı kızlı',
+    name_en: 'Bulgur dumpling soup with chickpeas (analı kızlı)',
     per_100g: { kalori: 174, protein_g: 8, yag_g: 6, karbonhidrat_g: 22, lif_g: 3.6 },
     portions: [kase(250)],
     source: 'bizim',
@@ -1716,6 +1944,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Keşkek',
+    name_en: 'Wheat and meat porridge (keşkek)',
     per_100g: { kalori: 195, protein_g: 11, yag_g: 7, karbonhidrat_g: 22, lif_g: 2 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -1723,6 +1952,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Perde pilav',
+    name_en: 'Chicken rice baked in pastry (perde pilav)',
     per_100g: { kalori: 264, protein_g: 9, yag_g: 12, karbonhidrat_g: 30, lif_g: 1.6 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -1730,6 +1960,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kabak dolma, zeytinyağlı',
+    name_en: 'Stuffed zucchini, olive oil style (kabak dolma)',
     per_100g: { kalori: 130, protein_g: 3, yag_g: 6, karbonhidrat_g: 16, lif_g: 2.2 },
     portions: [adet(100)],
     source: 'bizim',
@@ -1737,6 +1968,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli kabak dolma',
+    name_en: 'Zucchini stuffed with meat and rice (kabak dolma)',
     per_100g: { kalori: 134, protein_g: 6, yag_g: 6.5, karbonhidrat_g: 13, lif_g: 1.8 },
     portions: [adet(110)],
     source: 'bizim',
@@ -1744,6 +1976,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karnabahar musakka',
+    name_en: 'Cauliflower moussaka',
     per_100g: { kalori: 115, protein_g: 5, yag_g: 7, karbonhidrat_g: 8, lif_g: 2.8 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -1751,6 +1984,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ispanaklı yumurta',
+    name_en: 'Spinach with eggs',
     per_100g: { kalori: 147, protein_g: 8, yag_g: 11, karbonhidrat_g: 4, lif_g: 1.8 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -1758,6 +1992,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fırında köfte patates',
+    name_en: 'Baked meatballs with potatoes',
     per_100g: { kalori: 220, protein_g: 14, yag_g: 12, karbonhidrat_g: 14, lif_g: 1.8 },
     portions: [porsiyon(300)],
     source: 'bizim',
@@ -1765,6 +2000,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk güveç',
+    name_en: 'Chicken casserole (tavuk güveç)',
     per_100g: { kalori: 155, protein_g: 15, yag_g: 7, karbonhidrat_g: 8, lif_g: 1.6 },
     portions: [porsiyon(280)],
     source: 'bizim',
@@ -1772,6 +2008,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk pilav, sokak usulü',
+    name_en: 'Chicken over rice, street style (tavuk pilav)',
     per_100g: { kalori: 206, protein_g: 12, yag_g: 6, karbonhidrat_g: 26, lif_g: 0.8 },
     portions: [porsiyon(300)],
     source: 'bizim',
@@ -1779,6 +2016,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru köfte',
+    name_en: 'Pan-fried meatballs (kuru köfte)',
     per_100g: { kalori: 248, protein_g: 18, yag_g: 16, karbonhidrat_g: 8, lif_g: 0.6 },
     portions: [adet(40), porsiyon(180)],
     source: 'bizim',
@@ -1786,6 +2024,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Terbiyeli köfte',
+    name_en: 'Meatball soup with egg-lemon sauce (terbiyeli köfte)',
     per_100g: { kalori: 144, protein_g: 10, yag_g: 8, karbonhidrat_g: 8, lif_g: 0.8 },
     portions: [kase(250)],
     source: 'bizim',
@@ -1793,6 +2032,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli lahana kapama',
+    name_en: 'Braised cabbage with meat (lahana kapama)',
     per_100g: { kalori: 122, protein_g: 7, yag_g: 6, karbonhidrat_g: 10, lif_g: 2.4 },
     portions: [porsiyon(280)],
     source: 'bizim',
@@ -1800,6 +2040,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şiş kebap',
+    name_en: 'Shish kebab',
     per_100g: { kalori: 231, protein_g: 22, yag_g: 15, karbonhidrat_g: 2, lif_g: 0.3 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -1807,6 +2048,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kokoreç',
+    name_en: 'Grilled lamb intestines (kokoreç)',
     per_100g: { kalori: 310, protein_g: 16, yag_g: 22, karbonhidrat_g: 12, lif_g: 0.6 },
     portions: [porsiyon(120)],
     source: 'bizim',
@@ -1814,6 +2056,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk kanat, fırın',
+    name_en: 'Chicken wings, baked',
     per_100g: { kalori: 253, protein_g: 24, yag_g: 17, karbonhidrat_g: 1, lif_g: 0 },
     portions: [adet(45), porsiyon(180)],
     source: 'bizim',
@@ -1823,6 +2066,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Deniz ve balık ---
   {
     name_tr: 'Çupra, ızgara',
+    name_en: 'Gilthead sea bream, grilled',
     per_100g: { kalori: 138, protein_g: 21, yag_g: 6, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -1830,6 +2074,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Palamut, fırın',
+    name_en: 'Atlantic bonito, baked',
     per_100g: { kalori: 177, protein_g: 24, yag_g: 9, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -1837,6 +2082,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'İstavrit tava',
+    name_en: 'Pan-fried horse mackerel (istavrit tava)',
     per_100g: { kalori: 221, protein_g: 19, yag_g: 13, karbonhidrat_g: 7, lif_g: 0.3 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -1844,6 +2090,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kalamar tava',
+    name_en: 'Fried calamari',
     per_100g: { kalori: 220, protein_g: 16, yag_g: 12, karbonhidrat_g: 12, lif_g: 0.4 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -1851,6 +2098,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Balık ekmek',
+    name_en: 'Fish sandwich (balık ekmek)',
     per_100g: { kalori: 232, protein_g: 14, yag_g: 8, karbonhidrat_g: 26, lif_g: 2 },
     portions: [adet(250)],
     source: 'bizim',
@@ -1860,6 +2108,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Zeytinyağlı ve sebze ---
   {
     name_tr: 'Zeytinyağlı barbunya',
+    name_en: 'Borlotti beans in olive oil (zeytinyağlı barbunya)',
     per_100g: { kalori: 126, protein_g: 5, yag_g: 5.5, karbonhidrat_g: 14, lif_g: 5 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -1867,6 +2116,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı ıspanak',
+    name_en: 'Spinach in olive oil (zeytinyağlı ıspanak)',
     per_100g: { kalori: 79, protein_g: 2.4, yag_g: 5, karbonhidrat_g: 6, lif_g: 2.6 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -1874,6 +2124,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı semizotu',
+    name_en: 'Purslane in olive oil (zeytinyağlı semizotu)',
     per_100g: { kalori: 72, protein_g: 1.8, yag_g: 5, karbonhidrat_g: 5, lif_g: 2 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -1881,6 +2132,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı brokoli',
+    name_en: 'Broccoli in olive oil',
     per_100g: { kalori: 84, protein_g: 2.6, yag_g: 5.5, karbonhidrat_g: 6, lif_g: 3 },
     portions: [kase(200)],
     source: 'bizim',
@@ -1888,6 +2140,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı kabak',
+    name_en: 'Zucchini in olive oil',
     per_100g: { kalori: 71, protein_g: 1.4, yag_g: 5, karbonhidrat_g: 5, lif_g: 1.4 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -1895,6 +2148,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Közlenmiş biber salatası',
+    name_en: 'Roasted pepper salad',
     per_100g: { kalori: 96, protein_g: 1.2, yag_g: 7, karbonhidrat_g: 7, lif_g: 2.4 },
     portions: [yemekKasigi(25)],
     source: 'bizim',
@@ -1902,6 +2156,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fırında patlıcan, yoğurtlu',
+    name_en: 'Baked eggplant with yogurt',
     per_100g: { kalori: 111, protein_g: 3, yag_g: 7, karbonhidrat_g: 9, lif_g: 3.2 },
     portions: [porsiyon(250)],
     source: 'bizim',
@@ -1909,6 +2164,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mercimekli ıspanak',
+    name_en: 'Spinach with lentils',
     per_100g: { kalori: 104, protein_g: 5, yag_g: 4, karbonhidrat_g: 12, lif_g: 4 },
     portions: [kepce(130)],
     source: 'bizim',
@@ -1916,6 +2172,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Turşu, karışık',
+    name_en: 'Pickles, mixed',
     per_100g: { kalori: 22, protein_g: 1, yag_g: 0.2, karbonhidrat_g: 4, lif_g: 1.6 },
     portions: [yemekKasigi(30)],
     source: 'turkomp',
@@ -1923,6 +2180,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Haşlanmış sebze tabağı',
+    name_en: 'Boiled vegetable plate',
     per_100g: { kalori: 49, protein_g: 2.4, yag_g: 0.4, karbonhidrat_g: 9, lif_g: 3.4 },
     portions: [tabak(250)],
     source: 'bizim',
@@ -1932,6 +2190,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Kahvaltı ve hamur ---
   {
     name_tr: 'Peynirli börek, fırın',
+    name_en: 'Cheese borek, baked',
     per_100g: { kalori: 265, protein_g: 9, yag_g: 13, karbonhidrat_g: 28, lif_g: 1.2 },
     portions: [dilim(110)],
     source: 'bizim',
@@ -1939,6 +2198,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ispanaklı börek',
+    name_en: 'Spinach borek',
     per_100g: { kalori: 246, protein_g: 7.5, yag_g: 12, karbonhidrat_g: 27, lif_g: 1.8 },
     portions: [dilim(110)],
     source: 'bizim',
@@ -1946,6 +2206,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patatesli börek',
+    name_en: 'Potato borek',
     per_100g: { kalori: 251, protein_g: 6, yag_g: 11, karbonhidrat_g: 32, lif_g: 1.8 },
     portions: [dilim(110)],
     source: 'bizim',
@@ -1953,6 +2214,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Katmer',
+    name_en: 'Flaky layered flatbread (katmer)',
     per_100g: { kalori: 368, protein_g: 7, yag_g: 20, karbonhidrat_g: 40, lif_g: 1.6 },
     portions: [porsiyon(120)],
     source: 'bizim',
@@ -1960,6 +2222,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bazlama',
+    name_en: 'Turkish griddle bread (bazlama)',
     per_100g: { kalori: 268, protein_g: 8, yag_g: 4, karbonhidrat_g: 50, lif_g: 2.4 },
     portions: [adet(90)],
     source: 'bizim',
@@ -1967,6 +2230,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yufka ekmek',
+    name_en: 'Thin flatbread (yufka)',
     per_100g: { kalori: 274, protein_g: 9, yag_g: 2, karbonhidrat_g: 55, lif_g: 2.6 },
     portions: [adet(60)],
     source: 'bizim',
@@ -1974,6 +2238,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tam buğday ekmek',
+    name_en: 'Whole wheat bread',
     per_100g: { kalori: 235, protein_g: 9, yag_g: 3, karbonhidrat_g: 43, lif_g: 7 },
     portions: [dilim(30)],
     source: 'turkomp',
@@ -1981,6 +2246,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Beyaz ekmek',
+    name_en: 'White bread',
     per_100g: { kalori: 244, protein_g: 8.5, yag_g: 1.5, karbonhidrat_g: 49, lif_g: 2.4 },
     portions: [dilim(25)],
     source: 'turkomp',
@@ -1988,6 +2254,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Peynirli pide',
+    name_en: 'Cheese pide',
     per_100g: { kalori: 266, protein_g: 12, yag_g: 10, karbonhidrat_g: 32, lif_g: 1.6 },
     portions: [dilim(90)],
     source: 'bizim',
@@ -1995,6 +2262,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kıymalı gözleme',
+    name_en: 'Ground meat filled flatbread (gözleme)',
     per_100g: { kalori: 254, protein_g: 11, yag_g: 10, karbonhidrat_g: 30, lif_g: 1.8 },
     portions: [adet(160)],
     source: 'bizim',
@@ -2002,6 +2270,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ispanaklı gözleme',
+    name_en: 'Spinach filled flatbread (gözleme)',
     per_100g: { kalori: 220, protein_g: 7, yag_g: 8, karbonhidrat_g: 30, lif_g: 2.4 },
     portions: [adet(160)],
     source: 'bizim',
@@ -2009,6 +2278,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Peynirli poğaça',
+    name_en: 'Cheese-filled savory bun (poğaça)',
     per_100g: { kalori: 292, protein_g: 7.5, yag_g: 14, karbonhidrat_g: 34, lif_g: 1.4 },
     portions: [adet(80)],
     source: 'bizim',
@@ -2018,6 +2288,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Tatlı ve ara öğün ---
   {
     name_tr: 'Tulumba tatlısı',
+    name_en: 'Fried dough in syrup (tulumba)',
     per_100g: { kalori: 376, protein_g: 3, yag_g: 16, karbonhidrat_g: 55, lif_g: 0.6 },
     portions: [adet(30)],
     source: 'bizim',
@@ -2025,6 +2296,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Lokma',
+    name_en: 'Fried dough balls in syrup (lokma)',
     per_100g: { kalori: 350, protein_g: 4, yag_g: 14, karbonhidrat_g: 52, lif_g: 1 },
     portions: [adet(20)],
     source: 'bizim',
@@ -2032,6 +2304,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kadayıf',
+    name_en: 'Shredded pastry dessert (kadayıf)',
     per_100g: { kalori: 362, protein_g: 6, yag_g: 18, karbonhidrat_g: 44, lif_g: 1.2 },
     portions: [porsiyon(120)],
     source: 'bizim',
@@ -2039,6 +2312,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fırın sütlaç',
+    name_en: 'Baked rice pudding (fırın sütlaç)',
     per_100g: { kalori: 162, protein_g: 4.5, yag_g: 3.5, karbonhidrat_g: 28, lif_g: 0.2 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -2046,6 +2320,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ayva tatlısı',
+    name_en: 'Poached quince dessert (ayva tatlısı)',
     per_100g: { kalori: 141, protein_g: 0.6, yag_g: 0.3, karbonhidrat_g: 34, lif_g: 3.6 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -2053,6 +2328,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kabak tatlısı',
+    name_en: 'Candied pumpkin dessert (kabak tatlısı)',
     per_100g: { kalori: 133, protein_g: 0.8, yag_g: 0.2, karbonhidrat_g: 32, lif_g: 2 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -2060,6 +2336,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Cevizli sucuk',
+    name_en: 'Walnut grape molasses candy (cevizli sucuk)',
     per_100g: { kalori: 406, protein_g: 6, yag_g: 18, karbonhidrat_g: 55, lif_g: 2.4 },
     portions: [dilim(30)],
     source: 'bizim',
@@ -2067,6 +2344,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Lokum',
+    name_en: 'Turkish delight',
     per_100g: { kalori: 314, protein_g: 0.2, yag_g: 0.1, karbonhidrat_g: 78, lif_g: 0.4 },
     portions: [adet(12)],
     source: 'bizim',
@@ -2074,6 +2352,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tahin helvası',
+    name_en: 'Tahini halva',
     per_100g: { kalori: 528, protein_g: 12, yag_g: 32, karbonhidrat_g: 48, lif_g: 4 },
     portions: [dilim(40)],
     source: 'bizim',
@@ -2081,6 +2360,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Meyveli yoğurt',
+    name_en: 'Fruit yogurt',
     per_100g: { kalori: 94, protein_g: 4, yag_g: 2.5, karbonhidrat_g: 14, lif_g: 0.6 },
     portions: [kase(150)],
     source: 'bizim',
@@ -2090,6 +2370,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- İçecek ve süt ürünü ---
   {
     name_tr: 'Süt, tam yağlı',
+    name_en: 'Milk, whole',
     per_100g: { kalori: 64, protein_g: 3.2, yag_g: 3.6, karbonhidrat_g: 4.7, lif_g: 0 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -2097,6 +2378,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Süt, yağsız',
+    name_en: 'Milk, skim',
     per_100g: { kalori: 35, protein_g: 3.4, yag_g: 0.2, karbonhidrat_g: 4.9, lif_g: 0 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -2104,6 +2386,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yoğurt, tam yağlı',
+    name_en: 'Yogurt, whole milk',
     per_100g: { kalori: 64, protein_g: 3.4, yag_g: 3.5, karbonhidrat_g: 4.7, lif_g: 0 },
     portions: [kase(200)],
     source: 'turkomp',
@@ -2111,6 +2394,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yoğurt, yağsız',
+    name_en: 'Yogurt, fat-free',
     per_100g: { kalori: 38, protein_g: 4, yag_g: 0.2, karbonhidrat_g: 5, lif_g: 0 },
     portions: [kase(200)],
     source: 'turkomp',
@@ -2118,6 +2402,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Beyaz peynir, tam yağlı',
+    name_en: 'White cheese, full fat (beyaz peynir)',
     per_100g: { kalori: 274, protein_g: 17, yag_g: 22, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(30)],
     source: 'turkomp',
@@ -2125,6 +2410,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tulum peyniri',
+    name_en: 'Tulum cheese',
     per_100g: { kalori: 374, protein_g: 24, yag_g: 30, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(25)],
     source: 'turkomp',
@@ -2132,6 +2418,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Krem peynir',
+    name_en: 'Cream cheese',
     per_100g: { kalori: 310, protein_g: 6, yag_g: 30, karbonhidrat_g: 4, lif_g: 0 },
     portions: [yemekKasigi(20)],
     source: 'turkomp',
@@ -2139,6 +2426,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sade soda',
+    name_en: 'Plain soda water',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [adet(200)],
     source: 'turkomp',
@@ -2146,6 +2434,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bitki çayı',
+    name_en: 'Herbal tea',
     per_100g: { kalori: 1, protein_g: 0, yag_g: 0, karbonhidrat_g: 0.2, lif_g: 0 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -2155,6 +2444,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Kuruyemiş ve tohum ---
   {
     name_tr: 'Antep fıstığı',
+    name_en: 'Pistachios',
     per_100g: { kalori: 597, protein_g: 20, yag_g: 45, karbonhidrat_g: 28, lif_g: 10 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2162,6 +2452,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kaju',
+    name_en: 'Cashews',
     per_100g: { kalori: 588, protein_g: 18, yag_g: 44, karbonhidrat_g: 30, lif_g: 3.3 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2169,6 +2460,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ay çekirdeği',
+    name_en: 'Sunflower seeds',
     per_100g: { kalori: 623, protein_g: 21, yag_g: 51, karbonhidrat_g: 20, lif_g: 8.6 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2176,6 +2468,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kabak çekirdeği',
+    name_en: 'Pumpkin seeds',
     per_100g: { kalori: 605, protein_g: 30, yag_g: 49, karbonhidrat_g: 11, lif_g: 6 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2183,6 +2476,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yer fıstığı',
+    name_en: 'Peanuts',
     per_100g: { kalori: 609, protein_g: 26, yag_g: 49, karbonhidrat_g: 16, lif_g: 8.5 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2190,6 +2484,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fıstık ezmesi',
+    name_en: 'Peanut butter',
     per_100g: { kalori: 630, protein_g: 25, yag_g: 50, karbonhidrat_g: 20, lif_g: 6 },
     portions: [yemekKasigi(20)],
     source: 'turkomp',
@@ -2197,6 +2492,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru üzüm',
+    name_en: 'Raisins',
     per_100g: { kalori: 333, protein_g: 3.1, yag_g: 0.5, karbonhidrat_g: 79, lif_g: 3.7 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2204,6 +2500,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru incir',
+    name_en: 'Dried figs',
     per_100g: { kalori: 277, protein_g: 3.3, yag_g: 0.9, karbonhidrat_g: 64, lif_g: 9.8 },
     portions: [adet(20)],
     source: 'turkomp',
@@ -2211,6 +2508,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ceviz, kabuklu içi',
+    name_en: 'Walnuts, shelled',
     per_100g: { kalori: 701, protein_g: 15, yag_g: 65, karbonhidrat_g: 14, lif_g: 6.7 },
     portions: [adet(5)],
     source: 'turkomp',
@@ -2220,6 +2518,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Tarif malzemesi tamamlayıcıları ---
   {
     name_tr: 'Semizotu',
+    name_en: 'Purslane',
     per_100g: { kalori: 25, protein_g: 2.0, yag_g: 0.4, karbonhidrat_g: 3.4, lif_g: 1.0 },
     portions: [kase(150), avuc(50)],
     source: 'turkomp',
@@ -2227,6 +2526,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pırasa',
+    name_en: 'Leek',
     per_100g: { kalori: 65, protein_g: 1.5, yag_g: 0.3, karbonhidrat_g: 14.0, lif_g: 1.8 },
     portions: [adet(150), kepce(110)],
     source: 'turkomp',
@@ -2236,6 +2536,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Çiğ karşılıklar: tarif hesabı için ---
   {
     name_tr: 'Dana kuşbaşı, çiğ',
+    name_en: 'Beef cubes, raw',
     per_100g: { kalori: 188, protein_g: 20.0, yag_g: 12.0, karbonhidrat_g: 0.0, lif_g: 0.0 },
     portions: [porsiyon(150)],
     source: 'turkomp',
@@ -2243,6 +2544,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yeşil mercimek, çiğ',
+    name_en: 'Green lentils, raw',
     per_100g: { kalori: 350, protein_g: 25.0, yag_g: 1.1, karbonhidrat_g: 60.0, lif_g: 30.0 },
     portions: [bardak(190), yemekKasigi(14)],
     source: 'turkomp',
@@ -2250,6 +2552,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru fasulye, çiğ',
+    name_en: 'Dried white beans, raw',
     per_100g: { kalori: 338, protein_g: 21.0, yag_g: 1.5, karbonhidrat_g: 60.0, lif_g: 25.0 },
     portions: [bardak(180)],
     source: 'turkomp',
@@ -2257,6 +2560,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Nohut, haşlanmış',
+    name_en: 'Chickpeas, boiled',
     per_100g: { kalori: 167, protein_g: 8.9, yag_g: 2.6, karbonhidrat_g: 27.0, lif_g: 7.6 },
     portions: [kepce(120), kase(200)],
     source: 'turkomp',
@@ -2266,6 +2570,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Bölgesel yemekler ---
   {
     name_tr: 'Mercimekli köfte',
+    name_en: 'Lentil bulgur patties (mercimekli köfte)',
     per_100g: { kalori: 189, protein_g: 6, yag_g: 5, karbonhidrat_g: 30, lif_g: 5 },
     portions: [adet(30), porsiyon(150)],
     source: 'bizim',
@@ -2273,6 +2578,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ekşili köfte',
+    name_en: 'Meatballs in sour lemon broth (ekşili köfte)',
     per_100g: { kalori: 139, protein_g: 9, yag_g: 7, karbonhidrat_g: 10, lif_g: 1.2 },
     portions: [kase(250)],
     source: 'bizim',
@@ -2280,6 +2586,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yuvalama',
+    name_en: 'Tiny meatball yogurt soup (yuvalama)',
     per_100g: { kalori: 158, protein_g: 8, yag_g: 6, karbonhidrat_g: 18, lif_g: 1.6 },
     portions: [kase(250)],
     source: 'bizim',
@@ -2287,6 +2594,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Arabaşı çorbası',
+    name_en: 'Spicy chicken soup (arabaşı)',
     per_100g: { kalori: 117, protein_g: 6, yag_g: 5, karbonhidrat_g: 12, lif_g: 0.6 },
     portions: [kase(250)],
     source: 'bizim',
@@ -2294,6 +2602,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bamya yemeği',
+    name_en: 'Okra stew (bamya)',
     per_100g: { kalori: 82, protein_g: 2.4, yag_g: 4.5, karbonhidrat_g: 8, lif_g: 3.2 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -2301,6 +2610,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Türlü kebap',
+    name_en: 'Mixed vegetable and meat stew (türlü)',
     per_100g: { kalori: 192, protein_g: 11, yag_g: 12, karbonhidrat_g: 10, lif_g: 2.4 },
     portions: [porsiyon(280)],
     source: 'bizim',
@@ -2308,6 +2618,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sac kavurma',
+    name_en: 'Griddle-sauteed meat (sac kavurma)',
     per_100g: { kalori: 218, protein_g: 18, yag_g: 14, karbonhidrat_g: 5, lif_g: 1 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -2315,6 +2626,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuzu pirzola',
+    name_en: 'Lamb chops',
     per_100g: { kalori: 268, protein_g: 22, yag_g: 20, karbonhidrat_g: 0, lif_g: 0 },
     portions: [adet(60), porsiyon(180)],
     source: 'bizim',
@@ -2322,6 +2634,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Dana bonfile',
+    name_en: 'Beef tenderloin',
     per_100g: { kalori: 185, protein_g: 26, yag_g: 9, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(180)],
     source: 'bizim',
@@ -2329,6 +2642,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ciğer tava',
+    name_en: 'Pan-fried liver',
     per_100g: { kalori: 220, protein_g: 22, yag_g: 12, karbonhidrat_g: 6, lif_g: 0.2 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -2336,6 +2650,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Arnavut ciğeri',
+    name_en: 'Albanian-style fried liver (Arnavut ciğeri)',
     per_100g: { kalori: 242, protein_g: 21, yag_g: 14, karbonhidrat_g: 8, lif_g: 0.6 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -2343,6 +2658,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Etli ekmek',
+    name_en: 'Konya-style meat flatbread (etli ekmek)',
     per_100g: { kalori: 245, protein_g: 11, yag_g: 9, karbonhidrat_g: 30, lif_g: 1.8 },
     portions: [dilim(90), porsiyon(300)],
     source: 'bizim',
@@ -2350,6 +2666,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Su böreği, kıymalı',
+    name_en: 'Water borek, with ground meat (su böreği)',
     per_100g: { kalori: 252, protein_g: 10, yag_g: 12, karbonhidrat_g: 26, lif_g: 1.2 },
     portions: [dilim(120)],
     source: 'bizim',
@@ -2357,6 +2674,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mercimekli erişte',
+    name_en: 'Homemade noodles with lentils (erişte)',
     per_100g: { kalori: 193, protein_g: 7, yag_g: 5, karbonhidrat_g: 30, lif_g: 3 },
     portions: [kase(220)],
     source: 'bizim',
@@ -2364,6 +2682,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tarhana keşkeği',
+    name_en: 'Tarhana and wheat porridge (tarhana keşkeği)',
     per_100g: { kalori: 186, protein_g: 9, yag_g: 6, karbonhidrat_g: 24, lif_g: 2 },
     portions: [kase(250)],
     source: 'bizim',
@@ -2371,6 +2690,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kelle paça çorbası',
+    name_en: 'Lamb head and trotter soup (kelle paça)',
     per_100g: { kalori: 90, protein_g: 7, yag_g: 6, karbonhidrat_g: 2, lif_g: 0 },
     portions: [kase(250)],
     source: 'bizim',
@@ -2378,6 +2698,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mercimekli bulgur pilavı',
+    name_en: 'Bulgur pilaf with lentils',
     per_100g: { kalori: 191, protein_g: 6.5, yag_g: 5, karbonhidrat_g: 30, lif_g: 6 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -2385,6 +2706,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Firik pilavı',
+    name_en: 'Freekeh pilaf (firik pilavı)',
     per_100g: { kalori: 181, protein_g: 6, yag_g: 5, karbonhidrat_g: 28, lif_g: 5 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -2392,6 +2714,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı kereviz salatası',
+    name_en: 'Celery root salad in olive oil',
     per_100g: { kalori: 87, protein_g: 1.2, yag_g: 6, karbonhidrat_g: 7, lif_g: 2 },
     portions: [kase(180)],
     source: 'bizim',
@@ -2399,6 +2722,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şakşuka',
+    name_en: 'Fried eggplant in tomato sauce (şakşuka)',
     per_100g: { kalori: 133, protein_g: 1.8, yag_g: 10, karbonhidrat_g: 9, lif_g: 3.2 },
     portions: [yemekKasigi(30), porsiyon(150)],
     source: 'bizim',
@@ -2408,6 +2732,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Market ürünleri ---
   {
     name_tr: 'Kepekli bisküvi',
+    name_en: 'Bran biscuits',
     per_100g: { kalori: 430, protein_g: 8, yag_g: 14, karbonhidrat_g: 68, lif_g: 6 },
     portions: [adet(10), porsiyon(30)],
     source: 'openfoodfacts',
@@ -2415,6 +2740,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yulaflı bar',
+    name_en: 'Oat bar',
     per_100g: { kalori: 398, protein_g: 8, yag_g: 14, karbonhidrat_g: 60, lif_g: 7 },
     portions: [adet(40)],
     source: 'openfoodfacts',
@@ -2422,6 +2748,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Protein bar',
+    name_en: 'Protein bar',
     per_100g: { kalori: 388, protein_g: 30, yag_g: 12, karbonhidrat_g: 40, lif_g: 6 },
     portions: [adet(60)],
     source: 'openfoodfacts',
@@ -2429,6 +2756,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kepekli kraker',
+    name_en: 'Bran crackers',
     per_100g: { kalori: 416, protein_g: 9, yag_g: 12, karbonhidrat_g: 68, lif_g: 6 },
     portions: [porsiyon(30)],
     source: 'openfoodfacts',
@@ -2436,6 +2764,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bitter çikolata, %70',
+    name_en: 'Dark chocolate, 70%',
     per_100g: { kalori: 594, protein_g: 8, yag_g: 42, karbonhidrat_g: 46, lif_g: 11 },
     portions: [dilim(10), porsiyon(30)],
     source: 'openfoodfacts',
@@ -2443,6 +2772,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sütlü çikolata',
+    name_en: 'Milk chocolate',
     per_100g: { kalori: 550, protein_g: 7.5, yag_g: 32, karbonhidrat_g: 58, lif_g: 2.4 },
     portions: [dilim(10), porsiyon(30)],
     source: 'openfoodfacts',
@@ -2450,6 +2780,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mısır gevreği, şekersiz',
+    name_en: 'Corn flakes, unsweetened',
     per_100g: { kalori: 370, protein_g: 8, yag_g: 2, karbonhidrat_g: 80, lif_g: 8 },
     portions: [kase(40)],
     source: 'openfoodfacts',
@@ -2457,6 +2788,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Granola',
+    name_en: 'Granola',
     per_100g: { kalori: 442, protein_g: 10, yag_g: 18, karbonhidrat_g: 60, lif_g: 8 },
     portions: [kase(50)],
     source: 'openfoodfacts',
@@ -2464,6 +2796,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kepekli ekmek',
+    name_en: 'Bran bread',
     per_100g: { kalori: 246, protein_g: 9.5, yag_g: 3.5, karbonhidrat_g: 44, lif_g: 6 },
     portions: [dilim(30)],
     source: 'openfoodfacts',
@@ -2471,6 +2804,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çavdar ekmeği',
+    name_en: 'Rye bread',
     per_100g: { kalori: 243, protein_g: 9, yag_g: 3, karbonhidrat_g: 45, lif_g: 8 },
     portions: [dilim(30)],
     source: 'openfoodfacts',
@@ -2478,6 +2812,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ayçöreği',
+    name_en: 'Crescent sweet bun (ayçöreği)',
     per_100g: { kalori: 412, protein_g: 8, yag_g: 20, karbonhidrat_g: 50, lif_g: 2 },
     portions: [adet(70)],
     source: 'openfoodfacts',
@@ -2485,6 +2820,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Labne peyniri',
+    name_en: 'Labneh',
     per_100g: { kalori: 260, protein_g: 7, yag_g: 24, karbonhidrat_g: 4, lif_g: 0 },
     portions: [yemekKasigi(20)],
     source: 'openfoodfacts',
@@ -2492,6 +2828,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Hindi füme',
+    name_en: 'Smoked turkey',
     per_100g: { kalori: 128, protein_g: 22, yag_g: 4, karbonhidrat_g: 1, lif_g: 0 },
     portions: [dilim(20)],
     source: 'openfoodfacts',
@@ -2499,6 +2836,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ton balığı, yağda',
+    name_en: 'Tuna, in oil',
     per_100g: { kalori: 168, protein_g: 24, yag_g: 8, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(80)],
     source: 'openfoodfacts',
@@ -2506,6 +2844,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı sardalya',
+    name_en: 'Sardines in olive oil',
     per_100g: { kalori: 192, protein_g: 21, yag_g: 12, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(90)],
     source: 'openfoodfacts',
@@ -2513,6 +2852,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yoğurtlu içecek, sade',
+    name_en: 'Yogurt drink, plain',
     per_100g: { kalori: 46, protein_g: 3.2, yag_g: 1.5, karbonhidrat_g: 5, lif_g: 0 },
     portions: [adet(250)],
     source: 'openfoodfacts',
@@ -2520,6 +2860,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Badem sütü, şekersiz',
+    name_en: 'Almond milk, unsweetened',
     per_100g: { kalori: 16, protein_g: 0.6, yag_g: 1.2, karbonhidrat_g: 0.6, lif_g: 0.4 },
     portions: [bardak(200)],
     source: 'openfoodfacts',
@@ -2527,6 +2868,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Soya sütü, şekersiz',
+    name_en: 'Soy milk, unsweetened',
     per_100g: { kalori: 37, protein_g: 3.3, yag_g: 1.8, karbonhidrat_g: 1.8, lif_g: 0.6 },
     portions: [bardak(200)],
     source: 'openfoodfacts',
@@ -2534,6 +2876,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yulaf sütü',
+    name_en: 'Oat milk',
     per_100g: { kalori: 46, protein_g: 1, yag_g: 1.5, karbonhidrat_g: 7, lif_g: 0.8 },
     portions: [bardak(200)],
     source: 'openfoodfacts',
@@ -2541,6 +2884,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Peynir altı suyu tozu',
+    name_en: 'Whey powder (peynir altı suyu tozu)',
     per_100g: { kalori: 406, protein_g: 80, yag_g: 6, karbonhidrat_g: 8, lif_g: 0 },
     portions: [{ id: 'olcek', ad: '1 ölçek', gram: 30 }],
     source: 'openfoodfacts',
@@ -2550,6 +2894,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Zincir ve dışarıda yemek ---
   {
     name_tr: 'Tavuklu wrap, zincir',
+    name_en: 'Chicken wrap, chain restaurant',
     per_100g: { kalori: 216, protein_g: 14, yag_g: 8, karbonhidrat_g: 22, lif_g: 2 },
     portions: [adet(250)],
     source: 'zincir',
@@ -2557,6 +2902,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Hamburger, klasik',
+    name_en: 'Hamburger, classic',
     per_100g: { kalori: 269, protein_g: 14, yag_g: 13, karbonhidrat_g: 24, lif_g: 1.4 },
     portions: [adet(220)],
     source: 'zincir',
@@ -2564,6 +2910,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Patates kızartması, orta',
+    name_en: 'French fries, medium',
     per_100g: { kalori: 293, protein_g: 3.4, yag_g: 15, karbonhidrat_g: 36, lif_g: 3.4 },
     portions: [porsiyon(120)],
     source: 'zincir',
@@ -2571,6 +2918,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pizza, margarita',
+    name_en: 'Pizza, margherita',
     per_100g: { kalori: 254, protein_g: 11, yag_g: 10, karbonhidrat_g: 30, lif_g: 2 },
     portions: [dilim(110)],
     source: 'zincir',
@@ -2578,6 +2926,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sushi, somonlu',
+    name_en: 'Sushi, salmon',
     per_100g: { kalori: 188, protein_g: 8, yag_g: 4, karbonhidrat_g: 30, lif_g: 1 },
     portions: [adet(30), porsiyon(240)],
     source: 'zincir',
@@ -2585,6 +2934,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kumpir, orta',
+    name_en: 'Loaded baked potato, medium (kumpir)',
     per_100g: { kalori: 240, protein_g: 5, yag_g: 12, karbonhidrat_g: 28, lif_g: 3 },
     portions: [adet(350)],
     source: 'zincir',
@@ -2592,6 +2942,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tost, karışık',
+    name_en: 'Toasted sandwich, mixed (tost)',
     per_100g: { kalori: 303, protein_g: 14, yag_g: 15, karbonhidrat_g: 28, lif_g: 1.6 },
     portions: [adet(160)],
     source: 'zincir',
@@ -2599,6 +2950,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Çiğ köfte dürüm',
+    name_en: 'Spicy bulgur wrap (çiğ köfte dürüm)',
     per_100g: { kalori: 230, protein_g: 6, yag_g: 6, karbonhidrat_g: 38, lif_g: 5 },
     portions: [adet(200)],
     source: 'zincir',
@@ -2606,6 +2958,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kokoreç ekmek',
+    name_en: 'Grilled lamb intestine sandwich (kokoreç)',
     per_100g: { kalori: 322, protein_g: 14, yag_g: 18, karbonhidrat_g: 26, lif_g: 1.4 },
     portions: [adet(200)],
     source: 'zincir',
@@ -2613,6 +2966,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Islak hamburger',
+    name_en: 'Wet burger in tomato sauce (ıslak hamburger)',
     per_100g: { kalori: 308, protein_g: 13, yag_g: 16, karbonhidrat_g: 28, lif_g: 1.4 },
     portions: [adet(150)],
     source: 'zincir',
@@ -2622,6 +2976,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Baharat ve sos ---
   {
     name_tr: 'Nar ekşisi',
+    name_en: 'Pomegranate molasses',
     per_100g: { kalori: 243, protein_g: 0.6, yag_g: 0.1, karbonhidrat_g: 60, lif_g: 0.6 },
     portions: [yemekKasigi(18)],
     source: 'turkomp',
@@ -2629,6 +2984,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sirke',
+    name_en: 'Vinegar',
     per_100g: { kalori: 4, protein_g: 0, yag_g: 0, karbonhidrat_g: 0.9, lif_g: 0 },
     portions: [yemekKasigi(15)],
     source: 'turkomp',
@@ -2636,6 +2992,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ketçap',
+    name_en: 'Ketchup',
     per_100g: { kalori: 111, protein_g: 1.2, yag_g: 0.2, karbonhidrat_g: 26, lif_g: 0.4 },
     portions: [yemekKasigi(17)],
     source: 'turkomp',
@@ -2643,6 +3000,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mayonez',
+    name_en: 'Mayonnaise',
     per_100g: { kalori: 687, protein_g: 1, yag_g: 75, karbonhidrat_g: 2, lif_g: 0 },
     portions: [yemekKasigi(14)],
     source: 'turkomp',
@@ -2650,6 +3008,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Hardal',
+    name_en: 'Mustard',
     per_100g: { kalori: 78, protein_g: 4.4, yag_g: 4, karbonhidrat_g: 6, lif_g: 3.3 },
     portions: [cayKasigi(5)],
     source: 'turkomp',
@@ -2657,6 +3016,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pul biber',
+    name_en: 'Red pepper flakes',
     per_100g: { kalori: 374, protein_g: 12, yag_g: 14, karbonhidrat_g: 50, lif_g: 27 },
     portions: [cayKasigi(2)],
     source: 'turkomp',
@@ -2664,6 +3024,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karabiber',
+    name_en: 'Black pepper',
     per_100g: { kalori: 327, protein_g: 10.4, yag_g: 3.3, karbonhidrat_g: 64, lif_g: 25 },
     portions: [cayKasigi(2)],
     source: 'turkomp',
@@ -2671,6 +3032,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Nane, kuru',
+    name_en: 'Mint, dried',
     per_100g: { kalori: 342, protein_g: 20, yag_g: 6, karbonhidrat_g: 52, lif_g: 30 },
     portions: [cayKasigi(1)],
     source: 'turkomp',
@@ -2678,6 +3040,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sumak',
+    name_en: 'Sumac',
     per_100g: { kalori: 319, protein_g: 4, yag_g: 7, karbonhidrat_g: 60, lif_g: 30 },
     portions: [cayKasigi(2)],
     source: 'turkomp',
@@ -2685,6 +3048,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tuz',
+    name_en: 'Salt',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [cayKasigi(5)],
     source: 'turkomp',
@@ -2694,6 +3058,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Meyve — kuyruk ---
   {
     name_tr: 'Kiraz',
+    name_en: 'Cherries',
     per_100g: { kalori: 71, protein_g: 1.1, yag_g: 0.3, karbonhidrat_g: 16, lif_g: 2.1 },
     portions: [kase(150), porsiyon(100)],
     source: 'turkomp',
@@ -2701,6 +3066,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Vişne',
+    name_en: 'Sour cherries',
     per_100g: { kalori: 56, protein_g: 1, yag_g: 0.3, karbonhidrat_g: 12.2, lif_g: 1.6 },
     portions: [kase(150)],
     source: 'turkomp',
@@ -2708,6 +3074,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ananas',
+    name_en: 'Pineapple',
     per_100g: { kalori: 55, protein_g: 0.5, yag_g: 0.1, karbonhidrat_g: 13.1, lif_g: 1.4 },
     portions: [dilim(80), kase(150)],
     source: 'turkomp',
@@ -2715,6 +3082,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Greyfurt',
+    name_en: 'Grapefruit',
     per_100g: { kalori: 47, protein_g: 0.8, yag_g: 0.1, karbonhidrat_g: 10.7, lif_g: 1.6 },
     portions: [adet(250), porsiyon(150)],
     source: 'turkomp',
@@ -2722,6 +3090,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Böğürtlen',
+    name_en: 'Blackberries',
     per_100g: { kalori: 48, protein_g: 1.4, yag_g: 0.5, karbonhidrat_g: 9.6, lif_g: 5.3 },
     portions: [kase(120)],
     source: 'turkomp',
@@ -2729,6 +3098,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Ahududu',
+    name_en: 'Raspberries',
     per_100g: { kalori: 59, protein_g: 1.2, yag_g: 0.7, karbonhidrat_g: 11.9, lif_g: 6.5 },
     portions: [kase(120)],
     source: 'turkomp',
@@ -2736,6 +3106,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yaban mersini',
+    name_en: 'Blueberries',
     per_100g: { kalori: 64, protein_g: 0.7, yag_g: 0.3, karbonhidrat_g: 14.5, lif_g: 2.4 },
     portions: [kase(120)],
     source: 'turkomp',
@@ -2743,6 +3114,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kiraz, kuru',
+    name_en: 'Cherries, dried',
     per_100g: { kalori: 322, protein_g: 3, yag_g: 2, karbonhidrat_g: 73, lif_g: 6 },
     portions: [porsiyon(40)],
     source: 'turkomp',
@@ -2752,6 +3124,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Sebze — kuyruk ---
   {
     name_tr: 'Turp, çiğ',
+    name_en: 'Radish, raw',
     per_100g: { kalori: 17, protein_g: 0.7, yag_g: 0.1, karbonhidrat_g: 3.4, lif_g: 1.6 },
     portions: [adet(20), kase(100)],
     source: 'turkomp',
@@ -2759,6 +3132,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kırmızı turp',
+    name_en: 'Red radish',
     per_100g: { kalori: 17, protein_g: 0.7, yag_g: 0.1, karbonhidrat_g: 3.4, lif_g: 1.6 },
     portions: [adet(15)],
     source: 'turkomp',
@@ -2766,6 +3140,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Enginar, haşlanmış',
+    name_en: 'Artichoke, boiled',
     per_100g: { kalori: 58, protein_g: 2.9, yag_g: 0.3, karbonhidrat_g: 11, lif_g: 5.4 },
     portions: [adet(120)],
     source: 'turkomp',
@@ -2773,6 +3148,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bakla, haşlanmış',
+    name_en: 'Fava beans, boiled',
     per_100g: { kalori: 86, protein_g: 7.6, yag_g: 0.5, karbonhidrat_g: 12.9, lif_g: 5.4 },
     portions: [kase(180)],
     source: 'turkomp',
@@ -2780,6 +3156,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuşkonmaz, haşlanmış',
+    name_en: 'Asparagus, boiled',
     per_100g: { kalori: 28, protein_g: 2.4, yag_g: 0.2, karbonhidrat_g: 4.1, lif_g: 2 },
     portions: [porsiyon(100)],
     source: 'turkomp',
@@ -2787,6 +3164,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tatlı patates, fırında',
+    name_en: 'Sweet potato, baked',
     per_100g: { kalori: 92, protein_g: 2, yag_g: 0.1, karbonhidrat_g: 20.7, lif_g: 3.3 },
     portions: [adet(150)],
     source: 'turkomp',
@@ -2796,6 +3174,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Balık — kuyruk ---
   {
     name_tr: 'Uskumru, ızgara',
+    name_en: 'Mackerel, grilled',
     per_100g: { kalori: 236, protein_g: 23, yag_g: 16, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(180)],
     source: 'turkomp',
@@ -2803,6 +3182,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Alabalık, ızgara',
+    name_en: 'Trout, grilled',
     per_100g: { kalori: 151, protein_g: 22, yag_g: 7, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(200)],
     source: 'turkomp',
@@ -2810,6 +3190,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Lüfer, ızgara',
+    name_en: 'Bluefish, grilled',
     per_100g: { kalori: 142, protein_g: 22, yag_g: 6, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(180)],
     source: 'turkomp',
@@ -2817,6 +3198,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mezgit, fırın',
+    name_en: 'Whiting, baked',
     per_100g: { kalori: 98, protein_g: 20, yag_g: 2, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(180)],
     source: 'turkomp',
@@ -2824,6 +3206,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Somon, çiğ',
+    name_en: 'Salmon, raw',
     per_100g: { kalori: 197, protein_g: 20, yag_g: 13, karbonhidrat_g: 0, lif_g: 0 },
     portions: [porsiyon(150)],
     source: 'turkomp',
@@ -2831,6 +3214,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Midye, haşlanmış',
+    name_en: 'Mussels, boiled',
     per_100g: { kalori: 119, protein_g: 17, yag_g: 3, karbonhidrat_g: 6, lif_g: 0 },
     portions: [adet(15), porsiyon(100)],
     source: 'turkomp',
@@ -2838,6 +3222,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kalamar, haşlanmış',
+    name_en: 'Squid, boiled',
     per_100g: { kalori: 90, protein_g: 16, yag_g: 1.5, karbonhidrat_g: 3, lif_g: 0 },
     portions: [porsiyon(120)],
     source: 'turkomp',
@@ -2847,6 +3232,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Şarküteri — kuyruk ---
   {
     name_tr: 'Pastırma',
+    name_en: 'Cured spiced beef (pastırma)',
     per_100g: { kalori: 236, protein_g: 30, yag_g: 12, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(8), porsiyon(40)],
     source: 'turkomp',
@@ -2854,6 +3240,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Salam, dana',
+    name_en: 'Salami, beef',
     per_100g: { kalori: 260, protein_g: 17, yag_g: 20, karbonhidrat_g: 3, lif_g: 0 },
     portions: [dilim(15), porsiyon(50)],
     source: 'turkomp',
@@ -2861,6 +3248,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sosis, dana',
+    name_en: 'Sausage, beef',
     per_100g: { kalori: 284, protein_g: 13, yag_g: 24, karbonhidrat_g: 4, lif_g: 0 },
     portions: [adet(40), porsiyon(80)],
     source: 'turkomp',
@@ -2868,6 +3256,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Jambon, hindi',
+    name_en: 'Ham, turkey',
     per_100g: { kalori: 124, protein_g: 20, yag_g: 4, karbonhidrat_g: 2, lif_g: 0 },
     portions: [dilim(15)],
     source: 'turkomp',
@@ -2877,6 +3266,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Tahıl — kuyruk ---
   {
     name_tr: 'Arpa, pişmiş',
+    name_en: 'Barley, cooked',
     per_100g: { kalori: 126, protein_g: 2.3, yag_g: 0.4, karbonhidrat_g: 28.2, lif_g: 3.8 },
     portions: [kepce(120)],
     source: 'turkomp',
@@ -2884,6 +3274,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Arpa, çiğ',
+    name_en: 'Barley, raw',
     per_100g: { kalori: 365, protein_g: 12.5, yag_g: 2.3, karbonhidrat_g: 73.5, lif_g: 17.3 },
     portions: [bardak(180)],
     source: 'turkomp',
@@ -2891,6 +3282,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yulaf, pişmiş',
+    name_en: 'Oats, cooked',
     per_100g: { kalori: 70, protein_g: 2.4, yag_g: 1.4, karbonhidrat_g: 12, lif_g: 1.7 },
     portions: [kase(220)],
     source: 'turkomp',
@@ -2898,6 +3290,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Pirinç, esmer, pişmiş',
+    name_en: 'Rice, brown, cooked',
     per_100g: { kalori: 110, protein_g: 2.6, yag_g: 0.9, karbonhidrat_g: 23, lif_g: 1.8 },
     portions: [kepce(120)],
     source: 'turkomp',
@@ -2905,6 +3298,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Makarna, tam buğday, çiğ',
+    name_en: 'Pasta, whole wheat, raw',
     per_100g: { kalori: 358, protein_g: 13, yag_g: 2.5, karbonhidrat_g: 71, lif_g: 8 },
     portions: [porsiyon(80)],
     source: 'turkomp',
@@ -2914,6 +3308,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Kuruyemiş — kuyruk ---
   {
     name_tr: 'Susam',
+    name_en: 'Sesame seeds',
     per_100g: { kalori: 612, protein_g: 17.7, yag_g: 49.7, karbonhidrat_g: 23.4, lif_g: 11.8 },
     portions: [yemekKasigi(9)],
     source: 'turkomp',
@@ -2921,6 +3316,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kuru üzüm, sarı',
+    name_en: 'Raisins, golden',
     per_100g: { kalori: 334, protein_g: 3.1, yag_g: 0.5, karbonhidrat_g: 79.2, lif_g: 3.7 },
     portions: [yemekKasigi(15), porsiyon(40)],
     source: 'turkomp',
@@ -2928,6 +3324,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Leblebi',
+    name_en: 'Roasted chickpeas (leblebi)',
     per_100g: { kalori: 362, protein_g: 19, yag_g: 6, karbonhidrat_g: 58, lif_g: 12 },
     portions: [avuc(30)],
     source: 'turkomp',
@@ -2935,6 +3332,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kestane, haşlanmış',
+    name_en: 'Chestnuts, boiled',
     per_100g: { kalori: 133, protein_g: 2, yag_g: 1.4, karbonhidrat_g: 28, lif_g: 5 },
     portions: [adet(15), porsiyon(100)],
     source: 'turkomp',
@@ -2944,6 +3342,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Yemek — kuyruk ---
   {
     name_tr: 'Kısır',
+    name_en: 'Bulgur salad (kısır)',
     per_100g: { kalori: 218, protein_g: 4.5, yag_g: 8, karbonhidrat_g: 32, lif_g: 5 },
     portions: [kase(180), porsiyon(150)],
     source: 'bizim',
@@ -2951,6 +3350,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Piyaz',
+    name_en: 'White bean salad (piyaz)',
     per_100g: { kalori: 187, protein_g: 6.5, yag_g: 9, karbonhidrat_g: 20, lif_g: 6 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -2958,6 +3358,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Fasulye piyazı',
+    name_en: 'White bean salad with onions (fasulye piyazı)',
     per_100g: { kalori: 187, protein_g: 6.5, yag_g: 9, karbonhidrat_g: 20, lif_g: 6 },
     portions: [porsiyon(200)],
     source: 'bizim',
@@ -2965,6 +3366,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mercimek salatası',
+    name_en: 'Lentil salad',
     per_100g: { kalori: 150, protein_g: 6, yag_g: 6, karbonhidrat_g: 18, lif_g: 5.5 },
     portions: [kase(180)],
     source: 'bizim',
@@ -2972,6 +3374,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Yoğurtlu semizotu',
+    name_en: 'Purslane with yogurt',
     per_100g: { kalori: 57, protein_g: 2.5, yag_g: 3, karbonhidrat_g: 5, lif_g: 1.2 },
     portions: [kase(180)],
     source: 'bizim',
@@ -2979,6 +3382,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Zeytinyağlı bamya',
+    name_en: 'Okra in olive oil',
     per_100g: { kalori: 89, protein_g: 1.8, yag_g: 6, karbonhidrat_g: 7, lif_g: 3 },
     portions: [kepce(120)],
     source: 'bizim',
@@ -2986,6 +3390,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Karnabahar kızartma',
+    name_en: 'Fried cauliflower',
     per_100g: { kalori: 134, protein_g: 2, yag_g: 10, karbonhidrat_g: 9, lif_g: 2.4 },
     portions: [porsiyon(150)],
     source: 'bizim',
@@ -2993,6 +3398,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sebzeli kuskus',
+    name_en: 'Couscous with vegetables',
     per_100g: { kalori: 165, protein_g: 4, yag_g: 5, karbonhidrat_g: 26, lif_g: 2.6 },
     portions: [kase(200)],
     source: 'bizim',
@@ -3002,6 +3408,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- İçecek — kuyruk ---
   {
     name_tr: 'Meyve suyu, portakal',
+    name_en: 'Fruit juice, orange',
     per_100g: { kalori: 46, protein_g: 0.7, yag_g: 0.2, karbonhidrat_g: 10.4, lif_g: 0.2 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -3009,6 +3416,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Meyve suyu, vişne',
+    name_en: 'Fruit juice, sour cherry',
     per_100g: { kalori: 50, protein_g: 0.4, yag_g: 0.1, karbonhidrat_g: 12, lif_g: 0.1 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -3016,6 +3424,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Meyve suyu, şeftali',
+    name_en: 'Fruit juice, peach',
     per_100g: { kalori: 52, protein_g: 0.4, yag_g: 0.1, karbonhidrat_g: 12.5, lif_g: 0.2 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -3023,6 +3432,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Bira',
+    name_en: 'Beer',
     per_100g: { kalori: 16, protein_g: 0.5, yag_g: 0, karbonhidrat_g: 3.6, lif_g: 0 },
     portions: [bardak(330)],
     source: 'turkomp',
@@ -3030,6 +3440,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şarap, kırmızı',
+    name_en: 'Wine, red',
     per_100g: { kalori: 11, protein_g: 0.1, yag_g: 0, karbonhidrat_g: 2.6, lif_g: 0 },
     portions: [bardak(150)],
     source: 'turkomp',
@@ -3037,6 +3448,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Şarap, beyaz',
+    name_en: 'Wine, white',
     per_100g: { kalori: 11, protein_g: 0.1, yag_g: 0, karbonhidrat_g: 2.6, lif_g: 0 },
     portions: [bardak(150)],
     source: 'turkomp',
@@ -3044,6 +3456,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Rakı',
+    name_en: 'Raki',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [bardak(50)],
     source: 'turkomp',
@@ -3051,6 +3464,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Votka',
+    name_en: 'Vodka',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [bardak(50)],
     source: 'turkomp',
@@ -3058,6 +3472,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Viski',
+    name_en: 'Whisky',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0.1, lif_g: 0 },
     portions: [bardak(50)],
     source: 'turkomp',
@@ -3065,6 +3480,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kola',
+    name_en: 'Cola',
     per_100g: { kalori: 42, protein_g: 0, yag_g: 0, karbonhidrat_g: 10.6, lif_g: 0 },
     portions: [bardak(330)],
     source: 'turkomp',
@@ -3072,6 +3488,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kola, şekersiz',
+    name_en: 'Cola, sugar-free',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [bardak(330)],
     source: 'turkomp',
@@ -3079,6 +3496,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Maden suyu',
+    name_en: 'Mineral water',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [bardak(200)],
     source: 'turkomp',
@@ -3086,6 +3504,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Enerji içeceği',
+    name_en: 'Energy drink',
     per_100g: { kalori: 44, protein_g: 0, yag_g: 0, karbonhidrat_g: 11, lif_g: 0 },
     portions: [bardak(250)],
     source: 'turkomp',
@@ -3095,6 +3514,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Fırın — kuyruk ---
   {
     name_tr: 'Kruvasan, sade',
+    name_en: 'Croissant, plain',
     per_100g: { kalori: 403, protein_g: 8, yag_g: 21, karbonhidrat_g: 45.6, lif_g: 2.6 },
     portions: [adet(60)],
     source: 'bizim',
@@ -3102,6 +3522,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kurabiye, tereyağlı',
+    name_en: 'Cookies, butter',
     per_100g: { kalori: 488, protein_g: 6, yag_g: 24, karbonhidrat_g: 62, lif_g: 1.8 },
     portions: [adet(15), porsiyon(40)],
     source: 'bizim',
@@ -3109,6 +3530,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kek, sade',
+    name_en: 'Cake, plain',
     per_100g: { kalori: 406, protein_g: 6, yag_g: 18, karbonhidrat_g: 55, lif_g: 1.2 },
     portions: [dilim(60)],
     source: 'bizim',
@@ -3116,6 +3538,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Brownie',
+    name_en: 'Brownie',
     per_100g: { kalori: 448, protein_g: 6, yag_g: 24, karbonhidrat_g: 52, lif_g: 3 },
     portions: [adet(50)],
     source: 'bizim',
@@ -3123,6 +3546,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Milföy böreği',
+    name_en: 'Puff pastry borek (milföy böreği)',
     per_100g: { kalori: 396, protein_g: 7, yag_g: 24, karbonhidrat_g: 38, lif_g: 1.4 },
     portions: [adet(70)],
     source: 'bizim',
@@ -3132,6 +3556,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Atıştırmalık — kuyruk ---
   {
     name_tr: 'Gofret, çikolatalı',
+    name_en: 'Wafer, chocolate',
     per_100g: { kalori: 515, protein_g: 6, yag_g: 27, karbonhidrat_g: 62, lif_g: 1.6 },
     portions: [adet(35)],
     source: 'openfoodfacts',
@@ -3139,6 +3564,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Cips, patates',
+    name_en: 'Chips, potato',
     per_100g: { kalori: 544, protein_g: 6.6, yag_g: 34, karbonhidrat_g: 53, lif_g: 4.4 },
     portions: [porsiyon(30)],
     source: 'openfoodfacts',
@@ -3146,6 +3572,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Cips, mısır',
+    name_en: 'Chips, corn',
     per_100g: { kalori: 514, protein_g: 7, yag_g: 26, karbonhidrat_g: 63, lif_g: 5 },
     portions: [porsiyon(30)],
     source: 'openfoodfacts',
@@ -3153,6 +3580,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Mısır patlağı, yağsız',
+    name_en: 'Popcorn, air-popped',
     per_100g: { kalori: 384, protein_g: 12, yag_g: 4.5, karbonhidrat_g: 74, lif_g: 14.5 },
     portions: [kase(25)],
     source: 'openfoodfacts',
@@ -3160,6 +3588,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Jelibon',
+    name_en: 'Gummy candy',
     per_100g: { kalori: 334, protein_g: 4, yag_g: 0.2, karbonhidrat_g: 79, lif_g: 0 },
     portions: [porsiyon(30)],
     source: 'openfoodfacts',
@@ -3169,6 +3598,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Zincir — kuyruk ---
   {
     name_tr: 'Sandviç, tavuklu',
+    name_en: 'Sandwich, chicken',
     per_100g: { kalori: 220, protein_g: 13, yag_g: 8, karbonhidrat_g: 24, lif_g: 1.8 },
     portions: [adet(220)],
     source: 'zincir',
@@ -3176,6 +3606,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Sandviç, ton balıklı',
+    name_en: 'Sandwich, tuna',
     per_100g: { kalori: 221, protein_g: 12, yag_g: 9, karbonhidrat_g: 23, lif_g: 1.8 },
     portions: [adet(220)],
     source: 'zincir',
@@ -3183,6 +3614,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk burger',
+    name_en: 'Chicken burger',
     per_100g: { kalori: 268, protein_g: 14, yag_g: 12, karbonhidrat_g: 26, lif_g: 1.6 },
     portions: [adet(200)],
     source: 'zincir',
@@ -3190,6 +3622,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Tavuk nugget',
+    name_en: 'Chicken nuggets',
     per_100g: { kalori: 267, protein_g: 15, yag_g: 15, karbonhidrat_g: 18, lif_g: 1 },
     portions: [adet(18), porsiyon(100)],
     source: 'zincir',
@@ -3197,6 +3630,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Noodle, tavuklu',
+    name_en: 'Noodles, with chicken',
     per_100g: { kalori: 170, protein_g: 7, yag_g: 6, karbonhidrat_g: 22, lif_g: 1.4 },
     portions: [kase(300)],
     source: 'zincir',
@@ -3204,6 +3638,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Wrap, tavuklu',
+    name_en: 'Wrap, chicken',
     per_100g: { kalori: 233, protein_g: 13, yag_g: 9, karbonhidrat_g: 25, lif_g: 2 },
     portions: [adet(230)],
     source: 'zincir',
@@ -3213,6 +3648,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   // --- Takviye — kuyruk ---
   {
     name_tr: 'Kreatin monohidrat',
+    name_en: 'Creatine monohydrate',
     per_100g: { kalori: 0, protein_g: 0, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [cayKasigi(5)],
     source: 'openfoodfacts',
@@ -3220,6 +3656,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'Kazein protein tozu',
+    name_en: 'Casein protein powder',
     per_100g: { kalori: 371, protein_g: 78, yag_g: 3, karbonhidrat_g: 8, lif_g: 1 },
     portions: [{ id: 'olcek', ad: '1 ölçek', gram: 30 }],
     source: 'openfoodfacts',
@@ -3227,6 +3664,7 @@ export const BESIN_TOHUMU: BesinTohumu[] = [
   },
   {
     name_tr: 'BCAA tozu',
+    name_en: 'BCAA powder',
     per_100g: { kalori: 360, protein_g: 90, yag_g: 0, karbonhidrat_g: 0, lif_g: 0 },
     portions: [{ id: 'olcek', ad: '1 ölçek', gram: 10 }],
     source: 'openfoodfacts',

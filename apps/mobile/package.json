@@ -16,6 +16,7 @@
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@expo/metro-runtime": "~4.0.1",
     "@react-native-async-storage/async-storage": "2.1.0",
+    "@react-navigation/bottom-tabs": "^7.18.16",
     "@swiip/core": "*",
     "@swiip/shared": "*",
     "expo": "~52.0.23",

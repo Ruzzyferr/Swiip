@@ -31,6 +31,13 @@ export default [
       'Kalçanı geriye ve aşağı götürerek in; dizlerin ayak parmakları yönünde açılsın.',
       'Uyluk yere paralel olana kadar in, belin yuvarlanmaya başladığı noktayı geçme.',
     ],
+    talimat_en: [
+      'Set the bar on top of your traps, not on your neck.',
+      'Feet shoulder-width apart, toes turned slightly out.',
+      'Brace your core and keep your chest up.',
+      'Descend by sending your hips back and down; let your knees track over your toes.',
+      'Lower until your thighs are parallel to the floor; don’t go past the point where your lower back starts to round.',
+    ],
   },
   {
     id: 'goblet-squat',
@@ -56,6 +63,13 @@ export default [
       'Dirseklerin dizlerinin içine değecek şekilde derine in.',
       'Göğsünü yukarıda tut; ağırlık öne düşmesine izin verme.',
       'Bu varyant squat tekniğini öğrenmenin en güvenli yoludur.',
+    ],
+    talimat_en: [
+      'Hold a dumbbell vertically in front of your chest.',
+      'Feet shoulder-width apart, toes turned slightly out.',
+      'Squat deep enough that your elbows touch the inside of your knees.',
+      'Keep your chest up; don’t let the weight pull you forward.',
+      'This variation is the safest way to learn squat technique.',
     ],
   },
   {
@@ -84,6 +98,13 @@ export default [
       'Uyluk yere paralel olana kadar in.',
       'Yukarı kalkarken topuklarınla yeri it.',
     ],
+    talimat_en: [
+      'Feet shoulder-width apart, arms out in front for balance.',
+      'Lower by sending your hips back.',
+      'Keep your heels on the floor.',
+      'Lower until your thighs are parallel to the floor.',
+      'Drive through your heels as you stand back up.',
+    ],
   },
   {
     id: 'leg-press',
@@ -110,6 +131,13 @@ export default [
       'Kalçan sırtlıktan kalkmaya başladığı noktayı geçme; bel için en riskli hata bu.',
       'Yukarıda dizlerini tam kilitleme.',
     ],
+    talimat_en: [
+      'Place your feet in the middle of the platform, shoulder-width apart.',
+      'Keep your back and hips pressed firmly against the pad.',
+      'Lower until your knees reach 90 degrees.',
+      'Don’t go past the point where your hips start to lift off the pad; this is the riskiest mistake for your lower back.',
+      'Don’t fully lock out your knees at the top.',
+    ],
   },
   {
     id: 'hack-squat',
@@ -135,6 +163,13 @@ export default [
       'Kilidi aç, kontrollü in.',
       'Uyluk yere paralel olana kadar in.',
       'Dizlerin ayak parmakları yönünde açılsın, içe çökmesin.',
+    ],
+    talimat_en: [
+      'Position your shoulders under the pads with your back flat against the backrest.',
+      'Place your feet in the middle of the platform.',
+      'Release the safety and lower under control.',
+      'Lower until your thighs are parallel to the floor.',
+      'Let your knees track over your toes; don’t let them cave in.',
     ],
   },
   {
@@ -163,6 +198,13 @@ export default [
       'Arka dizin yere yaklaşsın ama değmesin.',
       'Ön ayağın topuğuyla yeri iterek kalk.',
     ],
+    talimat_en: [
+      'Rest your rear foot on the bench, with your front foot one step ahead.',
+      'Keep your torso upright; don’t lean forward.',
+      'Lower down, keeping your front knee over your ankle.',
+      'Bring your rear knee close to the floor without touching it.',
+      'Drive through your front heel to stand back up.',
+    ],
   },
   {
     id: 'lunge',
@@ -190,6 +232,13 @@ export default [
       'Ön topuğunla iterek kalk ve diğer ayakla devam et.',
       'Dengeni zor buluyorsan sabit lunge yaparak başla.',
     ],
+    talimat_en: [
+      'Hold the dumbbells at your sides and keep your torso upright.',
+      'Step forward and lower your back knee toward the floor.',
+      'Don’t let your front knee travel far past your toes.',
+      'Push through your front heel to rise and continue with the other leg.',
+      'If balance is hard, start with stationary lunges.',
+    ],
   },
   {
     id: 'leg-extension',
@@ -215,6 +264,13 @@ export default [
       'Bacaklarını yukarı uzat, tepede bir an sık.',
       'Yavaş indir, ağırlığı düşürme.',
       'Diz önü ağrın varsa menzilin üst yarısında çalış.',
+    ],
+    talimat_en: [
+      'Set the pad just above your ankles.',
+      'Sit back against the backrest and hold the handles.',
+      'Extend your legs and squeeze briefly at the top.',
+      'Lower slowly; don’t let the weight drop.',
+      'If you have pain at the front of the knee, work in the upper half of the range.',
     ],
   },
   {
@@ -242,6 +298,13 @@ export default [
       'Hamstringlerinde gerilme hissettiğin noktada dur.',
       'Belin yuvarlanmaya başlıyorsa hemen dur; menzilin sınırı orasıdır.',
     ],
+    talimat_en: [
+      'Hold the bar at hip height with a shoulder-width grip.',
+      'Bend your knees slightly and keep that angle fixed.',
+      'Push your hips back and let the bar slide down along your legs.',
+      'Stop at the point where you feel a stretch in your hamstrings.',
+      'If your lower back starts to round, stop right there; that is the limit of your range.',
+    ],
   },
   {
     id: 'barbell-deadlift',
@@ -267,6 +330,13 @@ export default [
       'Göğsünü yukarı çek, belini düzleştir; sırt yuvarlanmasın.',
       'Bacaklarınla yeri iterek kalk, bar vücuduna yakın kalsın.',
       'Tepede kalçanı öne kilitle; geriye yaslanma.',
+    ],
+    talimat_en: [
+      'Set the bar over the middle of your feet, close to your shins.',
+      'Hinge at the hips and grip the bar at shoulder width.',
+      'Lift your chest and flatten your lower back; don’t let your back round.',
+      'Stand up by pushing the floor away with your legs, keeping the bar close to your body.',
+      'Lock out by driving your hips forward at the top; don’t lean back.',
     ],
   },
   {
@@ -294,6 +364,13 @@ export default [
       'Bu varyantta yük vücudun merkezine daha yakındır; bel için daha güvenlidir.',
       'Tepede omuzlarını geriye çek, kalçanı kilitle.',
     ],
+    talimat_en: [
+      'Stand in the center of the trap bar and grip the handles.',
+      'Send your hips back and down and lift your chest.',
+      'Lift the load from the middle of your feet.',
+      'In this variation the load sits closer to your center of mass, making it safer for your lower back.',
+      'At the top, pull your shoulders back and lock out your hips.',
+    ],
   },
   {
     id: 'hip-thrust',
@@ -319,6 +396,13 @@ export default [
       'Ayakların dizlerin altına gelecek şekilde konumlansın.',
       'Kalçanı yukarı it, tepede gövden yere paralel olsun ve kalçanı sık.',
       'Belini geriye kavislendirme; hareket kalçadan gelsin.',
+    ],
+    talimat_en: [
+      'Rest your upper back against the edge of a bench.',
+      'Place the bar over your hips with a pad underneath.',
+      'Position your feet so they end up under your knees.',
+      'Drive your hips up until your torso is parallel to the floor at the top, and squeeze your glutes.',
+      'Don’t arch your lower back; the movement should come from your hips.',
     ],
   },
   {
@@ -347,6 +431,13 @@ export default [
       'Belini aşırı kavislendirme; karnını hafif sık.',
       'Kolaylaştığında karnına ağırlık koyabilir veya hip thrust’a geçebilirsin.',
     ],
+    talimat_en: [
+      'Lie on your back, bend your knees and plant your feet on the floor.',
+      'Lift your hips so your body forms a straight line from knees to shoulders.',
+      'Squeeze your glutes for two seconds at the top.',
+      'Don’t overarch your lower back; keep your core lightly braced.',
+      'When it gets easy, you can place a weight on your hips or progress to hip thrusts.',
+    ],
   },
   {
     id: 'kablo-pull-through',
@@ -373,6 +464,13 @@ export default [
       'Kalçanı öne iterek doğrul, tepede kalçanı sık.',
       'Bu hareket kalça menteşesini bele yük binmeden öğretir.',
     ],
+    talimat_en: [
+      'Set the pulley to the lowest position and grab the rope through your legs.',
+      'Face away from the machine and walk a few steps forward.',
+      'Push your hips back and let your torso tilt forward.',
+      'Drive your hips forward to stand tall and squeeze your glutes at the top.',
+      'This movement teaches the hip hinge without loading your lower back.',
+    ],
   },
   {
     id: 'makine-hamstring-curl',
@@ -398,6 +496,13 @@ export default [
       'Topuklarını kalçana doğru çek.',
       'Tepede bir an sık.',
       'Yavaş indir; hamstring en çok bu bölümde çalışır.',
+    ],
+    talimat_en: [
+      'Set the pad just above your ankles.',
+      'Keep your hips pressed into the pad; don’t let them lift.',
+      'Curl your heels toward your glutes.',
+      'Squeeze briefly at the top.',
+      'Lower slowly; this is where the hamstrings work the most.',
     ],
   },
   {
@@ -426,6 +531,13 @@ export default [
       'Dayanabildiğin yere kadar in, sonra ellerinle yeri iterek dön.',
       'Çok zorlayıcı bir harekettir; 3-5 tekrarla başla.',
     ],
+    talimat_en: [
+      'Kneel down and have someone hold your ankles or anchor them.',
+      'Keep your body in a straight line from knees to head.',
+      'Lean forward slowly and under control.',
+      'Lower as far as you can hold, then push off the floor with your hands to return.',
+      'This is a very demanding exercise; start with 3-5 reps.',
+    ],
   },
   {
     id: 'iyi-sabah',
@@ -452,6 +564,13 @@ export default [
       'Belini düz tut; yuvarlandığı anda dur.',
       'Hafif ağırlıkla çalış; bu hareket ağırlık yarışı değildir.',
     ],
+    talimat_en: [
+      'Set the bar on your traps as you would for a squat.',
+      'Bend your knees slightly and keep them fixed.',
+      'Push your hips back to tilt your torso forward.',
+      'Keep your back flat; stop the moment it starts to round.',
+      'Use a light weight; this exercise is not about lifting heavy.',
+    ],
   },
   {
     id: 'kalca-abduksiyon',
@@ -477,6 +596,13 @@ export default [
       'Bacaklarını dışa doğru aç.',
       'Dışarıda bir an sık.',
       'Kontrollü kapat, ağırlıkları çarptırma.',
+    ],
+    talimat_en: [
+      'Sit so the pads rest against the outside of your knees.',
+      'Lean your torso slightly forward; this works your glutes more.',
+      'Push your legs outward.',
+      'Squeeze briefly at the outer position.',
+      'Close under control; don’t let the weights slam.',
     ],
   },
   {
@@ -505,6 +631,13 @@ export default [
       'Dizlerinin içe çökmesine izin verme.',
       'Isınma ve kalça aktivasyonu için idealdir.',
     ],
+    talimat_en: [
+      'Place the band just above your knees or around your ankles.',
+      'Drop into a shallow squat position.',
+      'Step sideways while keeping tension on the band.',
+      'Don’t let your knees cave inward.',
+      'Ideal for warming up and activating your glutes.',
+    ],
   },
   {
     id: 'ayakta-baldir',
@@ -531,6 +664,13 @@ export default [
       'Zıplayarak yapma; her tekrar kontrollü olsun.',
       'Tam menzil kullan; yarım tekrar bu kasta işe yaramaz.',
     ],
+    talimat_en: [
+      'Place the balls of your feet on the platform with your heels hanging free.',
+      'Lower your heels and feel the stretch in your calves.',
+      'Rise onto your toes and squeeze for two seconds at the top.',
+      'Don’t bounce; keep every rep controlled.',
+      'Use the full range of motion; half reps don’t work for this muscle.',
+    ],
   },
   {
     id: 'oturarak-baldir',
@@ -556,6 +696,13 @@ export default [
       'Topuklarını indir, sonra yüksel.',
       'Diz bükülü olduğu için baldırın derin kası daha çok çalışır.',
       'Yavaş ve tam menzille çalış.',
+    ],
+    talimat_en: [
+      'Set the pad on top of your thighs, close to your knees.',
+      'Place the balls of your feet on the platform.',
+      'Lower your heels, then rise up.',
+      'Because the knee is bent, the deeper calf muscle does more of the work.',
+      'Work slowly and through the full range of motion.',
     ],
   },
   {
@@ -584,6 +731,13 @@ export default [
       'Tepede iki saniye sık.',
       'Tek ayakla yaparak zorlaştırabilirsin.',
     ],
+    talimat_en: [
+      'Hold the dumbbells at your sides.',
+      'Stand with the balls of your feet on a raised surface (a book or a plate).',
+      'Lower your heels, then rise onto your toes.',
+      'Squeeze for two seconds at the top.',
+      'You can make it harder by doing it on one leg.',
+    ],
   },
   {
     id: 'vucut-agirligi-baldir',
@@ -610,6 +764,13 @@ export default [
       'Topukları indir, sonra yüksel.',
       'Yüksek tekrar çalış: 15-25 tekrar uygundur.',
       'Tek ayakla yaparak yükü ikiye katlayabilirsin.',
+    ],
+    talimat_en: [
+      'Stand with the balls of your feet on the edge of a step.',
+      'You can use a wall for balance.',
+      'Lower your heels, then rise up.',
+      'Work with high reps: 15-25 reps is appropriate.',
+      'Doing it on one leg doubles the load.',
     ],
   },
   {
@@ -638,6 +799,13 @@ export default [
       'Kontrollü in, aynı ayakla devam et.',
       'Basamak yüksekliğini dizin rahat ettiği seviyede tut.',
     ],
+    talimat_en: [
+      'Choose a sturdy box or step at about knee height.',
+      'Place your whole foot on the step.',
+      'Step up by pushing through your top leg; don’t bounce off your back foot.',
+      'Step down under control and repeat with the same foot.',
+      'Keep the step at a height that is comfortable for your knee.',
+    ],
   },
   {
     id: 'sumo-deadlift',
@@ -664,6 +832,13 @@ export default [
       'Dizlerini dışa doğru iterek kalk.',
       'Bu varyant gövdeyi daha dik tuttuğu için bele daha az yük bindirir.',
     ],
+    talimat_en: [
+      'Take a wide stance with your toes turned out.',
+      'Grip the bar between your legs at shoulder width.',
+      'Lower your hips and lift your chest.',
+      'Stand up while pushing your knees outward.',
+      'This variation keeps your torso more upright, so it puts less load on your lower back.',
+    ],
   },
   {
     id: 'kettlebell-swing',
@@ -689,6 +864,13 @@ export default [
       'Kalçanı hızla öne iterek gövdeni doğrult.',
       'Kettlebell göğüs hizasına kadar çıksın; kolla kaldırma.',
       'Hareket kalçadan gelir, omuzdan değil.',
+    ],
+    talimat_en: [
+      'Place the kettlebell in front of your feet and grab it by hinging at the hips.',
+      'Hike the kettlebell back between your legs.',
+      'Snap your hips forward to stand up straight.',
+      'Let the kettlebell rise to chest height; don’t lift it with your arms.',
+      'The movement comes from your hips, not your shoulders.',
     ],
   },
 ];

@@ -1,5 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  AppState,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
 import { router } from 'expo-router';
 import type { PorsiyonRehberi } from '@swiip/core';
 import type { BeslenmeHedefi } from '@swiip/shared';
@@ -8,8 +17,8 @@ import {
   BaglantiSatiri,
   BosDurum,
   Dugme,
-  Etiket,
   Kart,
+  KlavyeKaydirma,
   Satir,
   Sayi,
   Sutun,
@@ -20,17 +29,21 @@ import {
 import { useTema } from '../../src/tasarim/tema';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import {
+  besinAdi,
   bugunMu,
   gelecekMi,
   gunKaydir,
   islemHatasiMetni,
-  kisaTarihMetni,
+  gunBaslikMetni,
+  ogunTahmini,
+  porsiyonAdi,
   yerelGun,
 } from '@swiip/shared';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
 import { sunucuMetni } from '../../src/veri/sunucuMetni';
 import { ReklamBanner } from '../../src/reklam/ReklamBanner';
 import { useReklamHakki } from '../../src/reklam/ReklamHakki';
+import { useOdaktaTazele } from '../../src/durum/tazele';
 import { gecisReklamiGoster, gecisReklamiHazirla } from '../../src/reklam/gecisReklami';
 
 /**
@@ -67,7 +80,12 @@ interface GunCevabi {
     id: string;
     /** Besin adı. Sunucu `foods` ile birleştirip gönderiyor; serbest kalemde boş olabilir. */
     ad: string | null;
-    /** Çözülmüş porsiyon adı ("kase", "dilim"). Yoksa gram gösterilir. */
+    /** İngilizce ad; İngilizce arayüzde bu gösterilir, yoksa `ad`. */
+    ad_en?: string | null;
+    /**
+     * Sunucunun çözdüğü porsiyon adı (Türkçe veri). Görünen metin `portion_id` ile
+     * sözlükten geliyor; bu yalnızca sözlükte karşılığı olmayan kimlik için yedek.
+     */
     porsiyon_adi: string | null;
     ogun: string | null;
     quantity: string;
@@ -83,6 +101,7 @@ interface GunCevabi {
 interface BesinSonucu {
   id: string;
   name_tr: string;
+  name_en?: string | null;
   per_100g: { kalori: number; protein_g: number; yag_g: number; karbonhidrat_g: number };
   portions: Array<{ id: string; ad: string; gram: number }>;
 }
@@ -109,6 +128,34 @@ export default function Beslenme() {
   const [secilenGun, setSecilenGun] = useState(yerelGun());
   const bugun = secilenGun;
 
+  /*
+    Gece yarısını geçen sekme "bugün"de kalmalı.
+
+    Sekme açık kalıyor (uygulama arka plana atılıp sabah geri açılıyor). Eskiden gün
+    her çizimde `yerelGun()`den okunuyordu; durum olunca açılıştaki günde DONUYORDU:
+    sabah açan kullanıcı dünü görüyor ve kahvaltısı düne yazılıyordu. Kullanıcı
+    "bugün"e bakıyorduysa ön plana dönüşte yeni güne geçiliyor; bilerek geçmiş bir
+    güne gitmişse dokunulmuyor.
+  */
+  const sonBugun = useRef(yerelGun());
+  useEffect(() => {
+    const abonelik = AppState.addEventListener('change', (durum) => {
+      if (durum !== 'active') return;
+      const simdi = yerelGun();
+      if (simdi === sonBugun.current) return;
+      const onceki = sonBugun.current;
+      sonBugun.current = simdi;
+      setSecilenGun((g) => (g === onceki ? simdi : g));
+    });
+    return () => abonelik.remove();
+  }, []);
+
+  /*
+    Hızlı gün değişiminde yalnız SON istenen günün cevabı yazılıyor. Cevaplar sırasız
+    dönebiliyor; aksi hâlde başlık bir günü, liste başka bir günü gösterirdi.
+  */
+  const istenenGun = useRef(bugun);
+
   const [hedef, setHedef] = useState<HedefCevabi | null>(null);
   /* Kilit metni sunucunun Türkçe yedeğinden değil, kodundan kuruluyor. */
   const kilitMetni = sunucuMetni(hedef, tumMetinler);
@@ -117,20 +164,55 @@ export default function Beslenme() {
   const [hata, setHata] = useState<string | null>(null);
   const [hataKodu, setHataKodu] = useState<string | null>(null);
   const [aramaAcik, setAramaAcik] = useState(false);
+  const [islemHatasi, setIslemHatasi] = useState<string | null>(null);
+
+  /*
+    Arama kutusuna odaklanınca kutu görünür alanın ÜSTÜNE geliyor.
+
+    Klavye açılınca kutu klavyenin hemen üstünde kalıyordu ve sonuçlar klavyenin
+    ARKASINDA listeleniyordu: kullanıcı yazıyor, sonuç görmüyor, klavyeyi kapatıp
+    aşağı kaydırmak zorunda kalıyordu. Kutu yukarıda olunca sonuçlar yazarken görünüyor.
+  */
+  const sayfa = useRef<ScrollView>(null);
+  const aramaY = useRef(0);
+  const aramayiYukariAl = useCallback(() => {
+    /*
+      Klavye TAMAMEN açıldıktan sonra: kabın kendi "odaklı alanı görünür yap"
+      kaydırması (`KlavyeKaydirma`, klavye açıldıktan 120 ms sonra) bundan önce
+      çalışmalı, yoksa onun küçük kaydırması bunun üstüne yazıyor.
+    */
+    const abonelik = Keyboard.addListener('keyboardDidShow', () => {
+      abonelik.remove();
+      setTimeout(() => {
+        sayfa.current?.scrollTo({ y: Math.max(0, aramaY.current), animated: true });
+      }, 250);
+    });
+    // Klavye zaten açıksa olay gelmez; dinleyici bir sonrakinde temizlenir.
+    setTimeout(() => abonelik.remove(), 1500);
+  }, []);
 
   const yukle = useCallback(async () => {
+    istenenGun.current = bugun;
     try {
       const [h, g] = await Promise.all([
         istek<HedefCevabi>('/v1/beslenme/hedef'),
         istek<GunCevabi>(`/v1/beslenme/gun/${bugun}`),
       ]);
+      if (istenenGun.current !== bugun) return;
       setHedef(h);
       setGun(g);
       setHata(null);
       setHataKodu(null);
     } catch (h) {
+      if (istenenGun.current !== bugun) return;
       setHata(h instanceof ApiHatasi ? h.mesaj : m.yuklenemedi);
       setHataKodu(h instanceof ApiHatasi ? h.kod : null);
+      /*
+        Önceki günün kayıtları YENİ günün başlığı altında kalmasın. Çevrimdışı gün
+        değiştiren kullanıcı dünün listesini "bugün" sanıyordu ve hiçbir hata
+        görmüyordu — hata yalnızca hedef hiç yokken çiziliyordu.
+      */
+      setGun((onceki) => (onceki && onceki.gun === bugun ? onceki : null));
     } finally {
       setHazir(true);
     }
@@ -139,6 +221,20 @@ export default function Beslenme() {
   useEffect(() => {
     void yukle();
   }, [yukle]);
+
+  /*
+    Fotoğraftan / barkoddan onaylanan öğün, sekmeye dönüldüğünde görünsün.
+    Eskiden görünmüyordu ve kullanıcı kaydın düştüğünü sanıp ikinci kez giriyordu.
+  */
+  useOdaktaTazele(yukle);
+
+  /*
+    Su cevabı yalnızca İSTENDİĞİ günün üstüne yazılıyor. Bardak eklenip hemen gün
+    değiştirilirse, eski günün toplamı yeni günün kartına basılıyordu.
+  */
+  const suDegisti = useCallback((ml: number, suGun: string) => {
+    setGun((onceki) => (onceki && onceki.gun === suGun ? { ...onceki, su_ml: ml } : onceki));
+  }, []);
 
   /**
    * Yanlış girilen kalem silinebilir.
@@ -154,9 +250,11 @@ export default function Beslenme() {
         text: m.sil,
         style: 'destructive',
         onPress: () => {
+          setIslemHatasi(null);
           void istek(`/v1/beslenme/kayit/${id}`, { yontem: 'DELETE' })
             .then(() => yukle())
-            .catch((h) => setHata(h instanceof ApiHatasi ? h.mesaj : m.silinemedi));
+            // Hedef ekranındaki genel `hata` burada ÇİZİLMİYOR; silme hatası listenin yanında.
+            .catch((h) => setIslemHatasi(h instanceof ApiHatasi ? h.mesaj : m.silinemedi));
         },
       },
     ]);
@@ -168,8 +266,10 @@ export default function Beslenme() {
    * `portion_id` ham bir katalog anahtarı; doğrudan basılınca kullanıcı `kase-orta`
    * gibi bir dize görüyordu. Karşılığı yoksa gram varsayılıyor.
    */
-  const miktarMetni = (miktar: string, porsiyonAdi: string | null) =>
-    porsiyonAdi ? `${miktar} ${porsiyonAdi}` : `${miktar} g`;
+  const miktarMetni = (miktar: string, porsiyonId: string | null, yedekAd: string | null) => {
+    const ad = porsiyonAdi(m.porsiyonlar, porsiyonId, yedekAd, Number(miktar));
+    return ad || `${Number(miktar)} g`;
+  };
 
   if (!hazir) {
     return (
@@ -224,6 +324,16 @@ export default function Beslenme() {
           <Yazi tur="etiket" renk="metinSilik" hizala="center">
             {m.edSayiNotu}
           </Yazi>
+
+          {/* Su ED modunda da görünür: bir enerji ölçüsü değil (bkz. `SuKarti`). */}
+          {hedef.su_hedefi_ml ? (
+            <SuKarti
+              gun={bugun}
+              suMl={gun?.su_ml ?? 0}
+              hedefMl={hedef.su_hedefi_ml}
+              onDegisti={suDegisti}
+            />
+          ) : null}
         </Sutun>
       </ScrollView>
     );
@@ -232,7 +342,7 @@ export default function Beslenme() {
   const h = hedef?.hedef;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: tema.renk.zemin }}>
+    <KlavyeKaydirma kaydirmaRef={sayfa}>
       <Sutun>
         {/*
           Tarih gezinme.
@@ -271,9 +381,15 @@ export default function Beslenme() {
             }}
           >
             <Yazi tur="baslik1">
+              {/*
+                "02.10.2026" yerine göreli: Bugün / Dün / "2 Ekim Cuma". Gün gezgini bir
+                günlük; kullanıcı haftanın gününü tarihten hesaplamak zorunda kalmamalı.
+              */}
               {bugunMu(secilenGun)
                 ? m.bugun
-                : kisaTarihMetni(new Date(`${secilenGun}T00:00:00`), dil)}
+                : secilenGun === gunKaydir(yerelGun(), -1)
+                  ? m.dun
+                  : gunBaslikMetni(new Date(`${secilenGun}T00:00:00`), dil)}
             </Yazi>
           </Pressable>
 
@@ -375,45 +491,30 @@ export default function Beslenme() {
 
         {h?.uyari ? <Uyari tur="uyari" govde={h.uyari} /> : null}
 
-        {h ? (
-          <Kart>
-            <Yazi tur="baslik3">{m.hedefNasilHesaplandi}</Yazi>
-            <Satir dagit="space-between">
-              <Yazi tur="kucuk" renk="metinYumusak">
-                {m.bazalMetabolizma(
-                  h.yontem === 'katch_mcardle' ? 'Katch-McArdle' : 'Mifflin-St Jeor',
-                )}
-              </Yazi>
-              <Sayi tur="kucuk">{h.bmr}</Sayi>
-            </Satir>
-            <Satir dagit="space-between">
-              <Yazi tur="kucuk" renk="metinYumusak">
-                {m.gunlukHarcama}
-              </Yazi>
-              <Sayi tur="kucuk">{h.tdee}</Sayi>
-            </Satir>
-            <Satir dagit="space-between">
-              <Yazi tur="kucuk" renk="metinYumusak">
-                {m.hedefeGoreFark}
-              </Yazi>
-              <Sayi tur="kucuk" renk={h.kalori_farki < 0 ? 'uyari' : 'aksan'}>
-                {h.kalori_farki > 0 ? '+' : ''}
-                {h.kalori_farki}
-              </Sayi>
-            </Satir>
-            <Ayirac />
-            <Yazi tur="etiket" renk="metinSilik">
-              {m.duzeltmeNotu}
-            </Yazi>
-          </Kart>
-        ) : null}
-
         <Dugme
           baslik={aramaAcik ? m.aramayiKapat : m.yemekEkle}
           onPress={() => setAramaAcik(!aramaAcik)}
         />
 
-        <Satir arasi="sm">
+        {/*
+          Arama, açan düğmenin HEMEN altında.
+
+          Planlama listesinin altındaydı: "Yemek ekle"ye basan kullanıcı ekranda hiçbir
+          şeyin değişmediğini görüyordu — panel görünür alanın dışında açılıyordu.
+          Kullanıcının kendi dokunuşuyla açılan bir panel altını itebilir; itilen şey
+          onun dokunmadığı satırlar.
+        */}
+        {aramaAcik ? (
+          <View
+            onLayout={(olay) => {
+              aramaY.current = olay.nativeEvent.layout.y;
+            }}
+          >
+            <BesinArama gun={bugun} onEklendi={() => void yukle()} onAramaOdak={aramayiYukariAl} />
+          </View>
+        ) : null}
+
+        <Satir arasi="sm" hizala="stretch">
           <View style={{ flex: 1 }}>
             {/*
               Kilit ROZETİ burada da var — istisnasız.
@@ -429,6 +530,7 @@ export default function Beslenme() {
               tur="ikincil"
               kilitli={hedef?.kilitler?.yemek_tanima}
               kilitPlan="pro"
+              uzat
               onPress={() => router.push('/beslenme/tanima')}
             />
           </View>
@@ -437,6 +539,7 @@ export default function Beslenme() {
               baslik={m.barkodOkut}
               tur="ikincil"
               kilitli={hedef?.kilitler?.barkod}
+              uzat
               onPress={() => router.push('/beslenme/barkod')}
             />
           </View>
@@ -483,11 +586,19 @@ export default function Beslenme() {
           </View>
         </View>
 
-        {aramaAcik ? <BesinArama gun={bugun} onEklendi={() => void yukle()} /> : null}
+        {islemHatasi ? <Uyari tur="tehlike" govde={islemHatasi} /> : null}
 
-        {gun && gun.kayitlar.length > 0 ? (
+        {hata && !gun ? (
           <Kart>
-            <Yazi tur="baslik3">{m.bugunYediklerin}</Yazi>
+            <Yazi tur="kucuk" renk="metinYumusak">
+              {hata}
+            </Yazi>
+            <Dugme baslik={genel.yeniden} tur="ikincil" onPress={() => void yukle()} />
+          </Kart>
+        ) : gun && gun.kayitlar.length > 0 ? (
+          <Kart>
+            {/* Geçmiş bir güne bakarken de "Bugün" yazıyordu. */}
+            <Yazi tur="baslik3">{bugunMu(secilenGun) ? m.bugunYediklerin : m.gunYediklerin}</Yazi>
             {/*
               Satırda ÖNCE yemek adı var.
               Eskiden yalnızca `{quantity} {portion_id ?? 'g'}` yazıyordu; sunucu adı hiç
@@ -521,35 +632,40 @@ export default function Beslenme() {
                     {kalori}
                   </Sayi>
                 </Satir>
-                {kayitlar.map((kayit) => (
-                  <Satir key={kayit.id} dagit="space-between">
-                    <View style={{ flex: 1 }}>
-                      <Yazi tur="kucuk">{kayit.ad ?? m.adsizKalem}</Yazi>
-                      <Yazi tur="etiket" renk="metinSilik">
-                        {miktarMetni(kayit.quantity, kayit.porsiyon_adi)}
-                      </Yazi>
-                    </View>
-                    <Satir>
-                      <Sayi tur="kucuk">{kayit.hesaplanan.kalori} kcal</Sayi>
-                      <Pressable
-                        onPress={() => kaydiSil(kayit.id)}
-                        accessibilityRole="button"
-                        accessibilityLabel={m.kaydiSilErisim(kayit.ad ?? m.adsizKalem)}
-                        hitSlop={12}
-                        style={{
-                          minWidth: tema.dokunmaHedefi,
-                          minHeight: tema.dokunmaHedefi,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Yazi tur="kucuk" renk="metinSilik">
-                          {m.sil}
+                {kayitlar.map((kayit) => {
+                  const kalemAdi = kayit.ad
+                    ? besinAdi({ name_tr: kayit.ad, name_en: kayit.ad_en }, dil)
+                    : m.adsizKalem;
+                  return (
+                    <Satir key={kayit.id} dagit="space-between">
+                      <View style={{ flex: 1 }}>
+                        <Yazi tur="kucuk">{kalemAdi}</Yazi>
+                        <Yazi tur="etiket" renk="metinSilik">
+                          {miktarMetni(kayit.quantity, kayit.portion_id, kayit.porsiyon_adi)}
                         </Yazi>
-                      </Pressable>
+                      </View>
+                      <Satir>
+                        <Sayi tur="kucuk">{kayit.hesaplanan.kalori} kcal</Sayi>
+                        <Pressable
+                          onPress={() => kaydiSil(kayit.id)}
+                          accessibilityRole="button"
+                          accessibilityLabel={m.kaydiSilErisim(kalemAdi)}
+                          hitSlop={12}
+                          style={{
+                            minWidth: tema.dokunmaHedefi,
+                            minHeight: tema.dokunmaHedefi,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Yazi tur="kucuk" renk="metinSilik">
+                            {m.sil}
+                          </Yazi>
+                        </Pressable>
+                      </Satir>
                     </Satir>
-                  </Satir>
-                ))}
+                  );
+                })}
               </View>
             ))}
           </Kart>
@@ -570,11 +686,52 @@ export default function Beslenme() {
             gun={bugun}
             suMl={gun?.su_ml ?? 0}
             hedefMl={hedef.su_hedefi_ml}
-            onDegisti={(ml) => setGun((onceki) => (onceki ? { ...onceki, su_ml: ml } : onceki))}
+            onDegisti={suDegisti}
           />
         ) : null}
+
+        {/*
+          "Hedef nasıl hesaplandı" SAYFANIN SONUNDA.
+
+          Kalori kartı ile "Yemek ekle" arasındaydı: günde birkaç kez yapılan asıl iş
+          (yemek eklemek) her açılışta ekranın dibine itiliyor, her gün aynı kalan bir
+          açıklama onun önünü kesiyordu. Gerekçe kaybolmadı — ürünün tezi bu — yalnızca
+          günlük işin arkasına geçti.
+        */}
+        {h ? (
+          <Kart>
+            <Yazi tur="baslik3">{m.hedefNasilHesaplandi}</Yazi>
+            <Satir dagit="space-between">
+              <Yazi tur="kucuk" renk="metinYumusak">
+                {m.bazalMetabolizma(
+                  h.yontem === 'katch_mcardle' ? 'Katch-McArdle' : 'Mifflin-St Jeor',
+                )}
+              </Yazi>
+              <Sayi tur="kucuk">{h.bmr}</Sayi>
+            </Satir>
+            <Satir dagit="space-between">
+              <Yazi tur="kucuk" renk="metinYumusak">
+                {m.gunlukHarcama}
+              </Yazi>
+              <Sayi tur="kucuk">{h.tdee}</Sayi>
+            </Satir>
+            <Satir dagit="space-between">
+              <Yazi tur="kucuk" renk="metinYumusak">
+                {m.hedefeGoreFark}
+              </Yazi>
+              <Sayi tur="kucuk" renk={h.kalori_farki < 0 ? 'uyari' : 'aksan'}>
+                {h.kalori_farki > 0 ? '+' : ''}
+                {h.kalori_farki}
+              </Sayi>
+            </Satir>
+            <Ayirac />
+            <Yazi tur="etiket" renk="metinSilik">
+              {m.duzeltmeNotu}
+            </Yazi>
+          </Kart>
+        ) : null}
       </Sutun>
-    </ScrollView>
+    </KlavyeKaydirma>
   );
 }
 
@@ -644,7 +801,15 @@ function MakroCubugu({ ad, mevcut, hedef }: { ad: string; mevcut: number; hedef:
   );
 }
 
-function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) {
+function BesinArama({
+  gun,
+  onEklendi,
+  onAramaOdak,
+}: {
+  gun: string;
+  onEklendi: () => void;
+  onAramaOdak?: () => void;
+}) {
   const ogunAdlari = useMetinler().ogun.ogunAdlari;
   const { goster: reklamGoster } = useReklamHakki();
 
@@ -677,6 +842,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
   */
   const [ogun, setOgun] = useState<string>(() => ogunTahmini(new Date()));
   const [ekleHatasi, setEkleHatasi] = useState<string | null>(null);
+  const [ekleniyor, setEkleniyor] = useState(false);
   const dil = useDil();
 
   useEffect(() => {
@@ -684,34 +850,63 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
       setSonuclar([]);
       return;
     }
+    /*
+      Eski sorgunun cevabı yeni sorgunun sonuçlarının üstüne yazılmasın: cevaplar
+      sırasız dönebiliyor ve "tavuk" yazan kullanıcı "ta"nın sonuçlarını görüyordu.
+    */
+    let gecerli = true;
     const zamanlayici = setTimeout(() => {
       void istek<{ sonuclar: BesinSonucu[] }>(
         `/v1/beslenme/besin/ara?q=${encodeURIComponent(sorgu)}`,
       )
-        .then((c) => setSonuclar(c.sonuclar))
-        .catch(() => setSonuclar([]));
+        .then((c) => {
+          if (gecerli) setSonuclar(c.sonuclar);
+        })
+        .catch(() => {
+          if (gecerli) setSonuclar([]);
+        });
     }, 250);
-    return () => clearTimeout(zamanlayici);
+    return () => {
+      gecerli = false;
+      clearTimeout(zamanlayici);
+    };
   }, [sorgu]);
 
+  const miktarSayisi = Number(miktar.replace(',', '.'));
+  /* Boş, sıfır ya da sayı olmayan miktar sessizce "1" sayılmıyor — düğme kapanıyor. */
+  const miktarGecerli = Number.isFinite(miktarSayisi) && miktarSayisi > 0;
+  const seciliPorsiyon = secili?.portions.find((p) => p.id === porsiyon);
+  const eklenecekGram = seciliPorsiyon ? miktarSayisi * seciliPorsiyon.gram : miktarSayisi;
+
   const ekle = async () => {
-    if (!secili) return;
-    let basarili = true;
-    await istek('/v1/beslenme/kayit', {
-      yontem: 'POST',
-      govde: {
-        food_id: secili.id,
-        miktar: Number(miktar.replace(',', '.')) || 1,
-        portion_id: porsiyon,
-        ogun,
-        gun,
-      },
-    }).catch(() => {
-      // Sessiz başarısızlık, kullanıcının yemeği eklediğini sanmasına yol açar.
+    // Çift dokunuş aynı yemeği iki kez yazıyordu.
+    if (!secili || ekleniyor || !miktarGecerli) return;
+    setEkleniyor(true);
+    setEkleHatasi(null);
+    try {
+      await istek('/v1/beslenme/kayit', {
+        yontem: 'POST',
+        govde: {
+          food_id: secili.id,
+          miktar: miktarSayisi,
+          portion_id: porsiyon,
+          ogun,
+          gun,
+        },
+      });
+    } catch {
+      /*
+        Başarısızlıkta seçim ve miktar YERİNDE kalıyor ve hata görünüyor.
+
+        Eskiden hata yazılıyor ama hemen ardından `setSecili(null)` çağrılıyordu;
+        hata yalnızca seçim açıkken çizildiği için kullanıcı hiçbir şey görmüyor,
+        girdiği miktar da siliniyordu.
+      */
       setEkleHatasi(islemHatasiMetni('yemek_ekle', dil));
-      basarili = false;
-      return null;
-    });
+      setEkleniyor(false);
+      return;
+    }
+    setEkleniyor(false);
 
     setSecili(null);
     setSorgu('');
@@ -732,7 +927,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
      *
      * Beklenmiyor (`void`): reklamın yüklenmesi kullanıcının akışını tutamaz.
      */
-    if (basarili) void gecisReklamiGoster(reklamGoster);
+    void gecisReklamiGoster(reklamGoster);
   };
 
   return (
@@ -743,6 +938,9 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
         placeholder={m.aramaIpucu}
         placeholderTextColor={tema.renk.metinSilik}
         accessibilityLabel={m.yemekArama}
+        onFocus={onAramaOdak}
+        returnKeyType="search"
+        autoCorrect={false}
         style={{
           minHeight: tema.dokunmaHedefi,
           borderWidth: StyleSheet.hairlineWidth,
@@ -774,7 +972,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
             >
               <Satir dagit="space-between">
                 <Yazi tur="kucuk" stil={{ flex: 1 }}>
-                  {besin.name_tr}
+                  {besinAdi(besin, dil)}
                 </Yazi>
                 <Sayi tur="etiket" renk="metinSilik">
                   {besin.per_100g.kalori} kcal/100g
@@ -786,7 +984,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
 
       {secili ? (
         <View style={{ gap: tema.bosluk.md }}>
-          <Yazi tur="baslik3">{secili.name_tr}</Yazi>
+          <Yazi tur="baslik3">{besinAdi(secili, dil)}</Yazi>
 
           <Satir arasi="sm">
             <TextInput
@@ -809,7 +1007,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
               }}
             />
             <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: tema.bosluk.xs }}>
-              {[...secili.portions, { id: 'gram', ad: 'gram', gram: 1 }].map((p) => (
+              {[...secili.portions, { id: 'gram', ad: m.gramBirimi, gram: 1 }].map((p) => (
                 <Pressable
                   key={p.id}
                   onPress={() => setPorsiyon(p.id === 'gram' ? null : p.id)}
@@ -833,11 +1031,34 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
                         : 'transparent',
                   }}
                 >
-                  <Yazi tur="kucuk">{p.ad}</Yazi>
+                  <Yazi tur="kucuk">
+                    {/*
+                      Çipte yalnızca BİRİM. "1 porsiyon" yazıyordu ve hemen yanındaki
+                      miktar kutusu da "1" diyordu: "1 × 1 porsiyon" okunuyordu.
+                    */}
+                    {p.id === 'gram'
+                      ? p.ad
+                      : (porsiyonAdi(m.porsiyonlar, p.id, p.ad) || p.ad).replace(/^1\s+/, '')}
+                  </Yazi>
                 </Pressable>
               ))}
             </View>
           </Satir>
+
+          {/*
+            Eklenecek miktarın gramı ve kalorisi, EKLEMEDEN önce. Kullanıcı "1 porsiyon
+            tavuk göğsü" seçtiğinde bunun kaç kalori olduğunu ancak ekledikten sonra
+            günlüğe bakarak öğrenebiliyordu. Formül sunucununkiyle aynı (miktar ×
+            bileşim); kaydedilen değeri yine sunucu hesaplıyor.
+          */}
+          {miktarGecerli ? (
+            <Sayi tur="kucuk" renk="metinYumusak">
+              {m.eklenecekOnizleme(
+                Math.round(eklenecekGram),
+                Math.round((eklenecekGram * secili.per_100g.kalori) / 100),
+              )}
+            </Sayi>
+          ) : null}
 
           {/* Öğün seçimi: dört seçenek, biri her zaman seçili. */}
           <Satir arasi="xs" sar>
@@ -845,7 +1066,7 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
               <Pressable
                 key={o}
                 accessibilityRole="radio"
-                accessibilityState={{ selected: ogun === o }}
+                accessibilityState={{ checked: ogun === o }}
                 onPress={() => setOgun(o)}
                 style={{
                   paddingHorizontal: tema.bosluk.md,
@@ -865,10 +1086,14 @@ function BesinArama({ gun, onEklendi }: { gun: string; onEklendi: () => void }) 
             ))}
           </Satir>
 
-          <Etiket metin={m.evOlcusuEtiketi} tur="aksan" />
           {ekleHatasi ? <Uyari tur="tehlike" govde={ekleHatasi} /> : null}
 
-          <Dugme baslik={genel.ekle} onPress={() => void ekle()} />
+          <Dugme
+            baslik={genel.ekle}
+            onPress={() => void ekle()}
+            yukleniyor={ekleniyor}
+            pasif={!miktarGecerli}
+          />
           <Dugme baslik={m.vazgec} tur="sessiz" onPress={() => setSecili(null)} />
         </View>
       ) : null}
@@ -889,21 +1114,6 @@ const OGUN_METIN_ANAHTARI = {
   aksam: 'aksam',
   ara: 'ara_ogun',
 } as const;
-
-/**
- * Saatten öğün tahmini.
- *
- * Sınırlar Türkiye'nin yaygın öğün saatlerine göre ve bilerek geniş: 05-11 kahvaltı,
- * 11-16 öğle, 16-22 akşam, kalanı ara öğün. Amaç doğru tahmin etmek değil, çoğu
- * zaman doğru olup kullanıcıyı bir dokunuştan kurtarmak.
- */
-function ogunTahmini(simdi: Date): string {
-  const saat = simdi.getHours();
-  if (saat >= 5 && saat < 11) return 'kahvalti';
-  if (saat >= 11 && saat < 16) return 'ogle';
-  if (saat >= 16 && saat < 22) return 'aksam';
-  return 'ara';
-}
 
 /**
  * Su kartı.
@@ -930,7 +1140,7 @@ function SuKarti({
   gun: string;
   suMl: number;
   hedefMl: number;
-  onDegisti: (ml: number) => void;
+  onDegisti: (ml: number, gun: string) => void;
 }) {
   const m = useMetinler().beslenme;
   const tema = useTema();
@@ -944,7 +1154,7 @@ function SuKarti({
         yontem: 'POST',
         govde: { ekle_ml: ekleMl, gun },
       });
-      onDegisti(cevap.ml);
+      onDegisti(cevap.ml, gun);
     } catch {
       // Sessizce geç: su kaydı başarısız olursa sayı olduğu yerde kalır, uygulama bozulmaz.
     } finally {

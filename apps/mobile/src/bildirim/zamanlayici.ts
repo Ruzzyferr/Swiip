@@ -66,23 +66,21 @@ Bildirimler.setNotificationHandler({
  * görebilmesi gerekiyor — bildirim ayarına uygulamadan değil telefon ayarlarından
  * bakan kullanıcı azınlık değil.
  */
-const KANAL_ADLARI: Record<BildirimTuru, string> = {
-  seans: 'Seans hatırlatması',
-  geri_bildirim: 'Geri bildirim hatırlatması',
-  haftalik_ozet: 'Haftalık özet',
-  olcum: 'Ölçüm hatırlatması',
-  su: 'Su hatırlatması',
-};
+/*
+ * Kanal adları kullanıcının dilinde (sözlükte `bildirim.kanalAdlari`). Kodda Türkçe
+ * sabitken İngilizce kullanıcı sistem ayarlarında Türkçe kanal adları görüyordu.
+ */
+type KanalAdlari = Record<BildirimTuru, string>;
 
 function kanalKimligi(tur: BildirimTuru): string {
   return `swiip-${tur}`;
 }
 
-async function kanallariKur(): Promise<void> {
+async function kanallariKur(adlar: KanalAdlari): Promise<void> {
   // Android dışında kanal kavramı yok; çağrı zararsız ama gereksiz.
   if (Platform.OS !== 'android') return;
 
-  for (const [tur, ad] of Object.entries(KANAL_ADLARI)) {
+  for (const [tur, ad] of Object.entries(adlar)) {
     await Bildirimler.setNotificationChannelAsync(kanalKimligi(tur as BildirimTuru), {
       name: ad,
       // VARSAYILAN, YÜKSEK değil: hatırlatma kesintiye uğratmaz.
@@ -111,7 +109,7 @@ function haftaGunuSdk(haftaGunu: number): number {
 export async function bildirimleriKur(
   tercihler: BildirimTercihleri,
   antrenmanGunleri: number[],
-  metinler: BildirimMetinleri,
+  metinler: BildirimMetinleri & { kanalAdlari: KanalAdlari },
   { izinIsteme = false }: { izinIsteme?: boolean } = {},
 ): Promise<ZamanlayiciDurumu> {
   const plan = bildirimPlaniHesapla(tercihler, { antrenmanGunleri }, metinler);
@@ -131,7 +129,7 @@ export async function bildirimleriKur(
   }
   if (!izin.granted) return { durum: 'izin_yok' };
 
-  await kanallariKur();
+  await kanallariKur(metinler.kanalAdlari);
 
   // Tam yeniden kurulum: kısmi güncelleme, iptal edilmiş bir tercihi hayatta bırakabilir.
   await Bildirimler.cancelAllScheduledNotificationsAsync();

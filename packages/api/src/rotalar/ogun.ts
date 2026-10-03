@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -133,10 +133,16 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
       throw HataliIstek('Önce değerlendirmeyi tamamla.', 'profil_yok');
     }
 
+    /**
+     * EN YENİ sürüm. Sırasız `limit(1)` keyfi bir satır döndürüyordu: "Değerlendirmeyi
+     * güncelle" ile yeni sürüm açıp alerjisini (B9) ekleyen kullanıcının destesi ve
+     * haftalık planı eski sürümün cevaplarından — alerjisiz — kuruluyordu.
+     */
     const [degerlendirme] = await db
       .select({ cevaplar: assessments.answers_jsonb })
       .from(assessments)
       .where(eq(assessments.user_id, kullaniciId))
+      .orderBy(desc(assessments.version))
       .limit(1);
 
     const cevaplar = (degerlendirme?.cevaplar ?? {}) as Record<string, unknown>;
@@ -262,6 +268,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
       tarifler,
       hedef,
       kisitlar,
+      ogunKodu: secili.kod,
       ...(envanter ? { envanter } : {}),
     });
 
@@ -389,7 +396,9 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
      * Eskiden gün döngüsünün içindeydi: aynı argümanlarla 21 kez, yani 18 gereksiz kez
      * tüm tarif kütüphanesi filtreleniyordu. Sonuç değişmiyordu, yalnızca iş artıyordu.
      */
-    const desteler = ogunler.map((ogun) => desteHazirla({ tarifler, hedef: ogun.hedef, kisitlar }));
+    const desteler = ogunler.map((ogun) =>
+      desteHazirla({ tarifler, hedef: ogun.hedef, kisitlar, ogunKodu: ogun.kod }),
+    );
 
     const gunler = Array.from({ length: 7 }, (_, gunIndeksi) => ({
       gun: gunIndeksi,
@@ -440,6 +449,15 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
 
     const envanter = await envanterGetir(istek.kullaniciId);
     const liste = alisverisListesi(seciliTarifler, envanter);
+
+    /**
+     * Plan aynı hafta için yeniden üretildiğinde (upsert) eski liste SİLİNİYOR.
+     *
+     * Her üretim yeni bir liste satırı ekliyordu; okuma ucu sırasız `limit(1)` ile
+     * okuduğu için kullanıcı yeniden ürettiği planın yanında ESKİ planın alışveriş
+     * listesini görebiliyordu.
+     */
+    await db.delete(shopping_lists).where(eq(shopping_lists.plan_id, plan!.id));
 
     await db.insert(shopping_lists).values({
       plan_id: plan!.id,
@@ -516,7 +534,7 @@ export async function ogunRotalari(app: FastifyInstance): Promise<void> {
     if (!hedefOgun) throw Bulunamadi('Bu öğün planda yok.', 'plan_ogunu_yok');
 
     const tarifler = await tarifleriGetir(istek.kullaniciId);
-    const deste = desteHazirla({ tarifler, hedef: secili.hedef, kisitlar });
+    const deste = desteHazirla({ tarifler, hedef: secili.hedef, kisitlar, ogunKodu: secili.kod });
     const secim = deste.kartlar.find((k) => k.id === govde.tarif_id);
 
     if (!secim) {

@@ -1,3 +1,4 @@
+import { metinleriAl } from '@swiip/shared';
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -57,9 +58,14 @@ describe('bildirim kanalları', () => {
   it('her hatırlatma türünün kendi kanalı var', () => {
     // Çekirdekteki tür listesiyle birebir: yeni bir tür eklenip kanalı unutulursa
     // o hatırlatma yedek kanala düşer ve kullanıcı onu ayrı ayarlayamaz.
-    for (const tur of ['seans', 'geri_bildirim', 'haftalik_ozet', 'olcum', 'su']) {
-      expect(KAYNAK, `${tur} için kanal adı yok`).toContain(`${tur}:`);
+    // Adlar sözlükte (kullanıcının dilinde); kodda Türkçe sabitken İngilizce kullanıcı
+    // sistem ayarlarında Türkçe kanal adları görüyordu.
+    for (const sozluk of [metinleriAl('tr'), metinleriAl('en')]) {
+      for (const tur of ['seans', 'geri_bildirim', 'haftalik_ozet', 'olcum', 'su'] as const) {
+        expect(sozluk.bildirim.kanalAdlari[tur], `${tur} için kanal adı yok`).toBeTruthy();
+      }
     }
+    expect(KAYNAK).toMatch(/kanallariKur\(metinler\.kanalAdlari\)/);
     expect(KAYNAK).toMatch(/setNotificationChannelAsync\s*\(/);
   });
 

@@ -142,6 +142,16 @@ describe('eslesmeSkoru', () => {
     expect(eslesmeSkoru('köfte', 'Pirinç pilavı')).toBeLessThan(0.3);
   });
 
+  it('kelimenin içindeki harf dizisi eşleşme sayılmaz: "su" sucuk değildir', () => {
+    // Eşik 0,4. Eskiden "su" → "Sucuk" 0,71 alıyordu; suya sucuğun kalorisi yazılıyordu.
+    expect(eslesmeSkoru('su', 'Sucuk')).toBeLessThan(0.4);
+    expect(eslesmeSkoru('et', 'Kereviz, çiğ')).toBeLessThan(0.4);
+  });
+
+  it('noktalama yalnızca olan ad hiçbir şeye eşleşmez', () => {
+    expect(eslesmeSkoru('...', 'Pirinç pilavı')).toBe(0);
+  });
+
   it('Türkçe karakter farkı eşleşmeyi bozmaz', () => {
     expect(eslesmeSkoru('pilav', 'Pirinç pilavı')).toBeGreaterThan(0.4);
   });

@@ -1,4 +1,4 @@
-import { and, count, eq, gte, lt, or } from 'drizzle-orm';
+import { and, count, eq, gte, lt, or, sql } from 'drizzle-orm';
 import type { Veritabani } from '../db/baglanti';
 import { body_analyses } from '../db/sema';
 
@@ -117,4 +117,38 @@ export async function oluRezervasyonlariSil(
         lt(body_analyses.taken_at, new Date(simdi.getTime() - REZERVASYON_OMRU_MS)),
       ),
     );
+}
+
+/**
+ * Sayım ile rezervasyonu TEK KRİTİK BÖLGEDE yapar.
+ *
+ * Rezervasyon satırı AI çağrısından önce açılıyordu ama sayım ile satırın yazılması
+ * hâlâ iki ayrı adımdı: iki istek de sayımı (0) yapıp ikisi de satır açabiliyordu.
+ * Çift dokunuşta pencere birkaç milisaniye; betikle paralel gönderilen isteklerde ise
+ * güvenilir biçimde açık. Ücretsiz kullanıcının ömür boyu tek hakkı ikiye, üçe
+ * çıkıyor ve her biri bir görsel AI çağrısı.
+ *
+ * Kullanıcı başına danışma kilidi (`pg_advisory_xact_lock`) aynı kullanıcının
+ * isteklerini sıraya sokuyor; başka kullanıcılar birbirini beklemiyor. Kilit işlemle
+ * birlikte bırakılıyor — AI çağrısı kilidin DIŞINDA.
+ *
+ * Hak yoksa `null`, varsa rezervasyon satırının kimliği.
+ */
+export async function vucutHakkiniRezerveEt(
+  db: Veritabani,
+  kullaniciId: string,
+  donemBasi: Date,
+  hakVarMi: (sayim: VucutSayimi) => boolean,
+  simdi: Date = new Date(),
+): Promise<string | null> {
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${'vucut:' + kullaniciId}))`);
+
+    const islem = tx as unknown as Veritabani;
+    await oluRezervasyonlariSil(islem, kullaniciId, simdi);
+    const sayim = await vucutSayimi(islem, kullaniciId, donemBasi, simdi);
+    if (!hakVarMi(sayim)) return null;
+
+    return vucutRezerveEt(islem, kullaniciId);
+  });
 }

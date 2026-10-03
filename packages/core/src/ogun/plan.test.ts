@@ -188,6 +188,84 @@ describe('tarifleriFiltrele — sert kısıtlar', () => {
   });
 });
 
+describe('tarifleriFiltrele — beslenme biçimi malzemeden de denetlenir', () => {
+  /** Etiketi eksik ya da yanlış girilmiş tarifler: tohum kütüphanesinde gerçekten vardı. */
+  const etiketsizTavuk: Tarif = {
+    ...tarifler[1]!,
+    id: 'firin-tavuk-but',
+    malzemeler: [
+      { ad: 'tavuk but', gram: 200, reyon: 'kasap' },
+      { ad: 'patates', gram: 150, reyon: 'manav' },
+    ],
+    etiketler: ['glutensiz', 'laktozsuz', 'ana_yemek'],
+  };
+  const yanlisVejetaryen: Tarif = {
+    ...tarifler[1]!,
+    id: 'tavuk-corbasi-terbiyeli',
+    malzemeler: [
+      { ad: 'tavuk göğsü', gram: 100, reyon: 'kasap' },
+      { ad: 'yoğurt', gram: 100, reyon: 'sarkuteri' },
+    ],
+    etiketler: ['vejetaryen', 'laktozlu', 'corba'],
+  };
+  const yanlisVegan: Tarif = {
+    ...tarifler[0]!,
+    id: 'balli-yulaf',
+    malzemeler: [
+      { ad: 'yulaf ezmesi', gram: 60, reyon: 'kuru_gida' },
+      { ad: 'bal', gram: 15, reyon: 'kuru_gida' },
+    ],
+    etiketler: ['vegan', 'vejetaryen', 'kahvalti'],
+  };
+  const balKabagi: Tarif = {
+    ...tarifler[0]!,
+    id: 'bal-kabagi-corbasi',
+    malzemeler: [{ ad: 'bal kabağı', gram: 300, reyon: 'manav' }],
+    etiketler: ['vegan', 'vejetaryen', 'corba'],
+  };
+  const hepsi = [...tarifler, etiketsizTavuk, yanlisVejetaryen, yanlisVegan, balKabagi];
+  const idler = (dini_etik: string[]) =>
+    tarifleriFiltrele(hepsi, { ...temelKisit, dini_etik }).map((t) => t.id);
+
+  it('pesketaryene `et` etiketi olmayan tavuk tarifi önerilmez', () => {
+    expect(idler(['pesketaryen'])).not.toContain('firin-tavuk-but');
+    expect(idler(['pesketaryen'])).toContain('somon-firinda');
+  });
+
+  it('vejetaryen etiketli ama tavuk içeren tarif vejetaryene önerilmez', () => {
+    expect(idler(['vejetaryen'])).not.toContain('tavuk-corbasi-terbiyeli');
+  });
+
+  it('vegan etiketli ama bal içeren tarif vegana önerilmez; bal kabağı bal değildir', () => {
+    expect(idler(['vegan'])).not.toContain('balli-yulaf');
+    expect(idler(['vegan'])).toContain('bal-kabagi-corbasi');
+  });
+});
+
+describe('tarifleriFiltrele — adında alerjen geçmeyen malzemeler', () => {
+  const tarif = (id: string, ad: string): Tarif => ({
+    ...tarifler[0]!,
+    id,
+    malzemeler: [{ ad, gram: 100, reyon: 'firin' }],
+  });
+
+  it('susam alerjisinde simit elenir', () => {
+    const sonuc = tarifleriFiltrele([tarif('simit-tabagi', 'simit')], {
+      ...temelKisit,
+      alerjiler: ['Susam'],
+    });
+    expect(sonuc).toEqual([]);
+  });
+
+  it('süt alerjisinde tarhana elenir', () => {
+    const sonuc = tarifleriFiltrele([tarif('tarhana-corbasi', 'tarhana')], {
+      ...temelKisit,
+      alerjiler: ['Süt'],
+    });
+    expect(sonuc).toEqual([]);
+  });
+});
+
 describe('ogunHedefleriniBol', () => {
   const gunluk = { kalori: 2400, protein_g: 160, yag_g: 70, karbonhidrat_g: 260, lif_g: 34 };
 
@@ -252,6 +330,31 @@ describe('desteHazirla — kaydırmalı öğün değiştirme', () => {
     expect(deste.kartlar.every((k) => makroKilidi(k, hedef))).toBe(true);
   });
 
+  /*
+   * Öğün türü süzgeci. Deste öğün türüne bakmıyordu: emülatörde kahvaltı destesinin
+   * ikinci kartı "Izgara çupra tabağı" idi.
+   */
+  it('kahvaltı destesinde yalnızca kahvaltılık tarifler', () => {
+    const etiketli = tarifler.map((t, i) => ({
+      ...t,
+      etiketler: [...t.etiketler, i % 2 === 0 ? 'kahvalti' : 'ana_yemek'],
+    }));
+    const deste = desteHazirla({
+      tarifler: etiketli,
+      hedef,
+      kisitlar: temelKisit,
+      ogunKodu: 'kahvalti',
+    });
+    expect(deste.kartlar.length).toBeGreaterThan(0);
+    expect(deste.kartlar.every((k) => k.etiketler.includes('kahvalti'))).toBe(true);
+  });
+
+  it('öğün süzgeci hiç tarif bırakmazsa deste boş kalmıyor', () => {
+    const deste = desteHazirla({ tarifler, hedef, kisitlar: temelKisit, ogunKodu: 'ara_ogun' });
+    const susuz = desteHazirla({ tarifler, hedef, kisitlar: temelKisit });
+    expect(deste.kartlar.length).toBe(susuz.kartlar.length);
+  });
+
   it('deste sonsuz değildir', () => {
     const deste = desteHazirla({ tarifler, hedef, kisitlar: temelKisit });
 
@@ -264,6 +367,17 @@ describe('desteHazirla — kaydırmalı öğün değiştirme', () => {
       hedef,
       kisitlar: temelKisit,
       envanter: ['tavuk göğsü', 'bulgur', 'domates'],
+    });
+
+    expect(deste.kartlar.map((k) => k.id)).toEqual(['tavuklu-bulgur-pilavi']);
+  });
+
+  it('envanterdeki boş satır bütün tarifleri "yapılabilir" yapmaz', () => {
+    const deste = desteHazirla({
+      tarifler,
+      hedef,
+      kisitlar: temelKisit,
+      envanter: ['tavuk göğsü', 'bulgur', 'domates', '  '],
     });
 
     expect(deste.kartlar.map((k) => k.id)).toEqual(['tavuklu-bulgur-pilavi']);

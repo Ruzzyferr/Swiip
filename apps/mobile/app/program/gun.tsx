@@ -38,6 +38,8 @@ interface Gun {
 }
 
 export default function GunDetayi() {
+  /** Ondalık ayırıcı dile göre ("2,5 kg" / "2.5 kg"). */
+  const ondalik = useMetinler().gerekce.ondalikAyirac;
   const tema = useTema();
   const m = useMetinler().program;
   const sayilarGizli = useSayilarGizli();
@@ -110,7 +112,7 @@ export default function GunDetayi() {
                     {kalem.target_sets} × {kalem.target_reps_low}-{kalem.target_reps_high}
                   </Sayi>
                   {kalem.target_weight !== null && !sayilarGizli ? (
-                    <Sayi renk="aksan">{kgMetni(kalem.target_weight)} kg</Sayi>
+                    <Sayi renk="aksan">{kgMetni(kalem.target_weight, ondalik)} kg</Sayi>
                   ) : null}
                 </Satir>
                 <Yazi tur="etiket" renk="metinSilik">

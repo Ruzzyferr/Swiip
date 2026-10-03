@@ -132,7 +132,16 @@ export function eslesmeSkoru(aranan: string, aday: string): number {
   const b = turkceNormalize(aday);
 
   if (a === b) return 1;
-  if (b.includes(a) || a.includes(b)) {
+  if (a === '' || b === '') return 0;
+  /**
+   * İçerme KELİME sınırında aranır.
+   *
+   * Düz `includes` "su"yu "sucuk"un, "et"i "kereviz"in içinde buluyordu: model "su"
+   * dediğinde, katalogda "Su" kaydı yoksa sucuk 0,71 ile eşleşiyor ve bir bardak suya
+   * yüzlerce kalori yazılıyordu. Ek alan Türkçe çekim ("pilav" ↔ "pilavı") aşağıdaki
+   * kök eşleşmesine bırakılıyor; orada da kısa kelimeler (≤2 harf) zaten dışarıda.
+   */
+  if (kelimeDizisiIcerir(b, a) || kelimeDizisiIcerir(a, b)) {
     // Kısa aranan uzun adın içindeyse: "köfte" → "Izgara köfte"
     const oran = Math.min(a.length, b.length) / Math.max(a.length, b.length);
     return 0.55 + oran * 0.4;
@@ -150,6 +159,11 @@ export function eslesmeSkoru(aranan: string, aday: string): number {
     [...bKelime].some((kb) => kb.startsWith(ka) || ka.startsWith(kb)),
   );
   return kokEslesmesi ? 0.42 : 0.1;
+}
+
+/** `uzun`, `kisa`nın kelimelerini aynı sırayla ve bitişik olarak içeriyor mu? */
+function kelimeDizisiIcerir(uzun: string, kisa: string): boolean {
+  return ` ${uzun} `.includes(` ${kisa} `);
 }
 
 /** Bu skorun altındaki eşleşmeler kullanıcıya "bulunamadı" olarak gösterilir. */

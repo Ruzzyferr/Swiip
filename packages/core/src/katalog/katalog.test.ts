@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { HAREKET_KATALOGU, HACIM_GRUPLARI } from '@swiip/shared';
+import { HAREKET_KATALOGU, HACIM_GRUPLARI, hareketTalimati } from '@swiip/shared';
 import { hacimGrubu, hareketAdaGoreBul, hareketBul, katalogDizini, muadilZinciri } from './katalog';
 
 describe('hareket kataloğu — veri sözleşmesi', () => {
@@ -31,6 +31,33 @@ describe('hareket kataloğu — veri sözleşmesi', () => {
   it('her hareketin Türkçe talimatı vardır', () => {
     const talimatsiz = HAREKET_KATALOGU.filter((h) => h.talimat_tr.length < 4);
     expect(talimatsiz.map((h) => h.id)).toEqual([]);
+  });
+
+  /*
+   * İngilizce arayüzdeki kullanıcı uzun süre Türkçe talimat okudu. İngilizce talimat
+   * Türkçeyle ADIM ADIM hizalı: aynı sayıda adım, her adım dolu ve Türkçe kalmamış.
+   */
+  it('her hareketin Türkçeyle aynı uzunlukta İngilizce talimatı vardır', () => {
+    const uyumsuz = HAREKET_KATALOGU.filter(
+      (h) => !Array.isArray(h.talimat_en) || h.talimat_en.length !== h.talimat_tr.length,
+    );
+    expect(uyumsuz.map((h) => h.id)).toEqual([]);
+
+    const bosAdim = HAREKET_KATALOGU.filter((h) =>
+      h.talimat_en.some((adim) => adim.trim().length <= 15),
+    );
+    expect(bosAdim.map((h) => h.id)).toEqual([]);
+
+    const turkceKalan = HAREKET_KATALOGU.filter((h) =>
+      h.talimat_en.some((adim) => /[çğıöşüÇĞİÖŞÜ]/.test(adim)),
+    );
+    expect(turkceKalan.map((h) => h.id)).toEqual([]);
+  });
+
+  it('İngilizce arayüz İngilizce talimatı alır, Türkçe arayüz Türkçeyi', () => {
+    const squat = hareketBul('barbell-squat')!;
+    expect(hareketTalimati(squat, 'en')).toEqual(squat.talimat_en);
+    expect(hareketTalimati(squat, 'tr')).toEqual(squat.talimat_tr);
   });
 
   it('her hareketin muadil zinciri kataloğa çözülür', () => {

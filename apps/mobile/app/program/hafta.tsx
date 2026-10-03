@@ -101,7 +101,8 @@ export default function HaftalikYapi() {
       <Ekran>
         <View style={{ gap: tema.bosluk.xs }}>
           <Yazi tur="etiket" renk="aksan">
-            {program.hafta}. HAFTA
+            {/* "HAFTA" kodda Türkçe sabitti; İngilizce kullanıcı da "1. HAFTA" görüyordu. */}
+            {p.haftaEtiketi(program.hafta)}
           </Yazi>
           <Yazi tur="baslik1">{SPLIT_ADLARI[program.split.tip] ?? program.split.tip}</Yazi>
         </View>
@@ -117,7 +118,12 @@ export default function HaftalikYapi() {
           <Kart>
             <Yazi tur="baslik3">{m.yerlesimBasligi}</Yazi>
             <Satir dagit="space-between">
-              {m.gunKisaltmalari.map((ad: string, gun: number) => {
+              {/*
+                Hafta PAZARTESİ başlıyor (ISO 8601; Türkiye ve Avrupa). Pazar başlıyordu:
+                kısaltmalar JS'nin `getDay()` sırasıyla, 0 = Pazar, basılıyordu.
+              */}
+              {PAZARTESIDEN.map((gun) => {
+                const ad = m.gunKisaltmalari[gun]!;
                 const seansVar = program.takvim!.gunler.includes(gun);
                 return (
                   <View
@@ -148,9 +154,12 @@ export default function HaftalikYapi() {
         <Kart>
           <Satir dagit="space-between">
             <Yazi tur="baslik3">{m.hacimButcesi}</Yazi>
-            <Sayi tur="kucuk" renk="aksan">
-              {toplamSet} set
-            </Sayi>
+            {/* Toplam DARALMIYOR: "120 set" iki satıra kırılıyordu. */}
+            <View style={{ flexShrink: 0 }}>
+              <Sayi tur="kucuk" renk="aksan">
+                {toplamSet} set
+              </Sayi>
+            </View>
           </Satir>
           <Yazi tur="kucuk" renk="metinSilik">
             {m.hacimButcesiNotu}
@@ -239,3 +248,6 @@ export default function HaftalikYapi() {
 function gunTipi(m: Metinler['program'], kod: string): string {
   return m.gunTipleri[kod as keyof typeof m.gunTipleri] ?? kod;
 }
+
+/** `getDay()` gün numaraları, Pazartesi'den Pazar'a. */
+const PAZARTESIDEN = [1, 2, 3, 4, 5, 6, 0] as const;

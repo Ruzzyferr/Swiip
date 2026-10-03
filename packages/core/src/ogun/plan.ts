@@ -185,6 +185,8 @@ const ALERJEN_MALZEMELERI: Record<string, AlerjenKurali> = {
       'whey',
       'sutlu',
       'muhallebi',
+      // Tarhana un ve YOĞURTLA yapılır; adında süt geçmiyor diye süt alerjisinde geçiyordu.
+      'tarhana',
     ],
     haric: ['badem sutu', 'soya sutu', 'yulaf sutu', 'pirinc sutu', 'hindistan cevizi sutu'],
   },
@@ -246,8 +248,75 @@ const ALERJEN_MALZEMELERI: Record<string, AlerjenKurali> = {
     haric: ['misir unu', 'karabugday', 'misir gevregi', 'cavdar ekmegi'],
   },
 
-  susam: { kelimeler: ['susam', 'tahin', 'humus'] },
+  /** Simit susama bulanarak pişer; adı susam içermiyor diye geçiyordu. */
+  susam: { kelimeler: ['susam', 'tahin', 'humus', 'simit'] },
 };
+
+/**
+ * Beslenme biçimi (B11) malzemeden de denetlenir — etikete güvenmek yetmiyor.
+ *
+ * Kural yalnızca tarif etiketine bakıyordu (pesketaryen = `et` etiketi yok). Tohum
+ * kütüphanesinde tavuk, hindi ve kıyma içeren 43 tarifin hiçbirinde `et` etiketi yoktu;
+ * pesketaryen kullanıcıya `Fırında tavuk but` öneriliyordu. Bir tarif ise tavuk göğsüyle
+ * pişip `vejetaryen` etiketi taşıyordu. Etiket elle yazılan bir veri, malzeme ise tarifin
+ * kendisi: beyanı ihlal eden malzeme etikete bakılmaksızın tarifi eler.
+ */
+const KARA_ETI = [
+  'et',
+  'eti',
+  'tavuk',
+  'hindi',
+  'dana',
+  'kuzu',
+  'kiyma',
+  'kusbasi',
+  'bonfile',
+  'pirzola',
+  'incik',
+  'sucuk',
+  'sosis',
+  'salam',
+  'pastirma',
+  'jambon',
+  'kavurma',
+  'ciger',
+  'sakatat',
+  'domuz',
+];
+
+const DENIZ_URUNU = [
+  ...ALERJEN_MALZEMELERI.balik!.kelimeler,
+  ...ALERJEN_MALZEMELERI['kabuklu deniz urunleri']!.kelimeler,
+];
+
+/** Vegan için et ve deniz ürününe ek olarak; süt ve yumurta alerjen tablosundan okunuyor. */
+const DIGER_HAYVANSAL = { kelimeler: ['bal', 'jelatin'], haric: ['bal kabagi'] };
+
+function kelimeIcerir(malzemeAdi: string, liste: readonly string[], haric: readonly string[] = []) {
+  if (haric.includes(turkceNormalize(malzemeAdi))) return false;
+  return kelimeler(malzemeAdi).some((k) => liste.includes(k));
+}
+
+function malzemeBeslenmeBicimineAykiri(malzemeAdi: string, bicim: string): boolean {
+  switch (bicim) {
+    case 'helal':
+      return kelimeIcerir(malzemeAdi, ['domuz']);
+    case 'pesketaryen':
+      return kelimeIcerir(malzemeAdi, KARA_ETI);
+    case 'vejetaryen':
+      return kelimeIcerir(malzemeAdi, KARA_ETI) || kelimeIcerir(malzemeAdi, DENIZ_URUNU);
+    case 'vegan':
+      return (
+        kelimeIcerir(malzemeAdi, KARA_ETI) ||
+        kelimeIcerir(malzemeAdi, DENIZ_URUNU) ||
+        malzemeAlerjenMi(malzemeAdi, 'sut') ||
+        malzemeAlerjenMi(malzemeAdi, 'yumurta') ||
+        kelimeIcerir(malzemeAdi, DIGER_HAYVANSAL.kelimeler, DIGER_HAYVANSAL.haric)
+      );
+    default:
+      return false;
+  }
+}
 
 /** Normalize edilmiş adı kelimelere böler. */
 function kelimeler(ad: string): string[] {
@@ -304,6 +373,10 @@ export function tarifleriFiltrele(tarifler: readonly Tarif[], kisitlar: OgunKisi
       if (!kural) continue;
       if (kural.gerekli && !tarif.etiketler.includes(kural.gerekli)) return false;
       if (kural.yasak && tarif.etiketler.includes(kural.yasak)) return false;
+    }
+    for (const bicim of kisitlar.dini_etik) {
+      const normal = turkceNormalize(bicim);
+      if (tarif.malzemeler.some((m) => malzemeBeslenmeBicimineAykiri(m.ad, normal))) return false;
     }
 
     // --- B8 bütçe ---
@@ -488,6 +561,33 @@ export interface DesteGirdisi {
   kisitlar: OgunKisitlari;
   /** Buzdolabı envanteri; verilirse yalnızca yapılabilenler gösterilir. */
   envanter?: readonly string[];
+  /** Öğün kodu (`kahvalti`, `ogle`, `ara_ogun`…). Verilirse tarifler öğün türüne göre süzülür. */
+  ogunKodu?: string;
+}
+
+/**
+ * Öğün kodu → o öğüne uyan tarif etiketleri.
+ *
+ * Deste öğün türüne hiç bakmıyordu: makroya uyan her tarif her öğüne giriyordu.
+ * Emülatörde kahvaltı destesinin ikinci kartı "Izgara çupra tabağı" idi; haftalık plan
+ * da aynı desteden beslendiği için kahvaltıya balık, ara öğüne ana yemek düşebiliyordu.
+ */
+const OGUN_ETIKETLERI: Record<string, readonly string[]> = {
+  kahvalti: ['kahvalti'],
+  sahur: ['kahvalti'],
+  ogle: ['ana_yemek', 'corba', 'salata'],
+  aksam: ['ana_yemek', 'corba', 'salata'],
+  iftar: ['ana_yemek', 'corba', 'salata'],
+  ara_ogun: ['ara_ogun'],
+  ara_ogun_2: ['ara_ogun'],
+  iftar_sonrasi: ['ara_ogun'],
+};
+
+/** Tarif bu öğüne uyuyor mu. Tanımadığı öğün kodunda süzmez. */
+export function ogunTuruneUygun(tarif: Pick<Tarif, 'etiketler'>, ogunKodu?: string): boolean {
+  const gerekli = ogunKodu ? OGUN_ETIKETLERI[ogunKodu] : undefined;
+  if (!gerekli) return true;
+  return gerekli.some((e) => tarif.etiketler.includes(e));
 }
 
 export interface DesteMesajKodu {
@@ -514,7 +614,14 @@ export interface Deste {
 }
 
 export function desteHazirla(girdi: DesteGirdisi): Deste {
-  const uygunTarifler = tarifleriFiltrele(girdi.tarifler, girdi.kisitlar);
+  const kisitaUygun = tarifleriFiltrele(girdi.tarifler, girdi.kisitlar);
+  /*
+    Öğün türü süzgeci. Süzgeç kısıtlarla birlikte hiç tarif bırakmazsa (ör. vegan +
+    alerjiler + az kahvaltılık tarif) boş deste yerine kısıta uyan tüm tarifler:
+    "uygun tarif bulunamadı" demek, öğün türünü esnetmekten kötü.
+  */
+  const turuneUygun = kisitaUygun.filter((t) => ogunTuruneUygun(t, girdi.ogunKodu));
+  const uygunTarifler = turuneUygun.length > 0 ? turuneUygun : kisitaUygun;
 
   // Makro kilidi porsiyonla tutturulur: tarif sabit, porsiyon değişir.
   const makroUyanlar = uygunTarifler
@@ -601,8 +708,16 @@ function vazgecilmezMi(tarif: Tarif, vazgecemedikleri: readonly string[]): boole
   });
 }
 
+/**
+ * Envanteri karşılaştırmaya hazırlar. Boş girdiler atılır: `"".includes` her zaman doğru
+ * ve tek bir boş satır bütün tarifleri "dolabında var" sayıyordu.
+ */
+function envanteriHazirla(envanter: readonly string[]): string[] {
+  return envanter.map(turkceNormalize).filter((e) => e !== '');
+}
+
 function tarifYapilabilir(tarif: Tarif, envanter: readonly string[]): boolean {
-  const normalEnvanter = envanter.map(turkceNormalize);
+  const normalEnvanter = envanteriHazirla(envanter);
   return tarif.malzemeler.every((m) =>
     normalEnvanter.some(
       (e) => e.includes(turkceNormalize(m.ad)) || turkceNormalize(m.ad).includes(e),
@@ -615,7 +730,7 @@ function eksikMalzemeOner(
   tarifler: readonly Tarif[],
   envanter: readonly string[],
 ): Array<{ malzeme: string; acilan_tarif: number }> {
-  const normalEnvanter = envanter.map(turkceNormalize);
+  const normalEnvanter = envanteriHazirla(envanter);
   const sayac = new Map<string, number>();
 
   for (const tarif of tarifler) {
@@ -708,7 +823,7 @@ export function alisverisListesi(
   tarifler: readonly Tarif[],
   envanter: readonly string[] = [],
 ): AlisverisListesi {
-  const normalEnvanter = envanter.map(turkceNormalize);
+  const normalEnvanter = envanteriHazirla(envanter);
   const toplam = new Map<string, AlisverisKalemi>();
 
   for (const tarif of tarifler) {

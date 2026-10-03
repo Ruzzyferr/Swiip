@@ -28,7 +28,8 @@ const BURASI = import.meta.dirname;
 const API = join(BURASI, '..', '..', 'api', 'src');
 
 /** Yönetim uçları kullanıcıya hiç çıkmıyor; onların çevrilmesi gerekmiyor. */
-const YONETIM_KODLARI = new Set(['yonetim_kapali', 'yonetim_yetkisiz']);
+// Yalnızca yönetim uçlarının fırlattığı kodlar: kullanıcı bunları hiç görmez.
+const YONETIM_KODLARI = new Set(['yonetim_kapali', 'yonetim_yetkisiz', 'hesap_yok']);
 
 function tsDosyalari(dizin: string): string[] {
   return readdirSync(dizin).flatMap((ad) => {

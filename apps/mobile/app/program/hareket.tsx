@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { hareketBul } from '@swiip/core';
-import { hareketAdi, kararGirdisiMetni, type Hareket } from '@swiip/shared';
+import {
+  girdiDegeri,
+  girdiSorusu,
+  hareketAdi,
+  hareketTalimati,
+  kararGirdisiMetni,
+  type Hareket,
+} from '@swiip/shared';
 import {
   Ayirac,
   Dugme,
@@ -98,7 +105,7 @@ export default function HareketDetayi() {
       <Ekran>
         <View style={{ gap: tema.bosluk.sm }}>
           <Yazi tur="baslik1">{hareketAdi(hareket, dil)}</Yazi>
-          <Satir arasi="xs">
+          <Satir arasi="xs" sar>
             <Etiket
               metin={
                 m.paternAdlari[hareket.patern as keyof typeof m.paternAdlari] ?? hareket.patern
@@ -120,15 +127,22 @@ export default function HareketDetayi() {
             <Yazi tur="etiket" renk="metinSilik">
               {m.hangiCevaplardan}
             </Yazi>
+            {/*
+              Soru KİMLİĞİ değil, sorunun kendisi. "E3 · Dumbbell" yazıyordu; kullanıcı
+              E3'ü hiçbir yerde görmedi. Değer de kullanıcının dilinde.
+            */}
             {gerekce.girdiler.map((girdi, i) => (
-              <Satir key={i} arasi="sm">
-                <Sayi tur="etiket" renk="aksan">
-                  {girdi.soru_id}
-                </Sayi>
-                <Yazi tur="kucuk" renk="metinYumusak" stil={{ flex: 1 }}>
-                  {kararGirdisiMetni(girdi.deger, metinler.gerekce)}
+              <View key={i} style={{ gap: 2 }}>
+                <Yazi tur="etiket" renk="metinSilik">
+                  {girdiSorusu(girdi.soru_id, dil) ?? girdi.soru_id}
                 </Yazi>
-              </Satir>
+                <Yazi tur="kucuk" renk="metinYumusak">
+                  {kararGirdisiMetni(
+                    girdiDegeri(girdi.soru_id, girdi.deger, dil),
+                    metinler.gerekce,
+                  )}
+                </Yazi>
+              </View>
             ))}
           </Kart>
         ) : null}
@@ -144,7 +158,7 @@ export default function HareketDetayi() {
 
         <Kart>
           <Yazi tur="baslik3">{m.nasilYapilir}</Yazi>
-          {hareket.talimat_tr.map((adim, i) => (
+          {hareketTalimati(hareket, dil).map((adim, i) => (
             <Satir key={i} arasi="md" hizala="flex-start">
               <Sayi tur="kucuk" renk="aksan">
                 {i + 1}

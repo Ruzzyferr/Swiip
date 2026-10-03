@@ -82,3 +82,18 @@ describe('doğrulama ile tutarlılık', () => {
     expect(sonrakiSoru(cevaplar)?.id).toBe('K3');
   });
 });
+
+describe('doğum tarihi gelecekte olamaz', () => {
+  const k1 = gorunurSorular(TEMEL).find((s) => s.id === 'K1')!;
+
+  it('bu yılın ilerleyen bir günü reddedilir, yalnızca gelecek yıl değil', () => {
+    // Yıl karşılaştırması bunu geçiriyordu; yaş -1 çıkıp kullanıcı 18 yaş kapısına düşüyordu.
+    const yarin = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+
+    expect(cevabiDogrula(k1, yarin).gecerli).toBe(false);
+  });
+
+  it('geçmiş bir tarih kabul edilir', () => {
+    expect(cevabiDogrula(k1, '1992-03-14').gecerli).toBe(true);
+  });
+});

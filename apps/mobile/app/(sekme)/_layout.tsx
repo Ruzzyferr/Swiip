@@ -11,6 +11,12 @@ export default function SekmeDuzeni() {
 
   return (
     <Tabs
+      /*
+        Android'in geri tuşu ikincil bir sekmeden önce Program'a döner, uygulamadan
+        çıkmaz. Emülatörde Koç sekmesinde "geri" doğrudan ana ekrana atıyordu: kullanıcı
+        "bir önceki yere dönüyorum" derken uygulamayı kapatmış oluyordu.
+      */
+      backBehavior="firstRoute"
       screenOptions={{
         headerStyle: { backgroundColor: tema.renk.zemin },
         headerTintColor: tema.renk.metin,

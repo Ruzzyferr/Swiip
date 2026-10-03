@@ -110,8 +110,8 @@ export const SORU_BANKASI: SoruBankasi = {
           "type": "single",
           "required": true,
           "options": [
-            "Evet",
-            "Hayır"
+            "Hayır",
+            "Evet"
           ],
           "gate": {
             "if": [
@@ -399,19 +399,6 @@ export const SORU_BANKASI: SoruBankasi = {
           ]
         },
         {
-          "id": "H3",
-          "text": "Hedef kilon",
-          "type": "number",
-          "unit": "kg",
-          "drives": [
-            "acik_fazla_buyuklugu",
-            "sure_hesabi"
-          ],
-          "min": 35,
-          "max": 300,
-          "not": "Zorunlu DEGIL, bilerek. Bir ara zorunlu yapildi ve testte goruldu: degerlendirmesi bitmis mevcut kullanicilar akisa geri dusuyordu, Apple inceleme hesabi dahil. H10 (aylik hiz) zaten zorunlu ve gerceklik testi ondan calisiyor; varis noktasi olmadan da hesap tutuyor."
-        },
-        {
           "id": "H10",
           "text": "Ayda kaç kilo vermeyi veya almayı bekliyorsun?",
           "type": "number",
@@ -428,6 +415,19 @@ export const SORU_BANKASI: SoruBankasi = {
           ],
           "min": 0,
           "max": 20
+        },
+        {
+          "id": "H3",
+          "text": "Hedef kilon",
+          "type": "number",
+          "unit": "kg",
+          "drives": [
+            "acik_fazla_buyuklugu",
+            "sure_hesabi"
+          ],
+          "min": 35,
+          "max": 300,
+          "not": "Zorunlu DEGIL, bilerek. Bir ara zorunlu yapildi ve testte goruldu: degerlendirmesi bitmis mevcut kullanicilar akisa geri dusuyordu, Apple inceleme hesabi dahil. H10 (aylik hiz) zaten zorunlu ve gerceklik testi ondan calisiyor; varis noktasi olmadan da hesap tutuyor."
         },
         {
           "id": "H6",
@@ -690,24 +690,6 @@ export const SORU_BANKASI: SoruBankasi = {
           ]
         },
         {
-          "id": "Z3",
-          "text": "Hangi günler uygun?",
-          "type": "multi",
-          "options": [
-            "Pazartesi",
-            "Salı",
-            "Çarşamba",
-            "Perşembe",
-            "Cuma",
-            "Cumartesi",
-            "Pazar"
-          ],
-          "drives": [
-            "takvim_yerlesimi",
-            "kas_grubu_dinlenme"
-          ]
-        },
-        {
           "id": "Y1",
           "text": "Gecede ortalama kaç saat uyuyorsun?",
           "type": "single",
@@ -739,6 +721,24 @@ export const SORU_BANKASI: SoruBankasi = {
           "drives": [
             "tdee_aktivite_carpani",
             "neat_tahmini"
+          ]
+        },
+        {
+          "id": "Z3",
+          "text": "Hangi günler uygun?",
+          "type": "multi",
+          "options": [
+            "Pazartesi",
+            "Salı",
+            "Çarşamba",
+            "Perşembe",
+            "Cuma",
+            "Cumartesi",
+            "Pazar"
+          ],
+          "drives": [
+            "takvim_yerlesimi",
+            "kas_grubu_dinlenme"
           ]
         },
         {

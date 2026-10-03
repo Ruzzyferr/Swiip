@@ -18,7 +18,7 @@
  *   node scripts/yedek-indir.mjs --liste         # yalnızca durumu yaz
  */
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readdirSync, statSync, unlinkSync } from 'node:fs';
+import { mkdirSync, readdirSync, renameSync, rmSync, statSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -78,6 +78,12 @@ function yerelDosyalar() {
 
 function indir(ad) {
   const hedef = join(YEREL_DIZIN, ad);
+  // Önce `.part` adına iniyor, yalnızca tamamı inince `.dump` oluyor. Doğrudan
+  // hedefe yazılıyordu: bağlantı yarıda koparsa (dizüstü uykuya geçti, ağ düştü)
+  // 4 KB'tan büyük YARIM bir `.dump` kalıyor, sonraki koşular onu "yerelde var"
+  // sayıp bir daha indirmiyordu — bozuk bir yedek, sağlamı sanılarak saklanıyordu.
+  const gecici = `${hedef}.part`;
+  rmSync(gecici, { force: true });
   const sonuc = calistir('scp', [
     '-i',
     ANAHTAR,
@@ -86,20 +92,22 @@ function indir(ad) {
     '-o',
     'ConnectTimeout=15',
     `${SUNUCU}:${UZAK_DIZIN}/${ad}`,
-    hedef,
+    gecici,
   ]);
 
   if (sonuc.status !== 0) {
+    rmSync(gecici, { force: true });
     throw new Error(`İndirilemedi: ${ad} — ${sonuc.stderr.trim()}`);
   }
 
   // Boyut kontrolü: yarım inen dosya, olmayan yedekten kötüdür — var sanılır.
-  const boyut = statSync(hedef).size;
+  const boyut = statSync(gecici).size;
   if (boyut < ASGARI_BAYT) {
-    unlinkSync(hedef);
+    unlinkSync(gecici);
     throw new Error(`${ad} yalnızca ${boyut} bayt indi; silindi.`);
   }
 
+  renameSync(gecici, hedef);
   return boyut;
 }
 

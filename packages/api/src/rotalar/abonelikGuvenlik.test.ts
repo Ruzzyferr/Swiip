@@ -239,6 +239,8 @@ describe('hata kodları sözlükle eşleşiyor', () => {
     'kapi_yas',
     'kapi_engeli',
     'yonetim_yetkisiz',
+    // Yalnızca yönetim ucu (doktor onayı) fırlatıyor; kullanıcı görmez.
+    'hesap_yok',
     'cakisma',
     'yasak',
     'kota_doldu',

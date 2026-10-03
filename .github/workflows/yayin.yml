@@ -44,16 +44,30 @@ concurrency:
   group: yayin
   cancel-in-progress: false
 
+# İş akışı düzeyinde YALNIZCA okuma. Yazma yetkisi yalnızca etiketi atan işte.
+#
+# `contents: write` burada, yani BÜTÜN işlerde duruyordu — üçüncü taraf kodu
+# (`npm ci`, `eas build`) koşturan derleme işleri de depoya yazabilen bir jetonla
+# çalışıyordu. Bir bağımlılığın kurulum betiği main'e commit atabilirdi.
 permissions:
-  contents: write # yayın etiketini atmak için
+  contents: read
 
 jobs:
   kapi:
     name: Gerek var mı
     runs-on: ubuntu-latest
+    # `workflow_run` YALNIZCA bu deponun main'ine yapılan push'tan geliyorsa.
+    #
+    # `branches: [main]` dalın ADINA bakıyor, deposuna değil. CI pull_request'te de
+    # koşuyor ve depo herkese açık: çatallanmış bir depodan, dalı `main` adını taşıyan
+    # bir PR açmak yetiyordu — CI yeşil biterse bu iş akışı o PR'ın commit'ini
+    # (`head_sha`) çekip imzalama anahtarları, Play servis hesabı ve App Store
+    # anahtarıyla derliyordu.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     outputs:
       derle: ${{ steps.karar.outputs.derle }}
       notlar_kisa: ${{ steps.notlar.outputs.kisa }}
@@ -349,6 +363,8 @@ jobs:
   etiket:
     name: Yayını etiketle
     needs: [kapi, android, ios]
+    permissions:
+      contents: write # yayın etiketini atmak için
     # Biri atlandıysa (tek platform seçildi) yine etiketlensin; ama BAŞARISIZ
     # olduysa etiketlenmesin — yoksa bir sonraki koşu bu commit'i "yayınlandı"
     # sayar ve düşen platform sessizce geride kalır.

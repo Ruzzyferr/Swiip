@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, or, sql } from 'drizzle-orm';
 import { aramaAnahtari, KATLANAN, KATLANMIS, veriYereli } from '@swiip/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
@@ -16,6 +16,7 @@ import {
 } from '../db/sema';
 import { planHaklari, type Plan } from '../servisler/haklar';
 import { planGecerliMi } from '../servisler/planOku';
+import { istekGunu } from '../gun';
 
 /**
  * Beslenme çekirdeği (F5).
@@ -27,8 +28,17 @@ import { planGecerliMi } from '../servisler/planOku';
 const kayitSemasi = z.object({
   food_id: z.string().uuid(),
   miktar: z.number().positive().max(10_000),
-  /** Porsiyon id'si verilirse miktar o porsiyonun katıdır; verilmezse gram. */
-  portion_id: z.string().optional(),
+  /**
+   * Porsiyon id'si verilirse miktar o porsiyonun katıdır; verilmezse gram.
+   *
+   * `null` da "gram" demek. Arama ekranı "gram" seçildiğinde alanı `null` gönderiyor;
+   * `.optional()` yalnızca `undefined` kabul ettiği için gramla eklenen her yemek
+   * 400 alıyordu ve kullanıcı "eklenemedi" görüyordu.
+   */
+  portion_id: z
+    .string()
+    .nullish()
+    .transform((d) => d ?? undefined),
   ogun: z.enum(['kahvalti', 'ogle', 'aksam', 'ara']).optional(),
   gun: z
     .string()
@@ -135,13 +145,22 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
     const sayilarGizli = await sayilarGizliMi(istek.kullaniciId);
 
     if (sayilarGizli) {
-      return { ed_modu: true, sayilar_gizli: true, porsiyon_rehberi: porsiyonRehberi(nihai) };
+      return {
+        ed_modu: true,
+        sayilar_gizli: true,
+        porsiyon_rehberi: porsiyonRehberi(nihai),
+        /*
+         * Su ED modunda da var: bir enerji ölçüsü değil (bkz. `/gun` ucundaki `su_ml`).
+         * Burada gönderilmeyince istemcide su kartı ED kullanıcısına hiç çizilmiyordu.
+         */
+        su_hedefi_ml: suHedefiMl(profil.cinsiyet),
+      };
     }
 
     /**
-     * Günlük kalori ve makro hedefi ücretli katman (spec bölüm 13 tablosu). Ücretsiz
-     * kullanıcı bakım kalorisini vücut analizi raporunda **bir kez** görüyor; buradaki
-     * günlük hedef ve makro dağılımı Temel'den itibaren açılıyor.
+     * Günlük kalori ve makro hedefi hak tablosundaki `kalori_makro_hedefi` kapısının
+     * arkasında. 2026-08-31'den beri ÜCRETSİZ planda da açık (bkz. `haklar.ts`); kapı
+     * yine de okunuyor ki bir plan onu kapatırsa aşağıdaki kilit yolu çalışsın.
      *
      * Kilit **manuel girişi kapatmıyor**: ücretsizin çekirdek vaadi o. Kullanıcı yemeğini
      * kaydeder ve toplamını görür; yalnızca "hedefe göre neredeyim" katmanı kilitli.
@@ -198,6 +217,8 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
         mesaj:
           'Günlük kalori ve makro hedefi Temel plandan itibaren açık. Yemek kaydın ' +
           'ücretsiz ve sınırsız çalışmaya devam ediyor.',
+        // Su hedefi plana bağlı değil; kalori kilidi onu da gizlememeli.
+        su_hedefi_ml: suHedefiMl(profil.cinsiyet),
       };
     }
 
@@ -220,11 +241,26 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
     const { q, limit } = z
       .object({ q: z.string().min(2).max(60), limit: z.coerce.number().min(1).max(50).default(20) })
       .parse(istek.query);
+    const anahtar = aramaAnahtari(q);
+    const desen = '%' + anahtar + '%';
+    const katla = (alan: typeof foods.name_tr | typeof foods.name_en) =>
+      sql`lower(translate(coalesce(${alan}, ''), ${KATLANAN}, ${KATLANMIS}))`;
+    /*
+      Eşleşme KALİTESİ: 0 = ad sorguyla başlıyor, 1 = bir kelimesi sorguyla başlıyor,
+      2 = içinde geçiyor. İki dilin en iyisi alınıyor.
+
+      Sıralama yalnızca "doğrulanmış mı" idi: "tavuk" yazan kullanıcı ilk sekiz sonuçta
+      "Tavuk göğsü"nü göremiyor, "Tavuklu wrap, zincir" görüyordu. En çok aranan şeyi
+      listenin dibine iten bir arama, kullanıcıyı yanlış kalemi seçmeye iter.
+    */
+    const derece = (alan: typeof foods.name_tr | typeof foods.name_en) =>
+      sql`case when ${katla(alan)} like ${anahtar + '%'} then 0 when ${katla(alan)} like ${'% ' + anahtar + '%'} then 1 else 2 end`;
 
     const sonuclar = await db
       .select({
         id: foods.id,
         name_tr: foods.name_tr,
+        name_en: foods.name_en,
         per_100g: foods.per_100g_jsonb,
         portions: foods.portions_jsonb,
         source: foods.source,
@@ -240,10 +276,34 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       .where(
         and(
           eq(foods.locale, await besinYereli(istek.kullaniciId)),
-          sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + aramaAnahtari(q) + '%'}`,
+          /*
+           * Türkçe VEYA İngilizce adda. Uygulama 175 ülkede ve İngilizce arayüzdeki
+           * kullanıcı "chicken" yazdığında hiçbir şey bulamıyordu: arama yalnızca
+           * `name_tr`'ye bakıyordu. İngilizce ad da aynı katlamadan geçiyor — "çorba"
+           * yazan İngilizce kullanıcı parantez içindeki Türkçe adı da buluyor.
+           *
+           * İndeks bilerek yok: baştan joker `like '%…%'` B-tree kullanamaz, tablo da
+           * birkaç yüz satır. Binlere çıkarsa doğru araç `pg_trgm` GIN indeksi.
+           */
+          or(
+            sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${desen}`,
+            sql`lower(translate(coalesce(${foods.name_en}, ''), ${KATLANAN}, ${KATLANMIS})) like ${desen}`,
+          ),
         ),
       )
-      .orderBy(desc(foods.verified))
+      .orderBy(
+        sql`least(${derece(foods.name_tr)}, ${derece(foods.name_en)})`,
+        /*
+          Aynı derecede önce TEMEL MALZEME (TürKomp), sonra ev yemeği, sonra zincir
+          ürünü, en son barkodla gelen ürünler. Uzunluk tek başına yetmiyordu: "Tavuk
+          sote" ve "Tavuk döner" kısa oldukları için "Tavuk göğsü, pişmiş"in önüne
+          geçiyordu.
+        */
+        sql`case ${foods.source} when 'turkomp' then 0 when 'bizim' then 1 when 'zincir' then 2 else 3 end`,
+        desc(foods.verified),
+        sql`length(${foods.name_tr})`,
+        foods.name_tr,
+      )
       .limit(limit);
 
     return { sonuclar };
@@ -268,6 +328,11 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
     if (!ithal)
       throw Bulunamadi('Bu barkod veritabanımızda yok. Elle ekleyebilirsin.', 'barkod_yok');
 
+    /**
+     * Aynı yeni barkod iki istekte birden sorulursa (iki kullanıcı, ya da kameranın
+     * aynı kodu iki kez okuması) ikisi de yerelde bulamıyor ve ikisi de yazmaya
+     * kalkıyordu; benzersiz indeks ikincisini 500'e düşürüyordu. Kazanan kayıt okunur.
+     */
     const [yazilan] = await db
       .insert(foods)
       .values({
@@ -280,9 +345,13 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
         source: ithal.source,
         verified: false,
       })
+      .onConflictDoNothing()
       .returning();
 
-    return { ...yazilan!, kaynak: 'openfoodfacts' };
+    if (yazilan) return { ...yazilan, kaynak: 'openfoodfacts' };
+
+    const [kazanan] = await db.select().from(foods).where(eq(foods.barcode, barkod)).limit(1);
+    return { ...kazanan!, kaynak: 'yerel' };
   });
 
   app.post('/kayit', { preHandler: app.kimlikDogrula }, async (istek) => {
@@ -305,7 +374,7 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
         food_id: govde.food_id,
         quantity: String(govde.miktar),
         entry_method: govde.entry_method,
-        gun: govde.gun ?? bugunISO(),
+        gun: govde.gun ?? istekGunu(istek),
         hesaplanan_jsonb: hesaplanan,
         ...(govde.portion_id ? { portion_id: govde.portion_id } : {}),
         ...(govde.ogun ? { ogun: govde.ogun } : {}),
@@ -438,7 +507,7 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       })
       .parse(istek.body);
 
-    const gun = govde.gun ?? bugunISO();
+    const gun = govde.gun ?? istekGunu(istek);
 
     if (govde.ayarla_ml !== undefined) {
       await db
@@ -481,7 +550,7 @@ export async function beslenmeRotalari(app: FastifyInstance): Promise<void> {
       })
       .parse(istek.body);
 
-    const gun = govde.gun ?? bugunISO();
+    const gun = govde.gun ?? istekGunu(istek);
 
     await db
       .insert(weight_logs)
@@ -616,8 +685,4 @@ function yuvarlaBesin(deger: BesinDegeri): BesinDegeri {
     karbonhidrat_g: Math.round(deger.karbonhidrat_g * 10) / 10,
     lif_g: Math.round((deger.lif_g ?? 0) * 10) / 10,
   };
-}
-
-function bugunISO(): string {
-  return new Date().toISOString().slice(0, 10);
 }

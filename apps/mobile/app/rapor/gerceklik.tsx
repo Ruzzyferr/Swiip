@@ -1,3 +1,4 @@
+import { degerlendirmeyiGuncelle } from '../../src/degerlendirme/guncelle';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { router, Stack } from 'expo-router';
@@ -82,7 +83,7 @@ export default function Gerceklik() {
         <Ekran>
           <Yazi tur="baslik1">{m.edBaslik}</Yazi>
           <Uyari baslik={m.edUyariBaslik} govde={m.edUyariGovde} />
-          <Dugme baslik={m.programimiGor} onPress={() => router.replace('/(sekme)/program')} />
+          <Dugme baslik={m.programimiGor} onPress={() => router.dismissTo('/(sekme)/program')} />
         </Ekran>
       </>
     );
@@ -204,11 +205,12 @@ export default function Gerceklik() {
 
         <Uyari tur="uyari" govde={m.saglikUyarisi} />
 
-        <Dugme baslik={m.programimiGor} onPress={() => router.replace('/(sekme)/program')} />
+        <Dugme baslik={m.programimiGor} onPress={() => router.dismissTo('/(sekme)/program')} />
         <Dugme
           baslik={m.hedefimiGuncelle}
           tur="ikincil"
-          onPress={() => router.push('/(sekme)/ayarlar')}
+          // Doğrudan Hedef kartı; Ayarlar'ın en üstüne (iptal düğmesinin önüne) gidiyordu.
+          onPress={() => void degerlendirmeyiGuncelle('H').catch(() => null)}
         />
       </Ekran>
     </>

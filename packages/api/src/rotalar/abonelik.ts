@@ -310,6 +310,12 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
      * Doğru referans noktası, aynı kullanıcı için daha önce İŞLENMİŞ kanca olaylarının
      * en yenisi. Bu olayın kendisi hariç tutuluyor: tekilleştirme kaydı bu noktadan
      * önce yazılıyor.
+     *
+     * Ve yalnızca planı GERÇEKTEN YAZMIŞ olaylar (`uygulandi`). Plan yazmayan olaylar
+     * da (sıradan CANCELLATION, BILLING_ISSUE, tanınmayan ürün) referans sayılıyordu:
+     * teslimatı gecikmiş bir RENEWAL, ondan sonra gelen bir "otomatik yenilemeyi
+     * kapattı" CANCELLATION'ı yüzünden eski sayılıp atılıyordu. `renews_at` uzamıyor,
+     * parasını ödemiş kullanıcının hakkı ek süreden sonra kapanıyordu.
      */
     if (olayDamgasiMs !== undefined && olayKimligi !== undefined) {
       const [oncekiler] = await db
@@ -319,6 +325,7 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
           and(
             eq(kanca_olaylari.app_user_id, kullaniciId),
             ne(kanca_olaylari.event_id, olayKimligi),
+            eq(kanca_olaylari.uygulandi, true),
           ),
         );
 
@@ -345,12 +352,28 @@ export async function abonelikRotalari(app: FastifyInstance): Promise<void> {
         target: subscriptions.user_id,
         set: { plan, product_id: urunId, renews_at: yenilenme, updated_at: damga },
       });
+
+    // Bu olay artık sıra referansı: planı gerçekten yazdı.
+    if (olayKimligi !== undefined) {
+      await db
+        .update(kanca_olaylari)
+        .set({ uygulandi: true })
+        .where(eq(kanca_olaylari.event_id, olayKimligi));
+    }
   }
 
   const kancaSirri = app.yapilandirma.REVENUECAT_KANCA_SIRRI;
 
   if (kancaSirri) {
-    app.post('/kanca', async (istek, cevap) => {
+    /**
+     * Genel istek sınırının DIŞINDA.
+     *
+     * Kanca kimliksiz geldiği için IP kovasına düşüyordu ve RevenueCat'in tüm
+     * teslimatları aynı birkaç IP'den çıkıyor: yenileme günü dakikada 120'yi aşan bir
+     * patlama 429 alıyor, olaylar saatlerce yeniden denemeye kalıyordu. Uç zaten sırla
+     * korunuyor; sınır ona bir şey katmıyor, yalnızca ödeme olaylarını geciktiriyordu.
+     */
+    app.post('/kanca', { config: { rateLimit: false } }, async (istek, cevap) => {
       const baslik = istek.headers.authorization ?? '';
       const gelen = baslik.startsWith('Bearer ') ? baslik.slice(7) : baslik;
 

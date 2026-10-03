@@ -51,9 +51,35 @@ describe('ilerlemeUygula — tamamladım', () => {
   });
 
   it('e1RM tahmini güncellenir', () => {
-    const sonuc = ilerlemeUygula({ ...temelGirdi, sonuc: 'tamamladim' });
+    const sonuc = ilerlemeUygula({
+      ...temelGirdi,
+      durum: durumKur({ e1rm: 60 }),
+      sonuc: 'tamamladim',
+    });
 
-    expect(sonuc.durum.e1rm).toBeGreaterThan(temelGirdi.durum.e1rm);
+    expect(sonuc.durum.e1rm).toBeGreaterThan(60);
+  });
+
+  it('e1RM kaldırılan yükten hesaplanır, gelecek haftanın hedefinden değil', () => {
+    // 50 kg × 12 tekrar → Epley 70. Hedef 52,5'e çıkıyor ama o yük henüz kaldırılmadı.
+    const sonuc = ilerlemeUygula({
+      ...temelGirdi,
+      durum: durumKur({ e1rm: 0 }),
+      sonuc: 'tamamladim',
+    });
+
+    expect(sonuc.durum.mevcut_kg).toBe(52.5);
+    expect(sonuc.durum.e1rm).toBe(70);
+  });
+
+  it('zorlanılan setten e1RM şişirilmez', () => {
+    const sonuc = ilerlemeUygula({
+      ...temelGirdi,
+      durum: durumKur({ e1rm: 0 }),
+      sonuc: 'zorlandim',
+    });
+
+    expect(sonuc.durum.e1rm).toBe(0);
   });
 
   it('kullanıcıya gösterilecek mesaj yeni ağırlığı söyler', () => {
@@ -108,6 +134,21 @@ describe('ilerlemeUygula — zorlandım', () => {
   });
 });
 
+describe('ilerlemeUygula — zorlandım, vücut ağırlığı', () => {
+  it('kilo yerine tekrar söylenir; "0 kg" yazılmaz', () => {
+    const sinav = { ...hareketBul('sinav')!, vucut_agirligi: true };
+    const sonuc = ilerlemeUygula({
+      ...temelGirdi,
+      hareket: sinav,
+      durum: durumKur({ hareket_id: 'sinav', mevcut_kg: 0, mevcut_tekrar: 10 }),
+      sonuc: 'zorlandim',
+    });
+
+    expect(sonuc.mesaj).not.toContain('0 kg');
+    expect(sonuc.mesaj).toContain('10 tekrar');
+  });
+});
+
 describe('ilerlemeUygula — yapamadım', () => {
   it('ağırlık düşürülür', () => {
     const sonuc = ilerlemeUygula({ ...temelGirdi, sonuc: 'yapamadim' });
@@ -130,6 +171,20 @@ describe('ilerlemeUygula — yapamadım', () => {
     });
 
     expect(sonuc.durum.mevcut_kg).toBe(20);
+  });
+
+  it('boş barda başarısız olan kullanıcıya muadil önerilir, "iniyor" denmez', () => {
+    const sonuc = ilerlemeUygula({
+      ...temelGirdi,
+      durum: durumKur({ mevcut_kg: 20 }),
+      sonuc: 'yapamadim',
+    });
+
+    expect(sonuc.hareket_degistir).toBe(true);
+    expect(sonuc.karar.kurallar).toContain('bos_bar_tabani');
+    // Yük düşmedi; çevrilen cümle de "iniyor" dememeli.
+    expect(sonuc.karar.kurallar).not.toContain('yuk_dusuruldu');
+    expect(sonuc.mesaj).not.toContain("kg'a iniyor");
   });
 
   it('üst üste yapamamada deload tetiklenir', () => {

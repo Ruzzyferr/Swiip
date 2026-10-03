@@ -2,7 +2,7 @@ import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { SORU_BANKASI } from '@swiip/shared';
-import { Yasak } from '../hatalar';
+import { Bulunamadi, Yasak } from '../hatalar';
 import { ai_usage, analytics_events, assessments, subscriptions, users } from '../db/sema';
 
 /**
@@ -43,6 +43,34 @@ export async function analitikRotalari(app: FastifyInstance): Promise<void> {
     const anahtar = istek.headers['x-yonetim-anahtari'];
     yonetimAnahtariniDogrula(app, typeof anahtar === 'string' ? anahtar : undefined);
   };
+
+  /**
+   * Doktor onayı — EKİBİN elle verdiği tek kapı açılışı.
+   *
+   * Kardiyak kapı ekranı "Doktor onayı yükle" diyordu ve Ayarlar'a götürüyordu; orada
+   * yükleme yoktu, sunucuda da `doktor_onayi_at` alanını yazan hiçbir uç yoktu. Bayrağı
+   * olan kullanıcının tek çıkışı cevabını değiştirmekti — yani kapı ya kalıcı bir
+   * duvardı ya da yalan söyletiyordu.
+   *
+   * Akış artık şu: kullanıcı doktorunun yazılı onayını destek adresine gönderiyor, ekip
+   * belgeyi görüp bu ucu çağırıyor. Uygulama içinde bir "onayım var" kutusu YOK: kendi
+   * beyanıyla açılan bir kapı, `CLAUDE.md`'deki "atlanamaz" kuralını boşa düşürürdü.
+   * Belge sunucuya hiç yazılmıyor; yalnızca onayın verildiği an saklanıyor.
+   */
+  app.post('/doktor-onayi', { preHandler: yonetimKapisi }, async (istek) => {
+    const { email, geri_al } = z
+      .object({ email: z.string().email().max(254), geri_al: z.boolean().default(false) })
+      .parse(istek.body);
+
+    const [kayit] = await db
+      .update(users)
+      .set({ doktor_onayi_at: geri_al ? null : new Date() })
+      .where(eq(sql`lower(${users.email})`, email.toLowerCase()))
+      .returning({ onay: users.doktor_onayi_at });
+
+    if (!kayit) throw Bulunamadi('Bu e-postayla bir hesap yok.', 'hesap_yok');
+    return { doktor_onayi_at: kayit.onay };
+  });
 
   /**
    * Terk noktaları: hangi soruda kaç kişi bıraktı.

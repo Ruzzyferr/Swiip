@@ -20,15 +20,17 @@ export function tekUcus<T>(calisan: () => Promise<T>): () => Promise<T> {
     // Uçuş sürüyorsa yenisini başlatma; aynı sonucu bekle.
     if (ucus) return ucus;
 
-    ucus = (async () => {
-      try {
-        return await calisan();
-      } finally {
-        // Bir sonraki çağrı yeni bir uçuş başlatabilsin.
-        ucus = null;
-      }
-    })();
+    // `async` sarmalayıcı eşzamanlı fırlatmayı da reddedilmiş söze çeviriyor.
+    // Temizlik `finally` içinde DEĞİL: çalışan eşzamanlı fırlattığında `finally`
+    // atamadan önce koşuyor ve reddedilmiş söz `ucus`ta kalıcı olarak kalıyordu.
+    const bu = (async () => calisan())();
+    ucus = bu;
+    const temizle = () => {
+      // Bir sonraki çağrı yeni bir uçuş başlatabilsin.
+      if (ucus === bu) ucus = null;
+    };
+    bu.then(temizle, temizle);
 
-    return ucus;
+    return bu;
   };
 }

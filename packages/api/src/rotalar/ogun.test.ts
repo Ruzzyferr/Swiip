@@ -5,6 +5,8 @@ import { besinleriTohumla, tarifleriTohumla } from '../db/tohum';
 import { cevaplardanKisit } from './ogun';
 import { TARIF_TOHUMU } from '../db/tarifler';
 import { tarifMakrolariniHesapla } from '../db/malzemeEslemesi';
+import { eq } from 'drizzle-orm';
+import { shopping_lists } from '../db/sema';
 
 /**
  * Öğün planlama ucu (F8) bitti kriterleri:
@@ -570,5 +572,91 @@ describe('haftalık plan çeşitliliği (F8.7)', () => {
     const ikinci = await istekYap();
 
     expect(JSON.stringify(ikinci.json().gunler)).toBe(JSON.stringify(ilk.json().gunler));
+  });
+});
+
+/**
+ * Öğün kısıtları EN YENİ değerlendirme sürümünden okunuyor.
+ *
+ * Sırasız `limit(1)` keyfi bir sürüm döndürüyordu: yeni sürümde alerji ekleyen
+ * kullanıcının destesi eski, alerjisiz cevaplardan kuruluyordu.
+ */
+describe('değerlendirme güncellenince kısıtlar da güncellenir', () => {
+  it('yeni sürümde eklenen alerji tariflerden düşer', async () => {
+    const token = await kullaniciKur('alerji-sonradan@swiip.app');
+    const basliklar = { authorization: `Bearer ${token}` };
+    const tarifler = async () =>
+      (await app.inject({ method: 'GET', url: '/v1/ogun/tarifler', headers: basliklar }))
+        .json()
+        .tarifler.map((t: { id: string }) => t.id) as string[];
+
+    expect(await tarifler()).toContain('menemen');
+
+    // Eski sürümü öne geçirecek kadar satır: sırasız okuma ilk sürümü yakalamasın diye
+    // tek bir yeni sürüm değil, birkaç sürüm açılıyor.
+    for (let i = 0; i < 3; i += 1) {
+      await app.inject({
+        method: 'POST',
+        url: '/v1/degerlendirme/yeni-surum',
+        headers: basliklar,
+        payload: {},
+      });
+    }
+    await app.inject({
+      method: 'POST',
+      url: '/v1/degerlendirme/cevap',
+      headers: basliklar,
+      payload: { cevaplar: { B9: ['Yumurta'] } },
+    });
+
+    expect(await tarifler(), 'yeni sürümdeki alerji uygulanmalı').not.toContain('menemen');
+  });
+});
+
+describe('plan yeniden üretilince alışveriş listesi', () => {
+  it('aynı hafta için tek liste kalır ve o liste yeni plana aittir', async () => {
+    const token = await kullaniciKur('liste-tekrar@swiip.app');
+    const basliklar = { authorization: `Bearer ${token}` };
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/ogun/plan',
+      headers: basliklar,
+      payload: { hafta_basi: '2026-09-07' },
+    });
+    // Dolap değişiyor: yeni listede o malzeme artık "alınacak" olmamalı.
+    const ilk = await app.inject({
+      method: 'GET',
+      url: '/v1/ogun/plan/2026-09-07',
+      headers: basliklar,
+    });
+    const ilkKalemler = ilk.json().alisveris.items_jsonb as Array<{ ad: string }>;
+    const dolaba = ilkKalemler.slice(0, 3).map((k) => k.ad);
+
+    await app.inject({
+      method: 'POST',
+      url: '/v1/ogun/dolap',
+      headers: basliklar,
+      payload: { malzemeler: dolaba },
+    });
+    const yeniden = await app.inject({
+      method: 'POST',
+      url: '/v1/ogun/plan',
+      headers: basliklar,
+      payload: { hafta_basi: '2026-09-07' },
+    });
+
+    const okuma = await app.inject({
+      method: 'GET',
+      url: '/v1/ogun/plan/2026-09-07',
+      headers: basliklar,
+    });
+    expect(okuma.json().alisveris.items_jsonb).toEqual(yeniden.json().alisveris.kalemler);
+
+    const satirlar = await uygulama.ortam.db
+      .select()
+      .from(shopping_lists)
+      .where(eq(shopping_lists.plan_id, okuma.json().plan.id));
+    expect(satirlar).toHaveLength(1);
   });
 });

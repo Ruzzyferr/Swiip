@@ -69,7 +69,11 @@ export default function FotografGizlilik() {
           <Yazi tur="kucuk" renk="metinYumusak">
             {metinler.gizlilik.fotografsizAciklama}
           </Yazi>
-          <Dugme baslik={f.olculerleDevam} tur="ikincil" onPress={() => router.push('/rapor')} />
+          <Dugme
+            baslik={f.olculerleDevam}
+            tur="ikincil"
+            onPress={() => router.push('/fotograf/olculer')}
+          />
         </Kart>
       </Ekran>
     </>

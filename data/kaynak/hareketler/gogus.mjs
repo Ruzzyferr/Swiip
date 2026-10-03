@@ -29,6 +29,13 @@ export default [
       'Dirseklerin gövdeyle yaklaşık 45 derece açı yapsın, yanlara tam açılmasın.',
       'Bar göğsüne değdiğinde durma, kontrollü şekilde yukarı it.',
     ],
+    talimat_en: [
+      'Keep your back flat on the bench and pull your shoulder blades back and down.',
+      'Plant your feet firmly on the floor and keep your hips on the bench.',
+      'Lower the bar to your lower chest, at nipple level.',
+      'Keep your elbows at about 45 degrees to your torso, not flared all the way out.',
+      'Don’t pause when the bar touches your chest; press it back up under control.',
+    ],
   },
   {
     id: 'dumbbell-bench-press',
@@ -55,6 +62,13 @@ export default [
       'Dumbbell’ları göğüs hizasında, bilekler düz olacak şekilde tut.',
       'Aşağıda göğsünde gerginlik hissedeceğin noktaya kadar in, omzunu zorlama.',
       'Yukarıda dirseklerini tam kilitleme, gerginliği kasta tut.',
+    ],
+    talimat_en: [
+      'Rest the dumbbells on your knees and use your knees to kick them up as you lie back.',
+      'Squeeze your shoulder blades together and lift your chest slightly.',
+      'Hold the dumbbells at chest level with your wrists straight.',
+      'Lower until you feel tension in your chest; don’t strain your shoulders.',
+      'Don’t fully lock out your elbows at the top; keep tension on the muscle.',
     ],
   },
   {
@@ -83,6 +97,13 @@ export default [
       'Dirseklerin gövdeyle 45 derece açıda kalsın.',
       'Yukarı iterken dumbbell’ları birbirine çarpma, gerginliği koru.',
     ],
+    talimat_en: [
+      'Set the bench to 30-45 degrees; a steeper angle shifts the work to your shoulders.',
+      'Lean back against the bench and squeeze your shoulder blades together.',
+      'Lower the dumbbells to collarbone level.',
+      'Keep your elbows at a 45-degree angle to your torso.',
+      'Don’t clash the dumbbells together as you press; maintain tension.',
+    ],
   },
   {
     id: 'egimli-barbell-press',
@@ -108,6 +129,13 @@ export default [
       'Kürekleri sıkıştır, kalçan bench’te kalsın.',
       'Barı yukarı iterken omuzların öne doğru yuvarlanmasın.',
       'Son tekrarlarda yardım alacak kimse yoksa güvenlik pimlerini ayarla.',
+    ],
+    talimat_en: [
+      'Set the bench angle to around 30 degrees.',
+      'Lower the bar to just below your collarbone.',
+      'Squeeze your shoulder blades and keep your hips on the bench.',
+      'Don’t let your shoulders roll forward as you press the bar up.',
+      'If no one is there to spot your last reps, set the safety pins.',
     ],
   },
   {
@@ -135,6 +163,13 @@ export default [
       'Geri dönüşte ağırlığı bırakma, kontrollü indir.',
       'Boynunu ileri uzatma, başın sırtlıkta kalsın.',
     ],
+    talimat_en: [
+      'Adjust the seat height so the handles line up with your chest.',
+      'Lean fully back against the pad and pull your shoulders back.',
+      'Don’t fully lock out your elbows as you press forward.',
+      'Don’t let the weight drop on the way back; lower it under control.',
+      'Don’t push your neck forward; keep your head against the pad.',
+    ],
   },
   {
     id: 'kablo-gogus-fly',
@@ -160,6 +195,13 @@ export default [
       'Dirseklerini hafif bükülü sabitle, kolunu bükerek çekme.',
       'Elleri göğsünün önünde birleştirirken göğsünü sık.',
       'Geri açarken kontrolü bırakma, omuzda gerilme hissedince dur.',
+    ],
+    talimat_en: [
+      'Set the pulleys slightly above shoulder height.',
+      'Step forward one step and keep your torso leaning slightly forward.',
+      'Lock your elbows in a slight bend; don’t pull by bending your arms.',
+      'Squeeze your chest as you bring your hands together in front of it.',
+      'Stay in control as you open back up, and stop when you feel a stretch in your shoulders.',
     ],
   },
   {
@@ -188,6 +230,13 @@ export default [
       'Omuz hizasının altına inme; gerilme hissettiğin yerde dur.',
       'Ağırlığı hafif tut — bu hareket ağırlıkla değil kontrolle çalışır.',
     ],
+    talimat_en: [
+      'Lie on your back on the bench and hold the dumbbells above your chest.',
+      'Lock your elbows in a slight bend and never change that angle.',
+      'Open your arms out to the sides in a wide arc.',
+      'Don’t go below shoulder level; stop where you feel the stretch.',
+      'Keep the weight light; this exercise works through control, not load.',
+    ],
   },
   {
     id: 'pec-deck',
@@ -213,6 +262,13 @@ export default [
       'Kolları öne kapatırken göğsünü sık, bir saniye tut.',
       'Açarken kontrollü geri bırak, ağırlıkları çarptırma.',
       'Aşırı geriye açma; omuz önünde zorlanma hissediyorsan menzili kısalt.',
+    ],
+    talimat_en: [
+      'Adjust the seat so the handles line up with your chest.',
+      'Lean back against the pad and pull your shoulders back and down.',
+      'Squeeze your chest as you bring your arms together, and hold for one second.',
+      'Release back under control as you open; don’t let the weights slam.',
+      'Don’t open too far back; if you feel strain at the front of your shoulder, shorten the range.',
     ],
   },
   {
@@ -241,6 +297,13 @@ export default [
       'Karnını sıkı tut, bel çukurun derinleşmesin.',
       'Bileğin ağrıyorsa yumruk üstünde veya paralet üstünde çalış.',
     ],
+    talimat_en: [
+      'Hands slightly wider than shoulder-width, fingers pointing forward.',
+      'Keep your body in one straight line from head to heels; don’t let your hips sag.',
+      'Lower until your chest is close to the floor, with your elbows at 45 degrees.',
+      'Keep your core tight so your lower back doesn’t arch.',
+      'If your wrists hurt, work on your fists or on push-up handles.',
+    ],
   },
   {
     id: 'dizden-sinav',
@@ -267,6 +330,13 @@ export default [
       'Göğsünü yere yaklaştır, dirseklerin gövdeye yakın kalsın.',
       'Yukarı iterken avuç içlerinle yeri it.',
       'Dizinin altına bir havlu koyabilirsin.',
+    ],
+    talimat_en: [
+      'Place your knees on the floor and cross your feet in the air.',
+      'Keep your body in a straight line from knees to head; don’t let your hips shift back.',
+      'Bring your chest toward the floor, keeping your elbows close to your body.',
+      'Push the floor away with your palms as you press up.',
+      'You can place a towel under your knees.',
     ],
   },
   {
@@ -295,6 +365,13 @@ export default [
       'Göğsünü yükseltiye yaklaştır, kontrollü in.',
       'Kolaylaştıkça yükseltinin yüksekliğini azalt.',
     ],
+    talimat_en: [
+      'Place your hands on a table, bench or other sturdy raised surface.',
+      'The higher the surface, the easier the exercise.',
+      'Keep your body in a straight line from head to heels.',
+      'Bring your chest toward the surface, lowering under control.',
+      'As it gets easier, reduce the height of the surface.',
+    ],
   },
   {
     id: 'dip-gogus',
@@ -322,6 +399,13 @@ export default [
       'Omzunda batma hissi varsa bu hareketi yapma, alternatifine geç.',
       'Kolaylaştığında bele ağırlık kemeri takarak zorlaştır.',
     ],
+    talimat_en: [
+      'Get up on the bars, lock your arms and pull your shoulders away from your ears.',
+      'To target the chest, lean your torso slightly forward and bend your knees back.',
+      'Lower until your upper arms are parallel to the floor; don’t go any deeper.',
+      'If you feel a pinching sensation in your shoulder, skip this exercise and switch to an alternative.',
+      'When it gets easy, add load with a dip belt around your waist.',
+    ],
   },
   {
     id: 'svend-press',
@@ -348,6 +432,13 @@ export default [
       'Kontrollü geri getir, baskı hiç azalmasın.',
       'Ağır plaka gerekmez; 5-10 kg fazlasıyla yeterli.',
     ],
+    talimat_en: [
+      'Press two plates together between your palms in front of your chest.',
+      'Extend your arms forward without releasing the pressure.',
+      'Squeeze your chest and exhale as you extend.',
+      'Bring them back under control without letting the pressure drop.',
+      'No heavy plates needed; 5-10 kg is more than enough.',
+    ],
   },
   {
     id: 'smith-gogus-presi',
@@ -373,6 +464,13 @@ export default [
       'Barı göğüs altına indir, dirseklerin 45 derece açıda kalsın.',
       'Sabit ray dengeyi senin yerine tutar; bu yüzden yardımcıya ihtiyaç yok.',
       'Set bitince barı çevirip kilide oturt.',
+    ],
+    talimat_en: [
+      'Position the bench under the bar so the bar lines up with your chest.',
+      'Rotate the bar to unhook it.',
+      'Lower the bar to your lower chest, keeping your elbows at 45 degrees.',
+      'The fixed track handles balance for you, so you don’t need a spotter.',
+      'When the set is done, rotate the bar to rack it back on the hooks.',
     ],
   },
 ];

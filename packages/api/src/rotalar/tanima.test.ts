@@ -199,6 +199,29 @@ describe('POST /v1/beslenme/tani', () => {
     expect(sonrasi.kullanilan, 'başarısız deneme kotadan düşmemeli').toBe(oncesi.kullanilan);
   });
 
+  /**
+   * Boş sonuç "kotandan düşmedi" diyordu ama rezerve edilen hak iade edilmiyordu.
+   */
+  it('boş tanıma sonucu kotadan düşmez — hak gerçekten geri veriliyor', async () => {
+    const oncesi = await kotaOku();
+
+    sahteIstemci.metinUret.mockImplementationOnce(async () => ({
+      metin: JSON.stringify({ kalemler: [] }),
+      girdi_token: 900,
+      cikti_token: 10,
+      model: 'test-gorsel',
+    }));
+
+    const cevap = await tani({ fotograf: foto('bos', 500) });
+    expect(cevap.statusCode).toBe(400);
+    expect(cevap.json().kod).toBe('tanima_basarisiz');
+
+    const sonrasi = await kotaOku();
+    expect(sonrasi.kullanilan, 'kullanıcıya söylenen ile sayaç aynı olmalı').toBe(
+      oncesi.kullanilan,
+    );
+  });
+
   it('normal tanıma kotadan düşer', async () => {
     const oncesi = await kotaOku();
 
@@ -269,18 +292,69 @@ describe('POST /v1/beslenme/tani/onayla', () => {
     return t;
   }
 
+  /**
+   * Onay GERÇEK bir tanımaya bağlı: önce o kullanıcı adına bir fotoğraf tanınıyor.
+   * Uydurma `photo_hash` ile verilen onay global eşlemeye oy sayılmıyor (aşağıda ayrı
+   * test var).
+   */
   async function onayla(t: string, foodId: string, gun: string) {
+    const tanima = await app.inject({
+      method: 'POST',
+      url: '/v1/beslenme/tani',
+      headers: { authorization: `Bearer ${t}` },
+      payload: { fotograf: foto(`onay${gun.replace(/-/g, '')}${t.slice(-6)}`, 300) },
+    });
     return app.inject({
       method: 'POST',
       url: '/v1/beslenme/tani/onayla',
       headers: { authorization: `Bearer ${t}` },
       payload: {
-        photo_hash: `hash-${gun}`,
+        photo_hash: tanima.json().photo_hash,
         gun,
         kalemler: [{ ad: 'köfte', food_id: foodId, gram: 200, miktar: 1 }],
       },
     });
   }
+
+  /**
+   * Uydurma parmak iziyle onay global eşlemeye oy veremez.
+   *
+   * Bu uç plan istemiyor ve `photo_hash` serbest bir dizeydi: e-posta doğrulaması
+   * gerektirmeyen üç ücretsiz hesap, bir kelimeyi istedikleri besine bağlayıp herkesin
+   * tanıma sonucunu değiştirebiliyordu.
+   */
+  it('tanıma yapmadan gönderilen onay global eşlemeyi değiştiremez', async () => {
+    const besin = await app.inject({
+      method: 'GET',
+      url: '/v1/beslenme/besin/ara?q=pilav',
+      headers: yetkili(),
+    });
+    const hedef = besin.json().sonuclar.at(-1);
+
+    for (const e of ['sahte-oy-1@swiip.app', 'sahte-oy-2@swiip.app', 'sahte-oy-3@swiip.app']) {
+      const kayit = await app.inject({
+        method: 'POST',
+        url: '/v1/kimlik/kayit',
+        payload: { email: e, parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+      });
+      const onay = await app.inject({
+        method: 'POST',
+        url: '/v1/beslenme/tani/onayla',
+        headers: { authorization: `Bearer ${kayit.json().erisim_token}` },
+        payload: {
+          photo_hash: 'uydurma-parmak-izi',
+          gun: '2026-08-26',
+          kalemler: [{ ad: 'pilav', food_id: hedef.id, gram: 150, miktar: 1 }],
+        },
+      });
+      // Kişinin kendi günlüğü yine yazılıyor; kural yalnızca global oyu kapatıyor.
+      expect(onay.statusCode).toBe(200);
+    }
+
+    const yeni = await tani({ fotograf: foto('sahteoy', 500) });
+    const pilav = yeni.json().kalemler.find((k: { ad: string }) => k.ad === 'pilav');
+    expect(pilav.besin?.id, 'tanımasız onay herkes için eşleme kuralı olmamalı').not.toBe(hedef.id);
+  });
 
   /**
    * Eski test tam da sömürüyü DOĞRU davranış diye koruyordu: tek kullanıcı aynı
@@ -482,5 +556,52 @@ describe('AI bütçesi (F7.8 · birim ekonomisi)', () => {
     });
 
     expect(cevap.json().hizmet_kesildi).toBe(false);
+  });
+});
+
+/**
+ * Model yokken hak rezerve edilmiyor.
+ *
+ * `ai_kapali` kontrolü rezervasyondan SONRA geliyordu ve iade etmeden fırlatıyordu:
+ * geçit yapılandırılmamışken her deneme, hiçbir çağrı yapılmadan aylık haktan
+ * bir tane yiyordu.
+ */
+describe('model bağlı değilken', () => {
+  it('tanıma denemesi kotadan düşmez', async () => {
+    const { testUygulamasi } = await import('../test/uygulama');
+    const yalin = await testUygulamasi();
+    try {
+      const kayit = await yalin.app.inject({
+        method: 'POST',
+        url: '/v1/kimlik/kayit',
+        payload: { email: 'modelsiz@swiip.app', parola: 'Kirmizi-Bisiklet-42', saglik_onayi: true },
+      });
+      const yetki = { authorization: `Bearer ${kayit.json().erisim_token}` };
+      await yalin.app.inject({
+        method: 'POST',
+        url: '/v1/abonelik/guncelle',
+        headers: yetki,
+        payload: { plan: 'pro' },
+      });
+
+      for (let i = 0; i < 3; i += 1) {
+        const cevap = await yalin.app.inject({
+          method: 'POST',
+          url: '/v1/beslenme/tani',
+          headers: yetki,
+          payload: { fotograf: foto(`m${i}`, 400) },
+        });
+        expect(cevap.json().kod).toBe('ai_kapali');
+      }
+
+      const durum = await yalin.app.inject({
+        method: 'GET',
+        url: '/v1/abonelik/durum',
+        headers: yetki,
+      });
+      expect(durum.json().kota.yemek_tanima.kullanilan).toBe(0);
+    } finally {
+      await yalin.kapat();
+    }
   });
 });

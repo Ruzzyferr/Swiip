@@ -1,5 +1,14 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { aramaAnahtari, dilCozumle, KATLANAN, KATLANMIS, veriYereli } from '@swiip/shared';
+import { and, desc, eq, or, sql } from 'drizzle-orm';
+import {
+  aramaAnahtari,
+  besinAdi,
+  dilCozumle,
+  hareketAdi,
+  KATLANAN,
+  KATLANMIS,
+  veriYereli,
+  type Dil,
+} from '@swiip/shared';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
@@ -14,7 +23,7 @@ import {
   type KocMesaji,
 } from '@swiip/core';
 import type { Profil } from '@swiip/shared';
-import { HataliIstek, KotaDoldu, PlanYetersiz } from '../hatalar';
+import { HataliIstek, KotaDoldu, PlanYetersiz, Yasak } from '../hatalar';
 import {
   ai_usage,
   coach_messages,
@@ -33,6 +42,7 @@ import { donemBitisi, donemKodu } from './abonelik';
 import { kotaIadeEt, kotaRezerveEt } from '../servisler/kotaRezerve';
 import { butceDurumu, ucuzaDusur } from '@swiip/core';
 import { planGecerliMi } from '../servisler/planOku';
+import { guncelKapiDurumu, yasKapisi } from '../servisler/kapiDurumu';
 
 /**
  * AI koç sohbeti (F9).
@@ -126,6 +136,13 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
       );
     }
 
+    /**
+     * Profil `/tamamla` anının fotoğrafı; yaş kapısı GÜNCEL cevaplardan okunuyor.
+     * Sonradan 18 yaş altını beyan eden kullanıcı eski profille koça ulaşamamalı.
+     */
+    const yas = yasKapisi(await guncelKapiDurumu(db, istek.kullaniciId));
+    if (yas) throw Yasak(yas.mesaj, 'kapi_yas');
+
     const profil = profilKaydi.profil as Profil;
     const ozet = profilOzeti(profil);
 
@@ -146,6 +163,7 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
       mesaj,
       edModu,
       veriYereli(dilKaydi?.locale),
+      dil,
     );
 
     const gecmis = await gecmisOku(istek.kullaniciId);
@@ -318,6 +336,8 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
     edModu: boolean,
     /** Besin araması bu veri kümesiyle sınırlı; koç başka bir dile bakmaz. */
     besinYereli: string,
+    /** Kullanıcının arayüz dili: hareket talimatı ve besin adı bu dilde bağlama girer. */
+    dil: Dil = 'tr',
   ): Promise<Record<string, unknown>> {
     const kucuk = mesaj.toLocaleLowerCase('tr-TR');
 
@@ -396,8 +416,8 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
         hareketAdaGoreBul(yakalanan) ?? hareketAdaGoreBul(yakalanan.split(' ').slice(-1)[0]!);
       if (hareket) {
         veri.hareket_bilgisi = {
-          ad: hareket.ad_tr,
-          talimat: hareket.talimat_tr,
+          ad: hareketAdi(hareket, dil),
+          talimat: dil === 'en' ? hareket.talimat_en : hareket.talimat_tr,
           kaslar: hareket.birincil_kas,
           muadiller: hareket.alternatifler,
         };
@@ -408,18 +428,27 @@ export async function kocRotalari(app: FastifyInstance): Promise<void> {
       const sorgu = besinSorgusu(katlanmisMetin);
       if (sorgu.length > 2) {
         const sonuclar = await db
-          .select({ ad: foods.name_tr, per_100g: foods.per_100g_jsonb })
+          .select({
+            name_tr: foods.name_tr,
+            name_en: foods.name_en,
+            per_100g: foods.per_100g_jsonb,
+          })
           .from(foods)
           // Şapkasız yazan kullanıcıyı da bulur; katlama shared/arama.ts ile ortak.
           // Yerel filtresi: koç kullanıcının veri kümesinden başka bir yere bakmamalı.
           .where(
             and(
               eq(foods.locale, besinYereli),
-              sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + sorgu + '%'}`,
+              or(
+                sql`lower(translate(${foods.name_tr}, ${KATLANAN}, ${KATLANMIS})) like ${'%' + sorgu + '%'}`,
+                sql`lower(translate(coalesce(${foods.name_en}, ''), ${KATLANAN}, ${KATLANMIS})) like ${'%' + sorgu + '%'}`,
+              ),
             ),
           )
           .limit(3);
-        if (sonuclar.length > 0) veri.besin_ara = sonuclar;
+        if (sonuclar.length > 0) {
+          veri.besin_ara = sonuclar.map((b) => ({ ad: besinAdi(b, dil), per_100g: b.per_100g }));
+        }
       }
     }
 

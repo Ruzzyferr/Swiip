@@ -88,12 +88,35 @@ describe('reklam kararı SUNUCUDAN geliyor', () => {
 describe('banner üç koşul sağlanmadan çizilmiyor', () => {
   const BANNER = kod(join(REKLAM, 'ReklamBanner.tsx'));
 
-  it('hak yoksa ya da bilinmiyorsa null dönüyor', () => {
+  it('hak yoksa ya da bilinmiyorsa REKLAM istenmiyor', () => {
+    /*
+     * 2026-10-03: banner artık cevaptan önce de YER ayırabiliyor (sunucunun bu
+     * kullanıcıya son kararı "reklam var" idiyse). Kural daralmadı, yer değiştirdi:
+     * `null` dönüşü yerine `BannerAd`in kendisi aynı iki koşulun arkasında.
+     */
     expect(
-      BANNER.includes('if (!bilindi || !goster) return null'),
+      BANNER.includes('{!bilindi || !goster ? null : ('),
       'Yalnızca `goster` bakmak yetmez: cevap gelmeden `goster` false ama "bilinmiyor" ' +
-        'ile "hayır" aynı şey değil. Yükleme anında çizim yapılmamalı.',
+        'ile "hayır" aynı şey değil. Yükleme anında reklam istenmemeli.',
     ).toBe(true);
+    expect(BANNER.indexOf('{!bilindi || !goster ? null : (')).toBeLessThan(
+      BANNER.indexOf('<BannerAd'),
+    );
+  });
+
+  it('yer yalnızca sunucunun son kararı "reklam var" iken ayrılıyor', () => {
+    const HAK = kod(join(REKLAM, 'ReklamHakki.tsx'));
+    expect(BANNER).toMatch(/if \(!yerAyir\) return null/);
+    expect(
+      HAK.includes('const yerAyir = goster || (!bilindi && durum?.haklar?.reklam === true)'),
+      'Yer, sunucu cevap verdikten sonra yalnızca `goster` ile ayrılmalı; ödeyene boş şerit kalmasın.',
+    ).toBe(true);
+  });
+
+  it('ödeme onayında reklam istemcide HEMEN kapanıyor', () => {
+    const HAK = kod(join(REKLAM, 'ReklamHakki.tsx'));
+    const govde = HAK.slice(HAK.indexOf('const odemeOnaylandi'));
+    expect(govde.slice(0, 200)).toMatch(/setGoster\(false\)/);
   });
 
   /**
@@ -119,7 +142,7 @@ describe('banner üç koşul sağlanmadan çizilmiyor', () => {
       'Yükseklik `yuklendi` durumuna bağlanmış: içerik zıplar.',
     ).toBe(false);
     expect(
-      BANNER.includes('opacity: yuklendi ? 1 : 0'),
+      BANNER.includes('opacity: yuklendi && reklamYuklensin ? 1 : 0'),
       'Yüklenmemiş reklam görünmemeli ama YERİ durmalı.',
     ).toBe(true);
   });
@@ -151,7 +174,9 @@ describe('tam ekran reklam eylemin YERİNE geçmiyor', () => {
   });
 
   it('gösterilemeyen reklam sayacı ARTIRMIYOR', () => {
-    const goster = GECIS.slice(GECIS.indexOf('reklam.show()'));
+    const gosterIndeksi = GECIS.search(/await \w+\.show\(\)/);
+    expect(gosterIndeksi, '`show()` beklenmiyor: reddi catch bloğuna ulaşmaz').toBeGreaterThan(-1);
+    const goster = GECIS.slice(gosterIndeksi);
     const yaz = goster.indexOf('durumuYaz');
     const yakala = goster.indexOf('catch');
     expect(yaz, 'durumuYaz çağrısı yok').toBeGreaterThan(-1);
@@ -175,8 +200,18 @@ describe('tam ekran reklam eylemin YERİNE geçmiyor', () => {
   });
 
   it('yalnızca başarılı kayıtta gösteriliyor', () => {
+    /*
+     * Başarısız kayıt `catch` içinde ERKEN DÖNÜYOR; reklam çağrısı o dönüşün
+     * ardında. (Önceki biçim bir `basarili` bayrağıydı; hata yolu artık seçimi
+     * koruyup hatayı gösterdiği için akış erken dönüşe çevrildi.)
+     */
+    const ekle = BESLENME.slice(BESLENME.indexOf('const ekle = async'));
+    const yakala = ekle.indexOf('} catch {');
+    const donus = ekle.indexOf('return;', yakala);
+    const reklam = ekle.indexOf('gecisReklamiGoster(reklamGoster)');
+    expect(yakala, 'kayıt hatası yakalanmıyor').toBeGreaterThan(-1);
     expect(
-      BESLENME.includes('if (basarili) void gecisReklamiGoster'),
+      donus > yakala && donus < reklam,
       'Başarısız kayıtta reklam açmak, kullanıcının okuması gereken hatayı gizler.',
     ).toBe(true);
   });

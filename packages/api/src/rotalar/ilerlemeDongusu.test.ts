@@ -186,13 +186,29 @@ describe('geri bildirim planı gerçekten değiştirir', () => {
 
   it('iki hafta üst üste zorlanınca plandaki set sayısı düşer', async () => {
     const once = await aktifProgram();
-    const gun = once.gunler[1] ?? once.gunler[0]!;
-    const hedef = gun.hareketler.find((h) => (h.target_weight ?? 0) > 0)!;
+    /*
+      İki ayrı SEANSTA aynı hareket. Önceden aynı seansa iki kez geri bildirim
+      gönderiliyordu; sunucu artık bunu reddediyor (`seans_zaten_bildirildi`), çünkü
+      gerçek kullanıcıda bu ağırlıkları ikinci kez artırmak demekti.
+    */
+    const acik = once.gunler.filter(
+      (g) => g.seans.status !== 'tamamlandi' && g.seans.status !== 'atlandi',
+    );
+    const hedef = acik
+      .flatMap((g) => g.hareketler)
+      .find(
+        (h) =>
+          (h.target_weight ?? 0) > 0 &&
+          acik.filter((g) => g.hareketler.some((x) => x.exercise_id === h.exercise_id)).length >= 2,
+      )!;
+    const [ilkSeans, ikinciSeans] = acik.filter((g) =>
+      g.hareketler.some((x) => x.exercise_id === hedef.exercise_id),
+    );
     const oncekiSet = hedef.target_sets;
 
     // Hacim düşürme eşiği iki üst üste zorlanma.
-    await geriBildirim(gun.seans.id, hedef.exercise_id, 'zorlandim');
-    const ikinci = await geriBildirim(gun.seans.id, hedef.exercise_id, 'zorlandim');
+    await geriBildirim(ilkSeans!.seans.id, hedef.exercise_id, 'zorlandim');
+    const ikinci = await geriBildirim(ikinciSeans!.seans.id, hedef.exercise_id, 'zorlandim');
     expect(ikinci.motor_kararlari.join(' ')).toContain('set düşürdüm');
 
     const sonra = await aktifProgram();
@@ -201,6 +217,28 @@ describe('geri bildirim planı gerçekten değiştirir', () => {
     );
 
     expect(enKucukSet).toBe(oncekiSet - 1);
+  });
+});
+
+describe('aynı seans iki kez raporlanamaz', () => {
+  it('tamamlanmış seansa ikinci geri bildirim 409', async () => {
+    const program = await aktifProgram();
+    const bitmis = program.gunler.find((g) => g.seans.status === 'tamamlandi')!;
+    expect(bitmis, 'önceki testler en az bir seansı tamamlamış olmalı').toBeDefined();
+
+    const cevap = await app.inject({
+      method: 'POST',
+      url: '/v1/program/geri-bildirim',
+      headers: yetkili(),
+      payload: {
+        seans_id: bitmis.seans.id,
+        kalemler: [
+          { hareket_id: bitmis.hareketler[0]!.exercise_id, sonuc: 'tamamladim', agri: false },
+        ],
+      },
+    });
+    expect(cevap.statusCode).toBe(409);
+    expect(cevap.json().kod).toBe('seans_zaten_bildirildi');
   });
 });
 

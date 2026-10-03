@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Switch, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, View } from 'react-native';
 import { Stack } from 'expo-router';
 import type { Metinler } from '@swiip/shared';
-import { Ayirac, Dugme, Ekran, Kart, Satir, Uyari, Yazi } from '../../src/tasarim/bilesenler';
+import { Ayirac, Dugme, Ekran, Kart, Satir, Sayi, Uyari, Yazi } from '../../src/tasarim/bilesenler';
 import { useTema } from '../../src/tasarim/tema';
 import { ANAHTARLAR, oku, yaz } from '../../src/veri/onbellek';
 import { useMetinler, useSayilarGizli } from '../../src/durum/Oturum';
@@ -39,6 +39,7 @@ const VARSAYILAN: Tercihler = {
 
 export default function Bildirimler() {
   const m = useMetinler().bildirimAyarlari;
+  const tema = useTema();
   const genel = useMetinler().genel;
   // Bildirim metinleri kullanıcının dilinden gelir; cihazın dilinden değil.
   const bildirimMetinleri = useMetinler().bildirim;
@@ -105,15 +106,34 @@ export default function Bildirimler() {
                 {genel.saatBasligi}
               </Yazi>
               <Satir arasi="sm">
-                {['07:00', '12:00', '18:00', '20:00'].map((saat) => (
-                  <View key={saat} style={{ flex: 1 }}>
-                    <Dugme
-                      baslik={saat}
-                      tur={tercihler.seans_saati === saat ? 'birincil' : 'ikincil'}
+                {/*
+                  Saat ÇİP, düğme değil. Düğmenin yatay iç boşluğu dört sütunda saate yer
+                  bırakmıyordu ve "07:00" iki satıra kırılıyordu ("07:" / "00").
+                */}
+                {['07:00', '12:00', '18:00', '20:00'].map((saat) => {
+                  const secili = tercihler.seans_saati === saat;
+                  return (
+                    <Pressable
+                      key={saat}
                       onPress={() => degistir('seans_saati', saat)}
-                    />
-                  </View>
-                ))}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: secili }}
+                      accessibilityLabel={saat}
+                      style={{
+                        flex: 1,
+                        minHeight: tema.dokunmaHedefi,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: tema.yaricap.md,
+                        borderWidth: secili ? 2 : StyleSheet.hairlineWidth,
+                        borderColor: secili ? tema.renk.aksan : tema.renk.kenar,
+                        backgroundColor: secili ? tema.renk.aksanZemin : tema.renk.yuzey,
+                      }}
+                    >
+                      <Sayi renk={secili ? 'aksan' : 'metin'}>{saat}</Sayi>
+                    </Pressable>
+                  );
+                })}
               </Satir>
             </>
           ) : null}
@@ -151,6 +171,9 @@ export default function Bildirimler() {
 
         <Uyari govde={m.durusNotu} />
 
+        {/* Sonuç düğmenin ALTINDA: üstündeyken basılan "Kaydet"i aşağı itiyordu. */}
+        <Dugme baslik={genel.kaydet} onPress={() => void kaydet()} />
+
         {kaydedildi ? (
           <Uyari
             tur={programaUlasilamadi ? 'uyari' : 'bilgi'}
@@ -161,8 +184,6 @@ export default function Bildirimler() {
             }
           />
         ) : null}
-
-        <Dugme baslik={genel.kaydet} onPress={() => void kaydet()} />
       </Ekran>
     </>
   );

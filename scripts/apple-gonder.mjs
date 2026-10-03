@@ -35,9 +35,17 @@ if (!hedef) {
 }
 console.log(`sürüm       : ${hedef.attributes.versionString} (${hedef.id})`);
 
-/* Yüklenmiş ve İŞLENMİŞ build'ler; PROCESSING olan bağlanamaz. */
+/*
+ * Yüklenmiş ve İŞLENMİŞ build'ler; PROCESSING olan bağlanamaz.
+ *
+ * Sürüm dizesiyle SÜZÜLÜYOR: yalnız `filter[app]` ile en yeni build başka bir sürüme
+ * (ör. TestFlight'taki bir sonraki sürüm) ait olabiliyor ve yanlış build bağlanmaya
+ * çalışılıyordu.
+ */
 const buildler = await apple(
-  `/builds?filter[app]=${UYG}&limit=10&sort=-uploadedDate&fields[builds]=version,processingState`,
+  `/builds?filter[app]=${UYG}&filter[preReleaseVersion.version]=${encodeURIComponent(
+    hedef.attributes.versionString,
+  )}&limit=10&sort=-uploadedDate&fields[builds]=version,processingState`,
 );
 const uygun = buildler.data.filter((b) => b.attributes.processingState === 'VALID');
 const build = ISTENEN_BUILD
@@ -93,13 +101,22 @@ if (gonderim) {
   console.log(`  yeni gönderim açıldı: ${gonderim.id}`);
 }
 
-/* 3) Sürüm ögesi zaten ekli mi? */
+/*
+ * 3) Sürüm ögesi zaten ekli mi?
+ *
+ * Öge SAYISINA değil, BU sürümün ögesine bakılıyor: açık gönderimde başka bir öge
+ * (abonelik, grup) varsa sayı sıfır olmadığı için sürüm hiç eklenmiyor ve gönderim
+ * sürümsüz gidiyordu.
+ */
 const ogeler = await apple(
-  `/reviewSubmissions/${gonderim.id}/items?limit=20&fields[reviewSubmissionItems]=state`,
+  `/reviewSubmissions/${gonderim.id}/items?limit=20&include=appStoreVersion&fields[reviewSubmissionItems]=state,appStoreVersion`,
 ).catch(() => ({ data: [] }));
 console.log(`  gönderimdeki öge sayısı: ${(ogeler.data ?? []).length}`);
+const surumEkli = (ogeler.data ?? []).some(
+  (o) => o.relationships?.appStoreVersion?.data?.id === hedef.id,
+);
 
-if ((ogeler.data ?? []).length === 0) {
+if (!surumEkli) {
   await apple('/reviewSubmissionItems', {
     method: 'POST',
     body: JSON.stringify({
