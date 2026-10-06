@@ -884,6 +884,57 @@ yerine konunca geçti. "3311 yanıt veriyor" ≠ "canlıya gidiyor".
 düzeltildi. `apple-notlar.mjs` 1.0'ın inceleme kaydına sabit yazıyordu; artık
 düzenlenebilir sürümü kendisi buluyor.
 
+## 2026-10-06: görünürlük — "kimse bulamıyor", ölçüldü
+
+Kullanıcı: "markette kimse bulamıyor, 8 kişi indirmiş". Tahminle değil ölçerek bakıldı.
+
+**Ölçülen (iTunes arama API, 23 sorgu):** "swiip" TR'de 1. sırada; başka HİÇBİR aramada
+(antrenman programı, kalori, diyet, fitness, egzersiz…) ilk 200'de yok. ABD'de kendi
+adıyla bile yok. O aramaların ilk sıraları 10-60 bin puanlı (Yazio 60.421, fatsecret
+10.627); bizde 1 puan. Play'de uygulama hâlâ KAPALI testte — Türkiye pazarının büyük
+kısmı Android'de ve oradan bulunması imkânsız.
+
+**Talep ölçüldü, rekabet değil** (2026-08-31 dersi): App Store arama önerileri
+(`MZSearchHints`, mağaza başlığıyla) Türkiye'de insanların yazdığını gösteriyor:
+kalori hesaplama/takip/sayacı/açığı, diyet programı/takip, kilo verme/alma programı,
+egzersiz programı, evde spor, spor salonu egzersizleri, vücut geliştirme/şekillendirme,
+kas yapma. **"beslenme" önerilerde hiç çıkmıyor** — eski adın yarısı kimsenin aramadığı
+bir kelimeydi.
+
+**Apple'ın kendi tablosu: Türkiye mağazasının VARSAYILAN dili İngiltere İngilizcesi**,
+Türkçe ek dil. Bizde en-GB yoktu. en-GB ayrıca DE/FR/IT/ES/NL/PL/RO/RU/BR'de taranıyor;
+ABD mağazası es-MX'i de tarıyor. İkisi eklendi — Türk mağazası için ikinci 100 karakter.
+
+**Yapılan (kaynak `magaza/appstore/aso.json`, yükleyici `scripts/apple-aso.mjs`):**
+
+| Yerel | Ad | Alt başlık |
+|---|---|---|
+| tr | Swiip: Spor ve Diyet Programı | Kalori hesaplama ve kilo takip |
+| en-GB (yeni) | Swiip: Workout & Calories | AI coach for gym and diet |
+| en-US | Swiip: Workout & Diet Planner | Calorie tracker, AI gym coach |
+| es-MX (yeni) | es-ES kopyası | |
+
+Kural: bir kelime ad, alt başlık ve anahtar alanında yalnız BİR kez (Apple üçünü
+birleştirerek eşleştiriyor); betik tekrarı yazmadan önce reddediyor. **Tuzak:** yeni bir
+App Information yereli, aynı dilin sürüm yerelini Apple'da BOŞ olarak kendiliğinden
+açıyor — betik artık boş yereli kaynaktan dolduruyor.
+
+**Play listesi:** ad "Swiip" (30 karakterin 5'i) → "Swiip: Spor ve Diyet Programı";
+kısa açıklama terimlerle; tam açıklamada "diyet", "kilo", "egzersiz", "evde" SIFIR
+geçiyordu — doğal cümlelerle "KİMLER İÇİN" bölümü eklendi. Play açıklamayı tarıyor,
+App Store taramıyor.
+
+**Puan isteme hiç yoktu.** `src/puan/puanIste.ts`: olumlu seans geri bildiriminden
+sonra (tamamlanan var, "yapamadım" yok, ağrı yok), en az 3 iyi seans ve ilk iyi
+seanstan 2 gün sonra, 120 günde bir; platformun KENDİ penceresi. Ödül/rozet yok —
+oyunlaştırma yasağına takılmıyor. `puanIste.test.ts`.
+
+**1.2.2** bunları taşıyor (ad/anahtar sürüme bağlı; onaylanınca devreye girer).
+**Güvenlik:** vitest 3 → 4.1.11 (kritik açık), compression 1.8.2, source-map-js 1.2.2.
+
+**Kalan, kullanıcının elinde:** Play'i herkese açmak (12 testçi × 14 gün), Apple Search
+Ads bütçesi, mağaza dışı trafik.
+
 ## Açık işler
 
 - **Arayüz: kalan üç iş.** Tasarım turu yapıldı (bkz. `git log`). Kalanlar:

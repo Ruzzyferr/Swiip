@@ -18,6 +18,7 @@ import { useTema } from '../../src/tasarim/tema';
 import { VucutHaritasi } from '../../src/degerlendirme/VucutHaritasi';
 import { ApiHatasi, istek } from '../../src/veri/api';
 import { useDil, useMetinler } from '../../src/durum/Oturum';
+import { seansSonrasiPuanIste } from '../../src/puan/puanIste';
 
 /**
  * Seans sonrası üç dokunuş (F3.9).
@@ -107,6 +108,13 @@ export default function GeriBildirimEkrani() {
         },
       });
       setKararlar(cevap.motor_kararlari);
+      // Olumlu seanstan sonra, seyrek ve platformun kendi penceresiyle (bkz. puanIste.ts).
+      void seansSonrasiPuanIste(
+        (kalemler ?? []).flatMap((k) =>
+          secimler[k.exercise_id] ? [secimler[k.exercise_id]!] : [],
+        ),
+        agriBolgeleri.length > 0,
+      );
     } catch (h) {
       if (h instanceof ApiHatasi && h.durum === 402) {
         router.push('/odeme/paywall');

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Swiip",
     "slug": "swiip",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "orientation": "portrait",
     "scheme": "swiip",
     "userInterfaceStyle": "automatic",

@@ -1,22 +1,22 @@
 # Play Store listesi — Türkçe (varsayılan dil)
 
-> **Bu metin YENİ değerlendirmeyi (sekiz kart) anlatıyor.** Mağazada duran sürüm
-> hâlâ eski akışı çalıştırıyor, yani bu metni **yeni derleme yayına çıkmadan önce
-> konsola yapıştırma** — yoksa liste, indirilen uygulamayı yanlış anlatır.
+> Kaynak bu dosya; yükleyici `scripts/play-liste.mjs` (DİKKAT: çalıştırınca Play'e
+> YAZAR, okuma betiği değil). Ad, kısa açıklama ve tam açıklamadaki kelimeler Play
+> aramasında taranıyor. Terimler 2026-10-06'da arama önerileriyle ölçüldü (talep):
+> kalori hesaplama/takip, diyet programı, kilo verme/alma, egzersiz programı, evde spor,
+> spor salonu, vücut geliştirme, kas yapma. Doldurma değil: her terim doğal bir cümlede.
 
 ## Uygulama adı (en fazla 30 karakter)
 
 ```
-Swiip
+Swiip: Spor ve Diyet Programı
 ```
 
 ## Kısa açıklama (en fazla 80 karakter)
 
 ```
-Programın neden o program olduğunu da söyleyen antrenör ve beslenme koçu.
+Kalori hesaplama, kilo takibi ve sana özel antrenman programı, gerekçesiyle.
 ```
-
-73 karakter.
 
 ## Tam açıklama (en fazla 4000 karakter)
 
@@ -30,6 +30,14 @@ zincirini çalıştırıyor, bele eksenel yük bindirmiyor."
 
 Fark ettiğin şey bu cümle. Programı üretmek kolay; neden o program olduğunu
 gösterebilmek zor.
+
+
+KİMLER İÇİN
+
+Kilo vermek, kilo almak ya da kas yapmak isteyen herkes için; evde spor yapan da spor
+salonuna giden de. Egzersiz programı, diyet programı, kalori hesaplama ve kalori
+takibi tek uygulamada. Vücut geliştirmeye yeni başlayan da yıllardır antrenman yapan da
+kendi seviyesine göre program alır.
 
 
 NASIL ÇALIŞIR
