@@ -1,0 +1,34 @@
+{
+  "locale": "da",
+  "name": "Swiip: Træningsprogram & Kost",
+  "subtitle": "Kalorietæller og vægttab",
+  "keywords": "kalorier,tæl,kalorieberegner,hjemmetræning,styrketræning,træning,hjemme,tabe,sig,mavefedt,madplan",
+  "description": "De fleste apps stiller otte spørgsmål og giver dig et program. Swiip tager også omkring fire minutter — men ved hver øvelse står der, hvilket af dine svar der satte den der.\n\nBemærk: selve appen findes indtil videre kun på engelsk og tyrkisk.\n\nDET GØR SWIIP\n• Otte kort, omkring fire minutter. Kun spørgsmål, der rent faktisk ændrer dit program.\n• Et træningsprogram ud fra, hvor du træner (hjemme eller i fitnesscenter), hvilket udstyr du har, og hvor mange dage du reelt har.\n• Kalorie- og makromål beregnet ud fra dine egne tal.\n• Kostdagbog og kalorietælling — gratis og ubegrænset i alle planer.\n• En coach, der svarer ud fra dine data, ikke med generelle råd.\n\nHVER BESLUTNING KAN SPORES\nUnder hver øvelse kan du læse, hvorfor den er der: hvilket svar, hvilken regel. Forklaringen er ikke en sætning, en sprogmodel har fundet på — det er løserens beslutningsspor.\n\nREGNESTYKKET ER FORMLER, SPROGET ER AI\nVolumen, progressiv belastning, deload, 1RM, kalorier og makroer er deterministiske formler. Sprogmodeller regner upålideligt, og i en sundhedssammenhæng er det ikke acceptabelt. Tilføj den samme fødevare to gange, og du får de samme makroer — hver gang. Næringsværdierne kommer altid fra en database.\n\nDET GØR VI BEVIDST IKKE\n• Ingen badges, streaks, konfetti eller fejringsanimationer.\n• Ingen reklamer eller mersalg til dem, der allerede betaler.\n• Opsigelse er ét tryk, øverst i Indstillinger, aldrig gemt væk.\n• Dit kropsbillede slettes, så snart det er analyseret. Kun målene gemmes.\n• Estimater vises som intervaller, aldrig som ét enkelt tal.\n\nPLANER\nGratis: kropsanalyse én gang, dag ét af dit program og manuel kalorieregistrering.\nBasic og Pro tilføjer ugentlig progression, madplan og — på Pro — genkendelse af mad fra et billede.\n\nSwiip er ikke medicinsk udstyr og stiller ikke diagnoser. Tallene er estimater. Hvis du har helbredsmæssige bekymringer, så tal med din læge.\n\nVILKÅR OG PRIVATLIV\nBrugsvilkår (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPrivatlivspolitik: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Små forbedringer og fejlrettelser.",
+  "promotionalText": "Ved hver øvelse kan du se, hvorfor den er i dit program. Kalorie- og makromål kommer fra formler, ikke gætværk.",
+  "play": {
+    "dil": "da-DK",
+    "title": "Swiip: Træningsprogram & Kost",
+    "shortDescription": "Træningsprogram, kalorietæller og kost — med en forklaring på hvert valg.",
+    "fullDescription": "De fleste apps stiller otte spørgsmål og giver dig et program. Swiip tager også omkring fire minutter — men ved hver øvelse står der, hvilket af dine svar der satte den der.\n\nBemærk: selve appen findes indtil videre kun på engelsk og tyrkisk.\n\nTIL HVEM\nTil dig, der vil tabe dig, opbygge muskler eller bare komme i gang — med træning i hjemmet eller i fitnesscenteret. Swiip samler et træningsprogram med styrketræning tilpasset dig, en kalorietæller og overblik over protein og makroer, så kost og træning hænger sammen.\n\nDET GØR SWIIP\n• Otte kort, omkring fire minutter. Kun spørgsmål, der rent faktisk ændrer dit program.\n• Et træningsprogram ud fra, hvor du træner (hjemme eller i fitnesscenter), hvilket udstyr du har, og hvor mange dage du reelt har.\n• Kalorie- og makromål beregnet ud fra dine egne tal.\n• Kostdagbog og kalorietælling — gratis og ubegrænset i alle planer.\n• En coach, der svarer ud fra dine data, ikke med generelle råd.\n\nHVER BESLUTNING KAN SPORES\nUnder hver øvelse kan du læse, hvorfor den er der: hvilket svar, hvilken regel. Forklaringen er ikke en sætning, en sprogmodel har fundet på — det er løserens beslutningsspor.\n\nREGNESTYKKET ER FORMLER, SPROGET ER AI\nVolumen, progressiv belastning, deload, 1RM, kalorier og makroer er deterministiske formler. Sprogmodeller regner upålideligt, og i en sundhedssammenhæng er det ikke acceptabelt. Tilføj den samme fødevare to gange, og du får de samme makroer — hver gang. Næringsværdierne kommer altid fra en database.\n\nDET GØR VI BEVIDST IKKE\n• Ingen badges, streaks, konfetti eller fejringsanimationer.\n• Ingen reklamer eller mersalg til dem, der allerede betaler.\n• Opsigelse er ét tryk, øverst i Indstillinger, aldrig gemt væk.\n• Dit kropsbillede slettes, så snart det er analyseret. Kun målene gemmes.\n• Estimater vises som intervaller, aldrig som ét enkelt tal.\n\nPLANER\nGratis: kropsanalyse én gang, dag ét af dit program og manuel kalorieregistrering.\nBasic og Pro tilføjer ugentlig progression, madplan og — på Pro — genkendelse af mad fra et billede.\n\nSwiip er ikke medicinsk udstyr og stiller ikke diagnoser. Tallene er estimater. Hvis du har helbredsmæssige bekymringer, så tal med din læge.\n\nPrivatlivspolitik: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "dk",
+    "olculen": [
+      "kalorietæller",
+      "kalorietæller gratis",
+      "kalorieberegner",
+      "tæl kalorier",
+      "træningsprogram gratis",
+      "træning i hjemmet",
+      "hjemmetræning",
+      "vægttab",
+      "tabe sig",
+      "tab mavefedt",
+      "madplan",
+      "kostplan",
+      "styrketræning"
+    ],
+    "not": "Kalorietæller og træningsprogram er stærkest. 'diæt' gav kun et firmanavn, så 'kost' (kostplan) bruges. Målfraser er svage: kun 'tab mavefedt' og 'tabe sig'; 'slankekur', 'fedtforbrænding', 'flad mave', 'uden udstyr' gav intet."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "locale": "sl-SI",
+  "name": "Swiip: Kalorije in trening",
+  "subtitle": "Fitnes in prehrana po meri",
+  "keywords": "calorie,counter,workout,home,weight,loss,abs,fat,burn,protein,tracker,dieta,gym,tablica,makro",
+  "description": "Večina aplikacij postavi osem vprašanj in ti da program. Tudi Swiip vzame približno štiri minute — a ob vsaki vaji piše, kateri tvoj odgovor jo je postavil tja.\n\nVmesnik aplikacije je zaenkrat na voljo samo v angleščini in turščini.\n\nKAJ NAREDI\n• Osem kartic, približno štiri minute. Samo vprašanja, ki res spremenijo tvoj program.\n• Program treninga, sestavljen glede na to, kje treniraš — v fitnesu ali doma —, kakšno opremo imaš in koliko dni zares imaš.\n• Cilji za kalorije in makrohranila, izračunani iz tvojih lastnih številk.\n• Dnevnik prehrane je brezplačen in neomejen v vseh paketih.\n• Trener, ki odgovarja na podlagi tvojih podatkov, ne s splošnimi nasveti.\n\nZA KOGA JE\nZa tiste, ki želijo shujšati, pridobiti mišice ali preprosto redno trenirati. Trening doma ali v fitnesu, z opremo ali brez. Če iščeš štetje kalorij, dieto, ki se drži tvojih številk, ali načrt prehrane, ki se ne spreminja iz dneva v dan, je tu vse na enem mestu.\n\nVSAKO ODLOČITEV LAHKO IZSLEDIŠ\nPod vsako vajo lahko prebereš, zakaj je tam: kateri odgovor, katero pravilo. Razlaga ni stavek, ki si ga je izmislil jezikovni model — je sled odločitev algoritma.\n\nRAČUN JE FORMULA, JEZIK JE UI\nVolumen, postopna obremenitev, deload, 1RM, kalorije in makrohranila so deterministične formule. Jezikovni modeli pri računanju niso dosledni, ko gre za zdravje, pa to ni sprejemljivo. Dvakrat dodaj isto živilo in dobiš enaka makrohranila — vsakič. Hranilne vrednosti vedno pridejo iz baze podatkov.\n\nČESAR NAMERNO NE POČNEMO\n• Brez značk, nizov, konfetov in slavnostnih animacij.\n• Brez oglasov in dodatnih ponudb za tiste, ki že plačujejo.\n• Preklic je en dotik, na vrhu Nastavitev, nikoli skrit.\n• Fotografija telesa se izbriše takoj po analizi. Shranijo se le meritve.\n• Ocene so prikazane kot razpon, nikoli kot eno samo število.\n\nPAKETI\nBrezplačno: analiza telesa enkrat, prvi dan programa, ročni vnos kalorij.\nBasic in Pro dodata tedensko napredovanje, načrtovanje obrokov in — v paketu Pro — prepoznavanje hrane s fotografije.\n\nSwiip ni medicinski pripomoček in ne postavlja diagnoz. Številke, ki jih daje, so ocene. Če imaš zdravstvene težave, se pogovori s svojim zdravnikom.\n\nPOGOJI IN ZASEBNOST\nPogoji uporabe (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPravilnik o zasebnosti: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Manjše izboljšave in popravki.",
+  "promotionalText": "Program treninga in cilji za kalorije po tvojih odgovorih — pod vsako vajo pa piše, zakaj je tam.",
+  "play": {
+    "dil": "sl",
+    "title": "Swiip: Kalorije in trening",
+    "shortDescription": "Kalorije, trening doma ali v fitnesu — in razlog za vsako vajo",
+    "fullDescription": "Večina aplikacij postavi osem vprašanj in ti da program. Tudi Swiip vzame približno štiri minute — a ob vsaki vaji piše, kateri tvoj odgovor jo je postavil tja.\n\nVmesnik aplikacije je zaenkrat na voljo samo v angleščini in turščini.\n\nKAJ NAREDI\n• Osem kartic, približno štiri minute. Samo vprašanja, ki res spremenijo tvoj program.\n• Program treninga, sestavljen glede na to, kje treniraš — v fitnesu ali doma —, kakšno opremo imaš in koliko dni zares imaš.\n• Cilji za kalorije in makrohranila, izračunani iz tvojih lastnih številk.\n• Dnevnik prehrane je brezplačen in neomejen v vseh paketih.\n• Trener, ki odgovarja na podlagi tvojih podatkov, ne s splošnimi nasveti.\n\nZA KOGA JE\nZa tiste, ki želijo shujšati, pridobiti mišice ali preprosto redno trenirati. Trening doma ali v fitnesu, z opremo ali brez. Če iščeš štetje kalorij, dieto, ki se drži tvojih številk, ali načrt prehrane, ki se ne spreminja iz dneva v dan, je tu vse na enem mestu.\n\nVSAKO ODLOČITEV LAHKO IZSLEDIŠ\nPod vsako vajo lahko prebereš, zakaj je tam: kateri odgovor, katero pravilo. Razlaga ni stavek, ki si ga je izmislil jezikovni model — je sled odločitev algoritma.\n\nRAČUN JE FORMULA, JEZIK JE UI\nVolumen, postopna obremenitev, deload, 1RM, kalorije in makrohranila so deterministične formule. Jezikovni modeli pri računanju niso dosledni, ko gre za zdravje, pa to ni sprejemljivo. Dvakrat dodaj isto živilo in dobiš enaka makrohranila — vsakič. Hranilne vrednosti vedno pridejo iz baze podatkov.\n\nČESAR NAMERNO NE POČNEMO\n• Brez značk, nizov, konfetov in slavnostnih animacij.\n• Brez oglasov in dodatnih ponudb za tiste, ki že plačujejo.\n• Preklic je en dotik, na vrhu Nastavitev, nikoli skrit.\n• Fotografija telesa se izbriše takoj po analizi. Shranijo se le meritve.\n• Ocene so prikazane kot razpon, nikoli kot eno samo število.\n\nPAKETI\nBrezplačno: analiza telesa enkrat, prvi dan programa, ročni vnos kalorij.\nBasic in Pro dodata tedensko napredovanje, načrtovanje obrokov in — v paketu Pro — prepoznavanje hrane s fotografije.\n\nSwiip ni medicinski pripomoček in ne postavlja diagnoz. Številke, ki jih daje, so ocene. Če imaš zdravstvene težave, se pogovori s svojim zdravnikom.\n\nZASEBNOST\nPravilnik o zasebnosti: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "si",
+    "olculen": [
+      "kalorije",
+      "fitnes",
+      "trening",
+      "prehrana",
+      "calorie counter",
+      "calorie tracker",
+      "home workout",
+      "workout tracker",
+      "weight loss",
+      "protein tracker",
+      "abs workout",
+      "fat burning workout",
+      "tablica kalorija"
+    ],
+    "not": "Slovence talep çok zayıf: hujšanje, vadba, vaje, jedilnik, beljakovine, trebuh, brez opreme hiç öneri vermedi. Var olanlar kalorije/fitnes/trening/prehrana. Mağazada aramanın çoğu İngilizce; anahtar alanı bu yüzden ölçülen İngilizce terimlere ayrıldı."
+  }
+}

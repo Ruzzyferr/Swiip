@@ -1,0 +1,47 @@
+{
+  "locale": "en-US",
+  "name": "Swiip: Workout & Diet Planner",
+  "subtitle": "Calorie tracker, AI gym coach",
+  "keywords": "lose,belly,fat,weight,loss,abs,women,men,home,counter,deficit,macro,protein,meal,free,glute,muscle",
+  "description": "Most apps ask eight questions and hand you a program. Swiip takes about four minutes too — but next to every exercise it tells you which of your answers put it there.\n\nThe app's interface is currently available in English and Turkish.\n\nWHAT IT DOES\n• Eight cards, about four minutes. Only questions that actually change your program.\n• A training program built around where you train, what equipment you can reach and how many days you really have.\n• Calorie and macro targets calculated from your own numbers.\n• Food logging that is free and unlimited on every plan.\n• A coach that answers using your data, not generic advice.\n\nEVERY DECISION IS TRACEABLE\nUnder each exercise you can read why it is there: which answer, which rule. The explanation is not a sentence a language model made up — it is the solver's decision trail.\n\nTHE MATHS IS A FORMULA, THE LANGUAGE IS AI\nVolume, progressive overload, deload, 1RM, calories and macros are all deterministic formulas. Language models are inconsistent at arithmetic and in a health context that is not acceptable. Add the same food twice and you get the same macros — every time. Nutrition values always come from a database.\n\nWHAT WE DELIBERATELY DO NOT DO\n• No badges, streaks, confetti or celebration animations.\n• No ads or upsells for people who already pay.\n• Cancelling is one tap, at the top of Settings, never hidden.\n• Your body photo is deleted the moment it is analysed. Only the measurements are kept.\n• Estimates are shown as ranges, never as a single number.\n\nPLANS\nFree: body analysis once, day one of your program, manual calorie logging.\nBasic and Pro add weekly progression, meal planning and — on Pro — food recognition from a photo.\n\nSwiip is not a medical device and does not diagnose. The numbers it gives are estimates. If you have a health concern, talk to your doctor.\n\nTERMS AND PRIVACY\nTerms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPrivacy policy: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Small improvements and fixes.",
+  "promotionalText": "A workout and diet plan built from your answers — and next to every exercise, the reason it is there. Calorie and macro targets free on every plan.",
+  "play": {
+    "dil": "en-US",
+    "title": "Swiip: Workout & Diet Planner",
+    "shortDescription": "Calorie tracker and AI gym coach. A workout plan that explains every move.",
+    "fullDescription": "Most apps ask eight questions and hand you a program. Swiip takes about four minutes too — but next to every exercise it tells you which of your answers put it there.\n\n\"You told me you have a lower-back disc problem, so I swapped floor deadlifts for hip thrusts. Same muscle chain, no axial load on your spine.\"\n\nThe app's interface is currently available in English and Turkish.\n\nWHO IT'S FOR\nAnyone who wants to lose weight, gain weight or build muscle — whether you work out at the gym or at home with little or no equipment. Workouts for women and men alike, from full-body sessions to abs and glute work, set by your goal and level. A workout planner, diet plan, calorie counter and macro tracker in one app. Beginners and people who have trained for years both get a plan that fits their level, and a calorie deficit or surplus set from their own numbers, not a template.\n\nWHAT IT DOES\n• Eight cards, about four minutes. Only questions that actually change your program.\n• A workout plan built around where you train — gym or home — what equipment you can reach and how many days you really have.\n• Calorie and macro targets calculated from your own numbers, with a calorie counter and food tracker that is free and unlimited on every plan.\n• Barcode scanning, water tracking and a weekly meal plan.\n• A coach that answers using your data, not generic advice.\n• Three taps after each session — no logging sets on your phone at the gym. The next session is calculated from your feedback.\n\nEVERY DECISION IS TRACEABLE\nUnder each exercise you can read why it is there: which answer, which rule. The explanation is not a sentence a language model made up — it is the solver's decision trail.\n\nTHE MATHS IS A FORMULA, THE LANGUAGE IS AI\nVolume, progressive overload, deload, 1RM, calories and macros are all deterministic formulas. Add the same food twice and you get the same macros — every time. Nutrition values always come from a database; AI only answers \"what food is this?\".\n\nWHAT WE DELIBERATELY DO NOT DO\n• No badges, streaks, confetti or celebration animations.\n• No ads or upsells for people who already pay.\n• Cancelling is one tap, at the top of Settings, never hidden.\n• Your body photo is deleted the moment it is analysed. Only the measurements are kept.\n• Estimates are shown as ranges, never as a single number.\n• Editing your program is free and unlimited.\n\nPLANS\nFree: the eight-card assessment, body analysis once, day one of your program, calorie and macro targets, manual food logging and barcode scanning.\nBasic and Pro add every training day, weekly progression, meal planning and the AI coach — and on Pro, food recognition from a photo.\n\nPayment is charged to your Google Play account. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the period. You can turn off renewal in your Google Play account settings or with one tap inside the app; features stay on until the period ends.\n\nHEALTH NOTICE\nSwiip is not a medical device and does not diagnose. The numbers it gives are estimates. If you have a health concern, talk to your doctor. Swiip is for people aged 18 and over.\n\nPrivacy policy: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "us",
+    "olculen": [
+      "calorie tracker",
+      "calorie counter",
+      "calorie deficit tracker",
+      "workout planner",
+      "workout tracker",
+      "diet plan weight loss",
+      "weight loss tracker",
+      "home workout",
+      "meal planner",
+      "protein tracker",
+      "macro tracker",
+      "gym workout",
+      "ai fitness coach",
+      "nutrition tracker",
+      "calorie counter free",
+      "lose belly fat",
+      "lose belly fat at home",
+      "lose weight",
+      "lose weight app for women",
+      "weight loss tracker",
+      "abs workout",
+      "six pack in 30 days",
+      "home workout no equipment",
+      "workout for women",
+      "workout for men",
+      "glute workout"
+    ],
+    "not": "name/subtitle aso.json'dan aynen korundu. Anahtar alanı koordinatörün sonraki talimatıyla (kamu diliyle hedef ifadeleri) yeniden kuruldu — aso.json'daki eski anahtar alanından bilinçli olarak farklı. Kamu diliyle hedef ifadeleri de ölçüldü (us/gb/ca/au/in): 'lose belly fat' dört mağazada da 'lose belly' ve 'belly fat' öneklerinin ilk sırası; 'lose weight', 'weight loss tracker', 'abs workout', 'home workout no equipment', 'workout for women/men' güçlü; 'glute workout' orta; 'burn fat' ve 'toning' zayıf (çoğunlukla marka adı) — alınmadı. 'six pack' güçlü ama hep '30 günde' vaadiyle geçiyor ve iki kelime (9 karakter) istiyor; yer açılmadı. Anahtar alanı bu hedef kelimelerle yeniden kuruldu (lose,belly,fat,weight,loss,abs,women,men,home,glute); 'fitness', 'exercise', 'nutrition', 'food' çıkarıldı (önerileri marka ağırlıklı ya da hedef kelimelerden zayıf). Açıklamalarda bölgesel yağ yakma ya da rakamlı sonuç vaadi YOK; Play 'Who it's for' paragrafı yalnızca 'abs and glute work', 'at home with little or no equipment', 'women and men' diyor."
+  }
+}

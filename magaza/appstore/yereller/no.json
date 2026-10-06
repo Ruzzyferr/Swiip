@@ -1,0 +1,34 @@
+{
+  "locale": "no",
+  "name": "Swiip: Treningsprogram & Diett",
+  "subtitle": "Kaloriteller og styrketrening",
+  "keywords": "telle,kalorier,kaloridagbok,trening,hjemme,hjemmetrening,gå,ned,vekt,vektnedgang,kosthold,matplan",
+  "description": "De fleste apper stiller åtte spørsmål og gir deg et program. Swiip tar også rundt fire minutter — men ved siden av hver øvelse står det hvilket av svarene dine som la den der.\n\nMerk: selve appen er foreløpig bare tilgjengelig på engelsk og tyrkisk.\n\nDETTE GJØR SWIIP\n• Åtte kort, rundt fire minutter. Bare spørsmål som faktisk endrer programmet ditt.\n• Et treningsprogram ut fra hvor du trener (hjemme eller på treningssenter), hvilket utstyr du har og hvor mange dager du faktisk har.\n• Kalori- og makromål regnet ut fra dine egne tall.\n• Kostholdsdagbok og kaloritelling — gratis og ubegrenset i alle planer.\n• En coach som svarer ut fra dine data, ikke med generelle råd.\n\nHVER BESLUTNING KAN SPORES\nUnder hver øvelse kan du lese hvorfor den er der: hvilket svar, hvilken regel. Forklaringen er ikke en setning en språkmodell har funnet på — det er beslutningssporet til løseren.\n\nREGNINGEN ER FORMLER, SPRÅKET ER AI\nVolum, progressiv belastning, deload, 1RM, kalorier og makroer er deterministiske formler. Språkmodeller regner upålitelig, og i en helsesammenheng er det ikke akseptabelt. Legg til samme matvare to ganger, og du får de samme makroene — hver gang. Næringsverdiene kommer alltid fra en database.\n\nDETTE GJØR VI BEVISST IKKE\n• Ingen merker, streaks, konfetti eller feiringsanimasjoner.\n• Ingen reklame eller mersalg for dem som allerede betaler.\n• Oppsigelse er ett trykk, øverst i Innstillinger, aldri gjemt.\n• Kroppsbildet ditt slettes i det øyeblikket det er analysert. Bare målene lagres.\n• Anslag vises som intervaller, aldri som ett enkelt tall.\n\nPLANER\nGratis: kroppsanalyse én gang, dag én av programmet og manuell kalorilogging.\nBasic og Pro legger til ukentlig progresjon, måltidsplanlegging og — i Pro — matgjenkjenning fra bilde.\n\nSwiip er ikke medisinsk utstyr og stiller ingen diagnoser. Tallene er anslag. Har du helseplager, snakk med legen din.\n\nVILKÅR OG PERSONVERN\nBruksvilkår (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPersonvernerklæring: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Små forbedringer og feilrettinger.",
+  "promotionalText": "Ved hver øvelse ser du hvorfor den står i programmet ditt. Kalori- og makromål kommer fra formler, ikke gjetning.",
+  "play": {
+    "dil": "no-NO",
+    "title": "Swiip: Treningsprogram & Diett",
+    "shortDescription": "Treningsprogram, kaloriteller og kosthold — med en forklaring på hvert valg.",
+    "fullDescription": "De fleste apper stiller åtte spørsmål og gir deg et program. Swiip tar også rundt fire minutter — men ved siden av hver øvelse står det hvilket av svarene dine som la den der.\n\nMerk: selve appen er foreløpig bare tilgjengelig på engelsk og tyrkisk.\n\nFOR HVEM\nFor deg som vil gå ned i vekt, bygge muskler eller bare komme i gang — med trening hjemme eller på treningssenteret. Swiip kombinerer et treningsprogram med styrketrening tilpasset deg, en kaloriteller og oversikt over protein og makroer, slik at kosthold og trening henger sammen.\n\nDETTE GJØR SWIIP\n• Åtte kort, rundt fire minutter. Bare spørsmål som faktisk endrer programmet ditt.\n• Et treningsprogram ut fra hvor du trener (hjemme eller på treningssenter), hvilket utstyr du har og hvor mange dager du faktisk har.\n• Kalori- og makromål regnet ut fra dine egne tall.\n• Kostholdsdagbok og kaloritelling — gratis og ubegrenset i alle planer.\n• En coach som svarer ut fra dine data, ikke med generelle råd.\n\nHVER BESLUTNING KAN SPORES\nUnder hver øvelse kan du lese hvorfor den er der: hvilket svar, hvilken regel. Forklaringen er ikke en setning en språkmodell har funnet på — det er beslutningssporet til løseren.\n\nREGNINGEN ER FORMLER, SPRÅKET ER AI\nVolum, progressiv belastning, deload, 1RM, kalorier og makroer er deterministiske formler. Språkmodeller regner upålitelig, og i en helsesammenheng er det ikke akseptabelt. Legg til samme matvare to ganger, og du får de samme makroene — hver gang. Næringsverdiene kommer alltid fra en database.\n\nDETTE GJØR VI BEVISST IKKE\n• Ingen merker, streaks, konfetti eller feiringsanimasjoner.\n• Ingen reklame eller mersalg for dem som allerede betaler.\n• Oppsigelse er ett trykk, øverst i Innstillinger, aldri gjemt.\n• Kroppsbildet ditt slettes i det øyeblikket det er analysert. Bare målene lagres.\n• Anslag vises som intervaller, aldri som ett enkelt tall.\n\nPLANER\nGratis: kroppsanalyse én gang, dag én av programmet og manuell kalorilogging.\nBasic og Pro legger til ukentlig progresjon, måltidsplanlegging og — i Pro — matgjenkjenning fra bilde.\n\nSwiip er ikke medisinsk utstyr og stiller ingen diagnoser. Tallene er anslag. Har du helseplager, snakk med legen din.\n\nPersonvernerklæring: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "no",
+    "olculen": [
+      "kaloriteller",
+      "telle kalorier",
+      "kaloridagbok",
+      "treningsprogram",
+      "styrketrening hjemme",
+      "trening hjemme",
+      "hjemmetrening",
+      "gå ned i vekt",
+      "vektnedgang",
+      "kosthold",
+      "matplan",
+      "måltidsplanlegger",
+      "diett"
+    ],
+    "not": "Kaloriteller og trening/treningsprogram er sterkest. Målfraser er svake i Norge: 'slanking', 'magefett', 'fettforbrenning', 'magemuskler', 'uten utstyr' ga ingen forslag; kun 'gå ned i vekt' og 'vektnedgang' finnes."
+  }
+}

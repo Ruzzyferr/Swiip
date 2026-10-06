@@ -1,0 +1,44 @@
+{
+  "locale": "es-ES",
+  "name": "Swiip: Rutinas Gym y Calorías",
+  "subtitle": "Entrenador personal y dieta",
+  "keywords": "contador,contar,adelgazar,perder,peso,ejercicios,casa,abdominales,glúteos,abdomen,plano,gimnasio",
+  "description": "La mayoría de las apps hacen ocho preguntas y te entregan un programa. Swiip también tarda unos cuatro minutos, pero junto a cada ejercicio te dice de cuál de tus respuestas ha salido.\n\nAviso: por ahora, la interfaz de la app solo está disponible en inglés y turco.\n\nQUÉ HACE\n• Ocho tarjetas, unos cuatro minutos. Solo preguntas que cambian de verdad tu programa.\n• Un plan de entrenamiento según dónde entrenas, qué material tienes y los días que realmente puedes.\n• Objetivos de calorías y macros calculados con tus propios números.\n• Registro de comidas gratuito e ilimitado en todos los planes.\n• Un entrenador que responde con tus datos, no con consejos genéricos.\n\nPARA QUIÉN\nPara quien entrena en casa o en el gimnasio y quiere una rutina hecha a su medida: para adelgazar, perder peso, ganar músculo, trabajar abdominales y glúteos o simplemente ponerse en forma, también con ejercicios en casa sin equipo. El contador de calorías calcula lo que necesitas y sigue tus proteínas y macros; el plan de comidas te ayuda a mantener una dieta que de verdad puedas sostener.\n\nCADA DECISIÓN ES TRAZABLE\nBajo cada ejercicio puedes leer por qué está ahí: qué respuesta, qué regla. La explicación no es una frase inventada por un modelo de lenguaje: es el rastro de decisiones del solucionador.\n\nLAS CUENTAS SON FÓRMULAS, EL LENGUAJE ES IA\nVolumen, sobrecarga progresiva, descarga, 1RM, calorías y macros son fórmulas deterministas. Los modelos de lenguaje son inconsistentes con la aritmética y en un contexto de salud eso no es aceptable. Añade el mismo alimento dos veces y obtendrás los mismos macros, siempre. Los valores nutricionales vienen siempre de una base de datos.\n\nLO QUE NO HACEMOS, A PROPÓSITO\n• Sin insignias, rachas, confeti ni animaciones de celebración.\n• Sin anuncios ni ventas adicionales para quien ya paga.\n• Cancelar es un toque, arriba del todo en Ajustes, nunca escondido.\n• Tu foto corporal se borra en cuanto se analiza. Solo se guardan las medidas.\n• Las estimaciones se muestran como rango, nunca como un número único.\n\nPLANES\nGratis: un análisis corporal, el primer día de tu programa y el registro manual de calorías.\nBasic y Pro añaden la progresión semanal, la planificación de comidas y, en Pro, el reconocimiento de alimentos por foto.\n\nSwiip no es un producto sanitario y no diagnostica. Las cifras son estimaciones. Si tienes un problema de salud, consúltalo con tu médico.\n\nCONDICIONES Y PRIVACIDAD\nCondiciones de uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPolítica de privacidad: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Pequeñas mejoras y correcciones.",
+  "promotionalText": "Rutinas de gym y objetivos de calorías hechos con tus respuestas, y bajo cada ejercicio, el porqué de que esté ahí. Empieza gratis.",
+  "play": {
+    "dil": "es-ES",
+    "title": "Swiip: Rutinas Gym y Calorías",
+    "shortDescription": "Rutinas de gym y contador de calorías que explican el porqué de cada ejercicio",
+    "fullDescription": "La mayoría de las apps hacen ocho preguntas y te entregan un programa. Swiip también tarda unos cuatro minutos, pero junto a cada ejercicio te dice de cuál de tus respuestas ha salido.\n\nAviso: por ahora, la interfaz de la app solo está disponible en inglés y turco.\n\nQUÉ HACE\n• Ocho tarjetas, unos cuatro minutos. Solo preguntas que cambian de verdad tu programa.\n• Un plan de entrenamiento según dónde entrenas, qué material tienes y los días que realmente puedes.\n• Objetivos de calorías y macros calculados con tus propios números.\n• Registro de comidas gratuito e ilimitado en todos los planes.\n• Un entrenador que responde con tus datos, no con consejos genéricos.\n\nPARA QUIÉN\nPara quien entrena en casa o en el gimnasio y quiere una rutina hecha a su medida: para adelgazar, perder peso, ganar músculo, trabajar abdominales y glúteos o simplemente ponerse en forma, también con ejercicios en casa sin equipo. El contador de calorías calcula lo que necesitas y sigue tus proteínas y macros; el plan de comidas te ayuda a mantener una dieta que de verdad puedas sostener.\n\nCADA DECISIÓN ES TRAZABLE\nBajo cada ejercicio puedes leer por qué está ahí: qué respuesta, qué regla. La explicación no es una frase inventada por un modelo de lenguaje: es el rastro de decisiones del solucionador.\n\nLAS CUENTAS SON FÓRMULAS, EL LENGUAJE ES IA\nVolumen, sobrecarga progresiva, descarga, 1RM, calorías y macros son fórmulas deterministas. Los modelos de lenguaje son inconsistentes con la aritmética y en un contexto de salud eso no es aceptable. Añade el mismo alimento dos veces y obtendrás los mismos macros, siempre. Los valores nutricionales vienen siempre de una base de datos.\n\nLO QUE NO HACEMOS, A PROPÓSITO\n• Sin insignias, rachas, confeti ni animaciones de celebración.\n• Sin anuncios ni ventas adicionales para quien ya paga.\n• Cancelar es un toque, arriba del todo en Ajustes, nunca escondido.\n• Tu foto corporal se borra en cuanto se analiza. Solo se guardan las medidas.\n• Las estimaciones se muestran como rango, nunca como un número único.\n\nPLANES\nGratis: un análisis corporal, el primer día de tu programa y el registro manual de calorías.\nBasic y Pro añaden la progresión semanal, la planificación de comidas y, en Pro, el reconocimiento de alimentos por foto.\n\nSwiip no es un producto sanitario y no diagnostica. Las cifras son estimaciones. Si tienes un problema de salud, consúltalo con tu médico.\n\nPRIVACIDAD\nPolítica de privacidad: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "es",
+    "olculen": [
+      "contador de calorias gratis",
+      "contar calorias",
+      "contador de calorias y macros",
+      "dietas para adelgazar gratis",
+      "perder peso",
+      "adelgazar en casa",
+      "rutinas gym",
+      "rutina gimnasio gratis",
+      "entrenamiento gym",
+      "entrenamiento en casa",
+      "ejercicios en casa",
+      "entrenador personal",
+      "gravl: entrenador personal ia",
+      "plan de comidas",
+      "musculación para principiantes",
+      "contador de proteínas",
+      "abdomen plano",
+      "abdominales en casa",
+      "gluteos en casa",
+      "ejercicios en casa sin equipo",
+      "quemar grasa",
+      "tonificar glúteos y piernas",
+      "perder grasa abdominal"
+    ],
+    "not": "İspanya'da 'rutinas gym' ve 'contador de calorias' en güçlü iki ürün-ifadesi; ad ikisini birleştiriyor. Alt başlık 'entrenador personal' (öneri listesinde hem genel hem 'ia' ile) + dieta. 'fitness' önerileri salon/marka adı, alınmadı. Hedef ifadeleri: abdominales, glúteos, abdomen plano güçlü; anahtara girdi. quemar grasa ve tonificar zayıf, sığmadı. rutina para adelgazar boş."
+  }
+}

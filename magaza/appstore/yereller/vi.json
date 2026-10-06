@@ -1,0 +1,42 @@
+{
+  "locale": "vi",
+  "name": "Swiip: Tập gym & Tính calo",
+  "subtitle": "Thực đơn giảm cân, HLV AI",
+  "keywords": "luyện,tại,nhà,mỡ,bụng,múi,ăn,kiêng,eat,clean,dinh,dưỡng,protein,tăng,cơ,bắp,thể,hình,fitness",
+  "description": "Phần lớn ứng dụng hỏi bạn tám câu rồi đưa ra một chương trình. Swiip cũng chỉ mất khoảng bốn phút — nhưng bên cạnh mỗi bài tập, Swiip cho bạn biết câu trả lời nào của bạn đã đưa bài tập đó vào.\n\nGiao diện ứng dụng hiện chỉ có tiếng Anh và tiếng Thổ Nhĩ Kỳ.\n\nỨNG DỤNG LÀM GÌ\n• Tám thẻ, khoảng bốn phút. Chỉ hỏi những câu thực sự thay đổi chương trình của bạn.\n• Lịch tập được xây dựng theo nơi bạn tập (phòng gym hay tại nhà), dụng cụ bạn có và số ngày bạn thật sự dành ra được.\n• Mục tiêu calo và macro (đạm, béo, tinh bột) được tính từ chính số liệu của bạn.\n• Ghi lại bữa ăn miễn phí và không giới hạn ở mọi gói.\n• Huấn luyện viên AI trả lời dựa trên dữ liệu của bạn, không phải lời khuyên chung chung.\n\nMỌI QUYẾT ĐỊNH ĐỀU CÓ LÝ DO\nDưới mỗi bài tập, bạn đọc được vì sao nó ở đó: từ câu trả lời nào, theo quy tắc nào. Lời giải thích không phải câu chữ do mô hình ngôn ngữ bịa ra — đó là nhật ký quyết định của bộ tính toán.\n\nPHÉP TÍNH LÀ CÔNG THỨC, NGÔN NGỮ LÀ AI\nKhối lượng tập, tăng tải dần, tuần giảm tải (deload), 1RM, calo và macro đều được tính bằng công thức cố định. Mô hình ngôn ngữ tính toán không nhất quán, và trong chuyện sức khỏe thì điều đó không thể chấp nhận. Thêm cùng một món hai lần, bạn nhận đúng cùng một lượng macro — lần nào cũng vậy. Giá trị dinh dưỡng luôn lấy từ cơ sở dữ liệu.\n\nNHỮNG ĐIỀU CHÚNG TÔI CỐ Ý KHÔNG LÀM\n• Không huy hiệu, chuỗi ngày, pháo giấy hay hiệu ứng ăn mừng.\n• Không quảng cáo hay mời nâng cấp với người đã trả phí.\n• Hủy gói chỉ một chạm, ở trên cùng phần Cài đặt, không bao giờ giấu.\n• Ảnh cơ thể được xóa ngay khi phân tích xong. Chỉ giữ lại số đo.\n• Ước tính luôn hiển thị dưới dạng khoảng, không bao giờ là một con số duy nhất.\n\nCÁC GÓI\nMiễn phí: phân tích vóc dáng một lần, ngày đầu tiên của chương trình, tự ghi calo.\nBasic và Pro bổ sung điều chỉnh tiến độ hằng tuần, lập thực đơn và — với Pro — nhận diện món ăn từ ảnh.\n\nSwiip không phải thiết bị y tế và không chẩn đoán. Các con số chỉ là ước tính. Nếu bạn có vấn đề sức khỏe, hãy hỏi ý kiến bác sĩ.\n\nĐIỀU KHOẢN VÀ QUYỀN RIÊNG TƯ\nĐiều khoản sử dụng (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nChính sách quyền riêng tư: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Cải thiện nhỏ và sửa lỗi.",
+  "promotionalText": "Lịch tập gym và tính calo có giải thích lý do của từng bài tập. Trả lời tám thẻ, nhận chương trình và mục tiêu calo tính riêng cho bạn.",
+  "play": {
+    "dil": "vi",
+    "title": "Swiip: Tập gym & Tính calo",
+    "shortDescription": "Lịch tập gym có giải thích lý do, tính calo, thực đơn giảm cân và HLV AI.",
+    "fullDescription": "Phần lớn ứng dụng hỏi bạn tám câu rồi đưa ra một chương trình. Swiip cũng chỉ mất khoảng bốn phút — nhưng bên cạnh mỗi bài tập, Swiip cho bạn biết câu trả lời nào của bạn đã đưa bài tập đó vào.\n\nGiao diện ứng dụng hiện chỉ có tiếng Anh và tiếng Thổ Nhĩ Kỳ.\n\nDÀNH CHO AI\nDù bạn tập gym tại nhà hay tại phòng tập, muốn giảm cân, giảm mỡ, tập cơ bụng, tăng cân hay tăng cơ bắp, Swiip giúp bạn tính calo, theo dõi chế độ ăn kiêng hoặc eat clean, và có một lịch tập luyện cùng thực đơn giảm cân hợp với chính mình.\n\nỨNG DỤNG LÀM GÌ\n• Tám thẻ, khoảng bốn phút. Chỉ hỏi những câu thực sự thay đổi chương trình của bạn.\n• Lịch tập được xây dựng theo nơi bạn tập (phòng gym hay tại nhà), dụng cụ bạn có và số ngày bạn thật sự dành ra được.\n• Mục tiêu calo và macro (đạm, béo, tinh bột) được tính từ chính số liệu của bạn.\n• Ghi lại bữa ăn miễn phí và không giới hạn ở mọi gói.\n• Huấn luyện viên AI trả lời dựa trên dữ liệu của bạn, không phải lời khuyên chung chung.\n\nMỌI QUYẾT ĐỊNH ĐỀU CÓ LÝ DO\nDưới mỗi bài tập, bạn đọc được vì sao nó ở đó: từ câu trả lời nào, theo quy tắc nào. Lời giải thích không phải câu chữ do mô hình ngôn ngữ bịa ra — đó là nhật ký quyết định của bộ tính toán.\n\nPHÉP TÍNH LÀ CÔNG THỨC, NGÔN NGỮ LÀ AI\nKhối lượng tập, tăng tải dần, tuần giảm tải (deload), 1RM, calo và macro đều được tính bằng công thức cố định. Mô hình ngôn ngữ tính toán không nhất quán, và trong chuyện sức khỏe thì điều đó không thể chấp nhận. Thêm cùng một món hai lần, bạn nhận đúng cùng một lượng macro — lần nào cũng vậy. Giá trị dinh dưỡng luôn lấy từ cơ sở dữ liệu.\n\nNHỮNG ĐIỀU CHÚNG TÔI CỐ Ý KHÔNG LÀM\n• Không huy hiệu, chuỗi ngày, pháo giấy hay hiệu ứng ăn mừng.\n• Không quảng cáo hay mời nâng cấp với người đã trả phí.\n• Hủy gói chỉ một chạm, ở trên cùng phần Cài đặt, không bao giờ giấu.\n• Ảnh cơ thể được xóa ngay khi phân tích xong. Chỉ giữ lại số đo.\n• Ước tính luôn hiển thị dưới dạng khoảng, không bao giờ là một con số duy nhất.\n\nCÁC GÓI\nMiễn phí: phân tích vóc dáng một lần, ngày đầu tiên của chương trình, tự ghi calo.\nBasic và Pro bổ sung điều chỉnh tiến độ hằng tuần, lập thực đơn và — với Pro — nhận diện món ăn từ ảnh.\n\nSwiip không phải thiết bị y tế và không chẩn đoán. Các con số chỉ là ước tính. Nếu bạn có vấn đề sức khỏe, hãy hỏi ý kiến bác sĩ.\n\nĐIỀU KHOẢN VÀ QUYỀN RIÊNG TƯ\nĐiều khoản sử dụng (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nChính sách quyền riêng tư: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "vn",
+    "olculen": [
+      "giảm mỡ bụng",
+      "giảm mỡ",
+      "tập bụng 6 múi",
+      "tập cơ bụng tại nhà",
+      "giảm cân tại nhà",
+      "tính calo",
+      "tính calo giảm cân",
+      "tính calo và hỗ trợ eat clean",
+      "giảm cân",
+      "giảm cân tại nhà",
+      "tập gym",
+      "tập gym tại nhà",
+      "tập gym giảm cân",
+      "tập luyện tại nhà",
+      "thực đơn giảm cân",
+      "thực đơn ăn kiêng",
+      "ăn kiêng giảm cân",
+      "eat clean",
+      "dinh dưỡng",
+      "tập thể hình",
+      "tăng cân"
+    ],
+    "not": "Hedef ifadeleri (2. tur): anahtarlara alındı, açıklamada bölgesel yağ yakma veya sonuç vaadi yok. Ad ve alt başlık en güçlü dört ifadeyi kapsıyor (tập gym, tính calo, giảm cân, thực đơn). Vietnamca hece hece yazıldığı için anahtar alanı tek hecelerden kuruldu; Apple ad+alt başlık+anahtarı birleştirerek \"tập gym tại nhà\", \"ăn kiêng\", \"eat clean\" ifadelerini oluşturuyor. \"huấn luyện viên\" öneri vermedi, HLV kısaltması kullanıldı."
+  }
+}

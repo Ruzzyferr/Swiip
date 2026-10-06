@@ -1,3 +1,6 @@
+> **ARTIK KAYNAK DEĞİL (2026-10-06).** Play metinlerinin kaynağı
+> `magaza/appstore/yereller/<yerel>.json` (`play` alanı). Bu dosya tarih için duruyor.
+
 # Play Store listesi — Türkçe (varsayılan dil)
 
 > Kaynak bu dosya; yükleyici `scripts/play-liste.mjs` (DİKKAT: çalıştırınca Play'e

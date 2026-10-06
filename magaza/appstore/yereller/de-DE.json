@@ -1,0 +1,44 @@
+{
+  "locale": "de-DE",
+  "name": "Swiip: Trainingsplan, Kalorien",
+  "subtitle": "Muskelaufbau & Abnehmen mit KI",
+  "keywords": "kalorienzähler,ernährungsplan,diät,workout,zuhause,ohne,geräte,sixpack,bauchfett,bauch,beine,po,gym",
+  "description": "Die meisten Apps stellen acht Fragen und geben dir ein Programm. Swiip braucht auch nur etwa vier Minuten — aber neben jeder Übung steht, aus welcher deiner Antworten sie entstanden ist.\n\nHinweis: Die Oberfläche der App gibt es derzeit nur auf Englisch und Türkisch.\n\nWAS DIE APP MACHT\n• Acht Karten, etwa vier Minuten. Nur Fragen, die dein Programm wirklich verändern.\n• Ein Trainingsplan nach deinem Ort, deinen Geräten und den Tagen, die du wirklich hast.\n• Kalorien- und Makroziele, aus deinen eigenen Zahlen berechnet.\n• Ernährungstagebuch — in jedem Plan kostenlos und unbegrenzt.\n• Ein Coach, der mit deinen Daten antwortet, nicht mit Allgemeinplätzen.\n\nFÜR WEN\nFür alle, die zu Hause oder im Fitnessstudio trainieren und einen Trainingsplan wollen, der wirklich zu ihnen passt — zum Abnehmen, für den Muskelaufbau, für Bauch, Beine und Po oder einfach, um fitter zu werden — im Studio oder als Workout zu Hause, auch ohne Geräte. Mit dem Kalorienzähler zählst du Kalorien, behältst Protein und Makros im Blick, und der Ernährungsplan hilft dir, eine Diät durchzuhalten, die zu deinem Alltag passt.\n\nJEDE ENTSCHEIDUNG IST NACHVOLLZIEHBAR\nUnter jeder Übung steht, warum sie dort ist: welche Antwort, welche Regel. Die Begründung ist kein Satz, den ein Sprachmodell erfunden hat — es ist die Entscheidungsspur des Solvers.\n\nRECHNEN MIT FORMELN, SPRACHE MIT KI\nVolumen, progressive Belastung, Deload, 1RM, Kalorien und Makros sind deterministische Formeln. Sprachmodelle rechnen unzuverlässig, und im Gesundheitskontext ist das nicht akzeptabel. Dasselbe Lebensmittel zweimal eingetragen ergibt dieselben Makros — jedes Mal. Nährwerte kommen immer aus einer Datenbank.\n\nWAS WIR BEWUSST NICHT TUN\n• Keine Abzeichen, Serien, Konfetti oder Feier-Animationen.\n• Keine Werbung und kein Upselling für Zahlende.\n• Kündigen ist ein Tipp, ganz oben in den Einstellungen, nie versteckt.\n• Dein Körperfoto wird sofort nach der Analyse gelöscht. Nur die Messwerte bleiben.\n• Schätzungen erscheinen als Bereich, nie als eine einzelne Zahl.\n\nPLÄNE\nKostenlos: einmalige Körperanalyse, der erste Tag deines Programms, manuelles Eintragen von Kalorien.\nBasic und Pro ergänzen die wöchentliche Progression, die Essensplanung und — bei Pro — die Lebensmittelerkennung per Foto.\n\nSwiip ist kein Medizinprodukt und stellt keine Diagnosen. Die Zahlen sind Schätzungen. Bei gesundheitlichen Fragen sprich mit deiner Ärztin oder deinem Arzt.\n\nNUTZUNGSBEDINGUNGEN UND DATENSCHUTZ\nNutzungsbedingungen (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nDatenschutz: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Kleine Verbesserungen und Fehlerbehebungen.",
+  "promotionalText": "Trainingsplan und Kalorienziele aus deinen eigenen Antworten — und bei jeder Übung steht, warum sie da ist. Kostenlos starten.",
+  "play": {
+    "dil": "de-DE",
+    "title": "Swiip: Trainingsplan, Kalorien",
+    "shortDescription": "Trainingsplan & Kalorienzähler, die zeigen, warum jede Übung in deinem Plan ist",
+    "fullDescription": "Die meisten Apps stellen acht Fragen und geben dir ein Programm. Swiip braucht auch nur etwa vier Minuten — aber neben jeder Übung steht, aus welcher deiner Antworten sie entstanden ist.\n\nHinweis: Die Oberfläche der App gibt es derzeit nur auf Englisch und Türkisch.\n\nWAS DIE APP MACHT\n• Acht Karten, etwa vier Minuten. Nur Fragen, die dein Programm wirklich verändern.\n• Ein Trainingsplan nach deinem Ort, deinen Geräten und den Tagen, die du wirklich hast.\n• Kalorien- und Makroziele, aus deinen eigenen Zahlen berechnet.\n• Ernährungstagebuch — in jedem Plan kostenlos und unbegrenzt.\n• Ein Coach, der mit deinen Daten antwortet, nicht mit Allgemeinplätzen.\n\nFÜR WEN\nFür alle, die zu Hause oder im Fitnessstudio trainieren und einen Trainingsplan wollen, der wirklich zu ihnen passt — zum Abnehmen, für den Muskelaufbau, für Bauch, Beine und Po oder einfach, um fitter zu werden — im Studio oder als Workout zu Hause, auch ohne Geräte. Mit dem Kalorienzähler zählst du Kalorien, behältst Protein und Makros im Blick, und der Ernährungsplan hilft dir, eine Diät durchzuhalten, die zu deinem Alltag passt.\n\nJEDE ENTSCHEIDUNG IST NACHVOLLZIEHBAR\nUnter jeder Übung steht, warum sie dort ist: welche Antwort, welche Regel. Die Begründung ist kein Satz, den ein Sprachmodell erfunden hat — es ist die Entscheidungsspur des Solvers.\n\nRECHNEN MIT FORMELN, SPRACHE MIT KI\nVolumen, progressive Belastung, Deload, 1RM, Kalorien und Makros sind deterministische Formeln. Sprachmodelle rechnen unzuverlässig, und im Gesundheitskontext ist das nicht akzeptabel. Dasselbe Lebensmittel zweimal eingetragen ergibt dieselben Makros — jedes Mal. Nährwerte kommen immer aus einer Datenbank.\n\nWAS WIR BEWUSST NICHT TUN\n• Keine Abzeichen, Serien, Konfetti oder Feier-Animationen.\n• Keine Werbung und kein Upselling für Zahlende.\n• Kündigen ist ein Tipp, ganz oben in den Einstellungen, nie versteckt.\n• Dein Körperfoto wird sofort nach der Analyse gelöscht. Nur die Messwerte bleiben.\n• Schätzungen erscheinen als Bereich, nie als eine einzelne Zahl.\n\nPLÄNE\nKostenlos: einmalige Körperanalyse, der erste Tag deines Programms, manuelles Eintragen von Kalorien.\nBasic und Pro ergänzen die wöchentliche Progression, die Essensplanung und — bei Pro — die Lebensmittelerkennung per Foto.\n\nSwiip ist kein Medizinprodukt und stellt keine Diagnosen. Die Zahlen sind Schätzungen. Bei gesundheitlichen Fragen sprich mit deiner Ärztin oder deinem Arzt.\n\nDATENSCHUTZ\nDatenschutzerklärung: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "de",
+    "olculen": [
+      "kalorienzähler kostenlos",
+      "kalorien zählen",
+      "trainingsplan gym",
+      "trainingsplan zuhause",
+      "trainingsplan erstellen",
+      "abnehmen",
+      "muskelaufbau",
+      "ernährungsplan",
+      "fitness app kostenlos",
+      "workouts zuhause",
+      "protein tracker",
+      "makros tracken",
+      "personal trainer ai",
+      "ki kalorien zähler kostenlos",
+      "diät app kostenlos",
+      "fitness übungen",
+      "bauchfett verlieren",
+      "sixpack training",
+      "bauchmuskeln training app",
+      "bauch beine po training",
+      "po training zuhause",
+      "training zuhause ohne geräte",
+      "workout zuhause ohne geräte"
+    ],
+    "not": "Ad 'Trainingsplan' (gym/zuhause/erstellen varyantlarıyla en geniş, ürüne en yakın talep) + 'Kalorien'. Alt başlık abnehmen ve muskelaufbau'yu taşıyor (ikisi de tek başına güçlü önek). Almanca bileşik kelimeler Apple'da bölünmediği için kalorienzähler ve ernährungsplan anahtar alanında tek kelime olarak duruyor. Hedef ifadeleri (2. ölçüm): bauchfett, sixpack, bauch beine po ve ohne geräte gerçek talep; anahtara girdi. straffen ve abnehmprogramm boş, fettverbrennung zayıf. Açıklamada bölgesel yağ yakma vaadi yok."
+  }
+}

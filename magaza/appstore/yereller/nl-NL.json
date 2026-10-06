@@ -1,0 +1,35 @@
+{
+  "locale": "nl-NL",
+  "name": "Swiip: Trainingsschema & Dieet",
+  "subtitle": "Calorieënteller & afvallen",
+  "keywords": "kcal,teller,sportschool,thuis,workout,buikspieren,billen,benen,buik,sixpack,eiwit,macro,voeding,gym",
+  "description": "De meeste apps stellen acht vragen en geven je een programma. Swiip doet er ook zo'n vier minuten over — maar naast elke oefening staat uit welk antwoord van jou die is ontstaan.\n\nLet op: de app zelf is op dit moment alleen in het Engels en het Turks beschikbaar.\n\nWAT DE APP DOET\n• Acht kaarten, ongeveer vier minuten. Alleen vragen die je programma echt veranderen.\n• Een trainingsschema op basis van waar je traint (thuis of in de sportschool), welk materiaal je hebt en hoeveel dagen je echt hebt.\n• Calorie- en macrodoelen berekend uit je eigen cijfers.\n• Calorieën en voeding bijhouden — gratis en onbeperkt in elk plan.\n• Een coach die antwoordt met jouw gegevens, niet met algemeenheden.\n\nELKE BESLISSING IS NA TE GAAN\nOnder elke oefening lees je waarom die er staat: welk antwoord, welke regel. De uitleg is geen zin die een taalmodel heeft verzonnen, maar het beslisspoor van de solver.\n\nREKENEN MET FORMULES, TAAL MET AI\nVolume, progressieve belasting, deload, 1RM, calorieën en macro's zijn deterministische formules. Taalmodellen zijn onbetrouwbaar in rekenen, en in een gezondheidscontext is dat niet acceptabel. Voeg hetzelfde product twee keer toe en je krijgt dezelfde macro's — elke keer. Voedingswaarden komen altijd uit een database.\n\nWAT WE BEWUST NIET DOEN\n• Geen badges, reeksen, confetti of feestanimaties.\n• Geen advertenties of upsells voor wie al betaalt.\n• Opzeggen is één tik, bovenaan de instellingen, nooit verstopt.\n• Je lichaamsfoto wordt direct na de analyse verwijderd. Alleen de metingen blijven.\n• Schattingen worden als bereik getoond, nooit als één getal.\n\nABONNEMENTEN\nGratis: één keer een lichaamsanalyse, dag één van je schema en handmatig calorieën bijhouden.\nBasic en Pro voegen wekelijkse progressie en maaltijdplanning toe en — bij Pro — voedselherkenning vanaf een foto.\n\nSwiip is geen medisch hulpmiddel en stelt geen diagnoses. De getallen zijn schattingen. Heb je een gezondheidsprobleem, overleg dan met je arts.\n\nVOORWAARDEN EN PRIVACY\nGebruiksvoorwaarden (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPrivacybeleid: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Kleine verbeteringen en oplossingen.",
+  "promotionalText": "Bij elke oefening zie je waarom die in je schema staat. Calorie- en macrodoelen komen uit formules, niet uit gokwerk.",
+  "play": {
+    "dil": "nl-NL",
+    "title": "Swiip: Trainingsschema & Dieet",
+    "shortDescription": "Trainingsschema, calorieënteller en voeding — met uitleg bij elke keuze.",
+    "fullDescription": "De meeste apps stellen acht vragen en geven je een programma. Swiip doet er ook zo'n vier minuten over — maar naast elke oefening staat uit welk antwoord van jou die is ontstaan.\n\nLet op: de app zelf is op dit moment alleen in het Engels en het Turks beschikbaar.\n\nVOOR WIE\nVoor wie wil afvallen, spieren wil opbouwen of gewoon fitter wil worden — met workouts voor thuis of in de sportschool. Swiip zet een trainingsschema met oefeningen die bij jouw situatie passen naast een calorieënteller en een eiwit- en macrotracker, zodat je dieet en training op elkaar aansluiten.\n\nWAT DE APP DOET\n• Acht kaarten, ongeveer vier minuten. Alleen vragen die je programma echt veranderen.\n• Een trainingsschema op basis van waar je traint (thuis of in de sportschool), welk materiaal je hebt en hoeveel dagen je echt hebt.\n• Calorie- en macrodoelen berekend uit je eigen cijfers.\n• Calorieën en voeding bijhouden — gratis en onbeperkt in elk plan.\n• Een coach die antwoordt met jouw gegevens, niet met algemeenheden.\n\nELKE BESLISSING IS NA TE GAAN\nOnder elke oefening lees je waarom die er staat: welk antwoord, welke regel. De uitleg is geen zin die een taalmodel heeft verzonnen, maar het beslisspoor van de solver.\n\nREKENEN MET FORMULES, TAAL MET AI\nVolume, progressieve belasting, deload, 1RM, calorieën en macro's zijn deterministische formules. Taalmodellen zijn onbetrouwbaar in rekenen, en in een gezondheidscontext is dat niet acceptabel. Voeg hetzelfde product twee keer toe en je krijgt dezelfde macro's — elke keer. Voedingswaarden komen altijd uit een database.\n\nWAT WE BEWUST NIET DOEN\n• Geen badges, reeksen, confetti of feestanimaties.\n• Geen advertenties of upsells voor wie al betaalt.\n• Opzeggen is één tik, bovenaan de instellingen, nooit verstopt.\n• Je lichaamsfoto wordt direct na de analyse verwijderd. Alleen de metingen blijven.\n• Schattingen worden als bereik getoond, nooit als één getal.\n\nABONNEMENTEN\nGratis: één keer een lichaamsanalyse, dag één van je schema en handmatig calorieën bijhouden.\nBasic en Pro voegen wekelijkse progressie en maaltijdplanning toe en — bij Pro — voedselherkenning vanaf een foto.\n\nSwiip is geen medisch hulpmiddel en stelt geen diagnoses. De getallen zijn schattingen. Heb je een gezondheidsprobleem, overleg dan met je arts.\n\nPrivacybeleid: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "nl",
+    "olculen": [
+      "calorieënteller",
+      "calorie tracker",
+      "dieet app",
+      "afvallen",
+      "trainingsschema sportschool",
+      "workouts voor thuis",
+      "buikspieren training thuis",
+      "billen trainen",
+      "sixpack in 30 dagen",
+      "eiwit teller",
+      "macro tracker",
+      "kcal teller",
+      "voeding bijhouden",
+      "personal trainer"
+    ],
+    "not": "Calorieënteller en afvallen zijn de sterkste vragen; 'trainingsschema' heeft eigen suggesties (o.a. met sportschool). Doelwoorden buikspieren/billen/benen/sixpack komen veel voor en staan alleen in keywords. 'vet verbranden', 'zonder apparatuur' en 'afvalprogramma' gaven niets."
+  }
+}

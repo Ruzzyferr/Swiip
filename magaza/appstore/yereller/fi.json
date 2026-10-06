@@ -1,0 +1,33 @@
+{
+  "locale": "fi",
+  "name": "Swiip: Kalorilaskuri & Treeni",
+  "subtitle": "Kuntosali ohjelma, ruokavalio",
+  "keywords": "laihdutus,painonpudotus,kotitreeni,ruokapäiväkirja,makro,laskuri,proteiini,lihas,kalori,ilmainen",
+  "description": "Useimmat sovellukset kysyvät kahdeksan kysymystä ja antavat ohjelman. Swiipissäkin menee noin neljä minuuttia — mutta jokaisen liikkeen vieressä kerrotaan, mikä vastauksistasi toi sen ohjelmaan.\n\nHuomaa: sovelluksen käyttöliittymä on toistaiseksi vain englanniksi ja turkiksi.\n\nMITÄ SWIIP TEKEE\n• Kahdeksan korttia, noin neljä minuuttia. Vain kysymyksiä, jotka oikeasti muuttavat ohjelmaasi.\n• Treeniohjelma sen mukaan, missä treenaat (kotona tai kuntosalilla), mitä välineitä sinulla on ja montako päivää sinulla oikeasti on.\n• Kalori- ja makrotavoitteet laskettuna omista luvuistasi.\n• Ruokapäiväkirja ja kalorilaskuri — ilmainen ja rajaton kaikissa tilauksissa.\n• Valmentaja, joka vastaa sinun tietojesi pohjalta, ei yleisillä neuvoilla.\n\nJOKAINEN PÄÄTÖS ON JÄLJITETTÄVISSÄ\nJokaisen liikkeen alta voit lukea, miksi se on siinä: mikä vastaus, mikä sääntö. Selitys ei ole kielimallin keksimä lause — se on ratkaisijan päätösjälki.\n\nLASKENTA ON KAAVOJA, KIELI ON TEKOÄLYÄ\nVolyymi, progressiivinen kuormitus, kevennys, 1RM, kalorit ja makrot ovat kaikki deterministisiä kaavoja. Kielimallit laskevat epäluotettavasti, eikä se käy terveyteen liittyvissä asioissa. Lisää sama ruoka kahdesti, ja saat samat makrot — joka kerta. Ravintoarvot tulevat aina tietokannasta.\n\nMITÄ EMME TARKOITUKSELLA TEE\n• Ei merkkejä, putkia, konfetteja eikä juhla-animaatioita.\n• Ei mainoksia eikä lisämyyntiä niille, jotka jo maksavat.\n• Peruminen on yksi napautus, Asetusten ylimpänä, ei koskaan piilossa.\n• Vartalokuvasi poistetaan heti analyysin jälkeen. Vain mitat säilytetään.\n• Arviot näytetään vaihteluväleinä, ei koskaan yhtenä lukuna.\n\nTILAUKSET\nIlmainen: kehoanalyysi kerran, ohjelmasi ensimmäinen päivä ja kalorien kirjaus käsin.\nBasic ja Pro tuovat viikoittaisen nousujohteisuuden, ateriasuunnittelun ja — Prossa — ruoan tunnistuksen kuvasta.\n\nSwiip ei ole lääkinnällinen laite eikä tee diagnooseja. Luvut ovat arvioita. Jos sinulla on terveyshuolia, keskustele lääkärin kanssa.\n\nEHDOT JA YKSITYISYYS\nKäyttöehdot (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nTietosuojakäytäntö: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Pieniä parannuksia ja korjauksia.",
+  "promotionalText": "Jokaisen liikkeen kohdalla näet, miksi se on ohjelmassasi. Kalori- ja makrotavoitteet tulevat kaavoista, eivät arvauksista.",
+  "play": {
+    "dil": "fi-FI",
+    "title": "Swiip: Kalorilaskuri & Treeni",
+    "shortDescription": "Treeniohjelma, kalorilaskuri ja ruokavalio — perustelu jokaiselle valinnalle.",
+    "fullDescription": "Useimmat sovellukset kysyvät kahdeksan kysymystä ja antavat ohjelman. Swiipissäkin menee noin neljä minuuttia — mutta jokaisen liikkeen vieressä kerrotaan, mikä vastauksistasi toi sen ohjelmaan.\n\nHuomaa: sovelluksen käyttöliittymä on toistaiseksi vain englanniksi ja turkiksi.\n\nKENELLE\nSinulle, joka tavoittelet painonpudotusta, haluat kasvattaa lihasta tai vain päästä alkuun — kotitreenillä tai kuntosalilla. Swiip yhdistää sinulle sovitetun kuntosaliohjelman, kalorilaskurin ja ruokavalion makroseurannan, jotta treeni ja syöminen tukevat toisiaan.\n\nMITÄ SWIIP TEKEE\n• Kahdeksan korttia, noin neljä minuuttia. Vain kysymyksiä, jotka oikeasti muuttavat ohjelmaasi.\n• Treeniohjelma sen mukaan, missä treenaat (kotona tai kuntosalilla), mitä välineitä sinulla on ja montako päivää sinulla oikeasti on.\n• Kalori- ja makrotavoitteet laskettuna omista luvuistasi.\n• Ruokapäiväkirja ja kalorilaskuri — ilmainen ja rajaton kaikissa tilauksissa.\n• Valmentaja, joka vastaa sinun tietojesi pohjalta, ei yleisillä neuvoilla.\n\nJOKAINEN PÄÄTÖS ON JÄLJITETTÄVISSÄ\nJokaisen liikkeen alta voit lukea, miksi se on siinä: mikä vastaus, mikä sääntö. Selitys ei ole kielimallin keksimä lause — se on ratkaisijan päätösjälki.\n\nLASKENTA ON KAAVOJA, KIELI ON TEKOÄLYÄ\nVolyymi, progressiivinen kuormitus, kevennys, 1RM, kalorit ja makrot ovat kaikki deterministisiä kaavoja. Kielimallit laskevat epäluotettavasti, eikä se käy terveyteen liittyvissä asioissa. Lisää sama ruoka kahdesti, ja saat samat makrot — joka kerta. Ravintoarvot tulevat aina tietokannasta.\n\nMITÄ EMME TARKOITUKSELLA TEE\n• Ei merkkejä, putkia, konfetteja eikä juhla-animaatioita.\n• Ei mainoksia eikä lisämyyntiä niille, jotka jo maksavat.\n• Peruminen on yksi napautus, Asetusten ylimpänä, ei koskaan piilossa.\n• Vartalokuvasi poistetaan heti analyysin jälkeen. Vain mitat säilytetään.\n• Arviot näytetään vaihteluväleinä, ei koskaan yhtenä lukuna.\n\nTILAUKSET\nIlmainen: kehoanalyysi kerran, ohjelmasi ensimmäinen päivä ja kalorien kirjaus käsin.\nBasic ja Pro tuovat viikoittaisen nousujohteisuuden, ateriasuunnittelun ja — Prossa — ruoan tunnistuksen kuvasta.\n\nSwiip ei ole lääkinnällinen laite eikä tee diagnooseja. Luvut ovat arvioita. Jos sinulla on terveyshuolia, keskustele lääkärin kanssa.\n\nTietosuojakäytäntö: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "fi",
+    "olculen": [
+      "kalorilaskuri",
+      "ilmainen kalorilaskuri",
+      "ruokapäiväkirja",
+      "kuntosali ohjelma",
+      "treeni ohjelma",
+      "kotitreeni",
+      "laihdutus",
+      "painonpudotus",
+      "ruokavalio",
+      "makro laskuri",
+      "proteiini seuranta",
+      "lihas"
+    ],
+    "not": "Pieni markkina: kalorilaskuri on ainoa vahva sarja. 'kuntosali ohjelma' ja 'treeni ohjelma' löytyvät, 'dieetti', 'treeniohjelma', 'valmentaja' eivät. Tavoitefraasit (vatsarasva, rasvanpoltto, vatsalihakset, pakara, kiinteytys) eivät tuottaneet yhtään ehdotusta."
+  }
+}

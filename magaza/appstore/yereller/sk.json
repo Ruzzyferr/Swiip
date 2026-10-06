@@ -1,0 +1,33 @@
+{
+  "locale": "sk",
+  "name": "Swiip: Cvičenie a jedálniček",
+  "subtitle": "Kalórie, chudnutie a cviky",
+  "keywords": "doma,brucho,zadok,tréningový,plán,tréning,kalorická,kalkulačka,deficit,kalorie,schudnúť,zadarmo",
+  "description": "Väčšina aplikácií položí osem otázok a dá ti program. Swiip ti tiež zaberie asi štyri minúty — ale pri každom cviku uvidíš, ktorá z tvojich odpovedí ho tam dala.\n\nUpozornenie: rozhranie aplikácie je zatiaľ len v angličtine a turečtine.\n\nČO SWIIP ROBÍ\n• Osem kariet, asi štyri minúty. Len otázky, ktoré tvoj program naozaj menia.\n• Tréningový plán podľa toho, kde cvičíš (doma alebo vo fitku), aké vybavenie máš a koľko dní naozaj máš.\n• Ciele pre kalórie a makrá vypočítané z tvojich vlastných čísel.\n• Zapisovanie jedla a kalórií — zadarmo a bez obmedzení v každom pláne.\n• Tréner, ktorý odpovedá podľa tvojich údajov, nie všeobecnými radami.\n\nKAŽDÉ ROZHODNUTIE SA DÁ DOHĽADAŤ\nPod každým cvikom si prečítaš, prečo tam je: ktorá odpoveď, ktoré pravidlo. Vysvetlenie nie je veta, ktorú si vymyslel jazykový model — je to rozhodovacia stopa riešiteľa.\n\nPOČÍTAJÚ VZORCE, HOVORÍ AI\nObjem, progresívne preťaženie, deload, 1RM, kalórie a makrá sú deterministické vzorce. Jazykové modely počítajú nespoľahlivo a v oblasti zdravia je to neprijateľné. Pridaj tú istú potravinu dvakrát a dostaneš rovnaké makrá — zakaždým. Nutričné hodnoty pochádzajú vždy z databázy.\n\nČO ZÁMERNE NEROBÍME\n• Žiadne odznaky, série, konfety ani oslavné animácie.\n• Žiadne reklamy ani ponúkanie vyšších plánov tým, ktorí už platia.\n• Zrušenie je jedno ťuknutie, úplne hore v Nastaveniach, nikdy skryté.\n• Fotka postavy sa vymaže hneď po analýze. Uchovávajú sa len namerané hodnoty.\n• Odhady ukazujeme ako rozpätie, nikdy ako jedno číslo.\n\nPLÁNY\nZadarmo: jednorazová analýza postavy, prvý deň programu a ručné zapisovanie kalórií.\nBasic a Pro pridávajú týždennú progresiu, plánovanie jedálnička a — v Pro — rozpoznanie jedla z fotky.\n\nSwiip nie je zdravotnícka pomôcka a nestanovuje diagnózy. Uvedené čísla sú odhady. Ak máš zdravotné ťažkosti, porad sa s lekárom.\n\nPODMIENKY A SÚKROMIE\nPodmienky používania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nZásady ochrany súkromia: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Drobné vylepšenia a opravy.",
+  "promotionalText": "Pri každom cviku vidíš, prečo je v tvojom pláne. Ciele pre kalórie a makrá vychádzajú zo vzorcov, nie z odhadu.",
+  "play": {
+    "dil": "sk",
+    "title": "Swiip: Cvičenie a jedálniček",
+    "shortDescription": "Tréningový plán, kalórie a jedálniček — s vysvetlením každého rozhodnutia.",
+    "fullDescription": "Väčšina aplikácií položí osem otázok a dá ti program. Swiip ti tiež zaberie asi štyri minúty — ale pri každom cviku uvidíš, ktorá z tvojich odpovedí ho tam dala.\n\nUpozornenie: rozhranie aplikácie je zatiaľ len v angličtine a turečtine.\n\nPRE KOHO\nPre každého, kto chce schudnúť, nabrať svaly alebo jednoducho začať — cvičenie na doma aj tréning vo fitku. Swiip spája tréningový plán na mieru s počítaním kalórií, výpočtom kalorického deficitu a sledovaním bielkovín a makier, aby jedálniček a cvičenie ťahali za jeden povraz.\n\nČO SWIIP ROBÍ\n• Osem kariet, asi štyri minúty. Len otázky, ktoré tvoj program naozaj menia.\n• Tréningový plán podľa toho, kde cvičíš (doma alebo vo fitku), aké vybavenie máš a koľko dní naozaj máš.\n• Ciele pre kalórie a makrá vypočítané z tvojich vlastných čísel.\n• Zapisovanie jedla a kalórií — zadarmo a bez obmedzení v každom pláne.\n• Tréner, ktorý odpovedá podľa tvojich údajov, nie všeobecnými radami.\n\nKAŽDÉ ROZHODNUTIE SA DÁ DOHĽADAŤ\nPod každým cvikom si prečítaš, prečo tam je: ktorá odpoveď, ktoré pravidlo. Vysvetlenie nie je veta, ktorú si vymyslel jazykový model — je to rozhodovacia stopa riešiteľa.\n\nPOČÍTAJÚ VZORCE, HOVORÍ AI\nObjem, progresívne preťaženie, deload, 1RM, kalórie a makrá sú deterministické vzorce. Jazykové modely počítajú nespoľahlivo a v oblasti zdravia je to neprijateľné. Pridaj tú istú potravinu dvakrát a dostaneš rovnaké makrá — zakaždým. Nutričné hodnoty pochádzajú vždy z databázy.\n\nČO ZÁMERNE NEROBÍME\n• Žiadne odznaky, série, konfety ani oslavné animácie.\n• Žiadne reklamy ani ponúkanie vyšších plánov tým, ktorí už platia.\n• Zrušenie je jedno ťuknutie, úplne hore v Nastaveniach, nikdy skryté.\n• Fotka postavy sa vymaže hneď po analýze. Uchovávajú sa len namerané hodnoty.\n• Odhady ukazujeme ako rozpätie, nikdy ako jedno číslo.\n\nPLÁNY\nZadarmo: jednorazová analýza postavy, prvý deň programu a ručné zapisovanie kalórií.\nBasic a Pro pridávajú týždennú progresiu, plánovanie jedálnička a — v Pro — rozpoznanie jedla z fotky.\n\nSwiip nie je zdravotnícka pomôcka a nestanovuje diagnózy. Uvedené čísla sú odhady. Ak máš zdravotné ťažkosti, porad sa s lekárom.\n\nZásady ochrany súkromia: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "sk",
+    "olculen": [
+      "chudnutie",
+      "aplikacia na chudnutie",
+      "cviky na chudnutie",
+      "cvicenie na doma",
+      "cvicenie na chudnutie",
+      "cviky na brucho",
+      "cviky na zadok",
+      "treningovy plan",
+      "kaloricka kalkulacka",
+      "kaloricky deficit",
+      "jedalnicek",
+      "fitness"
+    ],
+    "not": "Malý obchod, veľa prázdnych odpovedí; zmysel majú hlavne tvary bez diakritiky (cvicenie, chudnutie, kaloricka). 'Kalorické tabuľky' je aj názov konkurenčnej aplikácie — vynechané. 'kalórie', 'diéta', 'posilňovňa', 'spaľovanie tukov' nevrátili nič."
+  }
+}

@@ -905,7 +905,7 @@ bir kelimeydi.
 Türkçe ek dil. Bizde en-GB yoktu. en-GB ayrıca DE/FR/IT/ES/NL/PL/RO/RU/BR'de taranıyor;
 ABD mağazası es-MX'i de tarıyor. İkisi eklendi — Türk mağazası için ikinci 100 karakter.
 
-**Yapılan (kaynak `magaza/appstore/aso.json`, yükleyici `scripts/apple-aso.mjs`):**
+**Yapılan (ilk tur; aynı gün 50 dile genişletildi, aşağıda):**
 
 | Yerel | Ad | Alt başlık |
 |---|---|---|
@@ -928,6 +928,41 @@ App Store taramıyor.
 sonra (tamamlanan var, "yapamadım" yok, ağrı yok), en az 3 iyi seans ve ilk iyi
 seanstan 2 gün sonra, 120 günde bir; platformun KENDİ penceresi. Ödül/rozet yok —
 oyunlaştırma yasağına takılmıyor. `puanIste.test.ts`.
+
+### Aynı gün: 50 dil, iki mağaza — "her ülkede kendi dilinde"
+
+Kullanıcı: "her ülkede kendi dilinde ve İngilizce aranınca bulunmalıyım; halk gibi düşün."
+Apple'ın tablosu (developer.apple.com/help/app-store-connect/reference/app-store-localizations):
+**İngilizce dünyanın her mağazasında taranıyor** (çoğunda en-GB; ABD/Japonya en-US, Kanada
+en-CA, Avustralya/YZ en-AU). Apple 50 dil destekliyor; bizde 13 vardı.
+
+**Kaynak artık dil başına tek dosya:** `magaza/appstore/yereller/<yerel>.json` — App Store
+(ad, alt başlık, anahtar, açıklama, notlar, tanıtım) ve Play (`play` alanı) birlikte.
+Yükleyiciler `scripts/apple-yereller.mjs` (50/50 geri okundu) ve `scripts/play-yereller.mjs`
+(49 dil; Odia'nın Play'de karşılığı yok). `play-liste.mjs` artık yalnız görseller + tr
+metni `tr.json`'dan. Talep aracı `scripts/aso-oneri.mjs <ülke> "<önek>"`.
+
+Altı alt ajan dil gruplarını paralel ölçtü; her dosyanın `talep` alanında ölçülen
+öneriler ve gerekçe var. **Ölçülen dersler:**
+
+- **Halk ürün kategorisini değil HEDEFİNİ arıyor.** TR'de en güçlüler: zayıflama
+  programı, göbek eritme, yağ yakma egzersizleri, kilo verme programı, karın kası, evde
+  sıkılaşma. Aynısı her dilde (lose belly fat, bauchfett, ventre plat, perder barriga,
+  뱃살빼기, 痩せる…). Anahtar alanında duruyorlar; açıklama bölgesel yağ yakma ya da
+  rakamlı sonuç VAAT ETMİYOR (1.4.1).
+- **Hindistan'da yerel alfabeyle neredeyse kimse aramıyor** — öneriler İngilizce geliyor;
+  Hint dillerinde ad/anahtar İngilizce, alt başlık/açıklama o dilde. Tayland, Malezya,
+  Slovenya'da da arama büyük ölçüde İngilizce.
+- **Katalanca** İspanya mağazasında neredeyse aranmıyor → `ca` anahtar alanı İspanyol
+  mağazasının ikinci 100 karakteri. **en-GB** Türkiye'nin ikinci 100 karakteri (~%70 Türkçe).
+- Rakip marka adı kullanılmadı (Çekçe en güçlü sorgu bir rakibin adıydı; "strava").
+- Her açıklamada: "arayüz şu an yalnız İngilizce ve Türkçe" — mağaza sayfası Japonca
+  olup uygulama İngilizce açılırsa yanıltıcı olurdu.
+- **Çin anakarası** büyük ihtimalle ICP lisansı yüzünden listede değil; zh-Hans
+  Singapur/Malezya'daki Çince aramalara hizmet ediyor.
+
+**Dürüst sınır:** anahtar kelime uygulamayı o aramada GÖRÜNÜR yapar, üst sıraya taşımaz;
+sıra indirme ve puan hacmiyle geliyor (puan isteme 1.2.2'de, Play hâlâ kapalı testte).
 
 **1.2.2** bunları taşıyor (ad/anahtar sürüme bağlı; onaylanınca devreye girer).
 **Güvenlik:** vitest 3 → 4.1.11 (kritik açık), compression 1.8.2, source-map-js 1.2.2.

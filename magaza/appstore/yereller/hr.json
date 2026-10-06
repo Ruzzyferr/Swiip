@@ -1,0 +1,38 @@
+{
+  "locale": "hr",
+  "name": "Swiip: Brojač kalorija",
+  "subtitle": "Trening kod kuće i teretana",
+  "keywords": "kalorije,kalkulator,deficit,dijeta,prehrana,mrsavljenje,vjezbe,trbuh,noge,straznjica,fitness,gym",
+  "description": "Većina aplikacija postavi osam pitanja i da ti program. Swiip također traje oko četiri minute — ali uz svaku vježbu piše koji te je odgovor doveo do nje.\n\nSučelje aplikacije zasad je dostupno samo na engleskom i turskom.\n\nŠTO RADI\n• Osam kartica, oko četiri minute. Samo pitanja koja stvarno mijenjaju tvoj program.\n• Plan treninga složen prema tome gdje treniraš — u teretani ili kod kuće —, kakvu opremu imaš i koliko dana stvarno imaš.\n• Brojač kalorija s ciljevima za kalorije i makronutrijente izračunatima iz tvojih brojeva.\n• Dnevnik prehrane besplatan je i neograničen u svim paketima.\n• Trener koji odgovara na temelju tvojih podataka, a ne općenitim savjetima.\n\nZA KOGA JE\nZa mršavljenje bez nagađanja, za više mišića ili jednostavno za redovit trening. Trening kod kuće ili u teretani, s opremom ili bez nje, s vježbama za cijelo tijelo — uključujući trbuh, noge i stražnjicu. Ako tražiš kalkulator kalorija, kalorijski deficit izračunat iz tvojih podataka, dijetu koja polazi od tvojih brojeva ili plan prehrane koji se ne mijenja iz dana u dan, ovdje je sve na jednom mjestu.\n\nSVAKA ODLUKA MOŽE SE PRATITI\nIspod svake vježbe možeš pročitati zašto je tu: koji odgovor, koje pravilo. Objašnjenje nije rečenica koju je izmislio jezični model — to je trag odluka algoritma.\n\nRAČUN JE FORMULA, JEZIK JE UI\nVolumen, progresivno opterećenje, deload, 1RM, kalorije i makronutrijenti — sve su to determinističke formule. Jezični modeli nisu dosljedni u aritmetici, a kad je riječ o zdravlju, to nije prihvatljivo. Dodaj istu namirnicu dvaput i dobit ćeš iste makronutrijente — svaki put. Nutritivne vrijednosti uvijek dolaze iz baze podataka.\n\nŠTO NAMJERNO NE RADIMO\n• Bez bedževa, nizova, konfeta i slavljeničkih animacija.\n• Bez reklama i dodatnih ponuda za one koji već plaćaju.\n• Otkazivanje je jedan dodir, na vrhu Postavki, nikad skriveno.\n• Fotografija tijela briše se čim se analizira. Čuvaju se samo mjere.\n• Procjene se prikazuju kao raspon, nikad kao jedan broj.\n\nPAKETI\nBesplatno: analiza tijela jednom, prvi dan programa, ručni unos kalorija.\nBasic i Pro dodaju tjedni napredak, planiranje obroka i — u paketu Pro — prepoznavanje hrane s fotografije.\n\nSwiip nije medicinski uređaj i ne postavlja dijagnoze. Brojevi koje daje su procjene. Ako imaš zdravstvenih tegoba, razgovaraj sa svojim liječnikom.\n\nUVJETI I PRIVATNOST\nUvjeti korištenja (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPravila privatnosti: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Manja poboljšanja i ispravci.",
+  "promotionalText": "Plan treninga i ciljevi kalorija prema tvojim odgovorima — a ispod svake vježbe piše zašto je tu.",
+  "play": {
+    "dil": "hr",
+    "title": "Swiip: Brojač kalorija",
+    "shortDescription": "Brojač kalorija i trening kod kuće ili u teretani — uz razlog svake vježbe",
+    "fullDescription": "Većina aplikacija postavi osam pitanja i da ti program. Swiip također traje oko četiri minute — ali uz svaku vježbu piše koji te je odgovor doveo do nje.\n\nSučelje aplikacije zasad je dostupno samo na engleskom i turskom.\n\nŠTO RADI\n• Osam kartica, oko četiri minute. Samo pitanja koja stvarno mijenjaju tvoj program.\n• Plan treninga složen prema tome gdje treniraš — u teretani ili kod kuće —, kakvu opremu imaš i koliko dana stvarno imaš.\n• Brojač kalorija s ciljevima za kalorije i makronutrijente izračunatima iz tvojih brojeva.\n• Dnevnik prehrane besplatan je i neograničen u svim paketima.\n• Trener koji odgovara na temelju tvojih podataka, a ne općenitim savjetima.\n\nZA KOGA JE\nZa mršavljenje bez nagađanja, za više mišića ili jednostavno za redovit trening. Trening kod kuće ili u teretani, s opremom ili bez nje, s vježbama za cijelo tijelo — uključujući trbuh, noge i stražnjicu. Ako tražiš kalkulator kalorija, kalorijski deficit izračunat iz tvojih podataka, dijetu koja polazi od tvojih brojeva ili plan prehrane koji se ne mijenja iz dana u dan, ovdje je sve na jednom mjestu.\n\nSVAKA ODLUKA MOŽE SE PRATITI\nIspod svake vježbe možeš pročitati zašto je tu: koji odgovor, koje pravilo. Objašnjenje nije rečenica koju je izmislio jezični model — to je trag odluka algoritma.\n\nRAČUN JE FORMULA, JEZIK JE UI\nVolumen, progresivno opterećenje, deload, 1RM, kalorije i makronutrijenti — sve su to determinističke formule. Jezični modeli nisu dosljedni u aritmetici, a kad je riječ o zdravlju, to nije prihvatljivo. Dodaj istu namirnicu dvaput i dobit ćeš iste makronutrijente — svaki put. Nutritivne vrijednosti uvijek dolaze iz baze podataka.\n\nŠTO NAMJERNO NE RADIMO\n• Bez bedževa, nizova, konfeta i slavljeničkih animacija.\n• Bez reklama i dodatnih ponuda za one koji već plaćaju.\n• Otkazivanje je jedan dodir, na vrhu Postavki, nikad skriveno.\n• Fotografija tijela briše se čim se analizira. Čuvaju se samo mjere.\n• Procjene se prikazuju kao raspon, nikad kao jedan broj.\n\nPAKETI\nBesplatno: analiza tijela jednom, prvi dan programa, ručni unos kalorija.\nBasic i Pro dodaju tjedni napredak, planiranje obroka i — u paketu Pro — prepoznavanje hrane s fotografije.\n\nSwiip nije medicinski uređaj i ne postavlja dijagnoze. Brojevi koje daje su procjene. Ako imaš zdravstvenih tegoba, razgovaraj sa svojim liječnikom.\n\nPRIVATNOST\nPravila privatnosti: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "hr",
+    "olculen": [
+      "brojac kalorija",
+      "kalorije",
+      "kalkulator kalorija",
+      "kalorijski deficit",
+      "brojanje kalorija",
+      "trening kod kuce",
+      "plan treninga",
+      "teretana",
+      "vjezbe za mrsavljenje",
+      "aplikacija za mrsavljenje",
+      "vjezbe za trbuh",
+      "vjezbe za noge",
+      "vjezbe za straznjicu",
+      "dijeta",
+      "prehrana",
+      "calorie counter",
+      "home workout"
+    ],
+    "not": "\"kalorij\" öneki en zengin kümeyi verdi (brojac/kalkulator/deficit). Hedef talebi \"vjezbe za ...\" ve \"mrsavljenje\" üzerinden. \"plan prehrane\", \"osobni trener\", \"misici\", \"bez opreme\" öneri vermedi. Diakritiksiz yazım baskın."
+  }
+}

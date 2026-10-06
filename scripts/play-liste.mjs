@@ -6,8 +6,8 @@
  * çıkarıyor, alanlar görünür alanın altında kalıyor. Aynı işi API tek çağrıda ve
  * doğrulanabilir biçimde yapıyor.
  *
- * Metinlerin kaynağı `magaza/play/liste-tr.md`; orada üç kod bloğu var (ad, kısa
- * açıklama, tam açıklama). Görseller `magaza/play/` altından okunuyor.
+ * Türkçe metnin kaynağı `magaza/appstore/yereller/tr.json` (`play` alanı); diğer diller
+ * `play-yereller.mjs` ile. Görseller `magaza/play/` altından okunuyor.
  *
  *   PLAY_SERVIS_HESABI=<json yolu> node scripts/play-liste.mjs
  */
@@ -73,13 +73,16 @@ async function cagir(t, yol, secenekler = {}) {
   return govde;
 }
 
-/** liste-tr.md içindeki ``` blokları: 0=ad, 1=kısa açıklama, 2=tam açıklama */
+/**
+ * Türkçe metin `magaza/appstore/yereller/tr.json` içindeki `play` alanından.
+ *
+ * 2026-10-06'ya kadar `liste-tr.md`'den okunuyordu; o gün liste 49 dile çıktı ve tek
+ * kaynak dil dosyaları oldu (`play-yereller.mjs`). Eski kaynaktan okumak, bu betik her
+ * çalıştığında güncel Türkçe listeyi eskisiyle EZERDİ.
+ */
 function metinler() {
-  const ham = readFileSync(join(kok, 'magaza/play/liste-tr.md'), 'utf8');
-  const bloklar = [...ham.matchAll(/```\r?\n([\s\S]*?)\r?\n```/g)].map((m) => m[1].trim());
-  if (bloklar.length < 3)
-    throw new Error(`liste-tr.md içinde 3 blok bekleniyordu, ${bloklar.length} bulundu.`);
-  return { ad: bloklar[0], kisa: bloklar[1], tam: bloklar[2] };
+  const { play } = JSON.parse(readFileSync(join(kok, 'magaza/appstore/yereller/tr.json'), 'utf8'));
+  return { ad: play.title, kisa: play.shortDescription, tam: play.fullDescription };
 }
 
 const t = await jeton();

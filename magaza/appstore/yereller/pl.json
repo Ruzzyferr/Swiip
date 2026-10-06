@@ -1,0 +1,35 @@
+{
+  "locale": "pl",
+  "name": "Swiip: Plan treningowy i dieta",
+  "subtitle": "Licznik kalorii, odchudzanie",
+  "keywords": "trening,ćwiczenia,domu,siłowni,brzuch,płaski,pośladki,nogi,schudnij,mięśnie,jadłospis,białko,kalorie",
+  "description": "Większość aplikacji zadaje osiem pytań i wydaje plan. Swiip też zajmuje około czterech minut — ale przy każdym ćwiczeniu pisze, z której twojej odpowiedzi wynika.\n\nUwaga: interfejs aplikacji jest na razie dostępny tylko po angielsku i turecku.\n\nCO ROBI\n• Osiem kart, około czterech minut. Tylko pytania, które naprawdę zmieniają plan.\n• Plan treningowy dopasowany do miejsca (trening w domu czy na siłowni), sprzętu i liczby dni, które realnie masz.\n• Cele kaloryczne i makro liczone z twoich własnych liczb.\n• Licznik kalorii i dziennik żywieniowy — darmowe i bez limitu w każdym planie.\n• Trener, który odpowiada na podstawie twoich danych, a nie ogólników.\n\nKAŻDA DECYZJA JEST DO PRZEŚLEDZENIA\nPod każdym ćwiczeniem przeczytasz, dlaczego tam jest: która odpowiedź, która reguła. To nie zdanie wymyślone przez model językowy, tylko ślad decyzji solvera.\n\nLICZY WZÓR, MÓWI SZTUCZNA INTELIGENCJA\nObjętość, progresja, deload, 1RM, kalorie i makro to wzory deterministyczne. Modele językowe są niekonsekwentne w arytmetyce, a w kontekście zdrowia to niedopuszczalne. Dodaj ten sam produkt dwa razy i dostaniesz te same makro — za każdym razem. Wartości odżywcze zawsze pochodzą z bazy danych.\n\nCZEGO ŚWIADOMIE NIE ROBIMY\n• Żadnych odznak, serii, konfetti ani animacji świętowania.\n• Żadnych reklam ani dosprzedaży dla tych, którzy już płacą.\n• Anulowanie to jedno dotknięcie, na samej górze ustawień, nigdy ukryte.\n• Twoje zdjęcie sylwetki jest usuwane zaraz po analizie. Zostają tylko pomiary.\n• Szacunki pokazujemy jako zakres, nigdy jako jedną liczbę.\n\nPLANY\nDarmowy: jednorazowa analiza sylwetki, pierwszy dzień planu i ręczne liczenie kalorii.\nBasic i Pro dodają cotygodniową progresję, plan posiłków i — w Pro — rozpoznawanie jedzenia ze zdjęcia.\n\nSwiip nie jest wyrobem medycznym i nie stawia diagnoz. Podane liczby są szacunkami. W razie problemów zdrowotnych skonsultuj się z lekarzem.\n\nWARUNKI I PRYWATNOŚĆ\nWarunki korzystania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/\nPolityka prywatności: https://swiip.app/en/privacy.html",
+  "whatsNew": "• Drobne ulepszenia i poprawki.",
+  "promotionalText": "Przy każdym ćwiczeniu widzisz, dlaczego jest w twoim planie. Cele kaloryczne i makro wynikają ze wzorów, nie ze zgadywania.",
+  "play": {
+    "dil": "pl-PL",
+    "title": "Swiip: Plan treningowy i dieta",
+    "shortDescription": "Plan treningowy, licznik kalorii i dieta — z uzasadnieniem każdego wyboru.",
+    "fullDescription": "Większość aplikacji zadaje osiem pytań i wydaje plan. Swiip też zajmuje około czterech minut — ale przy każdym ćwiczeniu pisze, z której twojej odpowiedzi wynika.\n\nUwaga: interfejs aplikacji jest na razie dostępny tylko po angielsku i turecku.\n\nDLA KOGO\nDla osób, które chcą schudnąć, zbudować mięśnie albo po prostu zacząć — ćwiczenia w domu, także bez sprzętu, albo trening na siłowni. Swiip łączy plan treningowy dopasowany do ciebie z licznikiem kalorii i kontrolą białka oraz makro, żeby dieta i ćwiczenia działały razem.\n\nCO ROBI\n• Osiem kart, około czterech minut. Tylko pytania, które naprawdę zmieniają plan.\n• Plan treningowy dopasowany do miejsca (trening w domu czy na siłowni), sprzętu i liczby dni, które realnie masz.\n• Cele kaloryczne i makro liczone z twoich własnych liczb.\n• Licznik kalorii i dziennik żywieniowy — darmowe i bez limitu w każdym planie.\n• Trener, który odpowiada na podstawie twoich danych, a nie ogólników.\n\nKAŻDA DECYZJA JEST DO PRZEŚLEDZENIA\nPod każdym ćwiczeniem przeczytasz, dlaczego tam jest: która odpowiedź, która reguła. To nie zdanie wymyślone przez model językowy, tylko ślad decyzji solvera.\n\nLICZY WZÓR, MÓWI SZTUCZNA INTELIGENCJA\nObjętość, progresja, deload, 1RM, kalorie i makro to wzory deterministyczne. Modele językowe są niekonsekwentne w arytmetyce, a w kontekście zdrowia to niedopuszczalne. Dodaj ten sam produkt dwa razy i dostaniesz te same makro — za każdym razem. Wartości odżywcze zawsze pochodzą z bazy danych.\n\nCZEGO ŚWIADOMIE NIE ROBIMY\n• Żadnych odznak, serii, konfetti ani animacji świętowania.\n• Żadnych reklam ani dosprzedaży dla tych, którzy już płacą.\n• Anulowanie to jedno dotknięcie, na samej górze ustawień, nigdy ukryte.\n• Twoje zdjęcie sylwetki jest usuwane zaraz po analizie. Zostają tylko pomiary.\n• Szacunki pokazujemy jako zakres, nigdy jako jedną liczbę.\n\nPLANY\nDarmowy: jednorazowa analiza sylwetki, pierwszy dzień planu i ręczne liczenie kalorii.\nBasic i Pro dodają cotygodniową progresję, plan posiłków i — w Pro — rozpoznawanie jedzenia ze zdjęcia.\n\nSwiip nie jest wyrobem medycznym i nie stawia diagnoz. Podane liczby są szacunkami. W razie problemów zdrowotnych skonsultuj się z lekarzem.\n\nPolityka prywatności: https://swiip.app/en/privacy.html"
+  },
+  "talep": {
+    "magaza": "pl",
+    "olculen": [
+      "licznik kalorii",
+      "kalorie licznik",
+      "trening w domu",
+      "ćwiczenia w domu",
+      "plan treningowy siłownia",
+      "odchudzanie",
+      "dieta",
+      "płaski brzuch",
+      "trening brzucha w domu",
+      "ćwiczenia pośladki",
+      "ćwiczenia na nogi",
+      "schudnij w 30 dni",
+      "ćwiczenia w domu – bez sprzętu",
+      "jadłospis"
+    ],
+    "not": "Licznik kalorii, trening/ćwiczenia w domu i odchudzanie to najsilniejsze serie. Cele (brzuch, płaski brzuch, pośladki, nogi, schudnij) mają dużo podpowiedzi — tylko w słowach kluczowych, bez obietnic w opisie. 'spalanie tłuszczu', 'jak schudnąć', 'plan odchudzania' nic nie dały."
+  }
+}
