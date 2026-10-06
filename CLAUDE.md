@@ -964,6 +964,13 @@ Altı alt ajan dil gruplarını paralel ölçtü; her dosyanın `talep` alanınd
 **Dürüst sınır:** anahtar kelime uygulamayı o aramada GÖRÜNÜR yapar, üst sıraya taşımaz;
 sıra indirme ve puan hacmiyle geliyor (puan isteme 1.2.2'de, Play hâlâ kapalı testte).
 
+**1.2.2 gönderildi (2026-10-06):** build 37, `WAITING_FOR_REVIEW`, `AFTER_APPROVAL`; 50
+dilli sayfa onayla devreye giriyor. **Tuzak:** `POST /reviewSubmissionItems` iki kez
+art arda `500 UNEXPECTED_ERROR` verdi; bütün yereller geri okunup eksiksiz bulundu ve
+birkaç dakika sonraki deneme geçti. Bu uçta 500 geçici olabiliyor: önce durumu oku
+(build bağlı mı, taslak açık mı), sonra aralıklı yeniden dene — `apple-gonder.mjs`
+açık taslağı yeniden kullandığı için tekrar güvenli.
+
 **1.2.2** bunları taşıyor (ad/anahtar sürüme bağlı; onaylanınca devreye girer).
 **Güvenlik:** vitest 3 → 4.1.11 (kritik açık), compression 1.8.2, source-map-js 1.2.2.
 
